@@ -12,9 +12,11 @@ on:
 
 jobs:
   claude-review:
-    # Only run for trusted bot PRs to avoid pwn request vulnerability
-    # For human PRs, use pull_request event in a separate workflow without secrets
-    if: github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]'
+    # Only run for trusted actors to avoid pwn request vulnerability
+    if: >
+      github.actor == 'dependabot[bot]' ||
+      github.actor == 'renovate[bot]' ||
+      github.actor == 'mchestr'
 
     runs-on: ubuntu-latest
     permissions:
@@ -54,4 +56,3 @@ jobs:
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
           claude_args: '--allowed-tools "Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"'
-
