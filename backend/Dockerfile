@@ -19,8 +19,11 @@ COPY alembic.ini ./
 # Create uploads directory
 RUN mkdir -p /app/uploads
 
+# Copy entrypoint script
+COPY --chmod=755 docker-entrypoint.sh /docker-entrypoint.sh
+
 # Expose port
 EXPOSE 8000
 
-# Run the application
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
