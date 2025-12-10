@@ -27,7 +27,9 @@ class UserRepository:
     async def get_by_oauth(self, provider: str, oauth_id: str) -> User | None:
         """Get a user by OAuth provider and ID."""
         result = await self.session.execute(
-            select(User).where(User.oauth_provider == provider, User.oauth_id == oauth_id)
+            select(User).where(
+                User.oauth_provider == provider, User.oauth_id == oauth_id
+            )
         )
         return result.scalar_one_or_none()
 
@@ -76,7 +78,11 @@ class UserRepository:
                 user.avatar_url = avatar_url
                 updated = True
             # Auto-admin: if email matches admin_email and not already admin
-            if settings.admin_email and email == settings.admin_email and not user.is_admin:
+            if (
+                settings.admin_email
+                and email == settings.admin_email
+                and not user.is_admin
+            ):
                 user.is_admin = True
                 updated = True
             if updated:

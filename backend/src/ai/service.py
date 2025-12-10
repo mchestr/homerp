@@ -49,7 +49,9 @@ class AIClassificationService:
         self.settings = settings or get_settings()
         self.client = AsyncOpenAI(api_key=self.settings.openai_api_key)
 
-    async def classify_image(self, image_data: bytes, mime_type: str = "image/jpeg") -> ClassificationResult:
+    async def classify_image(
+        self, image_data: bytes, mime_type: str = "image/jpeg"
+    ) -> ClassificationResult:
         """
         Classify an image using GPT-4 Vision.
 
@@ -117,7 +119,9 @@ class AIClassificationService:
             quantity_estimate=data.get("quantity_estimate"),
         )
 
-    def create_item_prefill(self, classification: ClassificationResult) -> dict[str, Any]:
+    def create_item_prefill(
+        self, classification: ClassificationResult
+    ) -> dict[str, Any]:
         """
         Create prefill data for item creation form.
 

@@ -96,7 +96,9 @@ async def create_checkout(
             detail="Credit pack not found",
         )
 
-    success_url = f"{settings.frontend_url}/billing/success?session_id={{CHECKOUT_SESSION_ID}}"
+    success_url = (
+        f"{settings.frontend_url}/billing/success?session_id={{CHECKOUT_SESSION_ID}}"
+    )
     cancel_url = f"{settings.frontend_url}/billing/cancel"
 
     checkout_url = await stripe_service.create_checkout_session(
@@ -164,9 +166,7 @@ async def request_refund(
 
     # Get the transaction for Stripe refund
     transactions, _ = await credit_service.get_transaction_history(user_id, 1, 1000)
-    transaction = next(
-        (t for t in transactions if t.id == data.transaction_id), None
-    )
+    transaction = next((t for t in transactions if t.id == data.transaction_id), None)
 
     if not transaction or not transaction.credit_pack:
         raise HTTPException(

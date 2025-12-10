@@ -202,7 +202,11 @@ async def update_user(
         )
 
     # Prevent demoting the admin_email user
-    if settings.admin_email and user.email == settings.admin_email and not data.is_admin:
+    if (
+        settings.admin_email
+        and user.email == settings.admin_email
+        and not data.is_admin
+    ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot demote the primary admin user",

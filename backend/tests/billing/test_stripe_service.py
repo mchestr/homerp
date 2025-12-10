@@ -161,9 +161,7 @@ class TestStripeServiceRefund:
 
         await service.create_refund("pi_test_123")
 
-        mock_stripe.Refund.create.assert_called_once_with(
-            payment_intent="pi_test_123"
-        )
+        mock_stripe.Refund.create.assert_called_once_with(payment_intent="pi_test_123")
 
 
 class TestStripeWebhookEvent:
@@ -179,7 +177,9 @@ class TestStripeWebhookEvent:
         payload = b'{"type": "checkout.session.completed"}'
         signature = "valid_signature"
 
-        with patch("src.billing.service.stripe.Webhook.construct_event") as mock_construct:
+        with patch(
+            "src.billing.service.stripe.Webhook.construct_event"
+        ) as mock_construct:
             mock_event = MagicMock()
             mock_event.type = "checkout.session.completed"
             mock_construct.return_value = mock_event
@@ -203,7 +203,9 @@ class TestStripeWebhookEvent:
         payload = b'{"type": "checkout.session.completed"}'
         signature = "invalid_signature"
 
-        with patch("src.billing.service.stripe.Webhook.construct_event") as mock_construct:
+        with patch(
+            "src.billing.service.stripe.Webhook.construct_event"
+        ) as mock_construct:
             mock_construct.side_effect = stripe.SignatureVerificationError(
                 "Invalid signature", signature
             )

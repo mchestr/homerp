@@ -202,9 +202,7 @@ class TestDeductCredit:
     ):
         """Test that deduction fails when user has no credits."""
         service = CreditService(async_session, test_settings)
-        result = await service.deduct_credit(
-            user_with_no_credits.id, "Test deduction"
-        )
+        result = await service.deduct_credit(user_with_no_credits.id, "Test deduction")
 
         assert result is False
 
@@ -286,7 +284,7 @@ class TestDeductCredit:
 
         # Deduct 5 times (should use 2 free + 3 purchased)
         for i in range(5):
-            result = await service.deduct_credit(test_user.id, f"Deduction {i+1}")
+            result = await service.deduct_credit(test_user.id, f"Deduction {i + 1}")
             assert result is True
 
         await async_session.refresh(test_user)
@@ -401,7 +399,7 @@ class TestGetTransactionHistory:
 
         # Create 5 transactions
         for i in range(5):
-            await service.add_credits(test_user.id, 10, "purchase", f"Purchase {i+1}")
+            await service.add_credits(test_user.id, 10, "purchase", f"Purchase {i + 1}")
 
         # Get first page
         page1, total = await service.get_transaction_history(

@@ -15,7 +15,9 @@ class AttributeFieldOption(BaseModel):
 class AttributeField(BaseModel):
     """Schema for a single attribute field in a category template."""
 
-    name: str = Field(..., min_length=1, max_length=50, description="Field identifier (snake_case)")
+    name: str = Field(
+        ..., min_length=1, max_length=50, description="Field identifier (snake_case)"
+    )
     label: str = Field(..., min_length=1, max_length=100, description="Display label")
     type: Literal["text", "number", "select", "boolean"] = Field(
         ..., description="Field input type"
@@ -25,7 +27,9 @@ class AttributeField(BaseModel):
     )
     required: bool = Field(False, description="Whether field is required")
     default: str | int | float | bool | None = Field(None, description="Default value")
-    unit: str | None = Field(None, max_length=20, description="Unit suffix (e.g., 'mm', 'ohms')")
+    unit: str | None = Field(
+        None, max_length=20, description="Unit suffix (e.g., 'mm', 'ohms')"
+    )
 
 
 class AttributeTemplate(BaseModel):
@@ -57,7 +61,9 @@ class CategoryUpdate(BaseModel):
     name: str | None = Field(None, min_length=1, max_length=255)
     icon: str | None = Field(None, max_length=50)
     description: str | None = Field(None, max_length=500)
-    parent_id: UUID | None = Field(None, description="Parent category ID (set to null to make root)")
+    parent_id: UUID | None = Field(
+        None, description="Parent category ID (set to null to make root)"
+    )
     attribute_template: AttributeTemplate | None = Field(
         None, description="Template for item attributes"
     )
@@ -103,5 +109,6 @@ class MergedAttributeTemplate(BaseModel):
 
     fields: list[AttributeField] = Field(default_factory=list)
     inherited_from: list[UUID] = Field(
-        default_factory=list, description="Category IDs from which fields were inherited"
+        default_factory=list,
+        description="Category IDs from which fields were inherited",
     )

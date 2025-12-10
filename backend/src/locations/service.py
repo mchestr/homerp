@@ -126,7 +126,9 @@ class LocationService:
 
         return segment
 
-    async def _ensure_unique_path(self, base_path: str, exclude_id: UUID | None = None) -> str:
+    async def _ensure_unique_path(
+        self, base_path: str, exclude_id: UUID | None = None
+    ) -> str:
         """Ensure path is unique by adding a suffix if necessary."""
         path = base_path
         counter = 1
@@ -171,7 +173,10 @@ class LocationService:
 
         # Check if we need to update the path
         name_changed = "name" in update_data and update_data["name"] != location.name
-        parent_changed = "parent_id" in update_data and update_data["parent_id"] != location.parent_id
+        parent_changed = (
+            "parent_id" in update_data
+            and update_data["parent_id"] != location.parent_id
+        )
 
         if name_changed or parent_changed:
             new_name = update_data.get("name", location.name)

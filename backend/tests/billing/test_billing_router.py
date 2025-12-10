@@ -175,9 +175,7 @@ class TestTransactionsEndpoint:
 
         # Create 5 transactions
         for i in range(5):
-            await service.add_credits(
-                test_user.id, 10, "purchase", f"Purchase {i+1}"
-            )
+            await service.add_credits(test_user.id, 10, "purchase", f"Purchase {i + 1}")
 
         # Get first page
         transactions, total = await service.get_transaction_history(

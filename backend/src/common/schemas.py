@@ -22,7 +22,9 @@ class PaginatedResponse[T](BaseModel):
     total_pages: int
 
     @classmethod
-    def create(cls, items: list[T], total: int, page: int, limit: int) -> "PaginatedResponse[T]":
+    def create(
+        cls, items: list[T], total: int, page: int, limit: int
+    ) -> "PaginatedResponse[T]":
         total_pages = (total + limit - 1) // limit if limit > 0 else 0
         return cls(
             items=items,

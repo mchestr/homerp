@@ -36,7 +36,12 @@ def upgrade() -> None:
     )
     op.add_column(
         "categories",
-        sa.Column("attribute_template", postgresql.JSONB(), nullable=False, server_default="{}"),
+        sa.Column(
+            "attribute_template",
+            postgresql.JSONB(),
+            nullable=False,
+            server_default="{}",
+        ),
     )
 
     # Add foreign key for category parent

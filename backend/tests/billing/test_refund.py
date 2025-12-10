@@ -351,7 +351,7 @@ class TestRefundEdgeCases:
                 user_id=user.id,
                 amount=25,
                 transaction_type="purchase",
-                description=f"Purchase {i+1}",
+                description=f"Purchase {i + 1}",
                 credit_pack_id=credit_pack.id,
                 stripe_payment_intent_id=f"pi_test_multi_{i}",
             )

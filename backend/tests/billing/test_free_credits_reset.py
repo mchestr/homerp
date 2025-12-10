@@ -33,12 +33,20 @@ class TestFreeCreditsReset:
         expected_reset = new_user_without_reset_date.created_at + timedelta(days=30)
         assert new_user_without_reset_date.free_credits_reset_at is not None
         # Allow 1 second tolerance for datetime comparison
-        assert abs(
-            (new_user_without_reset_date.free_credits_reset_at - expected_reset).total_seconds()
-        ) < 1
+        assert (
+            abs(
+                (
+                    new_user_without_reset_date.free_credits_reset_at - expected_reset
+                ).total_seconds()
+            )
+            < 1
+        )
 
         # Free credits should be initialized
-        assert new_user_without_reset_date.free_credits_remaining == test_settings.free_monthly_credits
+        assert (
+            new_user_without_reset_date.free_credits_remaining
+            == test_settings.free_monthly_credits
+        )
 
     async def test_reset_occurs_when_date_passed(
         self,
@@ -60,7 +68,10 @@ class TestFreeCreditsReset:
         await async_session.refresh(user_with_expired_free_credits)
 
         # Free credits should be reset to the configured amount
-        assert user_with_expired_free_credits.free_credits_remaining == test_settings.free_monthly_credits
+        assert (
+            user_with_expired_free_credits.free_credits_remaining
+            == test_settings.free_monthly_credits
+        )
 
         # New reset date should be ~30 days in the future
         assert user_with_expired_free_credits.free_credits_reset_at > datetime.utcnow()
@@ -139,7 +150,10 @@ class TestFreeCreditsReset:
         await async_session.refresh(user_with_expired_free_credits)
 
         # After reset (5 credits) and deduction (1 credit), should have 4 free credits
-        assert user_with_expired_free_credits.free_credits_remaining == test_settings.free_monthly_credits - 1
+        assert (
+            user_with_expired_free_credits.free_credits_remaining
+            == test_settings.free_monthly_credits - 1
+        )
         # Purchased credits should be unchanged (free credits used first)
         assert user_with_expired_free_credits.credit_balance == initial_purchased
 
@@ -207,7 +221,8 @@ class TestFreeCreditsReset:
         # Balance should reflect the reset
         assert balance.free_credits == test_settings.free_monthly_credits
         assert balance.total_credits == (
-            user_with_expired_free_credits.credit_balance + test_settings.free_monthly_credits
+            user_with_expired_free_credits.credit_balance
+            + test_settings.free_monthly_credits
         )
         # Next reset should be in the future
         assert balance.next_free_reset_at is not None

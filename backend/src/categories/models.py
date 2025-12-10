@@ -14,8 +14,12 @@ class Category(Base):
 
     __tablename__ = "categories"
 
-    id: Mapped[UUID] = mapped_column(primary_key=True, server_default=func.gen_random_uuid())
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    id: Mapped[UUID] = mapped_column(
+        primary_key=True, server_default=func.gen_random_uuid()
+    )
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     icon: Mapped[str | None] = mapped_column(String(50))
     description: Mapped[str | None] = mapped_column(String(500))
@@ -27,7 +31,9 @@ class Category(Base):
     path: Mapped[str] = mapped_column(LtreeType, nullable=False, default="")
 
     # Attribute templates for items in this category
-    attribute_template: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    attribute_template: Mapped[dict] = mapped_column(
+        JSONB, nullable=False, default=dict
+    )
 
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 

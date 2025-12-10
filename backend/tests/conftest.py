@@ -276,7 +276,8 @@ async def user_with_expired_free_credits(async_session: AsyncSession) -> User:
         oauth_id="google_expired_123",
         credit_balance=10,
         free_credits_remaining=0,  # Used all free credits
-        free_credits_reset_at=datetime.utcnow() - timedelta(days=1),  # Reset date passed
+        free_credits_reset_at=datetime.utcnow()
+        - timedelta(days=1),  # Reset date passed
         is_admin=False,
     )
     async_session.add(user)
