@@ -1,11 +1,13 @@
 // Runtime-configurable API URL
-// In production Docker, __NEXT_PUBLIC_API_URL__ is replaced at container startup
-const API_BASE_URL =
-  (typeof window !== "undefined" &&
-    (window as unknown as { __ENV__?: { API_URL?: string } }).__ENV__
-      ?.API_URL) ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:8000";
+// In production Docker, window.__ENV__ is set by __env.js at container startup
+function getApiBaseUrl(): string {
+  if (typeof window !== "undefined") {
+    const envUrl = (window as unknown as { __ENV__?: { API_URL?: string } })
+      .__ENV__?.API_URL;
+    if (envUrl) return envUrl;
+  }
+  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+}
 
 type RequestOptions = {
   method?: string;
@@ -45,7 +47,7 @@ export async function apiRequest<T>(
     requestHeaders["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const response = await fetch(`${getApiBaseUrl()}${endpoint}`, {
     method,
     headers: requestHeaders,
     body: body ? JSON.stringify(body) : undefined,
@@ -81,7 +83,7 @@ export async function uploadFile(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const response = await fetch(`${getApiBaseUrl()}${endpoint}`, {
     method: "POST",
     headers,
     body: formData,
@@ -294,7 +296,7 @@ export const imagesApi = {
 
   get: (id: string) => apiRequest<Image>(`/api/v1/images/${id}`),
 
-  getFileUrl: (id: string) => `${API_BASE_URL}/api/v1/images/${id}/file`,
+  getFileUrl: (id: string) => `${getApiBaseUrl()}/api/v1/images/${id}/file`,
 
   delete: (id: string) =>
     apiRequest<void>(`/api/v1/images/${id}`, { method: "DELETE" }),

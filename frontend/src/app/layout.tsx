@@ -18,10 +18,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <Script src="/__env.js" strategy="beforeInteractive" />
-      </head>
       <body className={inter.className}>
+        <Script src="/__env.js" strategy="beforeInteractive" />
         <Providers>{children}</Providers>
       </body>
     </html>
