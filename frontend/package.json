@@ -31,6 +31,7 @@
     "tailwind-merge": "^2.5.5"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
     "@hey-api/openapi-ts": "^0.54.0",
     "@types/node": "^22.10.1",
     "@types/react": "^19.0.1",
