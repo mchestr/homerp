@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { Providers } from "./providers";
 
@@ -18,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script src="/__env.js" />
+        <Script src="/__env.js" strategy="beforeInteractive" />
       </head>
       <body className={inter.className}>
         <Providers>{children}</Providers>
