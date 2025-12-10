@@ -1,4 +1,11 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// Runtime-configurable API URL
+// In production Docker, __NEXT_PUBLIC_API_URL__ is replaced at container startup
+const API_BASE_URL =
+  (typeof window !== "undefined" &&
+    (window as unknown as { __ENV__?: { API_URL?: string } }).__ENV__
+      ?.API_URL) ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:8000";
 
 type RequestOptions = {
   method?: string;
