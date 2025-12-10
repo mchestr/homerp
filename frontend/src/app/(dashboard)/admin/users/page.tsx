@@ -1,0 +1,292 @@
+"use client";
+
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/context/auth-context";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { adminApi, UserAdmin } from "@/lib/api/client";
+import {
+  Search,
+  Loader2,
+  ArrowLeft,
+  Shield,
+  ShieldOff,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+function formatDate(dateString: string): string {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+export default function AdminUsersPage() {
+  const { user, isLoading: authLoading } = useAuth();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pendingAdminChange, setPendingAdminChange] = useState<{
+    user: UserAdmin;
+    newStatus: boolean;
+  } | null>(null);
+
+  const { data: usersData, isLoading: usersLoading } = useQuery({
+    queryKey: ["admin-users", page, search],
+    queryFn: () => adminApi.listUsers(page, 20, search || undefined),
+    enabled: !!user?.is_admin,
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, is_admin }: { id: string; is_admin: boolean }) =>
+      adminApi.updateUser(id, { is_admin }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      setPendingAdminChange(null);
+    },
+    onError: (error: Error) => {
+      alert(error.message);
+      setPendingAdminChange(null);
+    },
+  });
+
+  useEffect(() => {
+    if (!authLoading && (!user || !user.is_admin)) {
+      router.push("/dashboard");
+    }
+  }, [user, authLoading, router]);
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  if (authLoading || !user?.is_admin) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  const handleAdminToggle = (targetUser: UserAdmin) => {
+    setPendingAdminChange({
+      user: targetUser,
+      newStatus: !targetUser.is_admin,
+    });
+  };
+
+  const confirmAdminChange = () => {
+    if (pendingAdminChange) {
+      updateMutation.mutate({
+        id: pendingAdminChange.user.id,
+        is_admin: pendingAdminChange.newStatus,
+      });
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <Link href="/admin">
+          <Button variant="ghost" size="icon">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        </Link>
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+            User Management
+          </h1>
+          <p className="mt-1 text-muted-foreground">
+            View and manage user accounts
+          </p>
+        </div>
+      </div>
+
+      {/* Search */}
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Search by email..."
+          value={search}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+          className="pl-9"
+        />
+      </div>
+
+      {usersLoading ? (
+        <div className="flex h-32 items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : (
+        <>
+          <div className="rounded-xl border bg-card">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b text-left text-sm text-muted-foreground">
+                  <th className="px-4 py-3 font-medium">User</th>
+                  <th className="px-4 py-3 font-medium">Credits</th>
+                  <th className="px-4 py-3 font-medium">Free Credits</th>
+                  <th className="px-4 py-3 font-medium">Joined</th>
+                  <th className="px-4 py-3 font-medium">Admin</th>
+                  <th className="px-4 py-3 font-medium text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {usersData?.items.map((u) => (
+                  <tr key={u.id} className="border-b last:border-0">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        {u.avatar_url ? (
+                          <img
+                            src={u.avatar_url}
+                            alt=""
+                            className="h-8 w-8 rounded-full"
+                          />
+                        ) : (
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">
+                            {u.email[0].toUpperCase()}
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-medium">{u.name || "No name"}</p>
+                          <p className="text-sm text-muted-foreground">{u.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">{u.credit_balance}</td>
+                    <td className="px-4 py-3">{u.free_credits_remaining}</td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                      {formatDate(u.created_at)}
+                    </td>
+                    <td className="px-4 py-3">
+                      {u.is_admin ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+                          <Shield className="h-3 w-3" /> Admin
+                        </span>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">-</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleAdminToggle(u)}
+                          disabled={u.id === user.id}
+                          title={u.id === user.id ? "Cannot change your own admin status" : ""}
+                        >
+                          {u.is_admin ? (
+                            <>
+                              <ShieldOff className="mr-1 h-4 w-4" />
+                              Revoke Admin
+                            </>
+                          ) : (
+                            <>
+                              <Shield className="mr-1 h-4 w-4" />
+                              Make Admin
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {(!usersData?.items || usersData.items.length === 0) && (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                      No users found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          {usersData && usersData.total_pages > 1 && (
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Page {usersData.page} of {usersData.total_pages} ({usersData.total} users)
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => Math.min(usersData.total_pages, p + 1))}
+                  disabled={page === usersData.total_pages}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Admin Change Confirmation */}
+      <AlertDialog
+        open={!!pendingAdminChange}
+        onOpenChange={() => setPendingAdminChange(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {pendingAdminChange?.newStatus ? "Grant Admin Access" : "Revoke Admin Access"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingAdminChange?.newStatus
+                ? `Are you sure you want to grant admin access to ${pendingAdminChange.user.email}? They will be able to manage credit packs and other users.`
+                : `Are you sure you want to revoke admin access from ${pendingAdminChange?.user.email}? They will no longer be able to access the admin panel.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmAdminChange}
+              className={
+                pendingAdminChange?.newStatus
+                  ? ""
+                  : "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              }
+            >
+              {updateMutation.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {pendingAdminChange?.newStatus ? "Grant Admin" : "Revoke Admin"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
