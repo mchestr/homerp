@@ -1,4 +1,9 @@
-"""Shared test fixtures and configuration."""
+"""Shared test fixtures and configuration.
+
+This module provides PostgreSQL-based test fixtures using testcontainers.
+This ensures tests run against the same database engine as production,
+avoiding issues with PostgreSQL-specific types (UUID, JSONB, LtreeType).
+"""
 
 import uuid
 from collections.abc import AsyncGenerator
@@ -6,107 +11,32 @@ from datetime import datetime, timedelta
 from unittest.mock import MagicMock, patch
 
 import pytest
-from sqlalchemy import (
-    Boolean,
-    Column,
-    DateTime,
-    ForeignKey,
-    Integer,
-    MetaData,
-    StaticPool,
-    String,
-    Table,
-    event,
-    text,
-)
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase
+from testcontainers.postgres import PostgresContainer
 
 from src.billing.models import CreditPack, CreditTransaction
 from src.config import Settings
+from src.database import Base
 from src.users.models import User
 
 
-# Create a minimal base for test models that don't require PostgreSQL types
-class TestBase(DeclarativeBase):
-    """Test base class."""
+@pytest.fixture(scope="session")
+def postgres_container():
+    """Start a PostgreSQL container for the test session."""
+    with PostgresContainer("postgres:16") as postgres:
+        yield postgres
 
-    pass
 
-
-# Define test-compatible tables (without PostgreSQL-specific types)
-# Using text() for default to simulate gen_random_uuid() for SQLite
-test_metadata = MetaData()
-
-users_table = Table(
-    "users",
-    test_metadata,
-    Column(
-        "id",
-        String(36),
-        primary_key=True,
-        server_default=text("(lower(hex(randomblob(16))))"),
-    ),
-    Column("email", String(255), unique=True, nullable=False),
-    Column("name", String(255)),
-    Column("avatar_url", String(500)),
-    Column("oauth_provider", String(50), nullable=False),
-    Column("oauth_id", String(255), nullable=False),
-    Column("created_at", DateTime, server_default=text("CURRENT_TIMESTAMP")),
-    Column("updated_at", DateTime, server_default=text("CURRENT_TIMESTAMP")),
-    Column("stripe_customer_id", String(255)),
-    Column("credit_balance", Integer, server_default=text("0")),
-    Column("free_credits_remaining", Integer, server_default=text("5")),
-    Column("free_credits_reset_at", DateTime),
-    Column("is_admin", Boolean, server_default=text("0")),
-)
-
-credit_packs_table = Table(
-    "credit_packs",
-    test_metadata,
-    Column(
-        "id",
-        String(36),
-        primary_key=True,
-        server_default=text("(lower(hex(randomblob(16))))"),
-    ),
-    Column("name", String(100), nullable=False),
-    Column("credits", Integer, nullable=False),
-    Column("price_cents", Integer, nullable=False),
-    Column("stripe_price_id", String(255), nullable=False),
-    Column("is_active", Boolean, server_default=text("1")),
-    Column("sort_order", Integer, server_default=text("0")),
-    Column("created_at", DateTime, server_default=text("CURRENT_TIMESTAMP")),
-)
-
-credit_transactions_table = Table(
-    "credit_transactions",
-    test_metadata,
-    Column(
-        "id",
-        String(36),
-        primary_key=True,
-        server_default=text("(lower(hex(randomblob(16))))"),
-    ),
-    Column(
-        "user_id",
-        String(36),
-        ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False,
-    ),
-    Column("amount", Integer, nullable=False),
-    Column("transaction_type", String(50), nullable=False),
-    Column("stripe_payment_intent_id", String(255)),
-    Column("stripe_checkout_session_id", String(255)),
-    Column(
-        "credit_pack_id",
-        String(36),
-        ForeignKey("credit_packs.id", ondelete="SET NULL"),
-    ),
-    Column("description", String(500), nullable=False),
-    Column("is_refunded", Boolean, server_default=text("0")),
-    Column("created_at", DateTime, server_default=text("CURRENT_TIMESTAMP")),
-)
+@pytest.fixture(scope="session")
+def database_url(postgres_container) -> str:
+    """Get the async database URL for the PostgreSQL container."""
+    # testcontainers provides psycopg2 URL, convert to asyncpg
+    sync_url = postgres_container.get_connection_url()
+    # Replace postgresql:// with postgresql+asyncpg://
+    async_url = sync_url.replace("postgresql://", "postgresql+asyncpg://")
+    # Remove driver suffix if present (e.g., +psycopg2)
+    async_url = async_url.replace("+psycopg2", "+asyncpg")
+    return async_url
 
 
 # Synchronous test client for simple endpoint tests
@@ -121,12 +51,12 @@ def client():
         yield test_client
 
 
-# Test settings with SQLite for isolation
+# Test settings with PostgreSQL from testcontainers
 @pytest.fixture
-def test_settings() -> Settings:
-    """Create test settings."""
+def test_settings(database_url: str) -> Settings:
+    """Create test settings with PostgreSQL."""
     return Settings(
-        database_url="sqlite+aiosqlite:///:memory:",
+        database_url=database_url,
         debug=False,
         jwt_secret="test-secret",
         stripe_secret_key="sk_test_fake",
@@ -139,27 +69,28 @@ def test_settings() -> Settings:
 
 
 @pytest.fixture
-async def async_engine():
-    """Create async test engine with SQLite."""
+async def async_engine(database_url: str):
+    """Create async test engine with PostgreSQL."""
+    from sqlalchemy import text
+
     engine = create_async_engine(
-        "sqlite+aiosqlite:///:memory:",
+        database_url,
         echo=False,
-        poolclass=StaticPool,
-        connect_args={"check_same_thread": False},
     )
 
-    # Enable foreign key support for SQLite
-    @event.listens_for(engine.sync_engine, "connect")
-    def set_sqlite_pragma(dbapi_connection, _connection_record):
-        cursor = dbapi_connection.cursor()
-        cursor.execute("PRAGMA foreign_keys=ON")
-        cursor.close()
-
-    # Create only the tables needed for billing tests
+    # Enable required PostgreSQL extensions
     async with engine.begin() as conn:
-        await conn.run_sync(test_metadata.create_all)
+        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS ltree"))
+
+    # Create all tables from the real models
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
     yield engine
+
+    # Drop all tables after tests
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
 
     await engine.dispose()
 
@@ -177,6 +108,8 @@ async def async_session(async_engine) -> AsyncGenerator[AsyncSession, None]:
 
     async with session_factory() as session:
         yield session
+        # Rollback any uncommitted changes to keep tests isolated
+        await session.rollback()
 
 
 @pytest.fixture
