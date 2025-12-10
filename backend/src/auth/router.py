@@ -15,7 +15,7 @@ router = APIRouter()
 
 @router.get("/google")
 async def google_auth(
-    request: Request,
+    _request: Request,
     oauth: Annotated[GoogleOAuth, Depends(get_google_oauth)],
     redirect_uri: str = Query(..., description="The redirect URI for OAuth callback"),
 ) -> dict[str, str]:

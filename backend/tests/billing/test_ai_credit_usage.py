@@ -2,16 +2,13 @@
 
 import uuid
 from datetime import datetime, timedelta
-from unittest.mock import AsyncMock, MagicMock, patch
 
-import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.billing.models import CreditTransaction
 from src.billing.service import CreditService
 from src.config import Settings
-from src.images.schemas import ClassificationResult
 from src.users.models import User
 
 
@@ -253,7 +250,7 @@ class TestClassificationCreditFlow:
         for i in range(5):
             success = await service.deduct_credit(
                 test_user.id,
-                f"Classification {i+1}",
+                f"Classification {i + 1}",
             )
             assert success is True
 
@@ -286,7 +283,10 @@ class TestClassificationCreditEdgeCases:
         assert has_credits is True
 
         await async_session.refresh(user_with_expired_free_credits)
-        assert user_with_expired_free_credits.free_credits_remaining == test_settings.free_monthly_credits
+        assert (
+            user_with_expired_free_credits.free_credits_remaining
+            == test_settings.free_monthly_credits
+        )
 
     async def test_classification_with_mixed_credit_types(
         self,
@@ -311,7 +311,7 @@ class TestClassificationCreditEdgeCases:
 
         # Use 5 credits total: 2 free + 3 purchased
         for i in range(5):
-            success = await service.deduct_credit(user.id, f"Classification {i+1}")
+            success = await service.deduct_credit(user.id, f"Classification {i + 1}")
             assert success is True
 
         await async_session.refresh(user)

@@ -8,7 +8,7 @@ from src.database import close_db, init_db
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI):
     """Application lifespan handler."""
     settings = get_settings()
     init_db(settings)
@@ -54,7 +54,9 @@ def create_app() -> FastAPI:
     app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
     app.include_router(billing_router, prefix="/api/v1/billing", tags=["billing"])
     app.include_router(items_router, prefix="/api/v1/items", tags=["items"])
-    app.include_router(categories_router, prefix="/api/v1/categories", tags=["categories"])
+    app.include_router(
+        categories_router, prefix="/api/v1/categories", tags=["categories"]
+    )
     app.include_router(locations_router, prefix="/api/v1/locations", tags=["locations"])
     app.include_router(images_router, prefix="/api/v1/images", tags=["images"])
 

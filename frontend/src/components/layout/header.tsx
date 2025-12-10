@@ -29,10 +29,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         >
           <Menu className="h-5 w-5" />
         </button>
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-2 md:hidden"
-        >
+        <Link href="/dashboard" className="flex items-center gap-2 md:hidden">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
             <Package className="h-4 w-4 text-primary-foreground" />
           </div>

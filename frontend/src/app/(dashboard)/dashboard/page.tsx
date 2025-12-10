@@ -104,7 +104,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="mt-4 flex items-center text-sm text-muted-foreground">
-              <span className="group-hover:text-primary transition-colors">
+              <span className="transition-colors group-hover:text-primary">
                 View details
               </span>
               <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -206,9 +206,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <p className="font-medium">Categories</p>
-                <p className="text-sm text-muted-foreground">
-                  Organize items
-                </p>
+                <p className="text-sm text-muted-foreground">Organize items</p>
               </div>
             </Link>
             <Link
@@ -220,9 +218,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <p className="font-medium">Locations</p>
-                <p className="text-sm text-muted-foreground">
-                  Storage areas
-                </p>
+                <p className="text-sm text-muted-foreground">Storage areas</p>
               </div>
             </Link>
             <Link
@@ -234,9 +230,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <p className="font-medium">Browse Items</p>
-                <p className="text-sm text-muted-foreground">
-                  View all items
-                </p>
+                <p className="text-sm text-muted-foreground">View all items</p>
               </div>
             </Link>
           </div>

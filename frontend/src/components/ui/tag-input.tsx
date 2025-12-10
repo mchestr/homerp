@@ -30,17 +30,12 @@ export function TagInput({
   // Filter suggestions based on input
   const filteredSuggestions = suggestions.filter(
     (s) =>
-      s.toLowerCase().includes(inputValue.toLowerCase()) &&
-      !value.includes(s)
+      s.toLowerCase().includes(inputValue.toLowerCase()) && !value.includes(s)
   );
 
   const addTag = (tag: string) => {
     const trimmedTag = tag.trim().toLowerCase();
-    if (
-      trimmedTag &&
-      !value.includes(trimmedTag) &&
-      value.length < maxTags
-    ) {
+    if (trimmedTag && !value.includes(trimmedTag) && value.length < maxTags) {
       onChange([...value, trimmedTag]);
       setInputValue("");
       setShowSuggestions(false);
@@ -99,7 +94,7 @@ export function TagInput({
     <div ref={containerRef} className={cn("relative", className)}>
       <div
         className={cn(
-          "flex flex-wrap gap-2 min-h-[44px] p-2 rounded-lg border bg-background",
+          "flex min-h-[44px] flex-wrap gap-2 rounded-lg border bg-background p-2",
           "transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20"
         )}
         onClick={() => inputRef.current?.focus()}
@@ -131,7 +126,7 @@ export function TagInput({
             onKeyDown={handleKeyDown}
             onFocus={() => setShowSuggestions(true)}
             placeholder={value.length === 0 ? placeholder : ""}
-            className="flex-1 min-w-[120px] bg-transparent outline-none text-sm"
+            className="min-w-[120px] flex-1 bg-transparent text-sm outline-none"
           />
         )}
       </div>

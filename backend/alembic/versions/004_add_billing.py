@@ -6,16 +6,17 @@ Create Date: 2024-12-09
 
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 import sqlalchemy as sa
+
 from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "004"
-down_revision: Union[str, None] = "003"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = "003"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
@@ -54,7 +55,9 @@ def upgrade() -> None:
         sa.Column("stripe_price_id", sa.String(255), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False, server_default="true"),
         sa.Column("sort_order", sa.Integer(), nullable=False, server_default="0"),
-        sa.Column("created_at", sa.DateTime(), nullable=False, server_default=sa.text("now()")),
+        sa.Column(
+            "created_at", sa.DateTime(), nullable=False, server_default=sa.text("now()")
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
 
@@ -75,16 +78,28 @@ def upgrade() -> None:
         sa.Column("credit_pack_id", sa.UUID(), nullable=True),
         sa.Column("description", sa.String(500), nullable=False),
         sa.Column("is_refunded", sa.Boolean(), nullable=False, server_default="false"),
-        sa.Column("created_at", sa.DateTime(), nullable=False, server_default=sa.text("now()")),
+        sa.Column(
+            "created_at", sa.DateTime(), nullable=False, server_default=sa.text("now()")
+        ),
         sa.PrimaryKeyConstraint("id"),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["credit_pack_id"], ["credit_packs.id"], ondelete="SET NULL"),
+        sa.ForeignKeyConstraint(
+            ["credit_pack_id"], ["credit_packs.id"], ondelete="SET NULL"
+        ),
     )
 
     # Create indexes
-    op.create_index("ix_credit_transactions_user_id", "credit_transactions", ["user_id"])
-    op.create_index("ix_credit_transactions_credit_pack_id", "credit_transactions", ["credit_pack_id"])
-    op.create_index("ix_credit_transactions_created_at", "credit_transactions", ["created_at"])
+    op.create_index(
+        "ix_credit_transactions_user_id", "credit_transactions", ["user_id"]
+    )
+    op.create_index(
+        "ix_credit_transactions_credit_pack_id",
+        "credit_transactions",
+        ["credit_pack_id"],
+    )
+    op.create_index(
+        "ix_credit_transactions_created_at", "credit_transactions", ["created_at"]
+    )
 
     # Seed default credit packs
     # Note: stripe_price_id values are placeholders - replace with actual Stripe price IDs

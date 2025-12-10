@@ -23,10 +23,13 @@ const LOCATION_TYPES = [
 ];
 
 // Convert LocationTreeNode to have icon property for TreeView
-function addIconsToTree(nodes: LocationTreeNode[]): (LocationTreeNode & { icon: string })[] {
+function addIconsToTree(
+  nodes: LocationTreeNode[]
+): (LocationTreeNode & { icon: string })[] {
   return nodes.map((node) => ({
     ...node,
-    icon: LOCATION_TYPES.find((t) => t.value === node.location_type)?.icon || "📍",
+    icon:
+      LOCATION_TYPES.find((t) => t.value === node.location_type)?.icon || "📍",
     children: addIconsToTree(node.children),
   }));
 }
@@ -212,7 +215,7 @@ export default function LocationsPage() {
       {isFormVisible && (
         <form
           onSubmit={handleSubmit}
-          className="rounded-xl border bg-card p-6 space-y-5"
+          className="space-y-5 rounded-xl border bg-card p-6"
         >
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">

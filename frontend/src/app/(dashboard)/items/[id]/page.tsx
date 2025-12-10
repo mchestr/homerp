@@ -27,7 +27,11 @@ export default function ItemDetailPage() {
   const queryClient = useQueryClient();
   const itemId = params.id as string;
 
-  const { confirm, setIsLoading: setDeleteLoading, ConfirmModal } = useConfirmModal();
+  const {
+    confirm,
+    setIsLoading: setDeleteLoading,
+    ConfirmModal,
+  } = useConfirmModal();
 
   const { data: item, isLoading } = useQuery({
     queryKey: ["item", itemId],
@@ -233,7 +237,8 @@ export default function ItemDetailPage() {
                 <div className="min-w-0">
                   <p className="text-xs text-muted-foreground">Category</p>
                   <p className="truncate font-medium">
-                    {item.category?.icon} {item.category?.name ?? "Uncategorized"}
+                    {item.category?.icon}{" "}
+                    {item.category?.name ?? "Uncategorized"}
                   </p>
                 </div>
               </div>
@@ -254,7 +259,7 @@ export default function ItemDetailPage() {
           {item.description && (
             <div className="rounded-xl border bg-card p-5">
               <h2 className="font-semibold">Description</h2>
-              <p className="mt-2 text-muted-foreground leading-relaxed">
+              <p className="mt-2 leading-relaxed text-muted-foreground">
                 {item.description}
               </p>
             </div>
@@ -279,7 +284,7 @@ export default function ItemDetailPage() {
                       key={key}
                       className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2"
                     >
-                      <dt className="text-sm text-muted-foreground capitalize">
+                      <dt className="text-sm capitalize text-muted-foreground">
                         {key.replace(/_/g, " ")}
                       </dt>
                       <dd className="text-sm font-medium">

@@ -127,7 +127,9 @@ export default function AdminUsersPage() {
         <Input
           placeholder="Search by email..."
           value={search}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setSearch(e.target.value)
+          }
           className="pl-9"
         />
       </div>
@@ -147,7 +149,7 @@ export default function AdminUsersPage() {
                   <th className="px-4 py-3 font-medium">Free Credits</th>
                   <th className="px-4 py-3 font-medium">Joined</th>
                   <th className="px-4 py-3 font-medium">Admin</th>
-                  <th className="px-4 py-3 font-medium text-right">Actions</th>
+                  <th className="px-4 py-3 text-right font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -168,7 +170,9 @@ export default function AdminUsersPage() {
                         )}
                         <div>
                           <p className="font-medium">{u.name || "No name"}</p>
-                          <p className="text-sm text-muted-foreground">{u.email}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {u.email}
+                          </p>
                         </div>
                       </div>
                     </td>
@@ -193,7 +197,11 @@ export default function AdminUsersPage() {
                           size="sm"
                           onClick={() => handleAdminToggle(u)}
                           disabled={u.id === user.id}
-                          title={u.id === user.id ? "Cannot change your own admin status" : ""}
+                          title={
+                            u.id === user.id
+                              ? "Cannot change your own admin status"
+                              : ""
+                          }
                         >
                           {u.is_admin ? (
                             <>
@@ -213,7 +221,10 @@ export default function AdminUsersPage() {
                 ))}
                 {(!usersData?.items || usersData.items.length === 0) && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                    <td
+                      colSpan={6}
+                      className="px-4 py-8 text-center text-muted-foreground"
+                    >
                       No users found
                     </td>
                   </tr>
@@ -226,7 +237,8 @@ export default function AdminUsersPage() {
           {usersData && usersData.total_pages > 1 && (
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                Page {usersData.page} of {usersData.total_pages} ({usersData.total} users)
+                Page {usersData.page} of {usersData.total_pages} (
+                {usersData.total} users)
               </p>
               <div className="flex gap-2">
                 <Button
@@ -241,7 +253,9 @@ export default function AdminUsersPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setPage((p) => Math.min(usersData.total_pages, p + 1))}
+                  onClick={() =>
+                    setPage((p) => Math.min(usersData.total_pages, p + 1))
+                  }
                   disabled={page === usersData.total_pages}
                 >
                   Next
@@ -261,7 +275,9 @@ export default function AdminUsersPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {pendingAdminChange?.newStatus ? "Grant Admin Access" : "Revoke Admin Access"}
+              {pendingAdminChange?.newStatus
+                ? "Grant Admin Access"
+                : "Revoke Admin Access"}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {pendingAdminChange?.newStatus

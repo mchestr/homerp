@@ -128,7 +128,9 @@ class CategoryService:
 
         return segment
 
-    async def _ensure_unique_path(self, base_path: str, exclude_id: UUID | None = None) -> str:
+    async def _ensure_unique_path(
+        self, base_path: str, exclude_id: UUID | None = None
+    ) -> str:
         """Ensure path is unique by adding a suffix if necessary."""
         path = base_path
         counter = 1
@@ -179,7 +181,10 @@ class CategoryService:
 
         # Check if we need to update the path
         name_changed = "name" in update_data and update_data["name"] != category.name
-        parent_changed = "parent_id" in update_data and update_data["parent_id"] != category.parent_id
+        parent_changed = (
+            "parent_id" in update_data
+            and update_data["parent_id"] != category.parent_id
+        )
 
         if name_changed or parent_changed:
             new_name = update_data.get("name", category.name)
@@ -190,7 +195,11 @@ class CategoryService:
         if "attribute_template" in update_data:
             template = update_data.pop("attribute_template")
             if template is not None:
-                category.attribute_template = template.model_dump() if hasattr(template, "model_dump") else template
+                category.attribute_template = (
+                    template.model_dump()
+                    if hasattr(template, "model_dump")
+                    else template
+                )
             else:
                 category.attribute_template = {}
 

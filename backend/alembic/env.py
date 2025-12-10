@@ -1,20 +1,20 @@
 import asyncio
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+from alembic import context
+from src.categories.models import Category  # noqa: F401
 from src.config import get_settings
 from src.database import Base
+from src.images.models import Image  # noqa: F401
+from src.items.models import Item  # noqa: F401
+from src.locations.models import Location  # noqa: F401
 
 # Import all models here so they are registered with Base.metadata
 from src.users.models import User  # noqa: F401
-from src.items.models import Item  # noqa: F401
-from src.categories.models import Category  # noqa: F401
-from src.locations.models import Location  # noqa: F401
-from src.images.models import Image  # noqa: F401
 
 config = context.config
 

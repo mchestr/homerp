@@ -9,7 +9,9 @@ class LocationBase(BaseModel):
 
     name: str = Field(..., min_length=1, max_length=255)
     description: str | None = Field(None, max_length=500)
-    location_type: str | None = Field(None, max_length=50)  # room, shelf, bin, drawer, box
+    location_type: str | None = Field(
+        None, max_length=50
+    )  # room, shelf, bin, drawer, box
 
 
 class LocationCreate(LocationBase):
@@ -24,7 +26,9 @@ class LocationUpdate(BaseModel):
     name: str | None = Field(None, min_length=1, max_length=255)
     description: str | None = Field(None, max_length=500)
     location_type: str | None = Field(None, max_length=50)
-    parent_id: UUID | None = Field(None, description="Parent location ID (set to null to make root)")
+    parent_id: UUID | None = Field(
+        None, description="Parent location ID (set to null to make root)"
+    )
 
 
 class LocationResponse(LocationBase):
@@ -64,5 +68,6 @@ class LocationWithAncestors(LocationResponse):
     """Location response with full ancestor path."""
 
     ancestors: list["LocationResponse"] = Field(
-        default_factory=list, description="List of ancestor locations from root to parent"
+        default_factory=list,
+        description="List of ancestor locations from root to parent",
     )

@@ -19,7 +19,9 @@ class CreditPack(Base):
     credits: Mapped[int] = mapped_column(Integer, nullable=False)
     price_cents: Mapped[int] = mapped_column(Integer, nullable=False)
     stripe_price_id: Mapped[str] = mapped_column(String(255), nullable=False)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, default=True, server_default="true"
+    )
     sort_order: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 

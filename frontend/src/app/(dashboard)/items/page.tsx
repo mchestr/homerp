@@ -59,7 +59,15 @@ export default function ItemsPage() {
   const { data: itemsData, isLoading } = useQuery({
     queryKey: [
       "items",
-      { page, categoryId, locationId, search: searchQuery, lowStock, tags: tagsFromUrl, attributes: attrFiltersFromUrl },
+      {
+        page,
+        categoryId,
+        locationId,
+        search: searchQuery,
+        lowStock,
+        tags: tagsFromUrl,
+        attributes: attrFiltersFromUrl,
+      },
     ],
     queryFn: () =>
       itemsApi.list({
@@ -69,7 +77,10 @@ export default function ItemsPage() {
         location_id: locationId,
         search: searchQuery || undefined,
         tags: tagsFromUrl.length > 0 ? tagsFromUrl : undefined,
-        attributes: Object.keys(attrFiltersFromUrl).length > 0 ? attrFiltersFromUrl : undefined,
+        attributes:
+          Object.keys(attrFiltersFromUrl).length > 0
+            ? attrFiltersFromUrl
+            : undefined,
         low_stock: lowStock,
       }),
   });
@@ -87,7 +98,8 @@ export default function ItemsPage() {
   // Fetch facets when a category is selected
   const { data: facetsData } = useQuery({
     queryKey: ["items", "facets", { categoryId, locationId }],
-    queryFn: () => itemsApi.facets({ category_id: categoryId, location_id: locationId }),
+    queryFn: () =>
+      itemsApi.facets({ category_id: categoryId, location_id: locationId }),
     enabled: !!categoryId, // Only fetch facets when a category is selected
   });
 
@@ -159,7 +171,10 @@ export default function ItemsPage() {
     e.preventDefault();
     e.stopPropagation();
     if (currentQuantity > 0) {
-      updateQuantityMutation.mutate({ id: itemId, quantity: currentQuantity - 1 });
+      updateQuantityMutation.mutate({
+        id: itemId,
+        quantity: currentQuantity - 1,
+      });
     }
   };
 
@@ -170,10 +185,19 @@ export default function ItemsPage() {
   ) => {
     e.preventDefault();
     e.stopPropagation();
-    updateQuantityMutation.mutate({ id: itemId, quantity: currentQuantity + 1 });
+    updateQuantityMutation.mutate({
+      id: itemId,
+      quantity: currentQuantity + 1,
+    });
   };
 
-  const hasActiveFilters = categoryId || locationId || lowStock || searchQuery || tagsFromUrl.length > 0 || Object.keys(attrFiltersFromUrl).length > 0;
+  const hasActiveFilters =
+    categoryId ||
+    locationId ||
+    lowStock ||
+    searchQuery ||
+    tagsFromUrl.length > 0 ||
+    Object.keys(attrFiltersFromUrl).length > 0;
 
   return (
     <div className="space-y-6">
@@ -224,9 +248,16 @@ export default function ItemsPage() {
             <span className="hidden sm:inline">Filters</span>
             {hasActiveFilters && (
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
-                {[categoryId, locationId, lowStock, searchQuery, tagsFromUrl.length > 0, Object.keys(attrFiltersFromUrl).length > 0].filter(
-                  Boolean
-                ).length}
+                {
+                  [
+                    categoryId,
+                    locationId,
+                    lowStock,
+                    searchQuery,
+                    tagsFromUrl.length > 0,
+                    Object.keys(attrFiltersFromUrl).length > 0,
+                  ].filter(Boolean).length
+                }
               </span>
             )}
           </Button>
@@ -294,7 +325,9 @@ export default function ItemsPage() {
             </div>
 
             {/* Faceted filters - shown when category is selected */}
-            {((facetsData?.facets?.length ?? 0) > 0 || tagsFromUrl.length > 0 || Object.keys(attrFiltersFromUrl).length > 0) && (
+            {((facetsData?.facets?.length ?? 0) > 0 ||
+              tagsFromUrl.length > 0 ||
+              Object.keys(attrFiltersFromUrl).length > 0) && (
               <div className="border-t pt-3">
                 <InlineFacetedFilter
                   facets={facetsData?.facets || []}
@@ -309,7 +342,9 @@ export default function ItemsPage() {
             {/* Tag filter chips */}
             {allTags && allTags.length > 0 && !categoryId && (
               <div className="border-t pt-3">
-                <p className="mb-2 text-xs font-medium text-muted-foreground">Filter by tags</p>
+                <p className="mb-2 text-xs font-medium text-muted-foreground">
+                  Filter by tags
+                </p>
                 <div className="flex flex-wrap gap-2">
                   {allTags.slice(0, 10).map((tag) => (
                     <button
@@ -317,7 +352,9 @@ export default function ItemsPage() {
                       type="button"
                       onClick={() => {
                         if (tagsFromUrl.includes(tag.value)) {
-                          updateTags(tagsFromUrl.filter((t) => t !== tag.value));
+                          updateTags(
+                            tagsFromUrl.filter((t) => t !== tag.value)
+                          );
                         } else {
                           updateTags([...tagsFromUrl, tag.value]);
                         }
@@ -396,11 +433,12 @@ export default function ItemsPage() {
                   )}
                 </div>
                 <div className="p-4">
-                  <h3 className="truncate font-semibold group-hover:text-primary transition-colors">
+                  <h3 className="truncate font-semibold transition-colors group-hover:text-primary">
                     {item.name}
                   </h3>
                   <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                    {item.category?.icon} {item.category?.name ?? "Uncategorized"}
+                    {item.category?.icon}{" "}
+                    {item.category?.name ?? "Uncategorized"}
                   </p>
                   <div className="mt-3 flex items-center justify-between">
                     {/* Quick quantity buttons */}
@@ -416,7 +454,7 @@ export default function ItemsPage() {
                         className={cn(
                           "flex h-8 w-8 items-center justify-center rounded-lg border transition-colors",
                           "hover:bg-muted active:bg-muted/80",
-                          "disabled:opacity-50 disabled:cursor-not-allowed"
+                          "disabled:cursor-not-allowed disabled:opacity-50"
                         )}
                         title="Decrease quantity"
                       >
@@ -441,7 +479,7 @@ export default function ItemsPage() {
                         className={cn(
                           "flex h-8 w-8 items-center justify-center rounded-lg border transition-colors",
                           "hover:bg-muted active:bg-muted/80",
-                          "disabled:opacity-50 disabled:cursor-not-allowed"
+                          "disabled:cursor-not-allowed disabled:opacity-50"
                         )}
                         title="Increase quantity"
                       >

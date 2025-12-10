@@ -13,11 +13,17 @@ class Location(Base):
 
     __tablename__ = "locations"
 
-    id: Mapped[UUID] = mapped_column(primary_key=True, server_default=func.gen_random_uuid())
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    id: Mapped[UUID] = mapped_column(
+        primary_key=True, server_default=func.gen_random_uuid()
+    )
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(String(500))
-    location_type: Mapped[str | None] = mapped_column(String(50))  # room, shelf, bin, drawer, box
+    location_type: Mapped[str | None] = mapped_column(
+        String(50)
+    )  # room, shelf, bin, drawer, box
 
     # Hierarchy support
     parent_id: Mapped[UUID | None] = mapped_column(

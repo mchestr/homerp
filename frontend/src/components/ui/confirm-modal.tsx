@@ -116,11 +116,7 @@ export function ConfirmModal({
         </div>
 
         <div className="flex justify-end gap-3 border-t bg-muted/30 px-6 py-4">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={isLoading}
-          >
+          <Button variant="outline" onClick={onClose} disabled={isLoading}>
             {cancelLabel}
           </Button>
           <Button
@@ -161,15 +157,20 @@ export function useConfirmModal() {
     title: "",
     message: "",
   });
-  const [resolveRef, setResolveRef] = useState<((value: boolean) => void) | null>(null);
+  const [resolveRef, setResolveRef] = useState<
+    ((value: boolean) => void) | null
+  >(null);
 
-  const confirm = useCallback((opts: UseConfirmModalOptions): Promise<boolean> => {
-    setOptions(opts);
-    setIsOpen(true);
-    return new Promise((resolve) => {
-      setResolveRef(() => resolve);
-    });
-  }, []);
+  const confirm = useCallback(
+    (opts: UseConfirmModalOptions): Promise<boolean> => {
+      setOptions(opts);
+      setIsOpen(true);
+      return new Promise((resolve) => {
+        setResolveRef(() => resolve);
+      });
+    },
+    []
+  );
 
   const handleClose = useCallback(() => {
     if (!isLoading) {

@@ -68,7 +68,9 @@ class ImageRepository:
         await self.session.refresh(image)
         return image
 
-    async def attach_to_item(self, image: Image, item_id: UUID, is_primary: bool = False) -> Image:
+    async def attach_to_item(
+        self, image: Image, item_id: UUID, is_primary: bool = False
+    ) -> Image:
         """Attach an image to an item."""
         image.item_id = item_id
         image.is_primary = is_primary

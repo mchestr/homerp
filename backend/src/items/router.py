@@ -35,12 +35,20 @@ async def list_items(
     session: AsyncSessionDep,
     user_id: CurrentUserIdDep,
     category_id: UUID | None = Query(None),
-    include_subcategories: bool = Query(True, description="Include items from subcategories"),
+    include_subcategories: bool = Query(
+        True, description="Include items from subcategories"
+    ),
     location_id: UUID | None = Query(None),
-    include_sublocations: bool = Query(True, description="Include items from sublocations"),
+    include_sublocations: bool = Query(
+        True, description="Include items from sublocations"
+    ),
     search: str | None = Query(None),
-    tags: Annotated[list[str] | None, Query(description="Filter by tags (AND logic)")] = None,
-    attr: Annotated[list[str] | None, Query(description="Filter by attributes as key:value pairs")] = None,
+    tags: Annotated[
+        list[str] | None, Query(description="Filter by tags (AND logic)")
+    ] = None,
+    attr: Annotated[
+        list[str] | None, Query(description="Filter by attributes as key:value pairs")
+    ] = None,
     low_stock: bool = Query(False),
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
@@ -204,9 +212,13 @@ async def get_item_facets(
     session: AsyncSessionDep,
     user_id: CurrentUserIdDep,
     category_id: UUID | None = Query(None, description="Filter facets by category"),
-    include_subcategories: bool = Query(True, description="Include items from subcategories"),
+    include_subcategories: bool = Query(
+        True, description="Include items from subcategories"
+    ),
     location_id: UUID | None = Query(None, description="Filter facets by location"),
-    include_sublocations: bool = Query(True, description="Include items from sublocations"),
+    include_sublocations: bool = Query(
+        True, description="Include items from sublocations"
+    ),
 ) -> FacetedSearchResponse:
     """Get available facets (attribute values with counts) for filtering.
 

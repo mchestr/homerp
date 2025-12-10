@@ -132,10 +132,14 @@ export const itemsApi = {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set("page", params.page.toString());
     if (params?.limit) searchParams.set("limit", params.limit.toString());
-    if (params?.category_id) searchParams.set("category_id", params.category_id);
-    if (params?.include_subcategories === false) searchParams.set("include_subcategories", "false");
-    if (params?.location_id) searchParams.set("location_id", params.location_id);
-    if (params?.include_sublocations === false) searchParams.set("include_sublocations", "false");
+    if (params?.category_id)
+      searchParams.set("category_id", params.category_id);
+    if (params?.include_subcategories === false)
+      searchParams.set("include_subcategories", "false");
+    if (params?.location_id)
+      searchParams.set("location_id", params.location_id);
+    if (params?.include_sublocations === false)
+      searchParams.set("include_sublocations", "false");
     if (params?.search) searchParams.set("search", params.search);
     if (params?.tags) {
       params.tags.forEach((tag) => searchParams.append("tags", tag));
@@ -158,7 +162,10 @@ export const itemsApi = {
     apiRequest<ItemDetail>("/api/v1/items", { method: "POST", body: data }),
 
   update: (id: string, data: ItemUpdate) =>
-    apiRequest<ItemDetail>(`/api/v1/items/${id}`, { method: "PUT", body: data }),
+    apiRequest<ItemDetail>(`/api/v1/items/${id}`, {
+      method: "PUT",
+      body: data,
+    }),
 
   updateQuantity: (id: string, quantity: number) =>
     apiRequest<ItemDetail>(`/api/v1/items/${id}/quantity`, {
@@ -184,10 +191,14 @@ export const itemsApi = {
     include_sublocations?: boolean;
   }) => {
     const searchParams = new URLSearchParams();
-    if (params?.category_id) searchParams.set("category_id", params.category_id);
-    if (params?.include_subcategories === false) searchParams.set("include_subcategories", "false");
-    if (params?.location_id) searchParams.set("location_id", params.location_id);
-    if (params?.include_sublocations === false) searchParams.set("include_sublocations", "false");
+    if (params?.category_id)
+      searchParams.set("category_id", params.category_id);
+    if (params?.include_subcategories === false)
+      searchParams.set("include_subcategories", "false");
+    if (params?.location_id)
+      searchParams.set("location_id", params.location_id);
+    if (params?.include_sublocations === false)
+      searchParams.set("include_sublocations", "false");
     const query = searchParams.toString();
     return apiRequest<FacetedSearchResponse>(
       `/api/v1/items/facets${query ? `?${query}` : ""}`
@@ -265,7 +276,8 @@ export const locationsApi = {
 
 // Images API
 export const imagesApi = {
-  upload: (file: File) => uploadFile("/api/v1/images/upload", file) as Promise<ImageUpload>,
+  upload: (file: File) =>
+    uploadFile("/api/v1/images/upload", file) as Promise<ImageUpload>,
 
   classify: (imageId: string) =>
     apiRequest<ClassificationResponse>("/api/v1/images/classify", {
@@ -593,7 +605,8 @@ export const adminApi = {
   // Credit Packs
   listPacks: () => apiRequest<CreditPackAdmin[]>("/api/v1/admin/packs"),
 
-  getPack: (id: string) => apiRequest<CreditPackAdmin>(`/api/v1/admin/packs/${id}`),
+  getPack: (id: string) =>
+    apiRequest<CreditPackAdmin>(`/api/v1/admin/packs/${id}`),
 
   createPack: (data: CreditPackCreate) =>
     apiRequest<CreditPackAdmin>("/api/v1/admin/packs", {

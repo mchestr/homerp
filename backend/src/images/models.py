@@ -13,11 +13,19 @@ class Image(Base):
 
     __tablename__ = "images"
 
-    id: Mapped[UUID] = mapped_column(primary_key=True, server_default=func.gen_random_uuid())
-    item_id: Mapped[UUID | None] = mapped_column(ForeignKey("items.id", ondelete="CASCADE"), index=True)
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    id: Mapped[UUID] = mapped_column(
+        primary_key=True, server_default=func.gen_random_uuid()
+    )
+    item_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("items.id", ondelete="CASCADE"), index=True
+    )
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
     storage_path: Mapped[str] = mapped_column(String(500), nullable=False)
-    storage_type: Mapped[str] = mapped_column(String(20), default="local")  # 'local' or 's3'
+    storage_type: Mapped[str] = mapped_column(
+        String(20), default="local"
+    )  # 'local' or 's3'
     original_filename: Mapped[str | None] = mapped_column(String(255))
     mime_type: Mapped[str | None] = mapped_column(String(100))
     size_bytes: Mapped[int | None] = mapped_column(Integer)

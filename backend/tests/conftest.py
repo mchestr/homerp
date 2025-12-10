@@ -1,13 +1,18 @@
-"""Shared test fixtures and configuration."""
+"""Shared test fixtures and configuration.
+
+This module provides PostgreSQL-based test fixtures using testcontainers.
+This ensures tests run against the same database engine as production,
+avoiding issues with PostgreSQL-specific types (UUID, JSONB, LtreeType).
+"""
 
 import uuid
+from collections.abc import AsyncGenerator
 from datetime import datetime, timedelta
-from typing import AsyncGenerator
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
-from sqlalchemy import StaticPool, event, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from testcontainers.postgres import PostgresContainer
 
 from src.billing.models import CreditPack, CreditTransaction
 from src.config import Settings
@@ -15,12 +20,43 @@ from src.database import Base
 from src.users.models import User
 
 
-# Test settings with SQLite for isolation
+@pytest.fixture(scope="session")
+def postgres_container():
+    """Start a PostgreSQL container for the test session."""
+    with PostgresContainer("postgres:16") as postgres:
+        yield postgres
+
+
+@pytest.fixture(scope="session")
+def database_url(postgres_container) -> str:
+    """Get the async database URL for the PostgreSQL container."""
+    # testcontainers provides psycopg2 URL, convert to asyncpg
+    sync_url = postgres_container.get_connection_url()
+    # Replace postgresql:// with postgresql+asyncpg://
+    async_url = sync_url.replace("postgresql://", "postgresql+asyncpg://")
+    # Remove driver suffix if present (e.g., +psycopg2)
+    async_url = async_url.replace("+psycopg2", "+asyncpg")
+    return async_url
+
+
+# Synchronous test client for simple endpoint tests
 @pytest.fixture
-def test_settings() -> Settings:
-    """Create test settings."""
+def client():
+    """Create a test client for synchronous tests."""
+    from fastapi.testclient import TestClient
+
+    from src.main import app
+
+    with TestClient(app) as test_client:
+        yield test_client
+
+
+# Test settings with PostgreSQL from testcontainers
+@pytest.fixture
+def test_settings(database_url: str) -> Settings:
+    """Create test settings with PostgreSQL."""
     return Settings(
-        database_url="sqlite+aiosqlite:///:memory:",
+        database_url=database_url,
         debug=False,
         jwt_secret="test-secret",
         stripe_secret_key="sk_test_fake",
@@ -33,26 +69,28 @@ def test_settings() -> Settings:
 
 
 @pytest.fixture
-async def async_engine(test_settings: Settings):
-    """Create async test engine with SQLite."""
+async def async_engine(database_url: str):
+    """Create async test engine with PostgreSQL."""
+    from sqlalchemy import text
+
     engine = create_async_engine(
-        "sqlite+aiosqlite:///:memory:",
+        database_url,
         echo=False,
-        poolclass=StaticPool,
-        connect_args={"check_same_thread": False},
     )
 
-    # Enable foreign key support for SQLite
-    @event.listens_for(engine.sync_engine, "connect")
-    def set_sqlite_pragma(dbapi_connection, connection_record):
-        cursor = dbapi_connection.cursor()
-        cursor.execute("PRAGMA foreign_keys=ON")
-        cursor.close()
+    # Enable required PostgreSQL extensions
+    async with engine.begin() as conn:
+        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS ltree"))
 
+    # Create all tables from the real models
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
     yield engine
+
+    # Drop all tables after tests
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
 
     await engine.dispose()
 
@@ -70,6 +108,8 @@ async def async_session(async_engine) -> AsyncGenerator[AsyncSession, None]:
 
     async with session_factory() as session:
         yield session
+        # Rollback any uncommitted changes to keep tests isolated
+        await session.rollback()
 
 
 @pytest.fixture
@@ -169,7 +209,8 @@ async def user_with_expired_free_credits(async_session: AsyncSession) -> User:
         oauth_id="google_expired_123",
         credit_balance=10,
         free_credits_remaining=0,  # Used all free credits
-        free_credits_reset_at=datetime.utcnow() - timedelta(days=1),  # Reset date passed
+        free_credits_reset_at=datetime.utcnow()
+        - timedelta(days=1),  # Reset date passed
         is_admin=False,
     )
     async_session.add(user)
@@ -357,11 +398,17 @@ def stripe_webhook_payload():
 @pytest.fixture
 def mock_stripe_webhook_event(stripe_webhook_payload):
     """Create a mock Stripe webhook event."""
-    event = MagicMock()
-    event.type = stripe_webhook_payload["type"]
-    event.data.object = MagicMock()
-    event.data.object.id = stripe_webhook_payload["data"]["object"]["id"]
-    event.data.object.payment_intent = stripe_webhook_payload["data"]["object"]["payment_intent"]
-    event.data.object.metadata = MagicMock()
-    event.data.object.metadata.get = lambda key, default=None: stripe_webhook_payload["data"]["object"]["metadata"].get(key, default)
-    return event
+    mock_event = MagicMock()
+    mock_event.type = stripe_webhook_payload["type"]
+    mock_event.data.object = MagicMock()
+    mock_event.data.object.id = stripe_webhook_payload["data"]["object"]["id"]
+    mock_event.data.object.payment_intent = stripe_webhook_payload["data"]["object"][
+        "payment_intent"
+    ]
+    mock_event.data.object.metadata = MagicMock()
+    mock_event.data.object.metadata.get = (
+        lambda key, default=None: stripe_webhook_payload["data"]["object"][
+            "metadata"
+        ].get(key, default)
+    )
+    return mock_event

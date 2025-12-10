@@ -34,7 +34,8 @@ export function ImageUpload({
   );
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const { show: showInsufficientCredits, InsufficientCreditsModal } = useInsufficientCreditsModal();
+  const { show: showInsufficientCredits, InsufficientCreditsModal } =
+    useInsufficientCreditsModal();
   const { refreshCredits } = useAuth();
 
   const handleFileChange = useCallback(
@@ -91,7 +92,12 @@ export function ImageUpload({
       } catch (err: unknown) {
         console.error("Classification error:", err);
         // Check for 402 Payment Required (insufficient credits)
-        if (err && typeof err === "object" && "status" in err && (err as { status: number }).status === 402) {
+        if (
+          err &&
+          typeof err === "object" &&
+          "status" in err &&
+          (err as { status: number }).status === 402
+        ) {
           showInsufficientCredits();
         } else {
           setError("Failed to classify image. Please try again.");

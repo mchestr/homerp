@@ -47,7 +47,9 @@ class ItemRepository:
             result = await self.session.execute(
                 select(Category.id).where(
                     Category.user_id == self.user_id,
-                    text("path <@ :parent_path").bindparams(parent_path=str(category.path)),
+                    text("path <@ :parent_path").bindparams(
+                        parent_path=str(category.path)
+                    ),
                 )
             )
             return list(result.scalars().all())
@@ -71,7 +73,9 @@ class ItemRepository:
             result = await self.session.execute(
                 select(Location.id).where(
                     Location.user_id == self.user_id,
-                    text("path <@ :parent_path").bindparams(parent_path=str(location.path)),
+                    text("path <@ :parent_path").bindparams(
+                        parent_path=str(location.path)
+                    ),
                 )
             )
             return list(result.scalars().all())

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 import stripe
@@ -48,7 +48,7 @@ class CreditService:
     async def _check_and_reset_free_credits(self, user: User) -> None:
         """Reset free credits if the reset date has passed (anniversary-based)."""
         # Use naive UTC datetime to match database column (TIMESTAMP WITHOUT TIME ZONE)
-        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        now = datetime.now(UTC).replace(tzinfo=None)
 
         # Initialize reset date if not set (new user)
         if user.free_credits_reset_at is None:
@@ -194,9 +194,7 @@ class CreditService:
         )
         transactions = result.scalars().all()
 
-        return [
-            TransactionResponse.model_validate(t) for t in transactions
-        ], total
+        return [TransactionResponse.model_validate(t) for t in transactions], total
 
     async def get_credit_packs(self) -> list[CreditPack]:
         """Get all active credit packs."""
@@ -210,11 +208,15 @@ class CreditService:
     async def get_credit_pack(self, pack_id: UUID) -> CreditPack | None:
         """Get a credit pack by ID."""
         result = await self.session.execute(
-            select(CreditPack).where(CreditPack.id == pack_id, CreditPack.is_active.is_(True))
+            select(CreditPack).where(
+                CreditPack.id == pack_id, CreditPack.is_active.is_(True)
+            )
         )
         return result.scalar_one_or_none()
 
-    async def can_refund_purchase(self, transaction_id: UUID, user_id: UUID) -> tuple[bool, str]:
+    async def can_refund_purchase(
+        self, transaction_id: UUID, user_id: UUID
+    ) -> tuple[bool, str]:
         """
         Check if a purchase can be refunded.
 
@@ -298,9 +300,7 @@ class StripeService:
         self.settings = settings
         stripe.api_key = settings.stripe_secret_key
 
-    async def get_or_create_customer(
-        self, session: AsyncSession, user: User
-    ) -> str:
+    async def get_or_create_customer(self, session: AsyncSession, user: User) -> str:
         """Get or create a Stripe customer for a user."""
         if user.stripe_customer_id:
             return user.stripe_customer_id
@@ -365,9 +365,7 @@ class StripeService:
         """Create a Stripe refund for a payment."""
         return stripe.Refund.create(payment_intent=payment_intent_id)
 
-    def construct_webhook_event(
-        self, payload: bytes, signature: str
-    ) -> stripe.Event:
+    def construct_webhook_event(self, payload: bytes, signature: str) -> stripe.Event:
         """Construct and verify a Stripe webhook event."""
         return stripe.Webhook.construct_event(
             payload,
