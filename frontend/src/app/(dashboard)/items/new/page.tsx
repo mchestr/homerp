@@ -231,7 +231,7 @@ export default function NewItemPage() {
       </div>
 
       <div className="rounded-xl border bg-card p-6">
-        <div className="flex items-center gap-3 mb-6">
+        <div className="mb-6 flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
             1
           </div>
@@ -247,7 +247,7 @@ export default function NewItemPage() {
 
       {classification && (
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 dark:border-emerald-800 dark:bg-emerald-950/30">
-          <div className="flex items-center gap-3 mb-4">
+          <div className="mb-4 flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500">
               <CheckCircle2 className="h-5 w-5 text-white" />
             </div>
@@ -282,7 +282,7 @@ export default function NewItemPage() {
                 </span>
               </div>
             </div>
-            <div className="rounded-lg bg-white/60 p-3 sm:col-span-2 dark:bg-black/20">
+            <div className="rounded-lg bg-white/60 p-3 dark:bg-black/20 sm:col-span-2">
               <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
                 Suggested category
               </p>
@@ -291,7 +291,7 @@ export default function NewItemPage() {
               </p>
             </div>
             {Object.keys(classification.specifications).length > 0 && (
-              <div className="rounded-lg bg-white/60 p-3 sm:col-span-2 dark:bg-black/20">
+              <div className="rounded-lg bg-white/60 p-3 dark:bg-black/20 sm:col-span-2">
                 <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
                   Detected specifications
                 </p>
@@ -314,7 +314,7 @@ export default function NewItemPage() {
       )}
 
       <form onSubmit={handleSubmit} className="rounded-xl border bg-card p-6">
-        <div className="flex items-center gap-3 mb-6">
+        <div className="mb-6 flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
             2
           </div>
@@ -426,9 +426,7 @@ export default function NewItemPage() {
 
           {/* Tags */}
           <div>
-            <label className="mb-2 block text-sm font-medium">
-              Tags
-            </label>
+            <label className="mb-2 block text-sm font-medium">Tags</label>
             <TagInput
               value={formData.tags || []}
               onChange={(tags) => setFormData((prev) => ({ ...prev, tags }))}

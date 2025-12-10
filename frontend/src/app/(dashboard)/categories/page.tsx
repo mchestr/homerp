@@ -200,7 +200,7 @@ export default function CategoriesPage() {
       {isFormVisible && (
         <form
           onSubmit={handleSubmit}
-          className="rounded-xl border bg-card p-6 space-y-5"
+          className="space-y-5 rounded-xl border bg-card p-6"
         >
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">

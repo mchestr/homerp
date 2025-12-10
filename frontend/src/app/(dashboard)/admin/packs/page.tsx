@@ -106,10 +106,15 @@ function PackFormDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen: boolean) => !isOpen && onClose()}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen: boolean) => !isOpen && onClose()}
+    >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{pack ? "Edit Credit Pack" : "Create Credit Pack"}</DialogTitle>
+          <DialogTitle>
+            {pack ? "Edit Credit Pack" : "Create Credit Pack"}
+          </DialogTitle>
           <DialogDescription>
             {pack
               ? "Update the credit pack details"
@@ -139,7 +144,10 @@ function PackFormDialog({
                   min={1}
                   value={formData.credits}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setFormData({ ...formData, credits: parseInt(e.target.value) || 0 })
+                    setFormData({
+                      ...formData,
+                      credits: parseInt(e.target.value) || 0,
+                    })
                   }
                   required
                 />
@@ -330,7 +338,7 @@ export default function AdminPacksPage() {
                 <th className="px-4 py-3 font-medium">Stripe Price ID</th>
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium">Order</th>
-                <th className="px-4 py-3 font-medium text-right">Actions</th>
+                <th className="px-4 py-3 text-right font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -376,7 +384,10 @@ export default function AdminPacksPage() {
               ))}
               {(!packs || packs.length === 0) && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
+                  <td
+                    colSpan={7}
+                    className="px-4 py-8 text-center text-muted-foreground"
+                  >
                     No credit packs yet. Create one to get started.
                   </td>
                 </tr>
@@ -404,13 +415,16 @@ export default function AdminPacksPage() {
       />
 
       {/* Delete Confirmation */}
-      <AlertDialog open={!!deletePackId} onOpenChange={() => setDeletePackId(null)}>
+      <AlertDialog
+        open={!!deletePackId}
+        onOpenChange={() => setDeletePackId(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Credit Pack</AlertDialogTitle>
             <AlertDialogDescription>
-              This will deactivate the credit pack. Existing purchases will not be affected.
-              Are you sure you want to continue?
+              This will deactivate the credit pack. Existing purchases will not
+              be affected. Are you sure you want to continue?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

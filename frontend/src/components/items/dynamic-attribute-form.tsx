@@ -79,7 +79,7 @@ function FieldRenderer({ field, value, onChange }: FieldRendererProps) {
         <div>
           <label className={labelClasses}>
             {field.label}
-            {field.required && <span className="text-destructive ml-1">*</span>}
+            {field.required && <span className="ml-1 text-destructive">*</span>}
           </label>
           <div className="relative">
             <input
@@ -104,7 +104,7 @@ function FieldRenderer({ field, value, onChange }: FieldRendererProps) {
         <div>
           <label className={labelClasses}>
             {field.label}
-            {field.required && <span className="text-destructive ml-1">*</span>}
+            {field.required && <span className="ml-1 text-destructive">*</span>}
           </label>
           <div className="relative">
             <input
@@ -131,7 +131,7 @@ function FieldRenderer({ field, value, onChange }: FieldRendererProps) {
         <div>
           <label className={labelClasses}>
             {field.label}
-            {field.required && <span className="text-destructive ml-1">*</span>}
+            {field.required && <span className="ml-1 text-destructive">*</span>}
           </label>
           <select
             value={(value as string) ?? ""}
@@ -238,10 +238,10 @@ export function AttributeTemplateEditor({
           {fields.map((field, index) => (
             <div
               key={index}
-              className="rounded-lg border bg-card p-4 space-y-3"
+              className="space-y-3 rounded-lg border bg-card p-4"
             >
               <div className="flex items-start justify-between gap-2">
-                <div className="flex-1 grid gap-3 sm:grid-cols-2">
+                <div className="grid flex-1 gap-3 sm:grid-cols-2">
                   <input
                     type="text"
                     value={field.label}
@@ -261,8 +261,7 @@ export function AttributeTemplateEditor({
                     onChange={(e) =>
                       updateField(index, {
                         type: e.target.value as AttributeField["type"],
-                        options:
-                          e.target.value === "select" ? [""] : undefined,
+                        options: e.target.value === "select" ? [""] : undefined,
                       })
                     }
                     className="h-9 rounded border bg-background px-3 text-sm"

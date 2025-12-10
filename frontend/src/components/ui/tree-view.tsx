@@ -48,8 +48,8 @@ function TreeItem<T extends TreeNode>({
       <div
         className={cn(
           "group flex items-center gap-1 rounded-lg px-2 py-1.5 transition-colors",
-          "hover:bg-accent cursor-pointer",
-          isSelected && "bg-accent border-l-2 border-primary"
+          "cursor-pointer hover:bg-accent",
+          isSelected && "border-l-2 border-primary bg-accent"
         )}
         style={{ paddingLeft: `${level * 20 + 8}px` }}
         onClick={() => onSelect?.(node)}
@@ -89,7 +89,7 @@ function TreeItem<T extends TreeNode>({
 
         {/* Actions */}
         {renderActions && (
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="opacity-0 transition-opacity group-hover:opacity-100">
             {renderActions(node)}
           </div>
         )}

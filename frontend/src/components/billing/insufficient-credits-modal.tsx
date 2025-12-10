@@ -90,7 +90,8 @@ export function InsufficientCreditsModal({
               Insufficient Credits
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              You don&apos;t have enough credits to use AI classification. Purchase more credits to continue.
+              You don&apos;t have enough credits to use AI classification.
+              Purchase more credits to continue.
             </p>
           </div>
           <button

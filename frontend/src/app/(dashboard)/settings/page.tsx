@@ -1,7 +1,14 @@
 "use client";
 
 import { useAuth } from "@/context/auth-context";
-import { User, Mail, Calendar, Shield, Coins, ChevronRight } from "lucide-react";
+import {
+  User,
+  Mail,
+  Calendar,
+  Shield,
+  Coins,
+  ChevronRight,
+} from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import Link from "next/link";
 
@@ -61,7 +68,7 @@ export default function SettingsPage() {
 
       {/* Billing & Credits */}
       <Link href="/settings/billing" className="block">
-        <div className="rounded-xl border bg-card p-6 hover:border-primary/50 transition-colors">
+        <div className="rounded-xl border bg-card p-6 transition-colors hover:border-primary/50">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-primary/10 p-2">

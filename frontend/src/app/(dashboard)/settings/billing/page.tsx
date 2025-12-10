@@ -3,11 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/auth-context";
-import {
-  billingApi,
-  CreditPack,
-  CreditTransaction,
-} from "@/lib/api/client";
+import { billingApi, CreditPack, CreditTransaction } from "@/lib/api/client";
 import {
   Coins,
   CreditCard,
@@ -59,7 +55,9 @@ function CreditPackCard({
       <div className="text-center">
         <h3 className="text-lg font-semibold">{pack.name}</h3>
         <div className="mt-2">
-          <span className="text-3xl font-bold">{formatPrice(pack.price_cents)}</span>
+          <span className="text-3xl font-bold">
+            {formatPrice(pack.price_cents)}
+          </span>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">
           {pack.credits} credits
@@ -95,14 +93,24 @@ function TransactionRow({ transaction }: { transaction: CreditTransaction }) {
   };
 
   return (
-    <div className="flex items-center justify-between py-3 border-b last:border-0">
+    <div className="flex items-center justify-between border-b py-3 last:border-0">
       <div>
-        <p className="font-medium text-sm">{typeLabels[transaction.transaction_type] || transaction.transaction_type}</p>
-        <p className="text-xs text-muted-foreground">{transaction.description}</p>
-        <p className="text-xs text-muted-foreground">{formatDate(transaction.created_at)}</p>
+        <p className="text-sm font-medium">
+          {typeLabels[transaction.transaction_type] ||
+            transaction.transaction_type}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          {transaction.description}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          {formatDate(transaction.created_at)}
+        </p>
       </div>
-      <div className={`font-semibold ${isPositive ? "text-green-600" : "text-red-600"}`}>
-        {isPositive ? "+" : ""}{transaction.amount}
+      <div
+        className={`font-semibold ${isPositive ? "text-green-600" : "text-red-600"}`}
+      >
+        {isPositive ? "+" : ""}
+        {transaction.amount}
         {transaction.is_refunded && (
           <span className="ml-2 text-xs text-muted-foreground">(refunded)</span>
         )}
@@ -175,7 +183,7 @@ export default function BillingSettingsPage() {
       {/* Current Balance */}
       <div className="rounded-xl border bg-card p-6">
         <div className="flex items-center justify-between">
-          <h2 className="font-semibold flex items-center gap-2">
+          <h2 className="flex items-center gap-2 font-semibold">
             <Coins className="h-5 w-5 text-primary" />
             Credit Balance
           </h2>
@@ -202,7 +210,7 @@ export default function BillingSettingsPage() {
             </p>
             <p className="text-sm text-muted-foreground">Free (Monthly)</p>
             {creditBalance?.next_free_reset_at && (
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="mt-1 text-xs text-muted-foreground">
                 Resets {formatDate(creditBalance.next_free_reset_at)}
               </p>
             )}
@@ -212,12 +220,13 @@ export default function BillingSettingsPage() {
 
       {/* Purchase Credits */}
       <div className="rounded-xl border bg-card p-6">
-        <h2 className="font-semibold flex items-center gap-2">
+        <h2 className="flex items-center gap-2 font-semibold">
           <Sparkles className="h-5 w-5 text-primary" />
           Purchase Credits
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Credits are used for AI-powered image classification. Purchased credits never expire.
+          Credits are used for AI-powered image classification. Purchased
+          credits never expire.
         </p>
         {packsLoading ? (
           <div className="mt-6 flex justify-center">
@@ -254,7 +263,7 @@ export default function BillingSettingsPage() {
             ))}
           </div>
         ) : (
-          <p className="mt-4 text-sm text-muted-foreground text-center py-4">
+          <p className="mt-4 py-4 text-center text-sm text-muted-foreground">
             No transactions yet
           </p>
         )}

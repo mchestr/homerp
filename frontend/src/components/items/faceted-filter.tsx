@@ -234,7 +234,10 @@ export function InlineFacetedFilter({
           value={selectedFilters[facet.name] || ""}
           onChange={(e) => {
             if (e.target.value) {
-              onFilterChange({ ...selectedFilters, [facet.name]: e.target.value });
+              onFilterChange({
+                ...selectedFilters,
+                [facet.name]: e.target.value,
+              });
             } else {
               const newFilters = { ...selectedFilters };
               delete newFilters[facet.name];
