@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 import stripe
@@ -48,7 +48,7 @@ class CreditService:
     async def _check_and_reset_free_credits(self, user: User) -> None:
         """Reset free credits if the reset date has passed (anniversary-based)."""
         # Use naive UTC datetime to match database column (TIMESTAMP WITHOUT TIME ZONE)
-        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        now = datetime.now(UTC).replace(tzinfo=None)
 
         # Initialize reset date if not set (new user)
         if user.free_credits_reset_at is None:

@@ -2,16 +2,13 @@
 
 import uuid
 from datetime import datetime, timedelta
-from unittest.mock import AsyncMock, MagicMock, patch
 
-import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.billing.models import CreditTransaction
 from src.billing.service import CreditService
 from src.config import Settings
-from src.images.schemas import ClassificationResult
 from src.users.models import User
 
 

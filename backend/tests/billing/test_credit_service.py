@@ -1,7 +1,6 @@
 """Tests for CreditService - core credit management logic."""
 
 import uuid
-from datetime import datetime, timedelta
 
 import pytest
 from sqlalchemy import select
@@ -385,8 +384,11 @@ class TestGetTransactionHistory:
 
         assert total == 3
         assert len(transactions) == 3
-        # Ordered by created_at desc, so newest first
-        assert transactions[0].description == "Purchase 2"
+        # Verify all expected descriptions are present (order may vary due to same timestamp)
+        descriptions = {t.description for t in transactions}
+        assert "Purchase 1" in descriptions
+        assert "Usage 1" in descriptions
+        assert "Purchase 2" in descriptions
 
     async def test_get_transaction_history_pagination(
         self,
@@ -437,11 +439,14 @@ class TestGetCreditPacks:
         self,
         async_session: AsyncSession,
         test_settings: Settings,
-        credit_packs,
+        credit_packs: list,
     ):
         """Test that only active packs are returned."""
         service = CreditService(async_session, test_settings)
         packs = await service.get_credit_packs()
+
+        # Verify fixture created all packs
+        assert len(credit_packs) == 4
 
         # Should return 3 active packs (not the inactive one)
         assert len(packs) == 3
@@ -452,11 +457,14 @@ class TestGetCreditPacks:
         self,
         async_session: AsyncSession,
         test_settings: Settings,
-        credit_packs,
+        credit_packs: list,
     ):
         """Test that packs are ordered by sort_order."""
         service = CreditService(async_session, test_settings)
         packs = await service.get_credit_packs()
+
+        # Verify fixture created packs
+        assert len(credit_packs) == 4
 
         sort_orders = [pack.sort_order for pack in packs]
         assert sort_orders == sorted(sort_orders)

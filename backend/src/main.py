@@ -8,7 +8,7 @@ from src.database import close_db, init_db
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI):
     """Application lifespan handler."""
     settings = get_settings()
     init_db(settings)

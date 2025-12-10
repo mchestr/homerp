@@ -3,7 +3,6 @@
 import uuid
 from datetime import datetime, timedelta
 
-import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -26,7 +25,7 @@ class TestFreeCreditsReset:
         service = CreditService(async_session, test_settings)
 
         # Get balance triggers the reset check
-        balance = await service.get_balance(new_user_without_reset_date.id)
+        await service.get_balance(new_user_without_reset_date.id)
 
         await async_session.refresh(new_user_without_reset_date)
 
@@ -56,7 +55,7 @@ class TestFreeCreditsReset:
         assert user_with_expired_free_credits.free_credits_remaining == 0
 
         # Get balance triggers the reset
-        balance = await service.get_balance(user_with_expired_free_credits.id)
+        await service.get_balance(user_with_expired_free_credits.id)
 
         await async_session.refresh(user_with_expired_free_credits)
 

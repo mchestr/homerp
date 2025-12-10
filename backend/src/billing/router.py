@@ -147,9 +147,9 @@ async def create_portal_session(
 async def request_refund(
     data: RefundRequest,
     user_id: CurrentUserIdDep,
-    session: AsyncSessionDep,
+    _session: AsyncSessionDep,
     credit_service: CreditServiceDep,
-    stripe_service: StripeServiceDep,
+    _stripe_service: StripeServiceDep,
 ) -> RefundResponse:
     """Request a refund for an unused credit purchase."""
     # Check if refund is eligible
@@ -193,7 +193,7 @@ async def request_refund(
 @router.post("/webhook")
 async def handle_webhook(
     request: Request,
-    session: AsyncSessionDep,
+    _session: AsyncSessionDep,
     stripe_service: StripeServiceDep,
     credit_service: CreditServiceDep,
     stripe_signature: str = Header(alias="Stripe-Signature"),

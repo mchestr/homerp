@@ -1,18 +1,124 @@
 """Shared test fixtures and configuration."""
 
 import uuid
+from collections.abc import AsyncGenerator
 from datetime import datetime, timedelta
-from typing import AsyncGenerator
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
-from sqlalchemy import StaticPool, event, text
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    MetaData,
+    StaticPool,
+    String,
+    Table,
+    event,
+    text,
+)
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase
 
 from src.billing.models import CreditPack, CreditTransaction
 from src.config import Settings
-from src.database import Base
 from src.users.models import User
+
+
+# Create a minimal base for test models that don't require PostgreSQL types
+class TestBase(DeclarativeBase):
+    """Test base class."""
+
+    pass
+
+
+# Define test-compatible tables (without PostgreSQL-specific types)
+# Using text() for default to simulate gen_random_uuid() for SQLite
+test_metadata = MetaData()
+
+users_table = Table(
+    "users",
+    test_metadata,
+    Column(
+        "id",
+        String(36),
+        primary_key=True,
+        server_default=text("(lower(hex(randomblob(16))))"),
+    ),
+    Column("email", String(255), unique=True, nullable=False),
+    Column("name", String(255)),
+    Column("avatar_url", String(500)),
+    Column("oauth_provider", String(50), nullable=False),
+    Column("oauth_id", String(255), nullable=False),
+    Column("created_at", DateTime, server_default=text("CURRENT_TIMESTAMP")),
+    Column("updated_at", DateTime, server_default=text("CURRENT_TIMESTAMP")),
+    Column("stripe_customer_id", String(255)),
+    Column("credit_balance", Integer, server_default=text("0")),
+    Column("free_credits_remaining", Integer, server_default=text("5")),
+    Column("free_credits_reset_at", DateTime),
+    Column("is_admin", Boolean, server_default=text("0")),
+)
+
+credit_packs_table = Table(
+    "credit_packs",
+    test_metadata,
+    Column(
+        "id",
+        String(36),
+        primary_key=True,
+        server_default=text("(lower(hex(randomblob(16))))"),
+    ),
+    Column("name", String(100), nullable=False),
+    Column("credits", Integer, nullable=False),
+    Column("price_cents", Integer, nullable=False),
+    Column("stripe_price_id", String(255), nullable=False),
+    Column("is_active", Boolean, server_default=text("1")),
+    Column("sort_order", Integer, server_default=text("0")),
+    Column("created_at", DateTime, server_default=text("CURRENT_TIMESTAMP")),
+)
+
+credit_transactions_table = Table(
+    "credit_transactions",
+    test_metadata,
+    Column(
+        "id",
+        String(36),
+        primary_key=True,
+        server_default=text("(lower(hex(randomblob(16))))"),
+    ),
+    Column(
+        "user_id",
+        String(36),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column("amount", Integer, nullable=False),
+    Column("transaction_type", String(50), nullable=False),
+    Column("stripe_payment_intent_id", String(255)),
+    Column("stripe_checkout_session_id", String(255)),
+    Column(
+        "credit_pack_id",
+        String(36),
+        ForeignKey("credit_packs.id", ondelete="SET NULL"),
+    ),
+    Column("description", String(500), nullable=False),
+    Column("is_refunded", Boolean, server_default=text("0")),
+    Column("created_at", DateTime, server_default=text("CURRENT_TIMESTAMP")),
+)
+
+
+# Synchronous test client for simple endpoint tests
+@pytest.fixture
+def client():
+    """Create a test client for synchronous tests."""
+    from fastapi.testclient import TestClient
+
+    from src.main import app
+
+    with TestClient(app) as test_client:
+        yield test_client
 
 
 # Test settings with SQLite for isolation
@@ -33,7 +139,7 @@ def test_settings() -> Settings:
 
 
 @pytest.fixture
-async def async_engine(test_settings: Settings):
+async def async_engine():
     """Create async test engine with SQLite."""
     engine = create_async_engine(
         "sqlite+aiosqlite:///:memory:",
@@ -44,13 +150,14 @@ async def async_engine(test_settings: Settings):
 
     # Enable foreign key support for SQLite
     @event.listens_for(engine.sync_engine, "connect")
-    def set_sqlite_pragma(dbapi_connection, connection_record):
+    def set_sqlite_pragma(dbapi_connection, _connection_record):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
 
+    # Create only the tables needed for billing tests
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(test_metadata.create_all)
 
     yield engine
 
@@ -357,11 +464,17 @@ def stripe_webhook_payload():
 @pytest.fixture
 def mock_stripe_webhook_event(stripe_webhook_payload):
     """Create a mock Stripe webhook event."""
-    event = MagicMock()
-    event.type = stripe_webhook_payload["type"]
-    event.data.object = MagicMock()
-    event.data.object.id = stripe_webhook_payload["data"]["object"]["id"]
-    event.data.object.payment_intent = stripe_webhook_payload["data"]["object"]["payment_intent"]
-    event.data.object.metadata = MagicMock()
-    event.data.object.metadata.get = lambda key, default=None: stripe_webhook_payload["data"]["object"]["metadata"].get(key, default)
-    return event
+    mock_event = MagicMock()
+    mock_event.type = stripe_webhook_payload["type"]
+    mock_event.data.object = MagicMock()
+    mock_event.data.object.id = stripe_webhook_payload["data"]["object"]["id"]
+    mock_event.data.object.payment_intent = stripe_webhook_payload["data"]["object"][
+        "payment_intent"
+    ]
+    mock_event.data.object.metadata = MagicMock()
+    mock_event.data.object.metadata.get = (
+        lambda key, default=None: stripe_webhook_payload["data"]["object"][
+            "metadata"
+        ].get(key, default)
+    )
+    return mock_event
