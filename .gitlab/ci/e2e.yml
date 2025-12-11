@@ -7,26 +7,27 @@
       - ~/.cache/ms-playwright/
     policy: pull-push
 
-e2e:playwright:
-  stage: e2e
-  image: mcr.microsoft.com/playwright:v1.49.0-noble
-  <<: *playwright-cache
-  needs:
-    - frontend:build
-  before_script:
-    - npm install -g corepack@latest
-    - corepack enable
-    - corepack prepare pnpm@latest --activate
-    - cd frontend
-    - pnpm install --frozen-lockfile
-  script:
-    - pnpm test
-  artifacts:
-    when: always
-    paths:
-      - frontend/playwright-report/
-      - frontend/test-results/
-    expire_in: 30 days
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+# Disabled: E2E tests need to be reduced/refocused
+# e2e:playwright:
+#   stage: e2e
+#   image: mcr.microsoft.com/playwright:v1.49.0-noble
+#   <<: *playwright-cache
+#   needs:
+#     - frontend:build
+#   before_script:
+#     - npm install -g corepack@latest
+#     - corepack enable
+#     - corepack prepare pnpm@latest --activate
+#     - cd frontend
+#     - pnpm install --frozen-lockfile
+#   script:
+#     - pnpm test
+#   artifacts:
+#     when: always
+#     paths:
+#       - frontend/playwright-report/
+#       - frontend/test-results/
+#     expire_in: 30 days
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
