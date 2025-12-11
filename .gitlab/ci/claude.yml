@@ -8,7 +8,7 @@ claude:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   variables:
     GIT_STRATEGY: fetch
-    ANTHROPIC_API_KEY: $ANTHROPIC_API_KEY
+    CLAUDE_CODE_OAUTH_TOKEN: $CLAUDE_CODE_OAUTH_TOKEN
   before_script:
     - apk update
     - apk add --no-cache git curl bash
