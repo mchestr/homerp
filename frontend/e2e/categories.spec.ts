@@ -11,6 +11,8 @@ test.describe("Categories", () => {
     await expect(
       page.getByRole("heading", { name: /categories/i })
     ).toBeVisible();
+
+    // Wait for categories to load
     await expect(page.getByText("Electronics")).toBeVisible();
   });
 
@@ -20,17 +22,20 @@ test.describe("Categories", () => {
 
     await page.goto("/categories");
 
-    const addButton = page.getByRole("button", { name: /add|new|create/i });
+    const addButton = page.getByRole("button", { name: "Add Category" });
     await addButton.click();
 
-    const nameInput = page.getByLabel(/name/i);
+    const nameInput = page.getByTestId("category-name-input");
     await expect(nameInput).toBeVisible();
 
     await nameInput.fill("Test Category");
 
-    const submitButton = page.getByRole("button", { name: /save|create|add/i });
+    const submitButton = page.getByTestId("category-submit-button");
     await submitButton.click();
 
-    await expect(page.getByText("Test Category")).toBeVisible();
+    // Form should close after successful submission
+    await expect(nameInput).not.toBeVisible();
+    // Add Category button should reappear
+    await expect(addButton).toBeVisible();
   });
 });

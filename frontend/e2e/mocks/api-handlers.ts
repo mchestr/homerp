@@ -167,16 +167,8 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     }
   });
 
-  // Categories endpoints
-  await page.route("**/api/v1/categories/tree", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify(fixtures.testCategoryTree),
-    });
-  });
-
-  await page.route("**/api/v1/categories", async (route) => {
+  // Categories endpoints - use regex to match exact path
+  await page.route(/\/api\/v1\/categories$/, async (route) => {
     if (route.request().method() === "GET") {
       await route.fulfill({
         status: 200,
@@ -225,6 +217,13 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     const method = route.request().method();
     const url = route.request().url();
     const catId = url.split("/").pop();
+
+    // Skip "tree" - it's handled by a more specific route registered after this
+    if (catId === "tree") {
+      await route.fallback();
+      return;
+    }
+
     const category = fixtures.testCategories.find((c) => c.id === catId);
 
     if (method === "GET") {
@@ -258,16 +257,17 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     }
   });
 
-  // Locations endpoints
-  await page.route("**/api/v1/locations/tree", async (route) => {
+  // Tree route - registered LAST so it has highest priority (LIFO)
+  await page.route("**/api/v1/categories/tree", async (route) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify(fixtures.testLocationTree),
+      body: JSON.stringify(fixtures.testCategoryTree),
     });
   });
 
-  await page.route("**/api/v1/locations", async (route) => {
+  // Locations endpoints - use regex to match exact path
+  await page.route(/\/api\/v1\/locations$/, async (route) => {
     if (route.request().method() === "GET") {
       await route.fulfill({
         status: 200,
@@ -296,6 +296,13 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     const method = route.request().method();
     const url = route.request().url();
     const locId = url.split("/").pop();
+
+    // Skip "tree" - it's handled by a more specific route registered after this
+    if (locId === "tree") {
+      await route.fallback();
+      return;
+    }
+
     const location = fixtures.testLocations.find((l) => l.id === locId);
 
     if (method === "GET") {
@@ -327,6 +334,15 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     } else {
       await route.continue();
     }
+  });
+
+  // Tree route - registered LAST so it has highest priority (LIFO)
+  await page.route("**/api/v1/locations/tree", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(fixtures.testLocationTree),
+    });
   });
 
   // Billing endpoints

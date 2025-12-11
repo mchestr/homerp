@@ -425,6 +425,7 @@ export default function NewItemPage() {
             <input
               type="text"
               name="name"
+              data-testid="item-name-input"
               value={formData.name}
               onChange={handleInputChange}
               required

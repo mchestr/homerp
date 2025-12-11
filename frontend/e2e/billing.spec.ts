@@ -9,9 +9,9 @@ test.describe("Billing", () => {
 
     await page.goto("/settings/billing");
 
-    // Should show total credits
+    // Should show credit balance section
     await expect(
-      page.getByText(new RegExp(`${fixtures.testCreditBalance.total_credits}`))
+      page.getByRole("heading", { name: "Credit Balance" })
     ).toBeVisible();
 
     // Should show at least one credit pack

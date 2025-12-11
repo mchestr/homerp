@@ -11,7 +11,9 @@ test.describe("Admin Access Control", () => {
 
     await page.goto("/admin");
 
-    await expect(page.getByRole("heading", { name: /admin/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Admin Dashboard" })
+    ).toBeVisible();
   });
 
   test("regular user cannot access admin dashboard", async ({ page }) => {
