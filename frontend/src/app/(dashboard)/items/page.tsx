@@ -14,7 +14,6 @@ import {
   X,
   AlertTriangle,
   Minus,
-  SlidersHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InlineFacetedFilter } from "@/components/items/faceted-filter";
