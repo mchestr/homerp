@@ -520,9 +520,7 @@ export default function NewItemPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium">
-                Price
-              </label>
+              <label className="mb-2 block text-sm font-medium">Price</label>
               <input
                 type="number"
                 name="price"
@@ -585,7 +583,10 @@ export default function NewItemPage() {
         </div>
       </form>
 
-      <AlertDialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
+      <AlertDialog
+        open={showCategoryDialog}
+        onOpenChange={setShowCategoryDialog}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Create Category Hierarchy?</AlertDialogTitle>

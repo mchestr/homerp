@@ -165,11 +165,20 @@ export default function LocationsPage() {
   const selectTreeWithIcons = addIconsToTree(getSelectableTree());
 
   // Build a lookup map from tree data for item_count and total_value
-  const getTreeStats = (): Map<string, { item_count: number; total_value: number }> => {
-    const stats = new Map<string, { item_count: number; total_value: number }>();
+  const getTreeStats = (): Map<
+    string,
+    { item_count: number; total_value: number }
+  > => {
+    const stats = new Map<
+      string,
+      { item_count: number; total_value: number }
+    >();
     const traverse = (nodes: LocationTreeNode[]) => {
       for (const node of nodes) {
-        stats.set(node.id, { item_count: node.item_count, total_value: node.total_value });
+        stats.set(node.id, {
+          item_count: node.item_count,
+          total_value: node.total_value,
+        });
         if (node.children) traverse(node.children);
       }
     };
@@ -372,7 +381,10 @@ export default function LocationsPage() {
               selectedId={selectedId}
               onSelect={(node) => setSelectedId(node.id)}
               renderActions={(node) => (
-                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                <div
+                  className="flex gap-1"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <button
                     type="button"
                     onClick={() => handleAddChild(node.id)}
@@ -423,9 +435,15 @@ export default function LocationsPage() {
                 <button
                   type="button"
                   key={location.id}
-                  onClick={() => setSelectedId(selectedId === location.id ? null : location.id)}
+                  onClick={() =>
+                    setSelectedId(
+                      selectedId === location.id ? null : location.id
+                    )
+                  }
                   className={`group rounded-xl border bg-card p-5 text-left transition-all hover:border-primary/50 hover:shadow-md ${
-                    selectedId === location.id ? "border-primary ring-2 ring-primary/20" : ""
+                    selectedId === location.id
+                      ? "border-primary ring-2 ring-primary/20"
+                      : ""
                   }`}
                 >
                   <div className="flex items-start justify-between">
@@ -459,12 +477,21 @@ export default function LocationsPage() {
                           <div className="mt-2 flex items-center gap-2">
                             {treeStats.get(location.id)!.item_count > 0 && (
                               <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                                {treeStats.get(location.id)!.item_count} item{treeStats.get(location.id)!.item_count !== 1 ? "s" : ""}
+                                {treeStats.get(location.id)!.item_count} item
+                                {treeStats.get(location.id)!.item_count !== 1
+                                  ? "s"
+                                  : ""}
                               </span>
                             )}
                             {treeStats.get(location.id)!.total_value > 0 && (
                               <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-600 dark:text-emerald-400">
-                                ${treeStats.get(location.id)!.total_value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                $
+                                {treeStats
+                                  .get(location.id)!
+                                  .total_value.toLocaleString(undefined, {
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0,
+                                  })}
                               </span>
                             )}
                           </div>

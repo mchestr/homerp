@@ -12,7 +12,9 @@ test.describe("Locations Page", () => {
     await page.goto("/locations");
 
     // Should show page title
-    await expect(page.getByRole("heading", { name: /locations/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /locations/i })
+    ).toBeVisible();
 
     // Should display root location
     await expect(page.getByText("Workshop")).toBeVisible();
@@ -25,7 +27,7 @@ test.describe("Locations Page", () => {
     await expect(page.getByText("Workshop")).toBeVisible();
 
     // Expand if needed
-    const expandButton = page.locator('[aria-expanded]').first();
+    const expandButton = page.locator("[aria-expanded]").first();
     if (await expandButton.isVisible()) {
       await expandButton.click();
     }
@@ -113,7 +115,9 @@ test.describe("Locations Page", () => {
       await deleteButton.click();
 
       // Confirm deletion
-      const confirmButton = page.getByRole("button", { name: /confirm|yes|delete/i });
+      const confirmButton = page.getByRole("button", {
+        name: /confirm|yes|delete/i,
+      });
       if (await confirmButton.isVisible()) {
         await confirmButton.click();
       }

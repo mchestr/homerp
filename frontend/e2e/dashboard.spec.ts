@@ -12,13 +12,17 @@ test.describe("Dashboard Page", () => {
     await page.goto("/dashboard");
 
     // Should display page title
-    await expect(page.getByRole("heading", { name: /dashboard/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /dashboard/i })
+    ).toBeVisible();
 
     // Should show items count
     await expect(page.getByText(/total items/i)).toBeVisible();
   });
 
-  test("displays low stock items alert when items are low", async ({ page }) => {
+  test("displays low stock items alert when items are low", async ({
+    page,
+  }) => {
     await page.goto("/dashboard");
 
     // Should show low stock section
@@ -32,9 +36,15 @@ test.describe("Dashboard Page", () => {
     await page.goto("/dashboard");
 
     // Should have links to main sections
-    await expect(page.getByRole("link", { name: /items/i }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: /categories/i }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: /locations/i }).first()).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /items/i }).first()
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /categories/i }).first()
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /locations/i }).first()
+    ).toBeVisible();
   });
 
   test("sidebar navigation works", async ({ page }) => {

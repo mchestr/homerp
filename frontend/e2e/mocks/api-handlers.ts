@@ -37,7 +37,8 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({
-        authorization_url: "https://accounts.google.com/o/oauth2/auth?mock=true",
+        authorization_url:
+          "https://accounts.google.com/o/oauth2/auth?mock=true",
       }),
     });
   });
@@ -76,8 +77,11 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
         ...fixtures.testItemDetail,
         id: `item-${Date.now()}`,
         ...body,
-        category: fixtures.testCategories.find((c) => c.id === body.category_id) || null,
-        location: fixtures.testLocations.find((l) => l.id === body.location_id) || null,
+        category:
+          fixtures.testCategories.find((c) => c.id === body.category_id) ||
+          null,
+        location:
+          fixtures.testLocations.find((l) => l.id === body.location_id) || null,
       };
       await route.fulfill({
         status: 201,
@@ -107,7 +111,8 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
   });
 
   await page.route("**/api/v1/items/tags*", async (route) => {
-    const tags = fixtures.testFacets.facets.find((f) => f.name === "tags")?.values || [];
+    const tags =
+      fixtures.testFacets.facets.find((f) => f.name === "tags")?.values || [];
     await route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -204,7 +209,12 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
       body: JSON.stringify({
         fields: [
           { name: "voltage", label: "Voltage", type: "number", unit: "V" },
-          { name: "package", label: "Package", type: "select", options: ["SMD", "THT"] },
+          {
+            name: "package",
+            label: "Package",
+            type: "select",
+            options: ["SMD", "THT"],
+          },
         ],
         inherited_from: ["Electronics"],
       }),
@@ -485,7 +495,11 @@ export async function setupClassificationMock(
     response?: typeof fixtures.testClassificationResult;
   } = {}
 ) {
-  const { shouldSucceed = true, hasCredits = true, response = fixtures.testClassificationResult } = options;
+  const {
+    shouldSucceed = true,
+    hasCredits = true,
+    response = fixtures.testClassificationResult,
+  } = options;
 
   await page.route("**/api/v1/images/classify", async (route) => {
     if (!hasCredits) {
@@ -493,7 +507,8 @@ export async function setupClassificationMock(
         status: 402,
         contentType: "application/json",
         body: JSON.stringify({
-          detail: "Insufficient credits. Please purchase more credits to continue.",
+          detail:
+            "Insufficient credits. Please purchase more credits to continue.",
         }),
       });
       return;

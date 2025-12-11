@@ -1,5 +1,9 @@
 import { test, expect } from "@playwright/test";
-import { setupApiMocks, authenticateUser, setupClassificationMock } from "./mocks/api-handlers";
+import {
+  setupApiMocks,
+  authenticateUser,
+  setupClassificationMock,
+} from "./mocks/api-handlers";
 import * as fixtures from "./fixtures/test-data";
 
 test.describe("Items List Page", () => {
@@ -62,7 +66,9 @@ test.describe("Items List Page", () => {
     await expect(page).toHaveURL(new RegExp(`/items/${firstItem.id}`));
   });
 
-  test("shows low stock indicator for items below minimum", async ({ page }) => {
+  test("shows low stock indicator for items below minimum", async ({
+    page,
+  }) => {
     await page.goto("/items");
 
     // The capacitor should show as low stock
@@ -121,7 +127,9 @@ test.describe("Item Detail Page", () => {
       await deleteButton.click();
 
       // Should show confirmation dialog
-      const confirmButton = page.getByRole("button", { name: /confirm|yes|delete/i });
+      const confirmButton = page.getByRole("button", {
+        name: /confirm|yes|delete/i,
+      });
       if (await confirmButton.isVisible()) {
         await confirmButton.click();
       }
@@ -190,7 +198,10 @@ test.describe("Create Item with AI Classification", () => {
   test.beforeEach(async ({ page }) => {
     await authenticateUser(page);
     await setupApiMocks(page);
-    await setupClassificationMock(page, { shouldSucceed: true, hasCredits: true });
+    await setupClassificationMock(page, {
+      shouldSucceed: true,
+      hasCredits: true,
+    });
   });
 
   test("can classify uploaded image with credits", async ({ page }) => {
@@ -220,7 +231,9 @@ test.describe("Create Item with AI Classification", () => {
     }
   });
 
-  test("shows prefilled form after successful classification", async ({ page }) => {
+  test("shows prefilled form after successful classification", async ({
+    page,
+  }) => {
     await page.goto("/items/new");
 
     const fileInput = page.locator('input[type="file"]');
@@ -261,7 +274,9 @@ test.describe("Create Item - Insufficient Credits", () => {
     await setupClassificationMock(page, { hasCredits: false });
   });
 
-  test("shows insufficient credits modal when trying to classify", async ({ page }) => {
+  test("shows insufficient credits modal when trying to classify", async ({
+    page,
+  }) => {
     await page.goto("/items/new");
 
     const fileInput = page.locator('input[type="file"]');
@@ -286,7 +301,9 @@ test.describe("Create Item - Insufficient Credits", () => {
     }
   });
 
-  test("can still create item manually without classification", async ({ page }) => {
+  test("can still create item manually without classification", async ({
+    page,
+  }) => {
     await page.goto("/items/new");
 
     // Fill in form manually
@@ -310,7 +327,10 @@ test.describe("Create Item - Classification Failure", () => {
   test.beforeEach(async ({ page }) => {
     await authenticateUser(page);
     await setupApiMocks(page);
-    await setupClassificationMock(page, { shouldSucceed: false, hasCredits: true });
+    await setupClassificationMock(page, {
+      shouldSucceed: false,
+      hasCredits: true,
+    });
   });
 
   test("handles classification API failure gracefully", async ({ page }) => {

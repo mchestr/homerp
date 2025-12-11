@@ -12,7 +12,9 @@ test.describe("Categories Page", () => {
     await page.goto("/categories");
 
     // Should show page title
-    await expect(page.getByRole("heading", { name: /categories/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /categories/i })
+    ).toBeVisible();
 
     // Should display root category
     await expect(page.getByText("Electronics")).toBeVisible();
@@ -25,7 +27,7 @@ test.describe("Categories Page", () => {
     await expect(page.getByText("Electronics")).toBeVisible();
 
     // Child category might need expanding
-    const expandButton = page.locator('[aria-expanded]').first();
+    const expandButton = page.locator("[aria-expanded]").first();
     if (await expandButton.isVisible()) {
       await expandButton.click();
     }
@@ -39,7 +41,9 @@ test.describe("Categories Page", () => {
 
     // Should show item count for categories
     const electronicsCount = fixtures.testCategoryTree[0].item_count;
-    await expect(page.getByText(new RegExp(`${electronicsCount}`))).toBeVisible();
+    await expect(
+      page.getByText(new RegExp(`${electronicsCount}`))
+    ).toBeVisible();
   });
 
   test("can create new category", async ({ page }) => {
@@ -103,7 +107,9 @@ test.describe("Categories Page", () => {
       await deleteButton.click();
 
       // Confirm deletion
-      const confirmButton = page.getByRole("button", { name: /confirm|yes|delete/i });
+      const confirmButton = page.getByRole("button", {
+        name: /confirm|yes|delete/i,
+      });
       if (await confirmButton.isVisible()) {
         await confirmButton.click();
       }
@@ -118,9 +124,11 @@ test.describe("Categories Page", () => {
 
     // Should show attribute template fields
     const templateText = page.getByText(/voltage|package/i);
-    await expect(templateText).toBeVisible().catch(() => {
-      // Template might be shown differently
-    });
+    await expect(templateText)
+      .toBeVisible()
+      .catch(() => {
+        // Template might be shown differently
+      });
   });
 
   test("can set parent category when creating", async ({ page }) => {

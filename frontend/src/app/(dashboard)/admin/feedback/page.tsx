@@ -5,7 +5,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { adminApi, FeedbackAdminResponse, FeedbackAdminUpdate } from "@/lib/api/client";
+import {
+  adminApi,
+  FeedbackAdminResponse,
+  FeedbackAdminUpdate,
+} from "@/lib/api/client";
 import {
   ArrowLeft,
   Loader2,
@@ -63,7 +67,8 @@ const STATUS_OPTIONS = [
 ];
 
 function getTypeIcon(type: string) {
-  const TypeComponent = FEEDBACK_TYPES.find((ft) => ft.value === type)?.icon || MessageSquare;
+  const TypeComponent =
+    FEEDBACK_TYPES.find((ft) => ft.value === type)?.icon || MessageSquare;
   return TypeComponent;
 }
 
@@ -99,12 +104,16 @@ export default function AdminFeedbackPage() {
   const t = useTranslations();
 
   const [page, setPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(
+    undefined
+  );
   const [typeFilter, setTypeFilter] = useState<string | undefined>(undefined);
-  const [selectedFeedback, setSelectedFeedback] = useState<FeedbackAdminResponse | null>(null);
+  const [selectedFeedback, setSelectedFeedback] =
+    useState<FeedbackAdminResponse | null>(null);
   const [editStatus, setEditStatus] = useState("");
   const [editNotes, setEditNotes] = useState("");
-  const [deleteConfirm, setDeleteConfirm] = useState<FeedbackAdminResponse | null>(null);
+  const [deleteConfirm, setDeleteConfirm] =
+    useState<FeedbackAdminResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { data: feedbackData, isLoading: feedbackLoading } = useQuery({
@@ -195,7 +204,9 @@ export default function AdminFeedbackPage() {
       <div className="flex flex-wrap gap-4">
         <Select
           value={statusFilter || "all"}
-          onValueChange={(value) => setStatusFilter(value === "all" ? undefined : value)}
+          onValueChange={(value) =>
+            setStatusFilter(value === "all" ? undefined : value)
+          }
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder={t("feedback.filterByStatus")} />
@@ -212,7 +223,9 @@ export default function AdminFeedbackPage() {
 
         <Select
           value={typeFilter || "all"}
-          onValueChange={(value) => setTypeFilter(value === "all" ? undefined : value)}
+          onValueChange={(value) =>
+            setTypeFilter(value === "all" ? undefined : value)
+          }
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder={t("feedback.filterByType")} />
@@ -280,8 +293,9 @@ export default function AdminFeedbackPage() {
                             feedback.status
                           )}`}
                         >
-                          {STATUS_OPTIONS.find((s) => s.value === feedback.status)?.label ||
-                            feedback.status}
+                          {STATUS_OPTIONS.find(
+                            (s) => s.value === feedback.status
+                          )?.label || feedback.status}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-muted-foreground">
@@ -413,7 +427,10 @@ export default function AdminFeedbackPage() {
             <Button variant="outline" onClick={() => setSelectedFeedback(null)}>
               {t("common.cancel")}
             </Button>
-            <Button onClick={handleUpdateSubmit} disabled={updateMutation.isPending}>
+            <Button
+              onClick={handleUpdateSubmit}
+              disabled={updateMutation.isPending}
+            >
               {updateMutation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
@@ -438,7 +455,9 @@ export default function AdminFeedbackPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => deleteConfirm && deleteMutation.mutate(deleteConfirm.id)}
+              onClick={() =>
+                deleteConfirm && deleteMutation.mutate(deleteConfirm.id)
+              }
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {deleteMutation.isPending && (
@@ -457,7 +476,9 @@ export default function AdminFeedbackPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("errors.somethingWentWrong")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("errors.somethingWentWrong")}
+            </AlertDialogTitle>
             <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

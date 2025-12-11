@@ -328,9 +328,7 @@ export default function EditItemPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium">
-                Price
-              </label>
+              <label className="mb-2 block text-sm font-medium">Price</label>
               <input
                 type="number"
                 name="price"

@@ -226,7 +226,9 @@ export const itemsApi = {
   },
 
   dashboardStats: (days: number = 30) =>
-    apiRequest<DashboardStatsResponse>(`/api/v1/items/stats/dashboard?days=${days}`),
+    apiRequest<DashboardStatsResponse>(
+      `/api/v1/items/stats/dashboard?days=${days}`
+    ),
 };
 
 // Categories API
@@ -711,13 +713,21 @@ export const adminApi = {
 
   // Credit adjustment
   adjustUserCredits: (userId: string, data: CreditAdjustment) =>
-    apiRequest<CreditAdjustmentResponse>(`/api/v1/admin/users/${userId}/credits`, {
-      method: "POST",
-      body: data,
-    }),
+    apiRequest<CreditAdjustmentResponse>(
+      `/api/v1/admin/users/${userId}/credits`,
+      {
+        method: "POST",
+        body: data,
+      }
+    ),
 
   // Feedback
-  listFeedback: (page = 1, limit = 20, status?: string, feedbackType?: string) => {
+  listFeedback: (
+    page = 1,
+    limit = 20,
+    status?: string,
+    feedbackType?: string
+  ) => {
     const params = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
@@ -801,5 +811,7 @@ export const feedbackApi = {
     }),
 
   list: (page = 1, limit = 20) =>
-    apiRequest<FeedbackResponse[]>(`/api/v1/feedback?page=${page}&limit=${limit}`),
+    apiRequest<FeedbackResponse[]>(
+      `/api/v1/feedback?page=${page}&limit=${limit}`
+    ),
 };

@@ -2,14 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  Plus,
-  Edit,
-  Trash2,
-  FolderOpen,
-  Loader2,
-  X,
-} from "lucide-react";
+import { Plus, Edit, Trash2, FolderOpen, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TreeView, TreeSelect } from "@/components/ui/tree-view";
 import { useConfirmModal } from "@/components/ui/confirm-modal";
@@ -148,11 +141,20 @@ export default function CategoriesPage() {
   };
 
   // Build a lookup map from tree data for item_count and total_value
-  const getTreeStats = (): Map<string, { item_count: number; total_value: number }> => {
-    const stats = new Map<string, { item_count: number; total_value: number }>();
+  const getTreeStats = (): Map<
+    string,
+    { item_count: number; total_value: number }
+  > => {
+    const stats = new Map<
+      string,
+      { item_count: number; total_value: number }
+    >();
     const traverse = (nodes: CategoryTreeNode[]) => {
       for (const node of nodes) {
-        stats.set(node.id, { item_count: node.item_count, total_value: node.total_value });
+        stats.set(node.id, {
+          item_count: node.item_count,
+          total_value: node.total_value,
+        });
         if (node.children) traverse(node.children);
       }
     };
@@ -362,7 +364,10 @@ export default function CategoriesPage() {
               selectedId={selectedId}
               onSelect={(node) => setSelectedId(node.id)}
               renderActions={(node) => (
-                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                <div
+                  className="flex gap-1"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <button
                     type="button"
                     onClick={() => handleAddChild(node.id)}
@@ -374,7 +379,9 @@ export default function CategoriesPage() {
                   <button
                     type="button"
                     onClick={() => {
-                      const category = categories?.find((c) => c.id === node.id);
+                      const category = categories?.find(
+                        (c) => c.id === node.id
+                      );
                       if (category) handleEdit(category);
                     }}
                     className="rounded p-1 hover:bg-accent"
@@ -411,9 +418,13 @@ export default function CategoriesPage() {
               <button
                 type="button"
                 key={category.id}
-                onClick={() => setSelectedId(selectedId === category.id ? null : category.id)}
+                onClick={() =>
+                  setSelectedId(selectedId === category.id ? null : category.id)
+                }
                 className={`group rounded-xl border bg-card p-5 text-left transition-all hover:border-primary/50 hover:shadow-md ${
-                  selectedId === category.id ? "border-primary ring-2 ring-primary/20" : ""
+                  selectedId === category.id
+                    ? "border-primary ring-2 ring-primary/20"
+                    : ""
                 }`}
               >
                 <div className="flex items-start justify-between">
@@ -448,12 +459,21 @@ export default function CategoriesPage() {
                         <div className="mt-2 flex items-center gap-2">
                           {treeStats.get(category.id)!.item_count > 0 && (
                             <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                              {treeStats.get(category.id)!.item_count} item{treeStats.get(category.id)!.item_count !== 1 ? "s" : ""}
+                              {treeStats.get(category.id)!.item_count} item
+                              {treeStats.get(category.id)!.item_count !== 1
+                                ? "s"
+                                : ""}
                             </span>
                           )}
                           {treeStats.get(category.id)!.total_value > 0 && (
                             <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-600 dark:text-emerald-400">
-                              ${treeStats.get(category.id)!.total_value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              $
+                              {treeStats
+                                .get(category.id)!
+                                .total_value.toLocaleString(undefined, {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                })}
                             </span>
                           )}
                         </div>

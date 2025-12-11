@@ -18,11 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { InlineFacetedFilter } from "@/components/items/faceted-filter";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
-import {
-  itemsApi,
-  categoriesApi,
-  locationsApi,
-} from "@/lib/api/client";
+import { itemsApi, categoriesApi, locationsApi } from "@/lib/api/client";
 import { cn, formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 

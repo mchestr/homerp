@@ -267,7 +267,9 @@ class CategoryService:
             select(
                 Category,
                 func.count(Item.id).label("item_count"),
-                func.coalesce(func.sum(Item.price * Item.quantity), 0).label("total_value"),
+                func.coalesce(func.sum(Item.price * Item.quantity), 0).label(
+                    "total_value"
+                ),
             )
             .outerjoin(Item, Category.id == Item.category_id)
             .where(Category.user_id == self.user_id)
@@ -280,7 +282,11 @@ class CategoryService:
         nodes: dict[UUID, CategoryTreeNode] = {}
         for category, item_count, total_value in rows:
             # Convert Decimal to float for JSON serialization
-            value = float(total_value) if isinstance(total_value, Decimal) else float(total_value or 0)
+            value = (
+                float(total_value)
+                if isinstance(total_value, Decimal)
+                else float(total_value or 0)
+            )
             nodes[category.id] = CategoryTreeNode(
                 id=category.id,
                 name=category.name,

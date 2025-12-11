@@ -112,7 +112,9 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     if (href === "/settings" && pathname === "/settings/billing") return false;
     return (
       pathname === href ||
-      (href !== "/dashboard" && href !== "/settings" && pathname.startsWith(href))
+      (href !== "/dashboard" &&
+        href !== "/settings" &&
+        pathname.startsWith(href))
     );
   };
 
@@ -133,13 +135,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       >
         {/* Header */}
         <div className="flex h-16 items-center justify-between border-b px-5">
-          <Link href="/dashboard" className="flex items-center gap-2.5 group">
+          <Link href="/dashboard" className="group flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary shadow-sm transition-transform group-hover:scale-105">
               <Package className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="text-lg font-semibold tracking-tight">
-              HomERP
-            </span>
+            <span className="text-lg font-semibold tracking-tight">HomERP</span>
           </Link>
           <button
             onClick={onClose}

@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { feedbackApi, FeedbackCreate, FeedbackResponse } from "@/lib/api/client";
+import {
+  feedbackApi,
+  FeedbackCreate,
+  FeedbackResponse,
+} from "@/lib/api/client";
 import {
   MessageSquare,
   Send,
@@ -131,9 +135,7 @@ export default function FeedbackPage() {
         <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
           {t("feedback.title")}
         </h1>
-        <p className="mt-1 text-muted-foreground">
-          {t("feedback.subtitle")}
-        </p>
+        <p className="mt-1 text-muted-foreground">{t("feedback.subtitle")}</p>
       </div>
 
       <div className="rounded-xl border bg-card p-6">
@@ -168,7 +170,9 @@ export default function FeedbackPage() {
               id="subject"
               placeholder={t("feedback.subjectPlaceholder")}
               value={subject}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSubject(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setSubject(e.target.value)
+              }
               maxLength={255}
             />
           </div>
@@ -179,7 +183,9 @@ export default function FeedbackPage() {
               id="message"
               placeholder={t("feedback.messagePlaceholder")}
               value={message}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                setMessage(e.target.value)
+              }
               rows={6}
               maxLength={5000}
             />
@@ -217,9 +223,10 @@ export default function FeedbackPage() {
           ) : myFeedback && myFeedback.length > 0 ? (
             <div className="space-y-3">
               {myFeedback.map((feedback: FeedbackResponse) => {
-                const TypeIconComponent = FEEDBACK_TYPES.find(
-                  (ft) => ft.value === feedback.feedback_type
-                )?.icon || MessageSquare;
+                const TypeIconComponent =
+                  FEEDBACK_TYPES.find(
+                    (ft) => ft.value === feedback.feedback_type
+                  )?.icon || MessageSquare;
 
                 return (
                   <div
@@ -281,10 +288,15 @@ export default function FeedbackPage() {
       </AlertDialog>
 
       {/* Error Dialog */}
-      <AlertDialog open={!!errorMessage} onOpenChange={() => setErrorMessage(null)}>
+      <AlertDialog
+        open={!!errorMessage}
+        onOpenChange={() => setErrorMessage(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("errors.somethingWentWrong")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("errors.somethingWentWrong")}
+            </AlertDialogTitle>
             <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

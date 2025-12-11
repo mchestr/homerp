@@ -103,10 +103,10 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("subtitle")}
-          </p>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {t("title")}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         <Link href="/items/new">
           <Button className="gap-2">
@@ -199,13 +199,27 @@ export default function DashboardPage() {
                   allowDecimals={false}
                 />
                 <Tooltip
-                  cursor={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 1, strokeDasharray: "4 4" }}
+                  cursor={{
+                    stroke: "hsl(var(--muted-foreground))",
+                    strokeWidth: 1,
+                    strokeDasharray: "4 4",
+                  }}
                   content={({ active, payload, label }) => {
-                    if (active && payload && payload.length && typeof label === "string") {
+                    if (
+                      active &&
+                      payload &&
+                      payload.length &&
+                      typeof label === "string"
+                    ) {
                       return (
                         <div className="rounded-md border bg-popover px-2.5 py-1.5 text-xs shadow-sm">
-                          <span className="font-medium">{formatDate(label)}</span>
-                          <span className="text-muted-foreground"> · {payload[0].payload.added} added</span>
+                          <span className="font-medium">
+                            {formatDate(label)}
+                          </span>
+                          <span className="text-muted-foreground">
+                            {" "}
+                            · {payload[0].payload.added} added
+                          </span>
                         </div>
                       );
                     }
@@ -245,7 +259,9 @@ export default function DashboardPage() {
         <div className="rounded-xl border bg-card">
           <div className="border-b px-5 py-4">
             <h2 className="font-medium">{t("itemsByCategory")}</h2>
-            <p className="text-sm text-muted-foreground">{t("topCategories")}</p>
+            <p className="text-sm text-muted-foreground">
+              {t("topCategories")}
+            </p>
           </div>
           <div className="p-5">
             {statsLoading ? (
@@ -288,15 +304,24 @@ export default function DashboardPage() {
                       if (active && payload && payload.length) {
                         return (
                           <div className="rounded-md border bg-popover px-2.5 py-1.5 text-xs shadow-sm">
-                            <span className="font-medium">{payload[0].payload.name}</span>
-                            <span className="text-muted-foreground"> · {payload[0].value} items</span>
+                            <span className="font-medium">
+                              {payload[0].payload.name}
+                            </span>
+                            <span className="text-muted-foreground">
+                              {" "}
+                              · {payload[0].value} items
+                            </span>
                           </div>
                         );
                       }
                       return null;
                     }}
                   />
-                  <Bar dataKey="count" radius={[0, 4, 4, 0]} fill="hsl(var(--primary))" />
+                  <Bar
+                    dataKey="count"
+                    radius={[0, 4, 4, 0]}
+                    fill="hsl(var(--primary))"
+                  />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -363,15 +388,24 @@ export default function DashboardPage() {
                       if (active && payload && payload.length) {
                         return (
                           <div className="rounded-md border bg-popover px-2.5 py-1.5 text-xs shadow-sm">
-                            <span className="font-medium">{payload[0].payload.name}</span>
-                            <span className="text-muted-foreground"> · {payload[0].value} items</span>
+                            <span className="font-medium">
+                              {payload[0].payload.name}
+                            </span>
+                            <span className="text-muted-foreground">
+                              {" "}
+                              · {payload[0].value} items
+                            </span>
                           </div>
                         );
                       }
                       return null;
                     }}
                   />
-                  <Bar dataKey="count" radius={[0, 4, 4, 0]} fill="hsl(142 76% 36%)" />
+                  <Bar
+                    dataKey="count"
+                    radius={[0, 4, 4, 0]}
+                    fill="hsl(142 76% 36%)"
+                  />
                 </BarChart>
               </ResponsiveContainer>
             ) : (

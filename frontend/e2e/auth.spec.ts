@@ -16,7 +16,9 @@ test.describe("Authentication - Login Flow", () => {
     await page.goto("/login");
 
     // Should show login page
-    await expect(page.getByRole("heading", { name: /sign in|login/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /sign in|login/i })
+    ).toBeVisible();
   });
 
   test("shows Google OAuth button", async ({ page }) => {
@@ -48,7 +50,8 @@ test.describe("Authentication - Login Flow", () => {
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
-          authorization_url: "https://accounts.google.com/o/oauth2/auth?mock=true",
+          authorization_url:
+            "https://accounts.google.com/o/oauth2/auth?mock=true",
         }),
       });
     });
@@ -228,7 +231,9 @@ test.describe("Authentication - User Context", () => {
 
     // User name or email should be visible somewhere
     await expect(
-      page.getByText(fixtures.testUser.email).or(page.getByText(fixtures.testUser.name!))
+      page
+        .getByText(fixtures.testUser.email)
+        .or(page.getByText(fixtures.testUser.name!))
     ).toBeVisible();
   });
 

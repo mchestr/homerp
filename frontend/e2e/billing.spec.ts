@@ -22,7 +22,9 @@ test.describe("Billing Page", () => {
 
     // Should show purchased credits
     await expect(
-      page.getByText(new RegExp(`${fixtures.testCreditBalance.purchased_credits}`))
+      page.getByText(
+        new RegExp(`${fixtures.testCreditBalance.purchased_credits}`)
+      )
     ).toBeVisible();
 
     // Should show free credits
@@ -47,7 +49,10 @@ test.describe("Billing Page", () => {
     // Should mark the best value pack
     const bestValuePack = fixtures.testCreditPacks.find((p) => p.is_best_value);
     if (bestValuePack) {
-      const packElement = page.getByText(bestValuePack.name).locator("..").locator("..");
+      const packElement = page
+        .getByText(bestValuePack.name)
+        .locator("..")
+        .locator("..");
       await expect(packElement.or(page.getByText(/best value/i))).toBeVisible();
     }
   });
@@ -61,7 +66,9 @@ test.describe("Billing Page", () => {
 
     if (await firstPurchaseButton.isVisible()) {
       // Track navigation to Stripe
-      const navigationPromise = page.waitForURL(/stripe\.com|checkout/, { timeout: 5000 }).catch(() => null);
+      const navigationPromise = page
+        .waitForURL(/stripe\.com|checkout/, { timeout: 5000 })
+        .catch(() => null);
 
       await firstPurchaseButton.click();
 
@@ -69,7 +76,9 @@ test.describe("Billing Page", () => {
       const navigated = await navigationPromise;
       if (!navigated) {
         // Check if URL was opened in new tab or shown somehow
-        await expect(page.getByText(/checkout|stripe/i)).toBeVisible().catch(() => {});
+        await expect(page.getByText(/checkout|stripe/i))
+          .toBeVisible()
+          .catch(() => {});
       }
     }
   });
@@ -142,7 +151,9 @@ test.describe("Billing Page - Stripe Portal", () => {
     await page.goto("/settings/billing");
 
     // Look for manage billing/portal button
-    const portalButton = page.getByRole("button", { name: /manage|portal|billing history/i });
+    const portalButton = page.getByRole("button", {
+      name: /manage|portal|billing history/i,
+    });
     if (await portalButton.isVisible()) {
       // Track navigation
       const navigationPromise = page
@@ -154,14 +165,18 @@ test.describe("Billing Page - Stripe Portal", () => {
       const navigated = await navigationPromise;
       if (!navigated) {
         // Check if URL was shown
-        await expect(page.getByText(/stripe|portal/i)).toBeVisible().catch(() => {});
+        await expect(page.getByText(/stripe|portal/i))
+          .toBeVisible()
+          .catch(() => {});
       }
     }
   });
 });
 
 test.describe("Credit Balance Integration", () => {
-  test("credit balance updates in sidebar after navigation", async ({ page }) => {
+  test("credit balance updates in sidebar after navigation", async ({
+    page,
+  }) => {
     await authenticateUser(page);
     await setupApiMocks(page);
 
@@ -191,15 +206,19 @@ test.describe("Credit Balance Integration", () => {
       const resetDate = new Date(fixtures.testCreditBalance.next_free_reset_at);
       // Check for some date-related text
       const dateText = page.getByText(/reset|renew|next/i);
-      await expect(dateText).toBeVisible().catch(() => {
-        // Date might be formatted differently, that's ok
-      });
+      await expect(dateText)
+        .toBeVisible()
+        .catch(() => {
+          // Date might be formatted differently, that's ok
+        });
     }
   });
 });
 
 test.describe("Insufficient Credits Modal", () => {
-  test("modal appears when trying to use AI with zero credits", async ({ page }) => {
+  test("modal appears when trying to use AI with zero credits", async ({
+    page,
+  }) => {
     await authenticateUser(page);
     await setupApiMocks(page, {
       creditBalance: fixtures.testCreditBalanceZero,
@@ -235,7 +254,9 @@ test.describe("Insufficient Credits Modal", () => {
         await classifyButton.click();
 
         // Should show modal or error about insufficient credits
-        const insufficientText = page.getByText(/insufficient|no credits|purchase/i);
+        const insufficientText = page.getByText(
+          /insufficient|no credits|purchase/i
+        );
         const modal = page.getByRole("dialog");
         await expect(modal.or(insufficientText)).toBeVisible();
       }
@@ -277,7 +298,9 @@ test.describe("Insufficient Credits Modal", () => {
         await page.waitForTimeout(500);
 
         // Should have link to billing
-        const billingLink = page.getByRole("link", { name: /billing|purchase|buy/i });
+        const billingLink = page.getByRole("link", {
+          name: /billing|purchase|buy/i,
+        });
         if (await billingLink.isVisible()) {
           await billingLink.click();
           await expect(page).toHaveURL(/.*billing/);

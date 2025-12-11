@@ -40,11 +40,7 @@ export function ItemsPanel({
   const hasSelection = !!categoryId || !!locationId;
 
   const { data: itemsData, isLoading } = useQuery({
-    queryKey: [
-      "items",
-      "panel",
-      { page, categoryId, locationId },
-    ],
+    queryKey: ["items", "panel", { page, categoryId, locationId }],
     queryFn: () =>
       itemsApi.list({
         page,
@@ -104,7 +100,9 @@ export function ItemsPanel({
         <div className="rounded-full bg-muted p-4">
           <MousePointerClick className="h-8 w-8 text-muted-foreground" />
         </div>
-        <p className="mt-4 text-sm text-muted-foreground">{noSelectionMessage}</p>
+        <p className="mt-4 text-sm text-muted-foreground">
+          {noSelectionMessage}
+        </p>
       </div>
     );
   }
@@ -192,8 +190,12 @@ export function ItemsPanel({
               <div className="flex items-center gap-1">
                 <button
                   type="button"
-                  onClick={(e) => handleQuickDecrement(e, item.id, item.quantity)}
-                  disabled={item.quantity <= 0 || updateQuantityMutation.isPending}
+                  onClick={(e) =>
+                    handleQuickDecrement(e, item.id, item.quantity)
+                  }
+                  disabled={
+                    item.quantity <= 0 || updateQuantityMutation.isPending
+                  }
                   className={cn(
                     "flex h-6 w-6 items-center justify-center rounded border transition-colors",
                     "hover:bg-muted active:bg-muted/80",
@@ -214,7 +216,9 @@ export function ItemsPanel({
                 </span>
                 <button
                   type="button"
-                  onClick={(e) => handleQuickIncrement(e, item.id, item.quantity)}
+                  onClick={(e) =>
+                    handleQuickIncrement(e, item.id, item.quantity)
+                  }
                   disabled={updateQuantityMutation.isPending}
                   className={cn(
                     "flex h-6 w-6 items-center justify-center rounded border transition-colors",

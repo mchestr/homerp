@@ -87,8 +87,13 @@ export default function AdminUsersPage() {
   });
 
   const creditMutation = useMutation({
-    mutationFn: ({ userId, data }: { userId: string; data: CreditAdjustment }) =>
-      adminApi.adjustUserCredits(userId, data),
+    mutationFn: ({
+      userId,
+      data,
+    }: {
+      userId: string;
+      data: CreditAdjustment;
+    }) => adminApi.adjustUserCredits(userId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       setCreditAdjustment(null);
@@ -144,8 +149,12 @@ export default function AdminUsersPage() {
 
   const handleCreditSubmit = () => {
     if (!creditAdjustment) return;
-    const amount = creditAdjustment.amount ? parseInt(creditAdjustment.amount, 10) : 0;
-    const freeCreditsAmount = creditAdjustment.freeCreditsAmount ? parseInt(creditAdjustment.freeCreditsAmount, 10) : 0;
+    const amount = creditAdjustment.amount
+      ? parseInt(creditAdjustment.amount, 10)
+      : 0;
+    const freeCreditsAmount = creditAdjustment.freeCreditsAmount
+      ? parseInt(creditAdjustment.freeCreditsAmount, 10)
+      : 0;
 
     if (isNaN(amount) || isNaN(freeCreditsAmount)) {
       setErrorMessage("Please enter valid numbers for credit amounts");
@@ -387,9 +396,10 @@ export default function AdminUsersPage() {
           <DialogHeader>
             <DialogTitle>Adjust Credits</DialogTitle>
             <DialogDescription>
-              Adjust credits for {creditAdjustment?.user.email}. Current balance:{" "}
-              {creditAdjustment?.user.credit_balance} purchased credits,{" "}
-              {creditAdjustment?.user.free_credits_remaining} free credits.
+              Adjust credits for {creditAdjustment?.user.email}. Current
+              balance: {creditAdjustment?.user.credit_balance} purchased
+              credits, {creditAdjustment?.user.free_credits_remaining} free
+              credits.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -424,7 +434,8 @@ export default function AdminUsersPage() {
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Adjust free monthly credits. Use negative to remove (e.g., -{creditAdjustment?.user.free_credits_remaining} to zero out).
+                Adjust free monthly credits. Use negative to remove (e.g., -
+                {creditAdjustment?.user.free_credits_remaining} to zero out).
               </p>
             </div>
             <div className="space-y-2">
@@ -442,10 +453,7 @@ export default function AdminUsersPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setCreditAdjustment(null)}
-            >
+            <Button variant="outline" onClick={() => setCreditAdjustment(null)}>
               Cancel
             </Button>
             <Button

@@ -5,13 +5,13 @@ import { useAuth } from "@/context/auth-context";
 import { billingApi, CreditPack, CreditTransaction } from "@/lib/api/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-    ArrowLeft,
-    Coins,
-    CreditCard,
-    ExternalLink,
-    Loader2,
-    RefreshCw,
-    Sparkles,
+  ArrowLeft,
+  Coins,
+  CreditCard,
+  ExternalLink,
+  Loader2,
+  RefreshCw,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";

@@ -194,7 +194,9 @@ export default function ClassifiedImagesPage() {
       >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{aiResult?.identified_name || "Image Details"}</DialogTitle>
+            <DialogTitle>
+              {aiResult?.identified_name || "Image Details"}
+            </DialogTitle>
             <DialogDescription>
               Classification result from AI analysis
             </DialogDescription>
@@ -245,7 +247,9 @@ export default function ClassifiedImagesPage() {
                       <p className="font-medium text-muted-foreground">
                         Quantity Estimate
                       </p>
-                      <p className="mt-1 text-sm">{aiResult.quantity_estimate}</p>
+                      <p className="mt-1 text-sm">
+                        {aiResult.quantity_estimate}
+                      </p>
                     </div>
                   )}
 
@@ -258,7 +262,10 @@ export default function ClassifiedImagesPage() {
                         <div className="mt-1 grid grid-cols-2 gap-2 text-sm">
                           {Object.entries(aiResult.specifications).map(
                             ([key, value]) => (
-                              <div key={key} className="rounded bg-muted px-2 py-1">
+                              <div
+                                key={key}
+                                className="rounded bg-muted px-2 py-1"
+                              >
                                 <span className="font-medium">{key}:</span>{" "}
                                 {String(value)}
                               </div>

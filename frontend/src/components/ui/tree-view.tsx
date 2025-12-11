@@ -90,7 +90,11 @@ function TreeItem<T extends TreeNode>({
           )}
           {typeof node.total_value === "number" && node.total_value > 0 && (
             <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-600 dark:text-emerald-400">
-              ${node.total_value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              $
+              {node.total_value.toLocaleString(undefined, {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              })}
             </span>
           )}
         </div>

@@ -12,7 +12,9 @@ test.describe("Settings Page", () => {
     await page.goto("/settings");
 
     // Should show settings title
-    await expect(page.getByRole("heading", { name: /settings/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /settings/i })
+    ).toBeVisible();
   });
 
   test("shows current user info", async ({ page }) => {

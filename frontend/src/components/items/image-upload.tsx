@@ -2,7 +2,14 @@
 
 import { useCallback, useState } from "react";
 import Link from "next/link";
-import { X, Loader2, Sparkles, ImagePlus, CheckCircle2, History } from "lucide-react";
+import {
+  X,
+  Loader2,
+  Sparkles,
+  ImagePlus,
+  CheckCircle2,
+  History,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { imagesApi, ClassificationResult } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
@@ -196,7 +203,7 @@ export function ImageUpload({
           <img
             src={currentImage.url}
             alt={currentImage.filename}
-            className="aspect-video w-full object-contain bg-black/5"
+            className="aspect-video w-full bg-black/5 object-contain"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-4">
@@ -212,7 +219,8 @@ export function ImageUpload({
           >
             <X className="h-4 w-4" />
           </button>
-          {currentImage.aiProcessed || classifiedImageIds.has(currentImage.id) ? (
+          {currentImage.aiProcessed ||
+          classifiedImageIds.has(currentImage.id) ? (
             <div className="absolute bottom-4 right-4 flex items-center gap-1.5 rounded-md bg-emerald-500 px-3 py-1.5 text-sm font-medium text-white shadow-lg">
               <CheckCircle2 className="h-4 w-4" />
               Identified

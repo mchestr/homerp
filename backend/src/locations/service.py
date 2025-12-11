@@ -246,7 +246,9 @@ class LocationService:
             select(
                 Location,
                 func.count(Item.id).label("item_count"),
-                func.coalesce(func.sum(Item.price * Item.quantity), 0).label("total_value"),
+                func.coalesce(func.sum(Item.price * Item.quantity), 0).label(
+                    "total_value"
+                ),
             )
             .outerjoin(Item, Location.id == Item.location_id)
             .where(Location.user_id == self.user_id)
@@ -259,7 +261,11 @@ class LocationService:
         nodes: dict[UUID, LocationTreeNode] = {}
         for location, item_count, total_value in rows:
             # Convert Decimal to float for JSON serialization
-            value = float(total_value) if isinstance(total_value, Decimal) else float(total_value or 0)
+            value = (
+                float(total_value)
+                if isinstance(total_value, Decimal)
+                else float(total_value or 0)
+            )
             nodes[location.id] = LocationTreeNode(
                 id=location.id,
                 name=location.name,

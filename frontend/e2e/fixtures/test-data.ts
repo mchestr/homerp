@@ -44,7 +44,12 @@ export const testCategories = [
     attribute_template: {
       fields: [
         { name: "voltage", label: "Voltage", type: "number", unit: "V" },
-        { name: "package", label: "Package", type: "select", options: ["SMD", "THT"] },
+        {
+          name: "package",
+          label: "Package",
+          type: "select",
+          options: ["SMD", "THT"],
+        },
       ],
     },
     created_at: "2024-01-01T00:00:00Z",
@@ -70,7 +75,12 @@ export const testCategoryTree = [
         attribute_template: {
           fields: [
             { name: "voltage", label: "Voltage", type: "number", unit: "V" },
-            { name: "package", label: "Package", type: "select", options: ["SMD", "THT"] },
+            {
+              name: "package",
+              label: "Package",
+              type: "select",
+              options: ["SMD", "THT"],
+            },
           ],
         },
         item_count: 3,

@@ -46,11 +46,15 @@ test.describe("Admin Dashboard - Admin User", () => {
 
     // Should show purchased vs used credits
     await expect(
-      page.getByText(new RegExp(`${fixtures.testAdminStats.total_credits_purchased}`))
+      page.getByText(
+        new RegExp(`${fixtures.testAdminStats.total_credits_purchased}`)
+      )
     ).toBeVisible();
 
     await expect(
-      page.getByText(new RegExp(`${fixtures.testAdminStats.total_credits_used}`))
+      page.getByText(
+        new RegExp(`${fixtures.testAdminStats.total_credits_used}`)
+      )
     ).toBeVisible();
   });
 
@@ -117,7 +121,9 @@ test.describe("Admin Users Management", () => {
     await page.goto("/admin/users");
 
     // Click on first user or find adjust button
-    const adjustButton = page.getByRole("button", { name: /adjust|credit/i }).first();
+    const adjustButton = page
+      .getByRole("button", { name: /adjust|credit/i })
+      .first();
     if (await adjustButton.isVisible()) {
       await adjustButton.click();
 
@@ -128,7 +134,9 @@ test.describe("Admin Users Management", () => {
       const reasonInput = page.getByLabel(/reason/i);
       await reasonInput.fill("Test adjustment");
 
-      const submitButton = page.getByRole("button", { name: /save|adjust|submit/i });
+      const submitButton = page.getByRole("button", {
+        name: /save|adjust|submit/i,
+      });
       await submitButton.click();
     }
   });
@@ -179,7 +187,9 @@ test.describe("Admin Credit Packs Management", () => {
 
     // Should show price
     const priceInDollars = pack.price_cents / 100;
-    await expect(page.getByText(new RegExp(`\\$?${priceInDollars}`))).toBeVisible();
+    await expect(
+      page.getByText(new RegExp(`\\$?${priceInDollars}`))
+    ).toBeVisible();
   });
 
   test("can create new credit pack", async ({ page }) => {
@@ -251,7 +261,9 @@ test.describe("Admin Credit Packs Management", () => {
     await page.goto("/admin/packs");
 
     // Packs should be displayed in order
-    const packNames = await page.locator('[data-testid="pack-name"]').allTextContents();
+    const packNames = await page
+      .locator('[data-testid="pack-name"]')
+      .allTextContents();
     // If no test ids, just verify packs are visible in some order
     await expect(page.getByText(fixtures.testAdminPacks[0].name)).toBeVisible();
   });
@@ -286,7 +298,9 @@ test.describe("Admin Access Control - Regular User", () => {
     await expect(page).not.toHaveURL(/.*\/admin\/packs$/);
   });
 
-  test("admin link not shown in sidebar for regular users", async ({ page }) => {
+  test("admin link not shown in sidebar for regular users", async ({
+    page,
+  }) => {
     await page.goto("/dashboard");
 
     // Admin link should not be visible
