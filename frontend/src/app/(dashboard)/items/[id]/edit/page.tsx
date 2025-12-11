@@ -14,7 +14,7 @@ import {
   locationsApi,
   ItemUpdate,
   LocationTreeNode,
-} from "@/lib/api/client";
+} from "@/lib/api/api-client";
 
 const LOCATION_TYPES: Record<string, string> = {
   room: "🏠",

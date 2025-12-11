@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { adminApi } from "@/lib/api/client";
+import { adminApi } from "@/lib/api/api-client";
 import {
   Users,
   Package,

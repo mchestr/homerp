@@ -13,7 +13,7 @@ import {
   Category,
   CategoryCreate,
   CategoryTreeNode,
-} from "@/lib/api/client";
+} from "@/lib/api/api-client";
 
 export default function CategoriesPage() {
   const queryClient = useQueryClient();

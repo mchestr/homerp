@@ -11,7 +11,7 @@ import {
   History,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { imagesApi, ClassificationResult } from "@/lib/api/client";
+import { imagesApi, ClassificationResult } from "@/lib/api/api-client";
 import { cn } from "@/lib/utils";
 import { useInsufficientCreditsModal } from "@/components/billing/insufficient-credits-modal";
 import { useAuth } from "@/context/auth-context";

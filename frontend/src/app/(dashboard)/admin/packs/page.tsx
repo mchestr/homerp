@@ -27,7 +27,7 @@ import {
   CreditPackAdmin,
   CreditPackCreate,
   CreditPackUpdate,
-} from "@/lib/api/client";
+} from "@/lib/api/api-client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,

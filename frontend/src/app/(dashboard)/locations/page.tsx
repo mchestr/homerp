@@ -12,7 +12,7 @@ import {
   Location,
   LocationCreate,
   LocationTreeNode,
-} from "@/lib/api/client";
+} from "@/lib/api/api-client";
 
 const LOCATION_TYPES = [
   { value: "room", label: "Room", icon: "🏠" },

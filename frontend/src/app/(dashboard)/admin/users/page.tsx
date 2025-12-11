@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { adminApi, UserAdmin, CreditAdjustment } from "@/lib/api/client";
+import { adminApi, UserAdmin, CreditAdjustment } from "@/lib/api/api-client";
 import {
   Search,
   Loader2,

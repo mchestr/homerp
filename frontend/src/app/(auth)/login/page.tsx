@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Package, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-context";
-import { authApi } from "@/lib/api/client";
+import { authApi } from "@/lib/api/api-client";
 
 export default function LoginPage() {
   const router = useRouter();

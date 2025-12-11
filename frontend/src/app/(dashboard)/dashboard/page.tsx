@@ -24,7 +24,7 @@ import {
   Bar,
 } from "recharts";
 import { Button } from "@/components/ui/button";
-import { itemsApi, categoriesApi, locationsApi } from "@/lib/api/client";
+import { itemsApi, categoriesApi, locationsApi } from "@/lib/api/api-client";
 
 export default function DashboardPage() {
   const t = useTranslations("dashboard");

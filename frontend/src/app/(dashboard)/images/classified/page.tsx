@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
-import { imagesApi, Image, ClassificationResult } from "@/lib/api/client";
+import { imagesApi, Image, ClassificationResult } from "@/lib/api/api-client";
 import {
   Dialog,
   DialogContent,

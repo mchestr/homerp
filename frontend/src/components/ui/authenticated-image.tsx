@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { imagesApi } from "@/lib/api/client";
+import { imagesApi } from "@/lib/api/api-client";
 import { cn } from "@/lib/utils";
 
 type AuthenticatedImageProps = {

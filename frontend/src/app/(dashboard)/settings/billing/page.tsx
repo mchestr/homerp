@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-context";
-import { billingApi, CreditPack, CreditTransaction } from "@/lib/api/client";
+import { billingApi, CreditPack, CreditTransaction } from "@/lib/api/api-client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,

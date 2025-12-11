@@ -7,7 +7,7 @@ import {
   feedbackApi,
   FeedbackCreate,
   FeedbackResponse,
-} from "@/lib/api/client";
+} from "@/lib/api/api-client";
 import {
   MessageSquare,
   Send,

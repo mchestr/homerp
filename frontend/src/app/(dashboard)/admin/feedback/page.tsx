@@ -9,7 +9,7 @@ import {
   adminApi,
   FeedbackAdminResponse,
   FeedbackAdminUpdate,
-} from "@/lib/api/client";
+} from "@/lib/api/api-client";
 import {
   ArrowLeft,
   Loader2,

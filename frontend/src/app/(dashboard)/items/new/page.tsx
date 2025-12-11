@@ -37,7 +37,7 @@ import {
   ClassificationResult,
   ItemCreate,
   LocationTreeNode,
-} from "@/lib/api/client";
+} from "@/lib/api/api-client";
 
 type UploadedImage = {
   id: string;

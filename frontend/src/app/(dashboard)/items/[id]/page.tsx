@@ -20,7 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useConfirmModal } from "@/components/ui/confirm-modal";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
-import { itemsApi } from "@/lib/api/client";
+import { itemsApi } from "@/lib/api/api-client";
 import { cn, formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 
