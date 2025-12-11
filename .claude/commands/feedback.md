@@ -15,12 +15,18 @@ $ARGUMENTS
    - Identify what currently exists related to this feedback
    - Note any technical constraints or dependencies
 
-2. **Flesh out the idea** based on your research:
+2. **Check existing GitLab issues** for duplicates or related issues:
+   - Use `glab issue list` to search for similar issues
+   - If a duplicate exists, inform the user and optionally add a comment to the existing issue
+   - If a closely related issue exists, consider updating it instead of creating a new one
+   - Proceed with creating a new issue only if no duplicates or close matches are found
+
+3. **Flesh out the idea** based on your research:
    - Clarify the problem or opportunity
    - Consider edge cases and implications
    - Identify affected areas of the codebase
 
-3. **Create a GitLab issue** with:
+4. **Create a GitLab issue** with:
    - A clear, descriptive title
    - A detailed description explaining the context and rationale
    - High-level implementation steps (5-10 steps)
