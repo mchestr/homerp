@@ -21,8 +21,7 @@ test.describe("Settings", () => {
 
     await page.goto("/settings");
 
-    const billingLink = page.getByRole("link", { name: /billing/i });
-    await billingLink.click();
+    await page.getByTestId("billing-link").click();
 
     await expect(page).toHaveURL(/.*\/settings\/billing/);
   });

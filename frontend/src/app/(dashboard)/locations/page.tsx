@@ -228,6 +228,7 @@ export default function LocationsPage() {
             <Button
               onClick={() => setIsCreating(true)}
               className="w-full sm:w-auto"
+              data-testid="add-location-button"
             >
               <Plus className="mr-2 h-4 w-4" />
               Add Location
@@ -264,6 +265,7 @@ export default function LocationsPage() {
                   setFormData((prev) => ({ ...prev, name: e.target.value }))
                 }
                 required
+                data-testid="location-name-input"
                 className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 placeholder="e.g., Workshop Shelf A"
               />
@@ -340,6 +342,7 @@ export default function LocationsPage() {
               type="submit"
               disabled={createMutation.isPending || updateMutation.isPending}
               className="w-full sm:w-auto"
+              data-testid="location-submit-button"
             >
               {(createMutation.isPending || updateMutation.isPending) && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

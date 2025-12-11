@@ -240,6 +240,7 @@ export default function CategoriesPage() {
                   setFormData((prev) => ({ ...prev, name: e.target.value }))
                 }
                 required
+                data-testid="category-name-input"
                 className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 placeholder="e.g., Hardware"
               />
@@ -323,6 +324,7 @@ export default function CategoriesPage() {
               type="submit"
               disabled={createMutation.isPending || updateMutation.isPending}
               className="w-full sm:w-auto"
+              data-testid="category-submit-button"
             >
               {(createMutation.isPending || updateMutation.isPending) && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

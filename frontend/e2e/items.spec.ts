@@ -21,7 +21,10 @@ test.describe("Items", () => {
 
     await page.goto("/items");
 
-    const newItemButton = page.getByRole("link", { name: /new|add|create/i });
+    // Target the "Add Item" button in the main content area (avoid sidebar "New Item" link)
+    const newItemButton = page
+      .getByRole("main")
+      .getByRole("link", { name: "Add Item" });
     await newItemButton.click();
 
     await expect(page).toHaveURL(/.*\/items\/new/);
@@ -43,7 +46,7 @@ test.describe("Items", () => {
 
     await page.goto("/items/new");
 
-    await page.getByLabel(/name/i).fill("Test Item");
+    await page.getByTestId("item-name-input").fill("Test Item");
 
     const submitButton = page.getByRole("button", { name: /create|save|add/i });
     await submitButton.click();

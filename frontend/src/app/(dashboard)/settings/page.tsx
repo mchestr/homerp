@@ -183,7 +183,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Billing & Credits */}
-      <Link href="/settings/billing" className="block">
+      <Link href="/settings/billing" className="block" data-testid="billing-link">
         <div className="rounded-xl border bg-card p-6 transition-colors hover:border-primary/50">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

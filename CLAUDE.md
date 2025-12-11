@@ -210,3 +210,48 @@ Core tables:
 - never use browser alerts always use our common modal components
 - all frontend strings hould be translated using the i18n library
 - always run lint/build/docker build before pushing remotely to ensure the gitlab ci workflows will pass
+
+## Playwright E2E Testing
+
+### Element Selection Best Practices
+
+Prefer `data-testid` attributes for selecting elements in tests. **If an element doesn't have a `data-testid`, add one to the component.**
+
+```tsx
+// Component
+<Button data-testid="add-item-button">Add Item</Button>
+
+// Test
+await page.getByTestId("add-item-button").click();
+```
+
+### Route Mocking Best Practices
+
+Playwright routes use **LIFO (Last In, First Out)** matching - the last registered route has highest priority.
+
+**Key rules for `frontend/e2e/mocks/api-handlers.ts`:**
+
+1. **Register specific routes AFTER generic ones** - e.g., `/categories/tree` must be registered after `/categories/[id]`
+
+2. **Use `route.fallback()` not `route.continue()`** - When a generic route needs to skip to a more specific one:
+   - `route.continue()` sends the request to the network (bad)
+   - `route.fallback()` passes to the next matching route handler (good)
+
+3. **Regex routes like `/[^/]+$/` match "tree"** - The pattern `/\/api\/v1\/categories\/[^/]+$/` matches both `/categories/cat-123` AND `/categories/tree`. Add explicit checks:
+   ```typescript
+   if (catId === "tree") {
+     await route.fallback();
+     return;
+   }
+   ```
+
+4. **Route registration order in api-handlers.ts:**
+   ```typescript
+   // 1. Base endpoint (exact match with regex)
+   await page.route(/\/api\/v1\/categories$/, ...)
+
+   // 2. Generic ID pattern (matches /categories/*)
+   await page.route(/\/api\/v1\/categories\/[^/]+$/, ...)
+
+   // 3. Specific sub-routes LAST (highest priority)
+   await page.route("**/api/v1/categories/tree", ...)

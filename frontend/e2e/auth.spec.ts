@@ -15,7 +15,7 @@ test.describe("Authentication", () => {
     await page.goto("/login");
 
     await expect(
-      page.getByRole("heading", { name: /sign in|login/i })
+      page.getByRole("heading", { name: "Welcome back" })
     ).toBeVisible();
     await expect(
       page.getByRole("button", { name: /google|sign in/i })
@@ -65,7 +65,7 @@ test.describe("Authentication", () => {
     await expect(page).toHaveURL(/.*\/dashboard/);
   });
 
-  test("OAuth error redirects to login", async ({ page }) => {
+  test("OAuth error shows error page", async ({ page }) => {
     await page.route("**/api/v1/auth/me", async (route) => {
       await route.fulfill({
         status: 401,
@@ -75,6 +75,11 @@ test.describe("Authentication", () => {
 
     await page.goto("/callback/google?error=access_denied");
 
-    await expect(page).toHaveURL(/.*\/(login|auth)/);
+    await expect(
+      page.getByRole("heading", { name: "Authentication Failed" })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Back to Login" })
+    ).toBeVisible();
   });
 });

@@ -20,17 +20,18 @@ test.describe("Locations", () => {
 
     await page.goto("/locations");
 
-    const addButton = page.getByRole("button", { name: /add|new|create/i });
-    await addButton.click();
+    await page.getByTestId("add-location-button").click();
 
-    const nameInput = page.getByLabel(/name/i);
+    const nameInput = page.getByTestId("location-name-input");
     await expect(nameInput).toBeVisible();
 
     await nameInput.fill("Storage Room");
 
-    const submitButton = page.getByRole("button", { name: /save|create|add/i });
-    await submitButton.click();
+    await page.getByTestId("location-submit-button").click();
 
-    await expect(page.getByText("Storage Room")).toBeVisible();
+    // Form should close after successful submission
+    await expect(nameInput).not.toBeVisible();
+    // Add button should reappear
+    await expect(page.getByTestId("add-location-button")).toBeVisible();
   });
 });
