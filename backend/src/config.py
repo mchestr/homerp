@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     # Frontend URL (for redirects and CORS)
     frontend_url: str = "http://localhost:3000"
 
+    # API base URL (for generating external links like signed image URLs)
+    # When empty, relative URLs are used (works for same-origin requests)
+    api_base_url: str = ""
+
     @computed_field
     @property
     def cors_origins(self) -> list[str]:

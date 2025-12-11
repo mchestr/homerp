@@ -296,7 +296,8 @@ export const imagesApi = {
 
   get: (id: string) => apiRequest<Image>(`/api/v1/images/${id}`),
 
-  getFileUrl: (id: string) => `${getApiBaseUrl()}/api/v1/images/${id}/file`,
+  getSignedUrl: (id: string) =>
+    apiRequest<{ url: string }>(`/api/v1/images/${id}/signed-url`),
 
   delete: (id: string) =>
     apiRequest<void>(`/api/v1/images/${id}`, { method: "DELETE" }),

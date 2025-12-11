@@ -18,11 +18,11 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InlineFacetedFilter } from "@/components/items/faceted-filter";
+import { AuthenticatedImage } from "@/components/ui/authenticated-image";
 import {
   itemsApi,
   categoriesApi,
   locationsApi,
-  imagesApi,
 } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 
@@ -413,12 +413,15 @@ export default function ItemsPage() {
               >
                 <div className="relative aspect-square bg-muted">
                   {item.primary_image_url ? (
-                    <img
-                      src={imagesApi.getFileUrl(
-                        item.primary_image_url.split("/").pop()!
-                      )}
+                    <AuthenticatedImage
+                      imageId={item.primary_image_url.split("/").pop()!}
                       alt={item.name}
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      fallback={
+                        <div className="flex h-full items-center justify-center">
+                          <Package className="h-16 w-16 text-muted-foreground/50" />
+                        </div>
+                      }
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center">

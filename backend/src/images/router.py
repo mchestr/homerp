@@ -1,11 +1,12 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, status
 from fastapi.responses import FileResponse
 
 from src.ai.service import AIClassificationService, get_ai_service
 from src.auth.dependencies import CurrentUserIdDep
+from src.auth.service import AuthService, get_auth_service
 from src.billing.router import CreditServiceDep
 from src.config import Settings, get_settings
 from src.database import AsyncSessionDep
@@ -14,6 +15,7 @@ from src.images.schemas import (
     ClassificationRequest,
     ClassificationResponse,
     ImageResponse,
+    ImageSignedUrlResponse,
     ImageUploadResponse,
 )
 from src.images.storage import LocalStorage, get_storage
@@ -143,14 +145,60 @@ async def get_image(
     return ImageResponse.model_validate(image)
 
 
+@router.get("/{image_id}/signed-url")
+async def get_image_signed_url(
+    image_id: UUID,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+    settings: Annotated[Settings, Depends(get_settings)],
+    auth_service: Annotated[AuthService, Depends(get_auth_service)],
+) -> ImageSignedUrlResponse:
+    """Get a signed URL for accessing an image file.
+
+    This generates a short-lived token that can be used in browser <img> tags
+    where Authorization headers cannot be sent.
+    """
+    repo = ImageRepository(session, user_id)
+    image = await repo.get_by_id(image_id)
+    if not image:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image not found",
+        )
+
+    token = auth_service.create_image_token(user_id, image_id)
+    base_url = settings.api_base_url or ""
+    url = f"{base_url}/api/v1/images/{image_id}/file?token={token}"
+
+    return ImageSignedUrlResponse(url=url)
+
+
 @router.get("/{image_id}/file")
 async def get_image_file(
     image_id: UUID,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
     storage: Annotated[LocalStorage, Depends(get_storage)],
+    auth_service: Annotated[AuthService, Depends(get_auth_service)],
+    token: Annotated[str | None, Query()] = None,
 ) -> FileResponse:
-    """Get the actual image file."""
+    """Get the actual image file.
+
+    Requires a valid signed token query parameter for authentication.
+    Use GET /{image_id}/signed-url to obtain a token.
+    """
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token required",
+        )
+
+    user_id = auth_service.verify_image_token(token, image_id)
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+        )
+
     repo = ImageRepository(session, user_id)
     image = await repo.get_by_id(image_id)
     if not image:

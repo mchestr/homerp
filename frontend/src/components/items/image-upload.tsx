@@ -58,9 +58,11 @@ export function ImageUpload({
 
       try {
         const result = await imagesApi.upload(file);
+        // Get a signed URL for displaying the uploaded image
+        const { url } = await imagesApi.getSignedUrl(result.id);
         onImageUploaded({
           id: result.id,
-          url: imagesApi.getFileUrl(result.id),
+          url,
           filename: result.original_filename || file.name,
         });
       } catch (err) {
@@ -142,9 +144,11 @@ export function ImageUpload({
 
     try {
       const result = await imagesApi.upload(file);
+      // Get a signed URL for displaying the uploaded image
+      const { url } = await imagesApi.getSignedUrl(result.id);
       onImageUploaded({
         id: result.id,
-        url: imagesApi.getFileUrl(result.id),
+        url,
         filename: result.original_filename || file.name,
       });
     } catch (err) {

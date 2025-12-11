@@ -18,7 +18,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useConfirmModal } from "@/components/ui/confirm-modal";
-import { itemsApi, imagesApi } from "@/lib/api/client";
+import { AuthenticatedImage } from "@/components/ui/authenticated-image";
+import { itemsApi } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 
 export default function ItemDetailPage() {
@@ -160,12 +161,15 @@ export default function ItemDetailPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="overflow-hidden rounded-xl border bg-card">
           {item.primary_image_url ? (
-            <img
-              src={imagesApi.getFileUrl(
-                item.primary_image_url.split("/").pop()!
-              )}
+            <AuthenticatedImage
+              imageId={item.primary_image_url.split("/").pop()!}
               alt={item.name}
               className="aspect-square w-full object-cover"
+              fallback={
+                <div className="flex aspect-square items-center justify-center bg-muted">
+                  <Package className="h-24 w-24 text-muted-foreground/50" />
+                </div>
+              }
             />
           ) : (
             <div className="flex aspect-square items-center justify-center bg-muted">

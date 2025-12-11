@@ -52,3 +52,9 @@ class ClassificationResponse(BaseModel):
     classification: ClassificationResult | None = None
     error: str | None = None
     create_item_prefill: dict[str, Any] | None = None
+
+
+class ImageSignedUrlResponse(BaseModel):
+    """Schema for signed URL response."""
+
+    url: str
