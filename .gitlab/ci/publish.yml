@@ -8,7 +8,7 @@ publish:backend:
   needs:
     - backend:lint
     - backend:test
-    - backend:build
+    - backend:build:docker
     - e2e:playwright
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
@@ -28,7 +28,7 @@ publish:frontend:
   needs:
     - frontend:lint
     - frontend:build
-    - frontend:docker
+    - frontend:build:docker
     - e2e:playwright
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
