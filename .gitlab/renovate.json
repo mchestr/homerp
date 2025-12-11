@@ -1,0 +1,47 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":gitlabCiAutoMerge"
+  ],
+  "schedule": [
+    "before 9am on monday"
+  ],
+  "timezone": "America/Los_Angeles",
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 5,
+  "packageRules": [
+    {
+      "description": "Group Python minor and patch updates",
+      "matchManagers": ["pip_requirements", "pip-compile", "poetry", "pep621"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "python-minor",
+      "automerge": true
+    },
+    {
+      "description": "Group npm minor and patch updates",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "npm-minor",
+      "automerge": true
+    },
+    {
+      "description": "Group Docker minor and patch updates",
+      "matchManagers": ["dockerfile"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "docker-minor",
+      "automerge": true
+    },
+    {
+      "description": "Group GitLab CI updates",
+      "matchManagers": ["gitlabci", "gitlabci-include"],
+      "groupName": "gitlab-ci",
+      "automerge": true
+    },
+    {
+      "description": "Require manual review for major updates",
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    }
+  ]
+}
