@@ -1,7 +1,8 @@
 from datetime import datetime
+from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class LocationBase(BaseModel):
@@ -39,6 +40,14 @@ class LocationResponse(LocationBase):
     path: str = ""
     created_at: datetime
 
+    @field_validator("path", mode="before")
+    @classmethod
+    def convert_ltree_to_str(cls, v: Any) -> str:
+        """Convert Ltree objects to strings."""
+        if v is None:
+            return ""
+        return str(v)
+
     model_config = {"from_attributes": True}
 
 
@@ -51,7 +60,16 @@ class LocationTreeNode(BaseModel):
     location_type: str | None = None
     path: str
     item_count: int = 0
+    total_value: float = 0.0
     children: list["LocationTreeNode"] = Field(default_factory=list)
+
+    @field_validator("path", mode="before")
+    @classmethod
+    def convert_ltree_to_str(cls, v: Any) -> str:
+        """Convert Ltree objects to strings."""
+        if v is None:
+            return ""
+        return str(v)
 
     model_config = {"from_attributes": True}
 

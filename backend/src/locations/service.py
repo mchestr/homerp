@@ -1,8 +1,10 @@
 import re
+from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import func, select, text
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy_utils import Ltree
 
 from src.locations.models import Location
 from src.locations.schemas import (
@@ -71,11 +73,12 @@ class LocationService:
             return []
 
         # Use ltree descendant operator: path <@ parent_path
+        parent_path = str(location.path)
         result = await self.session.execute(
             select(Location).where(
                 Location.user_id == self.user_id,
                 Location.id != location.id,
-                text("path <@ :parent_path").bindparams(parent_path=str(location.path)),
+                Location.path.op("<@")(Ltree(parent_path)),
             )
         )
         return list(result.scalars().all())
@@ -96,13 +99,14 @@ class LocationService:
         if not location.path or not location.parent_id:
             return []
 
-        # Use ltree ancestor operator
+        # Use ltree ancestor operator: path @> descendant_path
+        child_path = str(location.path)
         result = await self.session.execute(
             select(Location)
             .where(
                 Location.user_id == self.user_id,
                 Location.id != location.id,
-                text(":child_path <@ path").bindparams(child_path=str(location.path)),
+                Location.path.op("@>")(Ltree(child_path)),
             )
             .order_by(Location.path)
         )
@@ -136,7 +140,7 @@ class LocationService:
         while True:
             query = select(Location).where(
                 Location.user_id == self.user_id,
-                Location.path == text(f"'{path}'::ltree"),
+                Location.path == Ltree(path),
             )
             if exclude_id:
                 query = query.where(Location.id != exclude_id)
@@ -160,7 +164,7 @@ class LocationService:
             description=data.description,
             location_type=data.location_type,
             parent_id=data.parent_id,
-            path=path,
+            path=Ltree(path),
         )
         self.session.add(location)
         await self.session.commit()
@@ -204,14 +208,15 @@ class LocationService:
 
         # Update this location
         location.parent_id = new_parent_id
-        location.path = new_path
+        location.path = Ltree(new_path)
 
         # Update all descendants' paths
         if old_path:
             descendants = await self.get_descendants(location)
             for desc in descendants:
                 if desc.path and str(desc.path).startswith(old_path):
-                    desc.path = str(desc.path).replace(old_path, new_path, 1)
+                    new_desc_path = str(desc.path).replace(old_path, new_path, 1)
+                    desc.path = Ltree(new_desc_path)
 
     async def move(self, location: Location, new_parent_id: UUID | None) -> Location:
         """Move a location to a new parent."""
@@ -233,10 +238,17 @@ class LocationService:
 
     async def get_tree(self) -> list[LocationTreeNode]:
         """Build a nested tree structure of all locations."""
-        # Get all locations with item counts
+        # Import Item here to avoid circular import
+        from src.items.models import Item
+
+        # Get all locations with item counts and total values
         result = await self.session.execute(
-            select(Location, func.count(Location.items).label("item_count"))
-            .outerjoin(Location.items)
+            select(
+                Location,
+                func.count(Item.id).label("item_count"),
+                func.coalesce(func.sum(Item.price * Item.quantity), 0).label("total_value"),
+            )
+            .outerjoin(Item, Location.id == Item.location_id)
             .where(Location.user_id == self.user_id)
             .group_by(Location.id)
             .order_by(Location.path)
@@ -245,7 +257,9 @@ class LocationService:
 
         # Build lookup maps
         nodes: dict[UUID, LocationTreeNode] = {}
-        for location, item_count in rows:
+        for location, item_count, total_value in rows:
+            # Convert Decimal to float for JSON serialization
+            value = float(total_value) if isinstance(total_value, Decimal) else float(total_value or 0)
             nodes[location.id] = LocationTreeNode(
                 id=location.id,
                 name=location.name,
@@ -253,12 +267,13 @@ class LocationService:
                 location_type=location.location_type,
                 path=str(location.path) if location.path else "",
                 item_count=item_count,
+                total_value=value,
                 children=[],
             )
 
         # Build tree structure
         roots: list[LocationTreeNode] = []
-        for location, _ in rows:
+        for location, _, _ in rows:
             node = nodes[location.id]
             if location.parent_id and location.parent_id in nodes:
                 nodes[location.parent_id].children.append(node)

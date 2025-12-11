@@ -24,7 +24,16 @@ class UserResponse(UserBase):
 
     id: UUID
     is_admin: bool = False
+    currency: str = "USD"
+    language: str = "en"
     created_at: datetime
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class UserSettingsUpdate(BaseModel):
+    """Schema for updating user settings."""
+
+    currency: str | None = None
+    language: str | None = None

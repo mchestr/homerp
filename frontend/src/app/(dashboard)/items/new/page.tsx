@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
@@ -10,6 +10,8 @@ import {
   Upload,
   Package,
   CheckCircle2,
+  FolderPlus,
+  Check,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -18,21 +20,30 @@ import { TagInput } from "@/components/ui/tag-input";
 import { ImageUpload } from "@/components/items/image-upload";
 import { DynamicAttributeForm } from "@/components/items/dynamic-attribute-form";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   itemsApi,
   categoriesApi,
   locationsApi,
   imagesApi,
   ClassificationResult,
   ItemCreate,
-  CategoryTreeNode,
   LocationTreeNode,
-  FacetValue,
 } from "@/lib/api/client";
 
 type UploadedImage = {
   id: string;
   url: string;
   filename: string;
+  aiProcessed?: boolean;
 };
 
 // Add icons to location tree for display
@@ -57,6 +68,7 @@ function addIconsToLocationTree(
 
 export default function NewItemPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
 
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
@@ -65,6 +77,9 @@ export default function NewItemPage() {
   const [categoryAttributes, setCategoryAttributes] = useState<
     Record<string, unknown>
   >({});
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+  const [categoriesCreated, setCategoriesCreated] = useState(false);
+  const [initialImageLoaded, setInitialImageLoaded] = useState(false);
 
   const [formData, setFormData] = useState<ItemCreate>({
     name: "",
@@ -74,9 +89,58 @@ export default function NewItemPage() {
     quantity: 1,
     quantity_unit: "pcs",
     min_quantity: undefined,
+    price: undefined,
     attributes: {},
     tags: [],
   });
+
+  // Handle image_id from URL (from "Create Item from This" in classified images)
+  const imageIdFromUrl = searchParams.get("image_id");
+
+  useEffect(() => {
+    if (imageIdFromUrl && !initialImageLoaded) {
+      const loadInitialImage = async () => {
+        try {
+          const imageData = await imagesApi.get(imageIdFromUrl);
+          const { url } = await imagesApi.getSignedUrl(imageIdFromUrl);
+
+          // Add to uploaded images
+          setUploadedImages([
+            {
+              id: imageIdFromUrl,
+              url,
+              filename: imageData.original_filename || "image",
+              aiProcessed: imageData.ai_processed,
+            },
+          ]);
+
+          // If AI processed, populate the classification and form
+          if (imageData.ai_processed && imageData.ai_result) {
+            const result = imageData.ai_result as ClassificationResult;
+            setClassification(result);
+            setFormData((prev) => ({
+              ...prev,
+              name: result.identified_name,
+              description: result.description,
+              attributes: {
+                ...prev.attributes,
+                specifications: result.specifications,
+                ai_confidence: result.confidence,
+                ai_category_suggestion: result.category_path,
+              },
+            }));
+          }
+
+          setInitialImageLoaded(true);
+        } catch (err) {
+          console.error("Failed to load image from URL:", err);
+          setInitialImageLoaded(true);
+        }
+      };
+
+      loadInitialImage();
+    }
+  }, [imageIdFromUrl, initialImageLoaded]);
 
   const { data: categoryTree } = useQuery({
     queryKey: ["categories", "tree"],
@@ -113,6 +177,19 @@ export default function NewItemPage() {
       }
       queryClient.invalidateQueries({ queryKey: ["items"] });
       router.push(`/items/${item.id}`);
+    },
+  });
+
+  const createCategoriesMutation = useMutation({
+    mutationFn: (path: string) => categoriesApi.createFromPath(path),
+    onSuccess: (category) => {
+      queryClient.invalidateQueries({ queryKey: ["categories", "tree"] });
+      setFormData((prev) => ({
+        ...prev,
+        category_id: category.id,
+      }));
+      setCategoriesCreated(true);
+      setShowCategoryDialog(false);
     },
   });
 
@@ -165,7 +242,7 @@ export default function NewItemPage() {
     setFormData((prev) => ({
       ...prev,
       [name]:
-        name === "quantity" || name === "min_quantity"
+        name === "quantity" || name === "min_quantity" || name === "price"
           ? value
             ? Number(value)
             : undefined
@@ -286,9 +363,28 @@ export default function NewItemPage() {
               <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
                 Suggested category
               </p>
-              <p className="mt-1 font-medium text-emerald-900 dark:text-emerald-200">
-                {classification.category_path}
-              </p>
+              <div className="mt-1 flex items-center justify-between gap-2">
+                <p className="font-medium text-emerald-900 dark:text-emerald-200">
+                  {classification.category_path}
+                </p>
+                {categoriesCreated ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+                    <Check className="h-3 w-3" />
+                    Created
+                  </span>
+                ) : (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="shrink-0 border-emerald-300 bg-white text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 dark:hover:bg-emerald-900"
+                    onClick={() => setShowCategoryDialog(true)}
+                  >
+                    <FolderPlus className="mr-1.5 h-3.5 w-3.5" />
+                    Create Categories
+                  </Button>
+                )}
+              </div>
             </div>
             {Object.keys(classification.specifications).length > 0 && (
               <div className="rounded-lg bg-white/60 p-3 dark:bg-black/20 sm:col-span-2">
@@ -383,7 +479,7 @@ export default function NewItemPage() {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-4">
             <div>
               <label className="mb-2 block text-sm font-medium">Quantity</label>
               <input
@@ -420,6 +516,22 @@ export default function NewItemPage() {
                 min={0}
                 className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 placeholder="Alert threshold"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Price
+              </label>
+              <input
+                type="number"
+                name="price"
+                value={formData.price ?? ""}
+                onChange={handleInputChange}
+                min={0}
+                step={0.01}
+                className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                placeholder="0.00"
               />
             </div>
           </div>
@@ -472,6 +584,59 @@ export default function NewItemPage() {
           </Button>
         </div>
       </form>
+
+      <AlertDialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Create Category Hierarchy?</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                <p>This will create the following categories:</p>
+                <ul className="list-inside list-disc space-y-1 rounded-lg bg-muted p-3 text-sm">
+                  {classification?.category_path
+                    .split(">")
+                    .map((s) => s.trim())
+                    .filter(Boolean)
+                    .map((segment, index, arr) => (
+                      <li key={index}>
+                        <span className="font-medium">{segment}</span>
+                        {index > 0 && (
+                          <span className="text-muted-foreground">
+                            {" "}
+                            (under {arr[index - 1]})
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                </ul>
+                <p className="text-sm">
+                  Existing categories with matching names will be reused.
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (classification?.category_path) {
+                  createCategoriesMutation.mutate(classification.category_path);
+                }
+              }}
+              disabled={createCategoriesMutation.isPending}
+            >
+              {createCategoriesMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                "Create"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

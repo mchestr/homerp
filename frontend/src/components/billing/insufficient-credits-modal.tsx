@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import { Coins, X, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Coins, CreditCard, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface InsufficientCreditsModalProps {
   isOpen: boolean;
@@ -91,7 +91,8 @@ export function InsufficientCreditsModal({
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
               You don&apos;t have enough credits to use AI classification.
-              Purchase more credits to continue.
+              Credit purchases help cover the costs of AI tokens and site
+              maintenance for this hobbyist project.
             </p>
           </div>
           <button

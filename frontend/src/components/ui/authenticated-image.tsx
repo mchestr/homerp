@@ -9,6 +9,8 @@ type AuthenticatedImageProps = {
   alt: string;
   className?: string;
   fallback?: React.ReactNode;
+  /** Use thumbnail version for faster loading in list views */
+  thumbnail?: boolean;
 };
 
 /**
@@ -20,6 +22,7 @@ export function AuthenticatedImage({
   alt,
   className,
   fallback,
+  thumbnail = false,
 }: AuthenticatedImageProps) {
   const [src, setSrc] = useState<string | null>(null);
   const [error, setError] = useState(false);
@@ -29,7 +32,7 @@ export function AuthenticatedImage({
 
     async function fetchSignedUrl() {
       try {
-        const { url } = await imagesApi.getSignedUrl(imageId);
+        const { url } = await imagesApi.getSignedUrl(imageId, thumbnail);
         if (mounted) {
           setSrc(url);
         }
@@ -45,7 +48,7 @@ export function AuthenticatedImage({
     return () => {
       mounted = false;
     };
-  }, [imageId]);
+  }, [imageId, thumbnail]);
 
   if (error) {
     return fallback ?? null;

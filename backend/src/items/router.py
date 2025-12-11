@@ -8,6 +8,7 @@ from src.common.schemas import PaginatedResponse
 from src.database import AsyncSessionDep
 from src.items.repository import ItemRepository
 from src.items.schemas import (
+    DashboardStatsResponse,
     FacetedSearchResponse,
     FacetValue,
     ItemCreate,
@@ -105,6 +106,7 @@ async def list_items(
             description=item.description,
             quantity=item.quantity,
             quantity_unit=item.quantity_unit,
+            price=item.price,
             is_low_stock=item.is_low_stock,
             tags=item.tags or [],
             category=item.category,
@@ -137,6 +139,7 @@ async def create_item(
         quantity=item.quantity,
         quantity_unit=item.quantity_unit,
         min_quantity=item.min_quantity,
+        price=item.price,
         attributes=item.attributes,
         tags=item.tags or [],
         ai_classification=item.ai_classification,
@@ -147,6 +150,18 @@ async def create_item(
         created_at=item.created_at,
         updated_at=item.updated_at,
     )
+
+
+@router.get("/stats/dashboard")
+async def get_dashboard_stats(
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+    days: int = Query(30, ge=7, le=90),
+) -> DashboardStatsResponse:
+    """Get dashboard statistics including time series data."""
+    repo = ItemRepository(session, user_id)
+    stats = await repo.get_dashboard_stats(days=days)
+    return DashboardStatsResponse(**stats)
 
 
 @router.get("/search")
@@ -167,6 +182,7 @@ async def search_items(
             description=item.description,
             quantity=item.quantity,
             quantity_unit=item.quantity_unit,
+            price=item.price,
             is_low_stock=item.is_low_stock,
             tags=item.tags or [],
             category=item.category,
@@ -195,6 +211,7 @@ async def list_low_stock_items(
             description=item.description,
             quantity=item.quantity,
             quantity_unit=item.quantity_unit,
+            price=item.price,
             is_low_stock=item.is_low_stock,
             tags=item.tags or [],
             category=item.category,
@@ -273,6 +290,7 @@ async def get_item(
         quantity=item.quantity,
         quantity_unit=item.quantity_unit,
         min_quantity=item.min_quantity,
+        price=item.price,
         attributes=item.attributes,
         tags=item.tags or [],
         ai_classification=item.ai_classification,
@@ -312,6 +330,7 @@ async def update_item(
         quantity=item.quantity,
         quantity_unit=item.quantity_unit,
         min_quantity=item.min_quantity,
+        price=item.price,
         attributes=item.attributes,
         tags=item.tags or [],
         ai_classification=item.ai_classification,
@@ -351,6 +370,7 @@ async def update_item_quantity(
         quantity=item.quantity,
         quantity_unit=item.quantity_unit,
         min_quantity=item.min_quantity,
+        price=item.price,
         attributes=item.attributes,
         tags=item.tags or [],
         ai_classification=item.ai_classification,

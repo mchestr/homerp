@@ -77,12 +77,27 @@ run = "pnpm prettier --write src/"
 
 [tasks.test]
 description = "Run all tests"
-run = ["mise run test:backend"]
+run = ["mise run test:backend", "mise run test:frontend"]
 
 [tasks."test:backend"]
 description = "Run backend tests"
 dir = "backend"
 run = "uv run pytest"
+
+[tasks."test:frontend"]
+description = "Run frontend e2e tests"
+dir = "frontend"
+run = "pnpm test"
+
+[tasks."test:frontend:ui"]
+description = "Run frontend e2e tests with UI"
+dir = "frontend"
+run = "pnpm test:ui"
+
+[tasks."test:frontend:headed"]
+description = "Run frontend e2e tests in headed mode"
+dir = "frontend"
+run = "pnpm test:headed"
 
 [tasks."db:migrate"]
 description = "Run database migrations"

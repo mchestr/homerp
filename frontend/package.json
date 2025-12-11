@@ -10,7 +10,11 @@
     "lint:fix": "next lint --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "generate-api": "openapi-ts --input http://localhost:8000/openapi.json --output ./src/lib/api --client @tanstack/react-query"
+    "generate-api": "openapi-ts --input http://localhost:8000/openapi.json --output ./src/lib/api --client @tanstack/react-query",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -25,14 +29,17 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.556.0",
     "next": "^15.1.0",
+    "next-intl": "^4.5.8",
     "next-themes": "^0.4.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "recharts": "^3.5.1",
     "tailwind-merge": "^2.5.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
     "@hey-api/openapi-ts": "^0.88.2",
+    "@playwright/test": "^1.57.0",
     "@types/node": "^22.10.1",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.1",

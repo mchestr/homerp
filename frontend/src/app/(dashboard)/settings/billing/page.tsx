@@ -1,20 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-context";
 import { billingApi, CreditPack, CreditTransaction } from "@/lib/api/client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Coins,
-  CreditCard,
-  ExternalLink,
-  Loader2,
-  Sparkles,
-  ArrowLeft,
-  RefreshCw,
+    ArrowLeft,
+    Coins,
+    CreditCard,
+    ExternalLink,
+    Loader2,
+    RefreshCw,
+    Sparkles,
 } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 function formatPrice(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
@@ -225,8 +225,9 @@ export default function BillingSettingsPage() {
           Purchase Credits
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Credits are used for AI-powered image classification. Purchased
-          credits never expire.
+          This is a hobbyist project, and credit purchases help cover the costs
+          of AI token usage and site maintenance. Credits are used for
+          AI-powered image classification and never expire.
         </p>
         {packsLoading ? (
           <div className="mt-6 flex justify-center">

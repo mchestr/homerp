@@ -1,10 +1,15 @@
+import io
 import os
 import uuid
 from pathlib import Path
 
 import aiofiles
+from PIL import Image
 
 from src.config import Settings, get_settings
+
+# Default thumbnail size (width x height)
+THUMBNAIL_SIZE = (300, 300)
 
 
 class LocalStorage:
@@ -59,6 +64,49 @@ class LocalStorage:
     def get_full_path(self, storage_path: str) -> Path:
         """Get the full filesystem path for a stored file."""
         return self._get_file_path(storage_path)
+
+    async def generate_thumbnail(
+        self, content: bytes, original_filename: str | None = None
+    ) -> str | None:
+        """
+        Generate a thumbnail from image content.
+
+        Returns:
+            The storage path for the thumbnail, or None if generation fails.
+        """
+        try:
+            # Open image from bytes
+            img = Image.open(io.BytesIO(content))
+
+            # Convert to RGB if necessary (for PNG with transparency, etc.)
+            if img.mode in ("RGBA", "P"):
+                img = img.convert("RGB")
+
+            # Create thumbnail (maintains aspect ratio)
+            img.thumbnail(THUMBNAIL_SIZE, Image.Resampling.LANCZOS)
+
+            # Save to bytes
+            thumb_buffer = io.BytesIO()
+            img.save(thumb_buffer, format="JPEG", quality=85, optimize=True)
+            thumb_content = thumb_buffer.getvalue()
+
+            # Generate thumbnail filename
+            thumb_filename = self._generate_filename(original_filename)
+            # Add _thumb suffix before extension
+            stem = Path(thumb_filename).stem
+            thumb_filename = f"{stem}_thumb.jpg"
+
+            # Save thumbnail
+            thumb_path = self._get_file_path(thumb_filename)
+            async with aiofiles.open(thumb_path, "wb") as f:
+                await f.write(thumb_content)
+
+            return thumb_filename
+
+        except Exception:
+            # If thumbnail generation fails, return None
+            # The original image can still be used
+            return None
 
 
 def get_storage() -> LocalStorage:

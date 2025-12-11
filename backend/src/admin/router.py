@@ -8,6 +8,8 @@ from sqlalchemy import func, select
 
 from src.admin.schemas import (
     AdminStatsResponse,
+    CreditAdjustmentRequest,
+    CreditAdjustmentResponse,
     CreditPackAdminResponse,
     CreditPackCreate,
     CreditPackUpdate,
@@ -216,6 +218,78 @@ async def update_user(
     await session.commit()
     await session.refresh(user)
     return UserAdminResponse.model_validate(user)
+
+
+@router.post("/users/{user_id}/credits")
+async def adjust_user_credits(
+    user_id: UUID,
+    data: CreditAdjustmentRequest,
+    _admin: AdminUserDep,
+    session: AsyncSessionDep,
+) -> CreditAdjustmentResponse:
+    """Grant or remove credits from a user."""
+    result = await session.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
+    if data.amount == 0 and data.free_credits_amount == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="At least one of amount or free_credits_amount must be non-zero",
+        )
+
+    # For negative adjustments, check if user has enough purchased credits
+    if data.amount < 0 and user.credit_balance < abs(data.amount):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"User only has {user.credit_balance} purchased credits, cannot remove {abs(data.amount)}",
+        )
+
+    # For negative free credits adjustments, check if user has enough free credits
+    if data.free_credits_amount < 0 and user.free_credits_remaining < abs(
+        data.free_credits_amount
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"User only has {user.free_credits_remaining} free credits, cannot remove {abs(data.free_credits_amount)}",
+        )
+
+    # Adjust the credit balances
+    user.credit_balance += data.amount
+    user.free_credits_remaining += data.free_credits_amount
+
+    # Build description with both amounts if applicable
+    desc_parts = []
+    if data.amount != 0:
+        desc_parts.append(f"purchased: {data.amount:+d}")
+    if data.free_credits_amount != 0:
+        desc_parts.append(f"free: {data.free_credits_amount:+d}")
+    description = f"{data.reason} ({', '.join(desc_parts)})"
+
+    # Create transaction record
+    transaction = CreditTransaction(
+        user_id=user_id,
+        amount=data.amount + data.free_credits_amount,
+        transaction_type="admin_adjustment",
+        description=description,
+    )
+    session.add(transaction)
+
+    await session.commit()
+    await session.refresh(user)
+
+    return CreditAdjustmentResponse(
+        user_id=user.id,
+        amount=data.amount,
+        free_credits_amount=data.free_credits_amount,
+        new_balance=user.credit_balance,
+        new_free_credits=user.free_credits_remaining,
+        reason=data.reason,
+    )
 
 
 # ============================================================================

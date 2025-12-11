@@ -1,21 +1,43 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import {
   Package,
   FolderOpen,
   MapPin,
   AlertTriangle,
   ArrowRight,
-  TrendingUp,
+  Plus,
+  Boxes,
 } from "lucide-react";
 import Link from "next/link";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from "recharts";
+import { Button } from "@/components/ui/button";
 import { itemsApi, categoriesApi, locationsApi } from "@/lib/api/client";
 
 export default function DashboardPage() {
-  const { data: itemsData } = useQuery({
-    queryKey: ["items", { page: 1, limit: 1 }],
-    queryFn: () => itemsApi.list({ page: 1, limit: 1 }),
+  const t = useTranslations("dashboard");
+  const tCommon = useTranslations("common");
+
+  const { data: dashboardStats, isLoading: statsLoading } = useQuery({
+    queryKey: ["dashboard-stats"],
+    queryFn: () => itemsApi.dashboardStats(30),
+  });
+
+  const { data: lowStockItems } = useQuery({
+    queryKey: ["items", "low-stock"],
+    queryFn: () => itemsApi.lowStock(),
   });
 
   const { data: categories } = useQuery({
@@ -28,214 +50,402 @@ export default function DashboardPage() {
     queryFn: () => locationsApi.list(),
   });
 
-  const { data: lowStockItems } = useQuery({
-    queryKey: ["items", "low-stock"],
-    queryFn: () => itemsApi.lowStock(),
-  });
-
   const stats = [
     {
-      title: "Total Items",
-      value: itemsData?.total ?? 0,
+      title: t("totalItems"),
+      value: dashboardStats?.total_items ?? 0,
       icon: Package,
       href: "/items",
-      gradient: "from-blue-500 to-blue-600",
-      iconBg: "bg-blue-500/10 dark:bg-blue-400/10",
-      iconColor: "text-blue-600 dark:text-blue-400",
     },
     {
-      title: "Categories",
+      title: t("totalQuantity"),
+      value: dashboardStats?.total_quantity ?? 0,
+      icon: Boxes,
+      href: "/items",
+    },
+    {
+      title: t("categories"),
       value: categories?.length ?? 0,
       icon: FolderOpen,
       href: "/categories",
-      gradient: "from-emerald-500 to-emerald-600",
-      iconBg: "bg-emerald-500/10 dark:bg-emerald-400/10",
-      iconColor: "text-emerald-600 dark:text-emerald-400",
     },
     {
-      title: "Locations",
+      title: t("locations"),
       value: locations?.length ?? 0,
       icon: MapPin,
       href: "/locations",
-      gradient: "from-violet-500 to-violet-600",
-      iconBg: "bg-violet-500/10 dark:bg-violet-400/10",
-      iconColor: "text-violet-600 dark:text-violet-400",
-    },
-    {
-      title: "Low Stock",
-      value: lowStockItems?.length ?? 0,
-      icon: AlertTriangle,
-      href: "/items?low_stock=true",
-      gradient: "from-amber-500 to-amber-600",
-      iconBg: "bg-amber-500/10 dark:bg-amber-400/10",
-      iconColor: "text-amber-600 dark:text-amber-400",
     },
   ];
 
+  // Format dates for display
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  };
+
+  // Calculate cumulative items for the area chart
+  const cumulativeData =
+    dashboardStats?.items_over_time.reduce(
+      (acc, item, index) => {
+        const prevTotal = index > 0 ? acc[index - 1].total : 0;
+        acc.push({
+          date: item.date,
+          added: item.count,
+          total: prevTotal + item.count,
+        });
+        return acc;
+      },
+      [] as { date: string; added: number; total: number }[]
+    ) ?? [];
+
   return (
-    <div className="space-y-6 md:space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-          Dashboard
-        </h1>
-        <p className="mt-1 text-muted-foreground">
-          Overview of your home inventory
-        </p>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t("subtitle")}
+          </p>
+        </div>
+        <Link href="/items/new">
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            {t("addItem")}
+          </Button>
+        </Link>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {/* Stats Grid */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
           <Link
             key={stat.title}
             href={stat.href}
-            className="group relative overflow-hidden rounded-xl border bg-card p-5 transition-all hover:border-primary/50 hover:shadow-lg"
+            className="group relative rounded-xl border bg-card p-5 transition-colors hover:bg-muted/50"
           >
             <div className="flex items-start justify-between">
-              <div className="space-y-2">
+              <div>
                 <p className="text-sm font-medium text-muted-foreground">
                   {stat.title}
                 </p>
-                <p className="text-3xl font-bold tracking-tight">
-                  {stat.value}
+                <p className="mt-1 text-3xl font-semibold tracking-tight">
+                  {stat.value.toLocaleString()}
                 </p>
               </div>
-              <div className={`rounded-xl p-3 ${stat.iconBg}`}>
-                <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
+              <div className="rounded-lg bg-muted p-2.5 text-muted-foreground">
+                <stat.icon className="h-5 w-5" />
               </div>
             </div>
-            <div className="mt-4 flex items-center text-sm text-muted-foreground">
-              <span className="transition-colors group-hover:text-primary">
-                View details
-              </span>
+            <div className="mt-4 flex items-center text-sm text-muted-foreground transition-colors group-hover:text-foreground">
+              <span>{tCommon("viewDetails")}</span>
               <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </div>
           </Link>
         ))}
       </div>
 
+      {/* Items Over Time Chart - Full Width */}
+      <div className="rounded-xl border bg-card">
+        <div className="border-b px-5 py-4">
+          <h2 className="font-medium">{t("itemsOverTime")}</h2>
+          <p className="text-sm text-muted-foreground">{t("last30Days")}</p>
+        </div>
+        <div className="p-5">
+          {statsLoading ? (
+            <div className="flex h-[200px] items-center justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            </div>
+          ) : cumulativeData.length > 0 &&
+            cumulativeData.some((d) => d.added > 0) ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <AreaChart
+                data={cumulativeData}
+                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient id="colorItems" x1="0" y1="0" x2="0" y2="1">
+                    <stop
+                      offset="5%"
+                      stopColor="hsl(var(--primary))"
+                      stopOpacity={0.3}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor="hsl(var(--primary))"
+                      stopOpacity={0}
+                    />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  className="stroke-muted"
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={formatDate}
+                  tick={{ fontSize: 12 }}
+                  tickLine={false}
+                  axisLine={false}
+                  className="text-muted-foreground"
+                  interval="preserveStartEnd"
+                />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  tickLine={false}
+                  axisLine={false}
+                  className="text-muted-foreground"
+                  allowDecimals={false}
+                />
+                <Tooltip
+                  cursor={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 1, strokeDasharray: "4 4" }}
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length && typeof label === "string") {
+                      return (
+                        <div className="rounded-md border bg-popover px-2.5 py-1.5 text-xs shadow-sm">
+                          <span className="font-medium">{formatDate(label)}</span>
+                          <span className="text-muted-foreground"> · {payload[0].payload.added} added</span>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="added"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2}
+                  fillOpacity={1}
+                  fill="url(#colorItems)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex h-[200px] flex-col items-center justify-center text-center">
+              <Package className="h-10 w-10 text-muted-foreground/50" />
+              <p className="mt-2 text-sm text-muted-foreground">
+                {t("noItemsAdded")}
+              </p>
+              <Link href="/items/new" className="mt-3">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  {t("addFirstItem")}
+                </Button>
+              </Link>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Category and Location Charts */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {lowStockItems && lowStockItems.length > 0 && (
-          <div className="rounded-xl border bg-card">
-            <div className="flex items-center justify-between border-b p-5">
-              <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-amber-500/10 p-2 dark:bg-amber-400/10">
-                  <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                </div>
-                <div>
-                  <h2 className="font-semibold">Low Stock Items</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Items below minimum quantity
-                  </p>
-                </div>
+        {/* Items by Category Chart */}
+        <div className="rounded-xl border bg-card">
+          <div className="border-b px-5 py-4">
+            <h2 className="font-medium">{t("itemsByCategory")}</h2>
+            <p className="text-sm text-muted-foreground">{t("topCategories")}</p>
+          </div>
+          <div className="p-5">
+            {statsLoading ? (
+              <div className="flex h-[250px] items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
               </div>
-              <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-sm font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                {lowStockItems.length}
-              </span>
-            </div>
-            <div className="divide-y">
-              {lowStockItems.slice(0, 5).map((item) => (
-                <Link
-                  key={item.id}
-                  href={`/items/${item.id}`}
-                  className="flex items-center justify-between p-4 transition-colors hover:bg-muted/50"
+            ) : dashboardStats?.items_by_category &&
+              dashboardStats.items_by_category.length > 0 ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart
+                  data={dashboardStats.items_by_category}
+                  layout="vertical"
+                  margin={{ top: 0, right: 10, left: 0, bottom: 0 }}
                 >
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{item.name}</p>
-                    <p className="truncate text-sm text-muted-foreground">
-                      {item.location?.name ?? "No location"}
-                    </p>
-                  </div>
-                  <div className="ml-4 flex items-center gap-2">
-                    <span className="whitespace-nowrap rounded-lg bg-amber-100 px-2.5 py-1 text-sm font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                      {item.quantity} {item.quantity_unit}
-                    </span>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                </Link>
-              ))}
-            </div>
-            {lowStockItems.length > 5 && (
-              <div className="border-t p-4">
-                <Link
-                  href="/items?low_stock=true"
-                  className="flex items-center justify-center gap-2 text-sm font-medium text-primary hover:underline"
-                >
-                  View all {lowStockItems.length} low stock items
-                  <ArrowRight className="h-4 w-4" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-muted"
+                    horizontal={false}
+                  />
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 12 }}
+                    tickLine={false}
+                    axisLine={false}
+                    className="text-muted-foreground"
+                    allowDecimals={false}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    tick={{ fontSize: 12 }}
+                    tickLine={false}
+                    axisLine={false}
+                    className="text-muted-foreground"
+                    width={100}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "hsl(var(--muted))", opacity: 0.5 }}
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="rounded-md border bg-popover px-2.5 py-1.5 text-xs shadow-sm">
+                            <span className="font-medium">{payload[0].payload.name}</span>
+                            <span className="text-muted-foreground"> · {payload[0].value} items</span>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Bar dataKey="count" radius={[0, 4, 4, 0]} fill="hsl(var(--primary))" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex h-[250px] flex-col items-center justify-center text-center">
+                <FolderOpen className="h-10 w-10 text-muted-foreground/50" />
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {t("noCategoriesWithItems")}
+                </p>
+                <Link href="/categories" className="mt-3">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    {t("createCategory")}
+                  </Button>
                 </Link>
               </div>
             )}
           </div>
-        )}
+        </div>
 
+        {/* Items by Location Chart */}
         <div className="rounded-xl border bg-card">
-          <div className="flex items-center justify-between border-b p-5">
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-primary/10 p-2">
-                <TrendingUp className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h2 className="font-semibold">Quick Actions</h2>
-                <p className="text-sm text-muted-foreground">
-                  Manage your inventory
-                </p>
-              </div>
-            </div>
+          <div className="border-b px-5 py-4">
+            <h2 className="font-medium">{t("itemsByLocation")}</h2>
+            <p className="text-sm text-muted-foreground">{t("topLocations")}</p>
           </div>
-          <div className="grid gap-2 p-4 sm:grid-cols-2">
-            <Link
-              href="/items/new"
-              className="flex items-center gap-3 rounded-lg border border-dashed p-4 transition-colors hover:border-primary hover:bg-muted/50"
-            >
-              <div className="rounded-lg bg-blue-500/10 p-2 dark:bg-blue-400/10">
-                <Package className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+          <div className="p-5">
+            {statsLoading ? (
+              <div className="flex h-[250px] items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
               </div>
-              <div>
-                <p className="font-medium">Add Item</p>
-                <p className="text-sm text-muted-foreground">
-                  Create a new item
+            ) : dashboardStats?.items_by_location &&
+              dashboardStats.items_by_location.length > 0 ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart
+                  data={dashboardStats.items_by_location}
+                  layout="vertical"
+                  margin={{ top: 0, right: 10, left: 0, bottom: 0 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-muted"
+                    horizontal={false}
+                  />
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 12 }}
+                    tickLine={false}
+                    axisLine={false}
+                    className="text-muted-foreground"
+                    allowDecimals={false}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    tick={{ fontSize: 12 }}
+                    tickLine={false}
+                    axisLine={false}
+                    className="text-muted-foreground"
+                    width={100}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "hsl(var(--muted))", opacity: 0.5 }}
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="rounded-md border bg-popover px-2.5 py-1.5 text-xs shadow-sm">
+                            <span className="font-medium">{payload[0].payload.name}</span>
+                            <span className="text-muted-foreground"> · {payload[0].value} items</span>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Bar dataKey="count" radius={[0, 4, 4, 0]} fill="hsl(142 76% 36%)" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex h-[250px] flex-col items-center justify-center text-center">
+                <MapPin className="h-10 w-10 text-muted-foreground/50" />
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {t("noLocationsWithItems")}
                 </p>
+                <Link href="/locations" className="mt-3">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    {t("createLocation")}
+                  </Button>
+                </Link>
               </div>
-            </Link>
-            <Link
-              href="/categories"
-              className="flex items-center gap-3 rounded-lg border border-dashed p-4 transition-colors hover:border-primary hover:bg-muted/50"
-            >
-              <div className="rounded-lg bg-emerald-500/10 p-2 dark:bg-emerald-400/10">
-                <FolderOpen className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div>
-                <p className="font-medium">Categories</p>
-                <p className="text-sm text-muted-foreground">Organize items</p>
-              </div>
-            </Link>
-            <Link
-              href="/locations"
-              className="flex items-center gap-3 rounded-lg border border-dashed p-4 transition-colors hover:border-primary hover:bg-muted/50"
-            >
-              <div className="rounded-lg bg-violet-500/10 p-2 dark:bg-violet-400/10">
-                <MapPin className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-              </div>
-              <div>
-                <p className="font-medium">Locations</p>
-                <p className="text-sm text-muted-foreground">Storage areas</p>
-              </div>
-            </Link>
-            <Link
-              href="/items"
-              className="flex items-center gap-3 rounded-lg border border-dashed p-4 transition-colors hover:border-primary hover:bg-muted/50"
-            >
-              <div className="rounded-lg bg-primary/10 p-2">
-                <Package className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="font-medium">Browse Items</p>
-                <p className="text-sm text-muted-foreground">View all items</p>
-              </div>
-            </Link>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Low Stock Section */}
+      {lowStockItems && lowStockItems.length > 0 && (
+        <div className="rounded-xl border bg-card">
+          <div className="flex items-center justify-between border-b px-5 py-4">
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-amber-500/10 p-2">
+                <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div>
+                <h2 className="font-medium">{t("lowStockItems")}</h2>
+                <p className="text-sm text-muted-foreground">
+                  {t("belowMinimum")}
+                </p>
+              </div>
+            </div>
+            <span className="rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-600 dark:text-amber-400">
+              {lowStockItems.length}
+            </span>
+          </div>
+          <div className="divide-y">
+            {lowStockItems.slice(0, 5).map((item) => (
+              <Link
+                key={item.id}
+                href={`/items/${item.id}`}
+                className="group flex items-center justify-between px-5 py-3 transition-colors hover:bg-muted/50"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium">{item.name}</p>
+                  <p className="truncate text-sm text-muted-foreground">
+                    {item.location?.name ?? t("noLocation")}
+                  </p>
+                </div>
+                <div className="ml-4 flex items-center gap-3">
+                  <span className="rounded-md bg-amber-500/10 px-2 py-1 text-sm font-medium text-amber-600 dark:text-amber-400">
+                    {item.quantity} {item.quantity_unit}
+                  </span>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                </div>
+              </Link>
+            ))}
+          </div>
+          {lowStockItems.length > 5 && (
+            <div className="border-t px-5 py-3">
+              <Link
+                href="/items?low_stock=true"
+                className="flex items-center justify-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary/80"
+              >
+                {t("viewAllItems", { count: lowStockItems.length })}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { Plus, Edit, Trash2, MapPin, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TreeView, TreeSelect } from "@/components/ui/tree-view";
 import { useConfirmModal } from "@/components/ui/confirm-modal";
+import { ItemsPanel } from "@/components/items/items-panel";
 import {
   locationsApi,
   Location,
@@ -162,6 +163,20 @@ export default function LocationsPage() {
   // Add icons to tree for display
   const treeWithIcons = locationTree ? addIconsToTree(locationTree) : [];
   const selectTreeWithIcons = addIconsToTree(getSelectableTree());
+
+  // Build a lookup map from tree data for item_count and total_value
+  const getTreeStats = (): Map<string, { item_count: number; total_value: number }> => {
+    const stats = new Map<string, { item_count: number; total_value: number }>();
+    const traverse = (nodes: LocationTreeNode[]) => {
+      for (const node of nodes) {
+        stats.set(node.id, { item_count: node.item_count, total_value: node.total_value });
+        if (node.children) traverse(node.children);
+      }
+    };
+    if (locationTree) traverse(locationTree);
+    return stats;
+  };
+  const treeStats = getTreeStats();
 
   return (
     <div className="space-y-6">
@@ -350,113 +365,157 @@ export default function LocationsPage() {
           </Button>
         </div>
       ) : viewMode === "tree" ? (
-        <div className="rounded-xl border bg-card p-4">
-          <TreeView
-            nodes={treeWithIcons}
-            selectedId={selectedId}
-            onSelect={(node) => setSelectedId(node.id)}
-            renderActions={(node) => (
-              <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                <button
-                  type="button"
-                  onClick={() => handleAddChild(node.id)}
-                  className="rounded p-1 hover:bg-accent"
-                  title="Add child location"
-                >
-                  <Plus className="h-4 w-4 text-muted-foreground" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const location = locations?.find((l) => l.id === node.id);
-                    if (location) handleEdit(location);
-                  }}
-                  className="rounded p-1 hover:bg-accent"
-                  title="Edit"
-                >
-                  <Edit className="h-4 w-4 text-muted-foreground" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(node.id, node.name)}
-                  className="rounded p-1 hover:bg-accent"
-                  title="Delete"
-                >
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </button>
-              </div>
-            )}
-            emptyMessage="No locations yet"
-          />
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="rounded-xl border bg-card p-4">
+            <TreeView
+              nodes={treeWithIcons}
+              selectedId={selectedId}
+              onSelect={(node) => setSelectedId(node.id)}
+              renderActions={(node) => (
+                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    type="button"
+                    onClick={() => handleAddChild(node.id)}
+                    className="rounded p-1 hover:bg-accent"
+                    title="Add child location"
+                  >
+                    <Plus className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const location = locations?.find((l) => l.id === node.id);
+                      if (location) handleEdit(location);
+                    }}
+                    className="rounded p-1 hover:bg-accent"
+                    title="Edit"
+                  >
+                    <Edit className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(node.id, node.name)}
+                    className="rounded p-1 hover:bg-accent"
+                    title="Delete"
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </button>
+                </div>
+              )}
+              emptyMessage="No locations yet"
+            />
+          </div>
+          <div className="rounded-xl border bg-card p-4">
+            <ItemsPanel
+              locationId={selectedId}
+              title="Items in Location"
+              emptyMessage="No items in this location"
+              noSelectionMessage="Select a location to view its items"
+            />
+          </div>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {locations?.map((location) => {
-            const typeInfo = getLocationTypeInfo(location.location_type);
-            return (
-              <div
-                key={location.id}
-                className="group rounded-xl border bg-card p-5 transition-all hover:border-primary/50 hover:shadow-md"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-2xl dark:bg-violet-400/10">
-                      {typeInfo?.icon || "📍"}
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="font-semibold">{location.name}</h3>
-                      {location.parent_id && (
-                        <p className="text-xs text-muted-foreground">
-                          in{" "}
-                          {locations?.find((l) => l.id === location.parent_id)
-                            ?.name ?? "..."}
-                        </p>
-                      )}
-                      <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                        {location.location_type && (
-                          <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium capitalize">
-                            {location.location_type}
-                          </span>
+        <div className="space-y-6">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {locations?.map((location) => {
+              const typeInfo = getLocationTypeInfo(location.location_type);
+              return (
+                <button
+                  type="button"
+                  key={location.id}
+                  onClick={() => setSelectedId(selectedId === location.id ? null : location.id)}
+                  className={`group rounded-xl border bg-card p-5 text-left transition-all hover:border-primary/50 hover:shadow-md ${
+                    selectedId === location.id ? "border-primary ring-2 ring-primary/20" : ""
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-2xl dark:bg-violet-400/10">
+                        {typeInfo?.icon || "📍"}
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold">{location.name}</h3>
+                        {location.parent_id && (
+                          <p className="text-xs text-muted-foreground">
+                            in{" "}
+                            {locations?.find((l) => l.id === location.parent_id)
+                              ?.name ?? "..."}
+                          </p>
                         )}
-                        {location.description && (
-                          <span className="line-clamp-1">
-                            {location.description}
-                          </span>
+                        <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                          {location.location_type && (
+                            <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium capitalize">
+                              {location.location_type}
+                            </span>
+                          )}
+                          {location.description && (
+                            <span className="line-clamp-1">
+                              {location.description}
+                            </span>
+                          )}
+                        </div>
+                        {/* Stats from tree data */}
+                        {treeStats.get(location.id) && (
+                          <div className="mt-2 flex items-center gap-2">
+                            {treeStats.get(location.id)!.item_count > 0 && (
+                              <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                                {treeStats.get(location.id)!.item_count} item{treeStats.get(location.id)!.item_count !== 1 ? "s" : ""}
+                              </span>
+                            )}
+                            {treeStats.get(location.id)!.total_value > 0 && (
+                              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-600 dark:text-emerald-400">
+                                ${treeStats.get(location.id)!.total_value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              </span>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
+                    <div
+                      className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleAddChild(location.id)}
+                        className="h-8 w-8"
+                        title="Add child"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEdit(location)}
+                        className="h-8 w-8"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(location.id, location.name)}
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleAddChild(location.id)}
-                      className="h-8 w-8"
-                      title="Add child"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEdit(location)}
-                      className="h-8 w-8"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(location.id, location.name)}
-                      className="h-8 w-8 text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+                </button>
+              );
+            })}
+          </div>
+          {selectedId && (
+            <div className="rounded-xl border bg-card p-4">
+              <ItemsPanel
+                locationId={selectedId}
+                title={`Items in ${locations?.find((l) => l.id === selectedId)?.name ?? "Location"}`}
+                emptyMessage="No items in this location"
+                noSelectionMessage="Select a location to view its items"
+              />
+            </div>
+          )}
         </div>
       )}
 

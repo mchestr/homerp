@@ -8,7 +8,7 @@ from src.auth.schemas import AuthResponse, TokenResponse
 from src.auth.service import AuthService, get_auth_service
 from src.database import AsyncSessionDep
 from src.users.repository import UserRepository
-from src.users.schemas import UserResponse
+from src.users.schemas import UserResponse, UserSettingsUpdate
 
 router = APIRouter()
 
@@ -95,3 +95,15 @@ async def refresh_token(
         access_token=token,
         expires_in=expires_in,
     )
+
+
+@router.patch("/settings")
+async def update_user_settings(
+    settings: UserSettingsUpdate,
+    current_user: CurrentUserDep,
+    session: AsyncSessionDep,
+) -> UserResponse:
+    """Update the current user's settings."""
+    repo = UserRepository(session)
+    user = await repo.update_settings(current_user, settings)
+    return UserResponse.model_validate(user)

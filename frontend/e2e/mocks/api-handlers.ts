@@ -1,0 +1,537 @@
+import { Page, Route } from "@playwright/test";
+import * as fixtures from "../fixtures/test-data";
+
+/**
+ * API mock handlers for e2e tests.
+ * Intercepts backend API calls and returns mock data.
+ */
+
+type MockOptions = {
+  user?: typeof fixtures.testUser | typeof fixtures.adminUser;
+  creditBalance?: typeof fixtures.testCreditBalance;
+  items?: typeof fixtures.testItems;
+};
+
+/**
+ * Sets up all API mocks for a test page.
+ * Call this at the beginning of each test.
+ */
+export async function setupApiMocks(page: Page, options: MockOptions = {}) {
+  const {
+    user = fixtures.testUser,
+    creditBalance = fixtures.testCreditBalance,
+    items = fixtures.testItems,
+  } = options;
+
+  // Auth endpoints
+  await page.route("**/api/v1/auth/me", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(user),
+    });
+  });
+
+  await page.route("**/api/v1/auth/google*", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        authorization_url: "https://accounts.google.com/o/oauth2/auth?mock=true",
+      }),
+    });
+  });
+
+  // Items endpoints
+  await page.route("**/api/v1/items?*", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        items: items,
+        total: items.length,
+        page: 1,
+        limit: 20,
+        total_pages: 1,
+      }),
+    });
+  });
+
+  await page.route("**/api/v1/items", async (route) => {
+    if (route.request().method() === "GET") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          items: items,
+          total: items.length,
+          page: 1,
+          limit: 20,
+          total_pages: 1,
+        }),
+      });
+    } else if (route.request().method() === "POST") {
+      const body = route.request().postDataJSON();
+      const newItem = {
+        ...fixtures.testItemDetail,
+        id: `item-${Date.now()}`,
+        ...body,
+        category: fixtures.testCategories.find((c) => c.id === body.category_id) || null,
+        location: fixtures.testLocations.find((l) => l.id === body.location_id) || null,
+      };
+      await route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify(newItem),
+      });
+    } else {
+      await route.continue();
+    }
+  });
+
+  await page.route("**/api/v1/items/facets*", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(fixtures.testFacets),
+    });
+  });
+
+  await page.route("**/api/v1/items/low-stock", async (route) => {
+    const lowStock = items.filter((i) => i.is_low_stock);
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(lowStock),
+    });
+  });
+
+  await page.route("**/api/v1/items/tags*", async (route) => {
+    const tags = fixtures.testFacets.facets.find((f) => f.name === "tags")?.values || [];
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(tags),
+    });
+  });
+
+  await page.route(/\/api\/v1\/items\/[^/]+$/, async (route) => {
+    const method = route.request().method();
+    const url = route.request().url();
+    const itemId = url.split("/").pop();
+    const item = items.find((i) => i.id === itemId);
+
+    if (method === "GET") {
+      if (item) {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ...item,
+            category_id: item.category?.id || null,
+            location_id: item.location?.id || null,
+            min_quantity: 1,
+            attributes: {},
+            ai_classification: {},
+          }),
+        });
+      } else {
+        await route.fulfill({
+          status: 404,
+          contentType: "application/json",
+          body: JSON.stringify({ detail: "Item not found" }),
+        });
+      }
+    } else if (method === "PUT") {
+      const body = route.request().postDataJSON();
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ...fixtures.testItemDetail,
+          ...body,
+          id: itemId,
+        }),
+      });
+    } else if (method === "DELETE") {
+      await route.fulfill({
+        status: 204,
+      });
+    } else {
+      await route.continue();
+    }
+  });
+
+  // Categories endpoints
+  await page.route("**/api/v1/categories/tree", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(fixtures.testCategoryTree),
+    });
+  });
+
+  await page.route("**/api/v1/categories", async (route) => {
+    if (route.request().method() === "GET") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(fixtures.testCategories),
+      });
+    } else if (route.request().method() === "POST") {
+      const body = route.request().postDataJSON();
+      const newCategory = {
+        id: `cat-${Date.now()}`,
+        ...body,
+        path: body.name,
+        attribute_template: body.attribute_template || { fields: [] },
+        created_at: new Date().toISOString(),
+      };
+      await route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify(newCategory),
+      });
+    } else {
+      await route.continue();
+    }
+  });
+
+  await page.route(/\/api\/v1\/categories\/[^/]+\/template$/, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        fields: [
+          { name: "voltage", label: "Voltage", type: "number", unit: "V" },
+          { name: "package", label: "Package", type: "select", options: ["SMD", "THT"] },
+        ],
+        inherited_from: ["Electronics"],
+      }),
+    });
+  });
+
+  await page.route(/\/api\/v1\/categories\/[^/]+$/, async (route) => {
+    const method = route.request().method();
+    const url = route.request().url();
+    const catId = url.split("/").pop();
+    const category = fixtures.testCategories.find((c) => c.id === catId);
+
+    if (method === "GET") {
+      if (category) {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(category),
+        });
+      } else {
+        await route.fulfill({
+          status: 404,
+          contentType: "application/json",
+          body: JSON.stringify({ detail: "Category not found" }),
+        });
+      }
+    } else if (method === "PUT") {
+      const body = route.request().postDataJSON();
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ...category,
+          ...body,
+        }),
+      });
+    } else if (method === "DELETE") {
+      await route.fulfill({ status: 204 });
+    } else {
+      await route.continue();
+    }
+  });
+
+  // Locations endpoints
+  await page.route("**/api/v1/locations/tree", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(fixtures.testLocationTree),
+    });
+  });
+
+  await page.route("**/api/v1/locations", async (route) => {
+    if (route.request().method() === "GET") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(fixtures.testLocations),
+      });
+    } else if (route.request().method() === "POST") {
+      const body = route.request().postDataJSON();
+      const newLocation = {
+        id: `loc-${Date.now()}`,
+        ...body,
+        path: body.name,
+        created_at: new Date().toISOString(),
+      };
+      await route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify(newLocation),
+      });
+    } else {
+      await route.continue();
+    }
+  });
+
+  await page.route(/\/api\/v1\/locations\/[^/]+$/, async (route) => {
+    const method = route.request().method();
+    const url = route.request().url();
+    const locId = url.split("/").pop();
+    const location = fixtures.testLocations.find((l) => l.id === locId);
+
+    if (method === "GET") {
+      if (location) {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(location),
+        });
+      } else {
+        await route.fulfill({
+          status: 404,
+          contentType: "application/json",
+          body: JSON.stringify({ detail: "Location not found" }),
+        });
+      }
+    } else if (method === "PUT") {
+      const body = route.request().postDataJSON();
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ...location,
+          ...body,
+        }),
+      });
+    } else if (method === "DELETE") {
+      await route.fulfill({ status: 204 });
+    } else {
+      await route.continue();
+    }
+  });
+
+  // Billing endpoints
+  await page.route("**/api/v1/billing/balance", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(creditBalance),
+    });
+  });
+
+  await page.route("**/api/v1/billing/packs", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(fixtures.testCreditPacks),
+    });
+  });
+
+  await page.route("**/api/v1/billing/transactions*", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        items: fixtures.testCreditTransactions,
+        total: fixtures.testCreditTransactions.length,
+        page: 1,
+        limit: 20,
+        total_pages: 1,
+      }),
+    });
+  });
+
+  await page.route("**/api/v1/billing/checkout", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        checkout_url: "https://checkout.stripe.com/mock-session",
+      }),
+    });
+  });
+
+  await page.route("**/api/v1/billing/portal", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        portal_url: "https://billing.stripe.com/mock-portal",
+      }),
+    });
+  });
+
+  // Images endpoints
+  await page.route("**/api/v1/images/upload", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(fixtures.testImageUpload),
+    });
+  });
+
+  await page.route("**/api/v1/images/classified*", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        items: [],
+        total: 0,
+        page: 1,
+        limit: 20,
+        total_pages: 0,
+      }),
+    });
+  });
+
+  await page.route(/\/api\/v1\/images\/[^/]+\/signed-url$/, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        url: "http://localhost:8000/uploads/mock-signed-url.jpg?token=mock-token",
+      }),
+    });
+  });
+
+  // Admin endpoints (will be restricted to admin users in tests)
+  await page.route("**/api/v1/admin/stats", async (route) => {
+    if (user.is_admin) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(fixtures.testAdminStats),
+      });
+    } else {
+      await route.fulfill({
+        status: 403,
+        contentType: "application/json",
+        body: JSON.stringify({ detail: "Admin access required" }),
+      });
+    }
+  });
+
+  await page.route("**/api/v1/admin/users*", async (route) => {
+    if (user.is_admin) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          items: fixtures.testAdminUsers,
+          total: fixtures.testAdminUsers.length,
+          page: 1,
+          limit: 20,
+          total_pages: 1,
+        }),
+      });
+    } else {
+      await route.fulfill({
+        status: 403,
+        contentType: "application/json",
+        body: JSON.stringify({ detail: "Admin access required" }),
+      });
+    }
+  });
+
+  await page.route("**/api/v1/admin/packs", async (route) => {
+    if (user.is_admin) {
+      if (route.request().method() === "GET") {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(fixtures.testAdminPacks),
+        });
+      } else if (route.request().method() === "POST") {
+        const body = route.request().postDataJSON();
+        await route.fulfill({
+          status: 201,
+          contentType: "application/json",
+          body: JSON.stringify({
+            id: `pack-${Date.now()}`,
+            ...body,
+            created_at: new Date().toISOString(),
+          }),
+        });
+      } else {
+        await route.continue();
+      }
+    } else {
+      await route.fulfill({
+        status: 403,
+        contentType: "application/json",
+        body: JSON.stringify({ detail: "Admin access required" }),
+      });
+    }
+  });
+}
+
+/**
+ * Sets up AI classification mock with configurable behavior.
+ */
+export async function setupClassificationMock(
+  page: Page,
+  options: {
+    shouldSucceed?: boolean;
+    hasCredits?: boolean;
+    response?: typeof fixtures.testClassificationResult;
+  } = {}
+) {
+  const { shouldSucceed = true, hasCredits = true, response = fixtures.testClassificationResult } = options;
+
+  await page.route("**/api/v1/images/classify", async (route) => {
+    if (!hasCredits) {
+      await route.fulfill({
+        status: 402,
+        contentType: "application/json",
+        body: JSON.stringify({
+          detail: "Insufficient credits. Please purchase more credits to continue.",
+        }),
+      });
+      return;
+    }
+
+    if (shouldSucceed) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(response),
+      });
+    } else {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          success: false,
+          error: "Failed to classify image. Please try again.",
+        }),
+      });
+    }
+  });
+}
+
+/**
+ * Simulates authenticated state by setting localStorage token.
+ */
+export async function authenticateUser(page: Page) {
+  await page.addInitScript(() => {
+    localStorage.setItem("auth_token", "mock-jwt-token");
+  });
+}
+
+/**
+ * Clears authentication state.
+ */
+export async function clearAuth(page: Page) {
+  await page.addInitScript(() => {
+    localStorage.removeItem("auth_token");
+  });
+}

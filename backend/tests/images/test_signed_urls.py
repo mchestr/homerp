@@ -5,7 +5,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from src.auth.service import AuthService, IMAGE_TOKEN_EXPIRY_MINUTES
+from src.auth.service import IMAGE_TOKEN_EXPIRY_MINUTES, AuthService
 from src.config import Settings
 
 

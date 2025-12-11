@@ -1,7 +1,8 @@
 from datetime import datetime
+from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, Integer, String, func
+from sqlalchemy import ForeignKey, Integer, Numeric, String, func
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -30,6 +31,7 @@ class Item(Base):
     quantity: Mapped[int] = mapped_column(Integer, default=1)
     quantity_unit: Mapped[str] = mapped_column(String(50), default="pcs")
     min_quantity: Mapped[int | None] = mapped_column(Integer)
+    price: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))
     attributes: Mapped[dict] = mapped_column(JSONB, default=dict)
     tags: Mapped[list[str]] = mapped_column(ARRAY(String(100)), default=list)
     ai_classification: Mapped[dict] = mapped_column(JSONB, default=dict)

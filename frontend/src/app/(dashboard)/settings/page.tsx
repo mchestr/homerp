@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useAuth } from "@/context/auth-context";
 import {
   User,
@@ -8,12 +9,60 @@ import {
   Shield,
   Coins,
   ChevronRight,
+  Globe,
+  DollarSign,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import Link from "next/link";
 
+const CURRENCIES = [
+  { code: "USD", label: "US Dollar ($)" },
+  { code: "EUR", label: "Euro (€)" },
+  { code: "GBP", label: "British Pound (£)" },
+  { code: "CAD", label: "Canadian Dollar (C$)" },
+  { code: "AUD", label: "Australian Dollar (A$)" },
+  { code: "JPY", label: "Japanese Yen (¥)" },
+  { code: "CHF", label: "Swiss Franc (CHF)" },
+  { code: "CNY", label: "Chinese Yuan (¥)" },
+  { code: "INR", label: "Indian Rupee (₹)" },
+  { code: "MXN", label: "Mexican Peso ($)" },
+  { code: "BRL", label: "Brazilian Real (R$)" },
+  { code: "KRW", label: "South Korean Won (₩)" },
+];
+
+const LANGUAGES = [
+  { code: "en", label: "English" },
+  // Future languages can be added here
+];
+
 export default function SettingsPage() {
-  const { user, creditBalance } = useAuth();
+  const { user, creditBalance, updateSettings } = useAuth();
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleCurrencyChange = async (currency: string) => {
+    setIsUpdating(true);
+    try {
+      await updateSettings({ currency });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleLanguageChange = async (language: string) => {
+    setIsUpdating(true);
+    try {
+      await updateSettings({ language });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -46,6 +95,73 @@ export default function SettingsPage() {
               <Mail className="h-4 w-4" />
               {user?.email}
             </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-xl border bg-card p-6">
+        <h2 className="font-semibold">Preferences</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Customize your experience
+        </p>
+        <div className="mt-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-primary/10 p-2">
+                <DollarSign className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <p className="font-medium">Currency</p>
+                <p className="text-sm text-muted-foreground">
+                  Display prices in your preferred currency
+                </p>
+              </div>
+            </div>
+            <Select
+              value={user?.currency || "USD"}
+              onValueChange={handleCurrencyChange}
+              disabled={isUpdating}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select currency" />
+              </SelectTrigger>
+              <SelectContent>
+                {CURRENCIES.map((currency) => (
+                  <SelectItem key={currency.code} value={currency.code}>
+                    {currency.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-primary/10 p-2">
+                <Globe className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <p className="font-medium">Language</p>
+                <p className="text-sm text-muted-foreground">
+                  Choose your preferred language
+                </p>
+              </div>
+            </div>
+            <Select
+              value={user?.language || "en"}
+              onValueChange={handleLanguageChange}
+              disabled={isUpdating || LANGUAGES.length === 1}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select language" />
+              </SelectTrigger>
+              <SelectContent>
+                {LANGUAGES.map((language) => (
+                  <SelectItem key={language.code} value={language.code}>
+                    {language.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>

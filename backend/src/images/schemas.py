@@ -13,6 +13,7 @@ class ImageUploadResponse(BaseModel):
     original_filename: str | None
     mime_type: str | None
     size_bytes: int | None
+    content_hash: str | None
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -25,6 +26,34 @@ class ImageResponse(ImageUploadResponse):
     is_primary: bool
     ai_processed: bool
     ai_result: dict[str, Any] | None
+
+
+class PaginatedImagesResponse(BaseModel):
+    """Schema for paginated images response."""
+
+    items: list[ImageResponse]
+    total: int
+    page: int
+    limit: int
+    total_pages: int
+
+    @classmethod
+    def create(
+        cls,
+        items: list[ImageResponse],
+        total: int,
+        page: int,
+        limit: int,
+    ) -> "PaginatedImagesResponse":
+        """Create paginated response."""
+        total_pages = (total + limit - 1) // limit if limit > 0 else 0
+        return cls(
+            items=items,
+            total=total,
+            page=page,
+            limit=limit,
+            total_pages=total_pages,
+        )
 
 
 class ClassificationRequest(BaseModel):

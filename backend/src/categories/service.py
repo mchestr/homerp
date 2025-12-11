@@ -1,8 +1,11 @@
 import re
 from uuid import UUID
 
-from sqlalchemy import func, select, text
+from decimal import Decimal
+
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy_utils import Ltree
 
 from src.categories.models import Category
 from src.categories.schemas import (
@@ -73,11 +76,12 @@ class CategoryService:
             return []
 
         # Use ltree descendant operator: path <@ parent_path
+        parent_path = str(category.path)
         result = await self.session.execute(
             select(Category).where(
                 Category.user_id == self.user_id,
                 Category.id != category.id,
-                text("path <@ :parent_path").bindparams(parent_path=str(category.path)),
+                Category.path.op("<@")(Ltree(parent_path)),
             )
         )
         return list(result.scalars().all())
@@ -99,12 +103,14 @@ class CategoryService:
             return []
 
         # Use ltree ancestor operator: path @> descendant_path
+        # The @> operator checks if left path is ancestor of right path
+        child_path = str(category.path)
         result = await self.session.execute(
             select(Category)
             .where(
                 Category.user_id == self.user_id,
                 Category.id != category.id,
-                text(":child_path <@ path").bindparams(child_path=str(category.path)),
+                Category.path.op("@>")(Ltree(child_path)),
             )
             .order_by(Category.path)
         )
@@ -138,7 +144,7 @@ class CategoryService:
         while True:
             query = select(Category).where(
                 Category.user_id == self.user_id,
-                Category.path == text(f"'{path}'::ltree"),
+                Category.path == Ltree(path),
             )
             if exclude_id:
                 query = query.where(Category.id != exclude_id)
@@ -167,7 +173,7 @@ class CategoryService:
             icon=data.icon,
             description=data.description,
             parent_id=data.parent_id,
-            path=path,
+            path=Ltree(path),
             attribute_template=template_dict,
         )
         self.session.add(category)
@@ -224,14 +230,15 @@ class CategoryService:
 
         # Update this category
         category.parent_id = new_parent_id
-        category.path = new_path
+        category.path = Ltree(new_path)
 
         # Update all descendants' paths
         if old_path:
             descendants = await self.get_descendants(category)
             for desc in descendants:
                 if desc.path and str(desc.path).startswith(old_path):
-                    desc.path = str(desc.path).replace(old_path, new_path, 1)
+                    new_desc_path = str(desc.path).replace(old_path, new_path, 1)
+                    desc.path = Ltree(new_desc_path)
 
     async def move(self, category: Category, new_parent_id: UUID | None) -> Category:
         """Move a category to a new parent."""
@@ -253,10 +260,17 @@ class CategoryService:
 
     async def get_tree(self) -> list[CategoryTreeNode]:
         """Build a nested tree structure of all categories."""
-        # Get all categories with item counts
+        # Import Item here to avoid circular import
+        from src.items.models import Item
+
+        # Get all categories with item counts and total values
         result = await self.session.execute(
-            select(Category, func.count(Category.items).label("item_count"))
-            .outerjoin(Category.items)
+            select(
+                Category,
+                func.count(Item.id).label("item_count"),
+                func.coalesce(func.sum(Item.price * Item.quantity), 0).label("total_value"),
+            )
+            .outerjoin(Item, Category.id == Item.category_id)
             .where(Category.user_id == self.user_id)
             .group_by(Category.id)
             .order_by(Category.path)
@@ -265,7 +279,9 @@ class CategoryService:
 
         # Build lookup maps
         nodes: dict[UUID, CategoryTreeNode] = {}
-        for category, item_count in rows:
+        for category, item_count, total_value in rows:
+            # Convert Decimal to float for JSON serialization
+            value = float(total_value) if isinstance(total_value, Decimal) else float(total_value or 0)
             nodes[category.id] = CategoryTreeNode(
                 id=category.id,
                 name=category.name,
@@ -274,12 +290,13 @@ class CategoryService:
                 path=str(category.path) if category.path else "",
                 attribute_template=category.attribute_template or {},
                 item_count=item_count,
+                total_value=value,
                 children=[],
             )
 
         # Build tree structure
         roots: list[CategoryTreeNode] = []
-        for category, _ in rows:
+        for category, _, _ in rows:
             node = nodes[category.id]
             if category.parent_id and category.parent_id in nodes:
                 nodes[category.parent_id].children.append(node)
@@ -287,6 +304,50 @@ class CategoryService:
                 roots.append(node)
 
         return roots
+
+    async def create_from_path(self, path: str) -> Category:
+        """
+        Create categories from an AI-suggested path like 'Hardware > Fasteners > Screws'.
+
+        For each segment in the path:
+        - If a category with that name exists, use it as parent for the next segment
+        - If it doesn't exist, create it with the appropriate parent
+
+        Returns the leaf (final) category.
+        """
+        segments = [s.strip() for s in path.split(">") if s.strip()]
+        if not segments:
+            raise ValueError("Path cannot be empty")
+
+        parent_id: UUID | None = None
+        current_category: Category | None = None
+
+        for segment in segments:
+            # Check if category with this name already exists
+            existing = await self.get_by_name(segment)
+            if existing:
+                current_category = existing
+                parent_id = existing.id
+            else:
+                # Create the category with current parent
+                category_path = await self._build_path(segment, parent_id)
+                category_path = await self._ensure_unique_path(category_path)
+
+                current_category = Category(
+                    user_id=self.user_id,
+                    name=segment,
+                    parent_id=parent_id,
+                    path=Ltree(category_path),
+                    attribute_template={},
+                )
+                self.session.add(current_category)
+                await self.session.flush()
+                parent_id = current_category.id
+
+        await self.session.commit()
+        if current_category:
+            await self.session.refresh(current_category)
+        return current_category  # type: ignore
 
     async def get_merged_template(self, category_id: UUID) -> MergedAttributeTemplate:
         """

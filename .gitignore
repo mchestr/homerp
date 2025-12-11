@@ -30,6 +30,9 @@ build/
 htmlcov/
 .pytest_cache/
 .ruff_cache/
+playwright-report/
+test-results/
+e2e/.auth/
 
 # Uploads
 uploads/

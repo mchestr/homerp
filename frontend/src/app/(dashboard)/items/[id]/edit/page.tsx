@@ -53,6 +53,7 @@ export default function EditItemPage() {
     quantity: 1,
     quantity_unit: "pcs",
     min_quantity: undefined,
+    price: undefined,
     attributes: {},
   });
 
@@ -104,6 +105,7 @@ export default function EditItemPage() {
         quantity: rest.quantity,
         quantity_unit: rest.quantity_unit,
         min_quantity: rest.min_quantity || undefined,
+        price: rest.price != null ? Number(rest.price) : undefined,
         attributes: otherAttrs,
       });
       setCategoryAttributes(categoryAttrs);
@@ -142,7 +144,7 @@ export default function EditItemPage() {
     setFormData((prev) => ({
       ...prev,
       [name]:
-        name === "quantity" || name === "min_quantity"
+        name === "quantity" || name === "min_quantity" || name === "price"
           ? value
             ? Number(value)
             : undefined
@@ -285,7 +287,7 @@ export default function EditItemPage() {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-4">
             <div>
               <label className="mb-2 block text-sm font-medium">Quantity</label>
               <input
@@ -322,6 +324,22 @@ export default function EditItemPage() {
                 min={0}
                 className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 placeholder="Alert threshold"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Price
+              </label>
+              <input
+                type="number"
+                name="price"
+                value={formData.price ?? ""}
+                onChange={handleInputChange}
+                min={0}
+                step={0.01}
+                className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                placeholder="0.00"
               />
             </div>
           </div>

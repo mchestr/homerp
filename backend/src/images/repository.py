@@ -35,6 +35,47 @@ class ImageRepository:
         )
         return list(result.scalars().all())
 
+    async def get_by_content_hash(self, content_hash: str) -> Image | None:
+        """Get an image by content hash for this user."""
+        result = await self.session.execute(
+            select(Image).where(
+                Image.content_hash == content_hash,
+                Image.user_id == self.user_id,
+            )
+        )
+        return result.scalar_one_or_none()
+
+    async def get_classified_images(
+        self, page: int = 1, limit: int = 20
+    ) -> tuple[list[Image], int]:
+        """Get all classified images for the user with pagination."""
+        from sqlalchemy import func as sqla_func
+
+        # Count total
+        count_result = await self.session.execute(
+            select(sqla_func.count(Image.id)).where(
+                Image.user_id == self.user_id,
+                Image.ai_processed.is_(True),
+            )
+        )
+        total = count_result.scalar_one()
+
+        # Get paginated results
+        offset = (page - 1) * limit
+        result = await self.session.execute(
+            select(Image)
+            .where(
+                Image.user_id == self.user_id,
+                Image.ai_processed.is_(True),
+            )
+            .order_by(Image.created_at.desc())
+            .offset(offset)
+            .limit(limit)
+        )
+        images = list(result.scalars().all())
+
+        return images, total
+
     async def create(
         self,
         *,
@@ -43,6 +84,8 @@ class ImageRepository:
         original_filename: str | None = None,
         mime_type: str | None = None,
         size_bytes: int | None = None,
+        content_hash: str | None = None,
+        thumbnail_path: str | None = None,
         item_id: UUID | None = None,
     ) -> Image:
         """Create a new image record."""
@@ -54,6 +97,8 @@ class ImageRepository:
             original_filename=original_filename,
             mime_type=mime_type,
             size_bytes=size_bytes,
+            content_hash=content_hash,
+            thumbnail_path=thumbnail_path,
         )
         self.session.add(image)
         await self.session.commit()

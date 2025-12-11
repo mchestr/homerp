@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
@@ -18,6 +19,7 @@ class ItemBase(BaseModel):
     quantity: int = Field(1, ge=0)
     quantity_unit: str = Field("pcs", max_length=50)
     min_quantity: int | None = Field(None, ge=0)
+    price: Decimal | None = Field(None, ge=0, decimal_places=2)
     attributes: dict[str, Any] = Field(default_factory=dict)
     tags: list[str] = Field(default_factory=list)
 
@@ -38,6 +40,7 @@ class ItemUpdate(BaseModel):
     quantity: int | None = Field(None, ge=0)
     quantity_unit: str | None = Field(None, max_length=50)
     min_quantity: int | None = Field(None, ge=0)
+    price: Decimal | None = Field(None, ge=0, decimal_places=2)
     attributes: dict[str, Any] | None = None
     tags: list[str] | None = None
 
@@ -76,6 +79,7 @@ class ItemListResponse(BaseModel):
     description: str | None
     quantity: int
     quantity_unit: str
+    price: Decimal | None = None
     is_low_stock: bool
     tags: list[str] = []
     category: CategoryResponse | None = None
@@ -107,3 +111,36 @@ class FacetedSearchResponse(BaseModel):
 
     facets: list[Facet]
     total_items: int
+
+
+class TimeSeriesDataPoint(BaseModel):
+    """A single data point in a time series."""
+
+    date: str
+    count: int
+
+
+class CategoryDistribution(BaseModel):
+    """Distribution of items by category."""
+
+    name: str
+    count: int
+
+
+class LocationDistribution(BaseModel):
+    """Distribution of items by location."""
+
+    name: str
+    count: int
+
+
+class DashboardStatsResponse(BaseModel):
+    """Dashboard statistics response."""
+
+    items_over_time: list[TimeSeriesDataPoint]
+    items_by_category: list[CategoryDistribution]
+    items_by_location: list[LocationDistribution]
+    total_items: int
+    total_quantity: int
+    categories_used: int
+    locations_used: int

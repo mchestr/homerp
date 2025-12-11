@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException, status
 from src.auth.dependencies import CurrentUserIdDep
 from src.categories.schemas import (
     CategoryCreate,
+    CategoryCreateFromPath,
     CategoryMoveRequest,
     CategoryResponse,
     CategoryTreeNode,
@@ -65,6 +66,31 @@ async def create_category(
             )
 
     category = await service.create(data)
+    return CategoryResponse.model_validate(category)
+
+
+@router.post("/from-path", status_code=status.HTTP_201_CREATED)
+async def create_category_from_path(
+    data: CategoryCreateFromPath,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+) -> CategoryResponse:
+    """
+    Create categories from an AI-suggested path.
+
+    Parses a path like 'Hardware > Fasteners > Screws' and creates any
+    missing categories in the hierarchy. Returns the leaf category.
+    """
+    service = CategoryService(session, user_id)
+
+    try:
+        category = await service.create_from_path(data.path)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from None
+
     return CategoryResponse.model_validate(category)
 
 

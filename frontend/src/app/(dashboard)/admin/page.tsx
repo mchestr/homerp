@@ -14,6 +14,7 @@ import {
   Loader2,
   CreditCard,
   UserCog,
+  MessageSquare,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -87,7 +88,7 @@ export default function AdminPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="flex gap-4">
+      <div className="flex flex-wrap gap-4">
         <Link href="/admin/packs">
           <Button variant="outline" className="gap-2">
             <CreditCard className="h-4 w-4" />
@@ -98,6 +99,12 @@ export default function AdminPage() {
           <Button variant="outline" className="gap-2">
             <UserCog className="h-4 w-4" />
             Manage Users
+          </Button>
+        </Link>
+        <Link href="/admin/feedback">
+          <Button variant="outline" className="gap-2">
+            <MessageSquare className="h-4 w-4" />
+            Manage Feedback
           </Button>
         </Link>
       </div>

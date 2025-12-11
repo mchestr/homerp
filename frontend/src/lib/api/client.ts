@@ -122,6 +122,12 @@ export const authApi = {
       "/api/v1/auth/refresh",
       { method: "POST" }
     ),
+
+  updateSettings: (settings: UserSettingsUpdate) =>
+    apiRequest<User>("/api/v1/auth/settings", {
+      method: "PATCH",
+      body: settings,
+    }),
 };
 
 // Items API
@@ -218,6 +224,9 @@ export const itemsApi = {
     const params = limit ? `?limit=${limit}` : "";
     return apiRequest<FacetValue[]>(`/api/v1/items/tags${params}`);
   },
+
+  dashboardStats: (days: number = 30) =>
+    apiRequest<DashboardStatsResponse>(`/api/v1/items/stats/dashboard?days=${days}`),
 };
 
 // Categories API
@@ -236,6 +245,12 @@ export const categoriesApi = {
 
   create: (data: CategoryCreate) =>
     apiRequest<Category>("/api/v1/categories", { method: "POST", body: data }),
+
+  createFromPath: (path: string) =>
+    apiRequest<Category>("/api/v1/categories/from-path", {
+      method: "POST",
+      body: { path },
+    }),
 
   update: (id: string, data: CategoryUpdate) =>
     apiRequest<Category>(`/api/v1/categories/${id}`, {
@@ -296,8 +311,10 @@ export const imagesApi = {
 
   get: (id: string) => apiRequest<Image>(`/api/v1/images/${id}`),
 
-  getSignedUrl: (id: string) =>
-    apiRequest<{ url: string }>(`/api/v1/images/${id}/signed-url`),
+  getSignedUrl: (id: string, thumbnail?: boolean) =>
+    apiRequest<{ url: string }>(
+      `/api/v1/images/${id}/signed-url${thumbnail ? "?thumbnail=true" : ""}`
+    ),
 
   delete: (id: string) =>
     apiRequest<void>(`/api/v1/images/${id}`, { method: "DELETE" }),
@@ -316,8 +333,15 @@ export type User = {
   name: string | null;
   avatar_url: string | null;
   is_admin: boolean;
+  currency: string;
+  language: string;
   created_at: string;
   updated_at: string;
+};
+
+export type UserSettingsUpdate = {
+  currency?: string;
+  language?: string;
 };
 
 export type AttributeField = {
@@ -353,6 +377,7 @@ export type CategoryTreeNode = {
   path: string;
   attribute_template: AttributeTemplate;
   item_count: number;
+  total_value: number;
   children: CategoryTreeNode[];
 };
 
@@ -388,6 +413,7 @@ export type LocationTreeNode = {
   location_type: string | null;
   path: string;
   item_count: number;
+  total_value: number;
   children: LocationTreeNode[];
 };
 
@@ -406,6 +432,7 @@ export type ItemListItem = {
   description: string | null;
   quantity: number;
   quantity_unit: string;
+  price: number | null;
   is_low_stock: boolean;
   tags: string[];
   category: Category | null;
@@ -431,6 +458,7 @@ export type ItemCreate = {
   quantity?: number;
   quantity_unit?: string;
   min_quantity?: number;
+  price?: number;
   attributes?: Record<string, unknown>;
   tags?: string[];
   image_ids?: string[];
@@ -452,6 +480,31 @@ export type Facet = {
 export type FacetedSearchResponse = {
   facets: Facet[];
   total_items: number;
+};
+
+export type TimeSeriesDataPoint = {
+  date: string;
+  count: number;
+};
+
+export type CategoryDistribution = {
+  name: string;
+  count: number;
+};
+
+export type LocationDistribution = {
+  name: string;
+  count: number;
+};
+
+export type DashboardStatsResponse = {
+  items_over_time: TimeSeriesDataPoint[];
+  items_by_category: CategoryDistribution[];
+  items_by_location: LocationDistribution[];
+  total_items: number;
+  total_quantity: number;
+  categories_used: number;
+  locations_used: number;
 };
 
 export type PaginatedResponse<T> = {
@@ -655,4 +708,98 @@ export const adminApi = {
 
   // Stats
   getStats: () => apiRequest<AdminStats>("/api/v1/admin/stats"),
+
+  // Credit adjustment
+  adjustUserCredits: (userId: string, data: CreditAdjustment) =>
+    apiRequest<CreditAdjustmentResponse>(`/api/v1/admin/users/${userId}/credits`, {
+      method: "POST",
+      body: data,
+    }),
+
+  // Feedback
+  listFeedback: (page = 1, limit = 20, status?: string, feedbackType?: string) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (status) params.set("status", status);
+    if (feedbackType) params.set("feedback_type", feedbackType);
+    return apiRequest<PaginatedResponse<FeedbackAdminResponse>>(
+      `/api/v1/feedback/admin?${params}`
+    );
+  },
+
+  getFeedback: (id: string) =>
+    apiRequest<FeedbackAdminResponse>(`/api/v1/feedback/admin/${id}`),
+
+  updateFeedback: (id: string, data: FeedbackAdminUpdate) =>
+    apiRequest<FeedbackAdminResponse>(`/api/v1/feedback/admin/${id}`, {
+      method: "PUT",
+      body: data,
+    }),
+
+  deleteFeedback: (id: string) =>
+    apiRequest<void>(`/api/v1/feedback/admin/${id}`, { method: "DELETE" }),
+};
+
+// Feedback Types
+export type FeedbackCreate = {
+  subject: string;
+  message: string;
+  feedback_type?: string;
+};
+
+export type FeedbackResponse = {
+  id: string;
+  subject: string;
+  message: string;
+  feedback_type: string;
+  status: string;
+  created_at: string;
+};
+
+export type FeedbackAdminResponse = {
+  id: string;
+  user_id: string;
+  user_email: string;
+  user_name: string | null;
+  subject: string;
+  message: string;
+  feedback_type: string;
+  status: string;
+  admin_notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type FeedbackAdminUpdate = {
+  status?: string;
+  admin_notes?: string;
+};
+
+export type CreditAdjustment = {
+  amount: number;
+  free_credits_amount: number;
+  reason: string;
+};
+
+export type CreditAdjustmentResponse = {
+  user_id: string;
+  amount: number;
+  free_credits_amount: number;
+  new_balance: number;
+  new_free_credits: number;
+  reason: string;
+};
+
+// Feedback API
+export const feedbackApi = {
+  submit: (data: FeedbackCreate) =>
+    apiRequest<FeedbackResponse>("/api/v1/feedback", {
+      method: "POST",
+      body: data,
+    }),
+
+  list: (page = 1, limit = 20) =>
+    apiRequest<FeedbackResponse[]>(`/api/v1/feedback?page=${page}&limit=${limit}`),
 };

@@ -104,3 +104,28 @@ class AdminStatsResponse(BaseModel):
     active_credit_packs: int
     total_credits_purchased: int
     total_credits_used: int
+
+
+class CreditAdjustmentRequest(BaseModel):
+    """Schema for admin credit adjustment."""
+
+    amount: int = Field(
+        0, description="Purchased credits to add (positive) or remove (negative)"
+    )
+    free_credits_amount: int = Field(
+        0, description="Free credits to add (positive) or remove (negative)"
+    )
+    reason: str = Field(
+        ..., min_length=1, max_length=500, description="Reason for adjustment"
+    )
+
+
+class CreditAdjustmentResponse(BaseModel):
+    """Response for credit adjustment."""
+
+    user_id: UUID
+    amount: int
+    free_credits_amount: int
+    new_balance: int
+    new_free_credits: int
+    reason: str

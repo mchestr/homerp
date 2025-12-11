@@ -65,6 +65,16 @@ services:
     depends_on:
       - backend
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: homerp-cloudflared
+    command: tunnel run
+    volumes:
+      - ~/.cloudflared:/root/.cloudflared
+    depends_on:
+      - frontend
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   pgadmin_data:

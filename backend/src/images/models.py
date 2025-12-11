@@ -29,6 +29,8 @@ class Image(Base):
     original_filename: Mapped[str | None] = mapped_column(String(255))
     mime_type: Mapped[str | None] = mapped_column(String(100))
     size_bytes: Mapped[int | None] = mapped_column(Integer)
+    content_hash: Mapped[str | None] = mapped_column(String(64))  # SHA-256 hash
+    thumbnail_path: Mapped[str | None] = mapped_column(String(500))
     is_primary: Mapped[bool] = mapped_column(Boolean, default=False)
     ai_processed: Mapped[bool] = mapped_column(Boolean, default=False)
     ai_result: Mapped[dict | None] = mapped_column(JSONB)

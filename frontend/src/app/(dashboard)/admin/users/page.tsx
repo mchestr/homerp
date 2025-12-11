@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { adminApi, UserAdmin } from "@/lib/api/client";
+import { adminApi, UserAdmin, CreditAdjustment } from "@/lib/api/client";
 import {
   Search,
   Loader2,
@@ -14,6 +14,7 @@ import {
   ShieldOff,
   ChevronLeft,
   ChevronRight,
+  Coins,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("en-US", {
@@ -48,6 +59,13 @@ export default function AdminUsersPage() {
     user: UserAdmin;
     newStatus: boolean;
   } | null>(null);
+  const [creditAdjustment, setCreditAdjustment] = useState<{
+    user: UserAdmin;
+    amount: string;
+    freeCreditsAmount: string;
+    reason: string;
+  } | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { data: usersData, isLoading: usersLoading } = useQuery({
     queryKey: ["admin-users", page, search],
@@ -63,8 +81,20 @@ export default function AdminUsersPage() {
       setPendingAdminChange(null);
     },
     onError: (error: Error) => {
-      alert(error.message);
+      setErrorMessage(error.message);
       setPendingAdminChange(null);
+    },
+  });
+
+  const creditMutation = useMutation({
+    mutationFn: ({ userId, data }: { userId: string; data: CreditAdjustment }) =>
+      adminApi.adjustUserCredits(userId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      setCreditAdjustment(null);
+    },
+    onError: (error: Error) => {
+      setErrorMessage(error.message);
     },
   });
 
@@ -101,6 +131,42 @@ export default function AdminUsersPage() {
         is_admin: pendingAdminChange.newStatus,
       });
     }
+  };
+
+  const openCreditAdjustment = (targetUser: UserAdmin) => {
+    setCreditAdjustment({
+      user: targetUser,
+      amount: "",
+      freeCreditsAmount: "",
+      reason: "",
+    });
+  };
+
+  const handleCreditSubmit = () => {
+    if (!creditAdjustment) return;
+    const amount = creditAdjustment.amount ? parseInt(creditAdjustment.amount, 10) : 0;
+    const freeCreditsAmount = creditAdjustment.freeCreditsAmount ? parseInt(creditAdjustment.freeCreditsAmount, 10) : 0;
+
+    if (isNaN(amount) || isNaN(freeCreditsAmount)) {
+      setErrorMessage("Please enter valid numbers for credit amounts");
+      return;
+    }
+    if (amount === 0 && freeCreditsAmount === 0) {
+      setErrorMessage("Please enter at least one non-zero amount");
+      return;
+    }
+    if (!creditAdjustment.reason.trim()) {
+      setErrorMessage("Please enter a reason for this adjustment");
+      return;
+    }
+    creditMutation.mutate({
+      userId: creditAdjustment.user.id,
+      data: {
+        amount,
+        free_credits_amount: freeCreditsAmount,
+        reason: creditAdjustment.reason.trim(),
+      },
+    });
   };
 
   return (
@@ -191,7 +257,15 @@ export default function AdminUsersPage() {
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex justify-end">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openCreditAdjustment(u)}
+                        >
+                          <Coins className="mr-1 h-4 w-4" />
+                          Adjust Credits
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -299,6 +373,107 @@ export default function AdminUsersPage() {
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
               {pendingAdminChange?.newStatus ? "Grant Admin" : "Revoke Admin"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Credit Adjustment Dialog */}
+      <Dialog
+        open={!!creditAdjustment}
+        onOpenChange={(open) => !open && setCreditAdjustment(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adjust Credits</DialogTitle>
+            <DialogDescription>
+              Adjust credits for {creditAdjustment?.user.email}. Current balance:{" "}
+              {creditAdjustment?.user.credit_balance} purchased credits,{" "}
+              {creditAdjustment?.user.free_credits_remaining} free credits.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="amount">Purchased Credits</Label>
+              <Input
+                id="amount"
+                type="number"
+                placeholder="Enter amount (positive to add, negative to remove)"
+                value={creditAdjustment?.amount ?? ""}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setCreditAdjustment((prev) =>
+                    prev ? { ...prev, amount: e.target.value } : null
+                  )
+                }
+              />
+              <p className="text-xs text-muted-foreground">
+                Adjust purchased credits (never expire). Use negative to remove.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="freeCreditsAmount">Free Credits</Label>
+              <Input
+                id="freeCreditsAmount"
+                type="number"
+                placeholder="Enter amount (positive to add, negative to remove)"
+                value={creditAdjustment?.freeCreditsAmount ?? ""}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setCreditAdjustment((prev) =>
+                    prev ? { ...prev, freeCreditsAmount: e.target.value } : null
+                  )
+                }
+              />
+              <p className="text-xs text-muted-foreground">
+                Adjust free monthly credits. Use negative to remove (e.g., -{creditAdjustment?.user.free_credits_remaining} to zero out).
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="reason">Reason</Label>
+              <Textarea
+                id="reason"
+                placeholder="Enter reason for this adjustment"
+                value={creditAdjustment?.reason ?? ""}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setCreditAdjustment((prev) =>
+                    prev ? { ...prev, reason: e.target.value } : null
+                  )
+                }
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setCreditAdjustment(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreditSubmit}
+              disabled={creditMutation.isPending}
+            >
+              {creditMutation.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Apply Adjustment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Error Dialog */}
+      <AlertDialog
+        open={!!errorMessage}
+        onOpenChange={() => setErrorMessage(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Error</AlertDialogTitle>
+            <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setErrorMessage(null)}>
+              OK
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

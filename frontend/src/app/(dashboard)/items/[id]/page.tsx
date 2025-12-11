@@ -15,17 +15,20 @@ import {
   AlertTriangle,
   Calendar,
   Tag,
+  DollarSign,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useConfirmModal } from "@/components/ui/confirm-modal";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
 import { itemsApi } from "@/lib/api/client";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
+import { useAuth } from "@/context/auth-context";
 
 export default function ItemDetailPage() {
   const params = useParams();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const itemId = params.id as string;
 
   const {
@@ -162,7 +165,7 @@ export default function ItemDetailPage() {
         <div className="overflow-hidden rounded-xl border bg-card">
           {item.primary_image_url ? (
             <AuthenticatedImage
-              imageId={item.primary_image_url.split("/").pop()!}
+              imageId={item.primary_image_url.split("/").at(-2)!}
               alt={item.name}
               className="aspect-square w-full object-cover"
               fallback={
@@ -259,6 +262,22 @@ export default function ItemDetailPage() {
               </div>
             </div>
           </div>
+
+          {item.price != null && (
+            <div className="rounded-xl border bg-card p-5">
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-green-500/10 p-2 dark:bg-green-400/10">
+                  <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Price</p>
+                  <p className="text-2xl font-bold tabular-nums">
+                    {formatPrice(item.price, user?.currency)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {item.description && (
             <div className="rounded-xl border bg-card p-5">

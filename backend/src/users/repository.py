@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import get_settings
 from src.users.models import User
-from src.users.schemas import UserCreate
+from src.users.schemas import UserCreate, UserSettingsUpdate
 
 
 class UserRepository:
@@ -107,3 +107,13 @@ class UserRepository:
             await self.session.refresh(user)
 
         return user, True
+
+    async def update_settings(self, user: User, settings: UserSettingsUpdate) -> User:
+        """Update user settings."""
+        if settings.currency is not None:
+            user.currency = settings.currency
+        if settings.language is not None:
+            user.language = settings.language
+        await self.session.commit()
+        await self.session.refresh(user)
+        return user

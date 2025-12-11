@@ -38,6 +38,12 @@ class User(Base):
         Boolean, default=False, server_default="false"
     )
 
+    # User preferences
+    currency: Mapped[str] = mapped_column(
+        String(3), default="USD", server_default="USD"
+    )
+    language: Mapped[str] = mapped_column(String(5), default="en", server_default="en")
+
     # Relationships
     items: Mapped[list["Item"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
@@ -54,6 +60,9 @@ class User(Base):
     credit_transactions: Mapped[list["CreditTransaction"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    feedback: Mapped[list["Feedback"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
 
     __table_args__ = (
         # Unique constraint on oauth_provider + oauth_id
@@ -64,6 +73,7 @@ class User(Base):
 # Import at bottom to avoid circular imports
 from src.billing.models import CreditTransaction  # noqa: E402
 from src.categories.models import Category  # noqa: E402
+from src.feedback.models import Feedback  # noqa: E402
 from src.images.models import Image  # noqa: E402
 from src.items.models import Item  # noqa: E402
 from src.locations.models import Location  # noqa: E402

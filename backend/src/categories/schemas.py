@@ -1,8 +1,8 @@
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class AttributeFieldOption(BaseModel):
@@ -78,6 +78,14 @@ class CategoryResponse(CategoryBase):
     attribute_template: dict = Field(default_factory=dict)
     created_at: datetime
 
+    @field_validator("path", mode="before")
+    @classmethod
+    def convert_ltree_to_str(cls, v: Any) -> str:
+        """Convert Ltree objects to strings."""
+        if v is None:
+            return ""
+        return str(v)
+
     model_config = {"from_attributes": True}
 
 
@@ -91,7 +99,16 @@ class CategoryTreeNode(BaseModel):
     path: str
     attribute_template: dict = Field(default_factory=dict)
     item_count: int = 0
+    total_value: float = 0.0
     children: list["CategoryTreeNode"] = Field(default_factory=list)
+
+    @field_validator("path", mode="before")
+    @classmethod
+    def convert_ltree_to_str(cls, v: Any) -> str:
+        """Convert Ltree objects to strings."""
+        if v is None:
+            return ""
+        return str(v)
 
     model_config = {"from_attributes": True}
 
@@ -101,6 +118,16 @@ class CategoryMoveRequest(BaseModel):
 
     new_parent_id: UUID | None = Field(
         None, description="New parent category ID, or null for root level"
+    )
+
+
+class CategoryCreateFromPath(BaseModel):
+    """Schema for creating categories from an AI-suggested path."""
+
+    path: str = Field(
+        ...,
+        min_length=1,
+        description="Category path like 'Hardware > Fasteners > Screws'",
     )
 
 

@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { X, Loader2, Sparkles, ImagePlus } from "lucide-react";
+import Link from "next/link";
+import { X, Loader2, Sparkles, ImagePlus, CheckCircle2, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { imagesApi, ClassificationResult } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,7 @@ type UploadedImage = {
   id: string;
   url: string;
   filename: string;
+  aiProcessed?: boolean;
 };
 
 type ImageUploadProps = {
@@ -31,6 +33,9 @@ export function ImageUpload({
   const [isClassifying, setIsClassifying] = useState(false);
   const [classifyingImageId, setClassifyingImageId] = useState<string | null>(
     null
+  );
+  const [classifiedImageIds, setClassifiedImageIds] = useState<Set<string>>(
+    new Set()
   );
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -60,11 +65,20 @@ export function ImageUpload({
         const result = await imagesApi.upload(file);
         // Get a signed URL for displaying the uploaded image
         const { url } = await imagesApi.getSignedUrl(result.id);
+        // Fetch full image data to check if already classified
+        const imageData = await imagesApi.get(result.id);
+
         onImageUploaded({
           id: result.id,
           url,
           filename: result.original_filename || file.name,
+          aiProcessed: imageData.ai_processed,
         });
+
+        // If image was already classified, restore the result
+        if (imageData.ai_processed && imageData.ai_result) {
+          onClassificationComplete(imageData.ai_result as ClassificationResult);
+        }
       } catch (err) {
         console.error("Upload error:", err);
         setError("Failed to upload image. Please try again.");
@@ -73,7 +87,7 @@ export function ImageUpload({
         e.target.value = "";
       }
     },
-    [onImageUploaded]
+    [onImageUploaded, onClassificationComplete]
   );
 
   const handleClassify = useCallback(
@@ -86,6 +100,8 @@ export function ImageUpload({
         const response = await imagesApi.classify(imageId);
         if (response.success && response.classification) {
           onClassificationComplete(response.classification);
+          // Mark this image as processed in the uploadedImages list
+          setClassifiedImageIds((prev) => new Set([...prev, imageId]));
           // Refresh credits after successful classification
           refreshCredits();
         } else {
@@ -146,11 +162,20 @@ export function ImageUpload({
       const result = await imagesApi.upload(file);
       // Get a signed URL for displaying the uploaded image
       const { url } = await imagesApi.getSignedUrl(result.id);
+      // Fetch full image data to check if already classified
+      const imageData = await imagesApi.get(result.id);
+
       onImageUploaded({
         id: result.id,
         url,
         filename: result.original_filename || file.name,
+        aiProcessed: imageData.ai_processed,
       });
+
+      // If image was already classified, restore the result
+      if (imageData.ai_processed && imageData.ai_result) {
+        onClassificationComplete(imageData.ai_result as ClassificationResult);
+      }
     } catch (err) {
       console.error("Upload error:", err);
       setError("Failed to upload image. Please try again.");
@@ -159,102 +184,118 @@ export function ImageUpload({
     }
   };
 
+  const currentImage = uploadedImages[0];
+
   return (
     <div className="space-y-4">
       <InsufficientCreditsModal />
-      <label
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        className={cn(
-          "flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-all",
-          isDragging
-            ? "border-primary bg-primary/5"
-            : "border-muted-foreground/25 hover:border-primary hover:bg-muted/50",
-          isUploading && "pointer-events-none opacity-50"
-        )}
-      >
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="hidden"
-          disabled={isUploading}
-        />
-        <div className="text-center">
-          {isUploading ? (
-            <div className="flex flex-col items-center">
-              <div className="rounded-full bg-primary/10 p-4">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-              <p className="mt-4 font-medium">Uploading...</p>
+
+      {currentImage ? (
+        // Show uploaded image as the main focus
+        <div className="group relative overflow-hidden rounded-xl border bg-muted">
+          <img
+            src={currentImage.url}
+            alt={currentImage.filename}
+            className="aspect-video w-full object-contain bg-black/5"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-4">
+            <p className="truncate text-sm font-medium text-white">
+              {currentImage.filename}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => onRemoveImage(currentImage.id)}
+            className="absolute right-2 top-2 rounded-full bg-black/50 p-2 text-white transition-opacity hover:bg-black/70"
+            title="Remove image"
+          >
+            <X className="h-4 w-4" />
+          </button>
+          {currentImage.aiProcessed || classifiedImageIds.has(currentImage.id) ? (
+            <div className="absolute bottom-4 right-4 flex items-center gap-1.5 rounded-md bg-emerald-500 px-3 py-1.5 text-sm font-medium text-white shadow-lg">
+              <CheckCircle2 className="h-4 w-4" />
+              Identified
             </div>
           ) : (
-            <div className="flex flex-col items-center">
-              <div className="rounded-full bg-muted p-4">
-                <ImagePlus className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <p className="mt-4 font-medium">
-                {isDragging ? "Drop image here" : "Click or drag to upload"}
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                PNG, JPG up to 10MB
-              </p>
-            </div>
+            <Button
+              type="button"
+              onClick={() => handleClassify(currentImage.id)}
+              disabled={isClassifying}
+              size="sm"
+              className="absolute bottom-4 right-4 gap-2 shadow-lg"
+            >
+              {isClassifying && classifyingImageId === currentImage.id ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  Identify Item
+                </>
+              )}
+            </Button>
           )}
         </div>
-      </label>
+      ) : (
+        // Show upload dropzone when no image
+        <label
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={cn(
+            "flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-all",
+            isDragging
+              ? "border-primary bg-primary/5"
+              : "border-muted-foreground/25 hover:border-primary hover:bg-muted/50",
+            isUploading && "pointer-events-none opacity-50"
+          )}
+        >
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+            disabled={isUploading}
+          />
+          <div className="text-center">
+            {isUploading ? (
+              <div className="flex flex-col items-center">
+                <div className="rounded-full bg-primary/10 p-4">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+                <p className="mt-4 font-medium">Uploading...</p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center">
+                <div className="rounded-full bg-muted p-4">
+                  <ImagePlus className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <p className="mt-4 font-medium">
+                  {isDragging ? "Drop image here" : "Click or drag to upload"}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  PNG, JPG up to 10MB
+                </p>
+                <Link
+                  href="/images/classified"
+                  className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <History className="h-4 w-4" />
+                  Browse previously classified images
+                </Link>
+              </div>
+            )}
+          </div>
+        </label>
+      )}
 
       {error && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
           {error}
-        </div>
-      )}
-
-      {uploadedImages.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {uploadedImages.map((image) => (
-            <div
-              key={image.id}
-              className="group relative overflow-hidden rounded-xl border bg-muted"
-            >
-              <img
-                src={image.url}
-                alt={image.filename}
-                className="aspect-square w-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-4">
-                <p className="truncate text-sm font-medium text-white">
-                  {image.filename}
-                </p>
-              </div>
-              <button
-                onClick={() => onRemoveImage(image.id)}
-                className="absolute right-2 top-2 rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity hover:bg-black/70 group-hover:opacity-100"
-              >
-                <X className="h-4 w-4" />
-              </button>
-              <Button
-                onClick={() => handleClassify(image.id)}
-                disabled={isClassifying}
-                size="sm"
-                className="absolute bottom-4 right-4 gap-2 shadow-lg"
-              >
-                {isClassifying && classifyingImageId === image.id ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Analyzing...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4" />
-                    Identify Item
-                  </>
-                )}
-              </Button>
-            </div>
-          ))}
         </div>
       )}
     </div>

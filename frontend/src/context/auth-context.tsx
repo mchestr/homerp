@@ -7,7 +7,13 @@ import {
   useEffect,
   useState,
 } from "react";
-import { authApi, billingApi, CreditBalance, User } from "@/lib/api/client";
+import {
+  authApi,
+  billingApi,
+  CreditBalance,
+  User,
+  UserSettingsUpdate,
+} from "@/lib/api/client";
 
 type AuthState = {
   user: User | null;
@@ -21,6 +27,7 @@ type AuthContextType = AuthState & {
   logout: () => void;
   refreshUser: () => Promise<void>;
   refreshCredits: () => Promise<void>;
+  updateSettings: (settings: UserSettingsUpdate) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -99,6 +106,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [logout]);
 
+  const updateSettings = useCallback(async (settings: UserSettingsUpdate) => {
+    const updatedUser = await authApi.updateSettings(settings);
+    setState((prev) => ({
+      ...prev,
+      user: updatedUser,
+    }));
+  }, []);
+
   useEffect(() => {
     const token = localStorage.getItem("auth_token");
     if (token) {
@@ -121,6 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         refreshUser,
         refreshCredits,
+        updateSettings,
       }}
     >
       {children}

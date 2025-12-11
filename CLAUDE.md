@@ -208,3 +208,4 @@ Core tables:
 ## Guidelines
 - always use the most idiomatic and standard way to solve issues, do not invent hacks or workarounds.
 - never use browser alerts always use our common modal components
+- all frontend strings hould be translated using the i18n library

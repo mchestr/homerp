@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronRight, GripVertical } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface TreeNode {
@@ -9,7 +9,8 @@ export interface TreeNode {
   name: string;
   icon?: string | null;
   children?: TreeNode[];
-  itemCount?: number;
+  item_count?: number;
+  total_value?: number;
 }
 
 interface TreeViewProps<T extends TreeNode> {
@@ -80,12 +81,19 @@ function TreeItem<T extends TreeNode>({
         {/* Name */}
         <span className="flex-1 truncate text-sm font-medium">{node.name}</span>
 
-        {/* Item count badge */}
-        {typeof node.itemCount === "number" && node.itemCount > 0 && (
-          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-            {node.itemCount}
-          </span>
-        )}
+        {/* Stats badges */}
+        <div className="flex items-center gap-1.5">
+          {typeof node.item_count === "number" && node.item_count > 0 && (
+            <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+              {node.item_count}
+            </span>
+          )}
+          {typeof node.total_value === "number" && node.total_value > 0 && (
+            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-600 dark:text-emerald-400">
+              ${node.total_value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            </span>
+          )}
+        </div>
 
         {/* Actions */}
         {renderActions && (

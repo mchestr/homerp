@@ -1,37 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "@/context/auth-context";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import {
-  adminApi,
-  CreditPackAdmin,
-  CreditPackCreate,
-  CreditPackUpdate,
-} from "@/lib/api/client";
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  Loader2,
-  ArrowLeft,
-  Check,
-  X,
-} from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,6 +10,37 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/context/auth-context";
+import {
+  adminApi,
+  CreditPackAdmin,
+  CreditPackCreate,
+  CreditPackUpdate,
+} from "@/lib/api/client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  ArrowLeft,
+  Check,
+  Loader2,
+  Pencil,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 function formatPrice(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
@@ -54,6 +53,16 @@ type PackFormData = {
   stripe_price_id: string;
   is_active: boolean;
   sort_order: number;
+};
+
+// Internal form state that allows empty strings for number inputs
+type PackFormState = {
+  name: string;
+  credits: string;
+  price_cents: string;
+  stripe_price_id: string;
+  is_active: boolean;
+  sort_order: string;
 };
 
 function PackFormDialog({
@@ -69,40 +78,49 @@ function PackFormDialog({
   onSave: (data: PackFormData) => void;
   isSaving: boolean;
 }) {
-  const [formData, setFormData] = useState<PackFormData>({
+  const [formData, setFormData] = useState<PackFormState>({
     name: pack?.name ?? "",
-    credits: pack?.credits ?? 25,
-    price_cents: pack?.price_cents ?? 300,
+    credits: pack?.credits.toString() ?? "25",
+    price_cents: pack?.price_cents.toString() ?? "300",
     stripe_price_id: pack?.stripe_price_id ?? "",
     is_active: pack?.is_active ?? true,
-    sort_order: pack?.sort_order ?? 0,
+    sort_order: pack?.sort_order.toString() ?? "0",
   });
 
   useEffect(() => {
     if (pack) {
       setFormData({
         name: pack.name,
-        credits: pack.credits,
-        price_cents: pack.price_cents,
+        credits: pack.credits.toString(),
+        price_cents: pack.price_cents.toString(),
         stripe_price_id: pack.stripe_price_id,
         is_active: pack.is_active,
-        sort_order: pack.sort_order,
+        sort_order: pack.sort_order.toString(),
       });
     } else {
       setFormData({
         name: "",
-        credits: 25,
-        price_cents: 300,
+        credits: "25",
+        price_cents: "300",
         stripe_price_id: "",
         is_active: true,
-        sort_order: 0,
+        sort_order: "0",
       });
     }
   }, [pack, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    // Convert string values to numbers, using defaults if empty
+    const numericData: PackFormData = {
+      name: formData.name,
+      credits: parseInt(formData.credits) || 0,
+      price_cents: parseInt(formData.price_cents) || 0,
+      stripe_price_id: formData.stripe_price_id,
+      is_active: formData.is_active,
+      sort_order: parseInt(formData.sort_order) || 0,
+    };
+    onSave(numericData);
   };
 
   return (
@@ -146,7 +164,7 @@ function PackFormDialog({
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setFormData({
                       ...formData,
-                      credits: parseInt(e.target.value) || 0,
+                      credits: e.target.value,
                     })
                   }
                   required
@@ -162,13 +180,13 @@ function PackFormDialog({
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setFormData({
                       ...formData,
-                      price_cents: parseInt(e.target.value) || 0,
+                      price_cents: e.target.value,
                     })
                   }
                   required
                 />
                 <p className="text-xs text-muted-foreground">
-                  {formatPrice(formData.price_cents)}
+                  {formatPrice(parseInt(formData.price_cents) || 0)}
                 </p>
               </div>
             </div>
@@ -197,7 +215,7 @@ function PackFormDialog({
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setFormData({
                       ...formData,
-                      sort_order: parseInt(e.target.value) || 0,
+                      sort_order: e.target.value,
                     })
                   }
                 />

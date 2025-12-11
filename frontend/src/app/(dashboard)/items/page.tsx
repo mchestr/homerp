@@ -24,12 +24,14 @@ import {
   categoriesApi,
   locationsApi,
 } from "@/lib/api/client";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
+import { useAuth } from "@/context/auth-context";
 
 export default function ItemsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
+  const { user } = useAuth();
 
   const page = Number(searchParams.get("page")) || 1;
   const categoryId = searchParams.get("category_id") || undefined;
@@ -414,8 +416,9 @@ export default function ItemsPage() {
                 <div className="relative aspect-square bg-muted">
                   {item.primary_image_url ? (
                     <AuthenticatedImage
-                      imageId={item.primary_image_url.split("/").pop()!}
+                      imageId={item.primary_image_url.split("/").at(-2)!}
                       alt={item.name}
+                      thumbnail
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                       fallback={
                         <div className="flex h-full items-center justify-center">
@@ -436,9 +439,16 @@ export default function ItemsPage() {
                   )}
                 </div>
                 <div className="p-4">
-                  <h3 className="truncate font-semibold transition-colors group-hover:text-primary">
-                    {item.name}
-                  </h3>
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="truncate font-semibold transition-colors group-hover:text-primary">
+                      {item.name}
+                    </h3>
+                    {item.price != null && (
+                      <span className="shrink-0 text-sm font-medium text-muted-foreground">
+                        {formatPrice(item.price, user?.currency)}
+                      </span>
+                    )}
+                  </div>
                   <p className="mt-0.5 truncate text-sm text-muted-foreground">
                     {item.category?.icon}{" "}
                     {item.category?.name ?? "Uncategorized"}

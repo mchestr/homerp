@@ -3,6 +3,7 @@ from uuid import UUID
 from sqlalchemy import func, or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from sqlalchemy_utils import Ltree
 
 from src.categories.models import Category
 from src.items.models import Item
@@ -44,12 +45,11 @@ class ItemRepository:
 
         # Get all descendant IDs using ltree
         if category.path:
+            parent_path = str(category.path)
             result = await self.session.execute(
                 select(Category.id).where(
                     Category.user_id == self.user_id,
-                    text("path <@ :parent_path").bindparams(
-                        parent_path=str(category.path)
-                    ),
+                    Category.path.op("<@")(Ltree(parent_path)),
                 )
             )
             return list(result.scalars().all())
@@ -70,12 +70,11 @@ class ItemRepository:
 
         # Get all descendant IDs using ltree
         if location.path:
+            parent_path = str(location.path)
             result = await self.session.execute(
                 select(Location.id).where(
                     Location.user_id == self.user_id,
-                    text("path <@ :parent_path").bindparams(
-                        parent_path=str(location.path)
-                    ),
+                    Location.path.op("<@")(Ltree(parent_path)),
                 )
             )
             return list(result.scalars().all())
@@ -226,6 +225,7 @@ class ItemRepository:
             quantity=data.quantity,
             quantity_unit=data.quantity_unit,
             min_quantity=data.min_quantity,
+            price=data.price,
             attributes=data.attributes,
             tags=data.tags,
         )
@@ -384,3 +384,118 @@ class ItemRepository:
             .limit(limit)
         )
         return [(row.tag, row.count) for row in result.fetchall()]
+
+    async def get_dashboard_stats(self, days: int = 30) -> dict:
+        """Get dashboard statistics including time series data."""
+        from datetime import datetime, timedelta
+
+        # Items created over time (last N days)
+        start_date = datetime.utcnow() - timedelta(days=days)
+
+        date_trunc_expr = func.date_trunc("day", Item.created_at)
+        items_over_time_result = await self.session.execute(
+            select(
+                date_trunc_expr.label("date"),
+                func.count(Item.id).label("count"),
+            )
+            .where(
+                Item.user_id == self.user_id,
+                Item.created_at >= start_date,
+            )
+            .group_by(date_trunc_expr)
+            .order_by(date_trunc_expr)
+        )
+        items_over_time = [
+            {"date": row.date.strftime("%Y-%m-%d"), "count": row.count}
+            for row in items_over_time_result.fetchall()
+        ]
+
+        # Fill in missing dates with 0 counts
+        date_counts = {item["date"]: item["count"] for item in items_over_time}
+        filled_data = []
+        current_date = start_date.date()
+        end_date = datetime.utcnow().date()
+        while current_date <= end_date:
+            date_str = current_date.strftime("%Y-%m-%d")
+            filled_data.append(
+                {"date": date_str, "count": date_counts.get(date_str, 0)}
+            )
+            current_date += timedelta(days=1)
+
+        # Items by category
+        items_by_category_result = await self.session.execute(
+            select(
+                func.coalesce(Category.name, "Uncategorized").label("name"),
+                func.count(Item.id).label("count"),
+            )
+            .select_from(Item)
+            .outerjoin(Category, Item.category_id == Category.id)
+            .where(Item.user_id == self.user_id)
+            .group_by(Category.name)
+            .order_by(func.count(Item.id).desc())
+            .limit(10)
+        )
+        items_by_category = [
+            {"name": row.name, "count": row.count}
+            for row in items_by_category_result.fetchall()
+        ]
+
+        # Items by location
+        items_by_location_result = await self.session.execute(
+            select(
+                func.coalesce(Location.name, "No Location").label("name"),
+                func.count(Item.id).label("count"),
+            )
+            .select_from(Item)
+            .outerjoin(Location, Item.location_id == Location.id)
+            .where(Item.user_id == self.user_id)
+            .group_by(Location.name)
+            .order_by(func.count(Item.id).desc())
+            .limit(10)
+        )
+        items_by_location = [
+            {"name": row.name, "count": row.count}
+            for row in items_by_location_result.fetchall()
+        ]
+
+        # Total items
+        total_items_result = await self.session.execute(
+            select(func.count(Item.id)).where(Item.user_id == self.user_id)
+        )
+        total_items = total_items_result.scalar_one()
+
+        # Total quantity
+        total_quantity_result = await self.session.execute(
+            select(func.coalesce(func.sum(Item.quantity), 0)).where(
+                Item.user_id == self.user_id
+            )
+        )
+        total_quantity = total_quantity_result.scalar_one()
+
+        # Categories used
+        categories_used_result = await self.session.execute(
+            select(func.count(func.distinct(Item.category_id))).where(
+                Item.user_id == self.user_id,
+                Item.category_id.isnot(None),
+            )
+        )
+        categories_used = categories_used_result.scalar_one()
+
+        # Locations used
+        locations_used_result = await self.session.execute(
+            select(func.count(func.distinct(Item.location_id))).where(
+                Item.user_id == self.user_id,
+                Item.location_id.isnot(None),
+            )
+        )
+        locations_used = locations_used_result.scalar_one()
+
+        return {
+            "items_over_time": filled_data,
+            "items_by_category": items_by_category,
+            "items_by_location": items_by_location,
+            "total_items": total_items,
+            "total_quantity": total_quantity,
+            "categories_used": categories_used,
+            "locations_used": locations_used,
+        }

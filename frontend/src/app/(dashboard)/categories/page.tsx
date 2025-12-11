@@ -9,18 +9,17 @@ import {
   FolderOpen,
   Loader2,
   X,
-  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TreeView, TreeSelect } from "@/components/ui/tree-view";
 import { useConfirmModal } from "@/components/ui/confirm-modal";
 import { AttributeTemplateEditor } from "@/components/items/dynamic-attribute-form";
+import { ItemsPanel } from "@/components/items/items-panel";
 import {
   categoriesApi,
   Category,
   CategoryCreate,
   CategoryTreeNode,
-  AttributeField,
 } from "@/lib/api/client";
 
 export default function CategoriesPage() {
@@ -147,6 +146,20 @@ export default function CategoriesPage() {
     };
     return filterTree(categoryTree);
   };
+
+  // Build a lookup map from tree data for item_count and total_value
+  const getTreeStats = (): Map<string, { item_count: number; total_value: number }> => {
+    const stats = new Map<string, { item_count: number; total_value: number }>();
+    const traverse = (nodes: CategoryTreeNode[]) => {
+      for (const node of nodes) {
+        stats.set(node.id, { item_count: node.item_count, total_value: node.total_value });
+        if (node.children) traverse(node.children);
+      }
+    };
+    if (categoryTree) traverse(categoryTree);
+    return stats;
+  };
+  const treeStats = getTreeStats();
 
   return (
     <div className="space-y-6">
@@ -342,111 +355,155 @@ export default function CategoriesPage() {
           </Button>
         </div>
       ) : viewMode === "tree" ? (
-        <div className="rounded-xl border bg-card p-4">
-          <TreeView
-            nodes={categoryTree ?? []}
-            selectedId={selectedId}
-            onSelect={(node) => setSelectedId(node.id)}
-            renderActions={(node) => (
-              <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                <button
-                  type="button"
-                  onClick={() => handleAddChild(node.id)}
-                  className="rounded p-1 hover:bg-accent"
-                  title="Add child category"
-                >
-                  <Plus className="h-4 w-4 text-muted-foreground" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const category = categories?.find((c) => c.id === node.id);
-                    if (category) handleEdit(category);
-                  }}
-                  className="rounded p-1 hover:bg-accent"
-                  title="Edit"
-                >
-                  <Edit className="h-4 w-4 text-muted-foreground" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(node.id, node.name)}
-                  className="rounded p-1 hover:bg-accent"
-                  title="Delete"
-                >
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </button>
-              </div>
-            )}
-            emptyMessage="No categories yet"
-          />
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="rounded-xl border bg-card p-4">
+            <TreeView
+              nodes={categoryTree ?? []}
+              selectedId={selectedId}
+              onSelect={(node) => setSelectedId(node.id)}
+              renderActions={(node) => (
+                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    type="button"
+                    onClick={() => handleAddChild(node.id)}
+                    className="rounded p-1 hover:bg-accent"
+                    title="Add child category"
+                  >
+                    <Plus className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const category = categories?.find((c) => c.id === node.id);
+                      if (category) handleEdit(category);
+                    }}
+                    className="rounded p-1 hover:bg-accent"
+                    title="Edit"
+                  >
+                    <Edit className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(node.id, node.name)}
+                    className="rounded p-1 hover:bg-accent"
+                    title="Delete"
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </button>
+                </div>
+              )}
+              emptyMessage="No categories yet"
+            />
+          </div>
+          <div className="rounded-xl border bg-card p-4">
+            <ItemsPanel
+              categoryId={selectedId}
+              title="Items in Category"
+              emptyMessage="No items in this category"
+              noSelectionMessage="Select a category to view its items"
+            />
+          </div>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {categories?.map((category) => (
-            <div
-              key={category.id}
-              className="group rounded-xl border bg-card p-5 transition-all hover:border-primary/50 hover:shadow-md"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-2xl dark:bg-emerald-400/10">
-                    {category.icon || "📁"}
+        <div className="space-y-6">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {categories?.map((category) => (
+              <button
+                type="button"
+                key={category.id}
+                onClick={() => setSelectedId(selectedId === category.id ? null : category.id)}
+                className={`group rounded-xl border bg-card p-5 text-left transition-all hover:border-primary/50 hover:shadow-md ${
+                  selectedId === category.id ? "border-primary ring-2 ring-primary/20" : ""
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-2xl dark:bg-emerald-400/10">
+                      {category.icon || "📁"}
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-semibold">{category.name}</h3>
+                      {category.parent_id && (
+                        <p className="text-xs text-muted-foreground">
+                          in{" "}
+                          {categories?.find((c) => c.id === category.parent_id)
+                            ?.name ?? "..."}
+                        </p>
+                      )}
+                      {category.description && (
+                        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                          {category.description}
+                        </p>
+                      )}
+                      {category.attribute_template?.fields?.length > 0 && (
+                        <p className="mt-1 text-xs text-primary">
+                          {category.attribute_template.fields.length} attribute
+                          {category.attribute_template.fields.length !== 1
+                            ? "s"
+                            : ""}
+                        </p>
+                      )}
+                      {/* Stats from tree data */}
+                      {treeStats.get(category.id) && (
+                        <div className="mt-2 flex items-center gap-2">
+                          {treeStats.get(category.id)!.item_count > 0 && (
+                            <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                              {treeStats.get(category.id)!.item_count} item{treeStats.get(category.id)!.item_count !== 1 ? "s" : ""}
+                            </span>
+                          )}
+                          {treeStats.get(category.id)!.total_value > 0 && (
+                            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-600 dark:text-emerald-400">
+                              ${treeStats.get(category.id)!.total_value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="font-semibold">{category.name}</h3>
-                    {category.parent_id && (
-                      <p className="text-xs text-muted-foreground">
-                        in{" "}
-                        {categories?.find((c) => c.id === category.parent_id)
-                          ?.name ?? "..."}
-                      </p>
-                    )}
-                    {category.description && (
-                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                        {category.description}
-                      </p>
-                    )}
-                    {category.attribute_template?.fields?.length > 0 && (
-                      <p className="mt-1 text-xs text-primary">
-                        {category.attribute_template.fields.length} attribute
-                        {category.attribute_template.fields.length !== 1
-                          ? "s"
-                          : ""}
-                      </p>
-                    )}
+                  <div
+                    className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleAddChild(category.id)}
+                      className="h-8 w-8"
+                      title="Add child"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEdit(category)}
+                      className="h-8 w-8"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDelete(category.id, category.name)}
+                      className="h-8 w-8 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleAddChild(category.id)}
-                    className="h-8 w-8"
-                    title="Add child"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleEdit(category)}
-                    className="h-8 w-8"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDelete(category.id, category.name)}
-                    className="h-8 w-8 text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+              </button>
+            ))}
+          </div>
+          {selectedId && (
+            <div className="rounded-xl border bg-card p-4">
+              <ItemsPanel
+                categoryId={selectedId}
+                title={`Items in ${categories?.find((c) => c.id === selectedId)?.name ?? "Category"}`}
+                emptyMessage="No items in this category"
+                noSelectionMessage="Select a category to view its items"
+              />
             </div>
-          ))}
+          )}
         </div>
       )}
 
