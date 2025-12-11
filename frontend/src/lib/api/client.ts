@@ -326,6 +326,11 @@ export const imagesApi = {
       `/api/v1/images/${imageId}/attach/${itemId}${isPrimary ? "?is_primary=true" : ""}`,
       { method: "POST" }
     ),
+
+  listClassified: (page = 1, limit = 12) =>
+    apiRequest<PaginatedResponse<Image>>(
+      `/api/v1/images/classified?page=${page}&limit=${limit}`
+    ),
 };
 
 // Types
