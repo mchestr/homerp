@@ -1,7 +1,6 @@
 import re
-from uuid import UUID
-
 from decimal import Decimal
+from uuid import UUID
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession

@@ -32,6 +32,7 @@ export function DynamicAttributeForm({
     if (hasDefaults) {
       onChange({ ...values, ...defaults });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fields]);
 
   const handleChange = (name: string, value: unknown) => {

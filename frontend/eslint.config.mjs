@@ -12,6 +12,9 @@ const compat = new FlatCompat({
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
+    ignores: ["src/lib/api/**/*.gen.ts"],
+  },
+  {
     rules: {
       // Images come from external sources (Google avatars, runtime API)
       // that can't be optimized by Next.js Image at build time
