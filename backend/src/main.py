@@ -50,6 +50,7 @@ def create_app() -> FastAPI:
     from src.images.router import router as images_router
     from src.items.router import router as items_router
     from src.locations.router import router as locations_router
+    from src.webhooks.router import router as webhooks_router
 
     app.include_router(admin_router, prefix="/api/v1/admin", tags=["admin"])
     app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
@@ -61,6 +62,7 @@ def create_app() -> FastAPI:
     )
     app.include_router(locations_router, prefix="/api/v1/locations", tags=["locations"])
     app.include_router(images_router, prefix="/api/v1/images", tags=["images"])
+    app.include_router(webhooks_router, prefix="/api/v1/webhooks", tags=["webhooks"])
 
     return app
 

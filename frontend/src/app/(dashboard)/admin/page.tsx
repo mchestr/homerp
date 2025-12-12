@@ -15,6 +15,7 @@ import {
   CreditCard,
   UserCog,
   MessageSquare,
+  Webhook,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -105,6 +106,12 @@ export default function AdminPage() {
           <Button variant="outline" className="gap-2">
             <MessageSquare className="h-4 w-4" />
             Manage Feedback
+          </Button>
+        </Link>
+        <Link href="/admin/webhooks">
+          <Button variant="outline" className="gap-2">
+            <Webhook className="h-4 w-4" />
+            Manage Webhooks
           </Button>
         </Link>
       </div>
