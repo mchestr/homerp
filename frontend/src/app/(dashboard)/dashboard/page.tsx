@@ -93,7 +93,6 @@ export default function DashboardPage() {
     },
   ];
 
-
   // Calculate cumulative items for the area chart
   const cumulativeData =
     dashboardStats?.items_over_time.reduce(

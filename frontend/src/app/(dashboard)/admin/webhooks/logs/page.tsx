@@ -274,7 +274,8 @@ export default function WebhookLogsPage() {
             <DialogTitle>{t("webhooks.executionDetails")}</DialogTitle>
             <DialogDescription>
               {selectedExecution?.event_type} -{" "}
-              {selectedExecution && formatDateTimeWithSeconds(selectedExecution.executed_at)}
+              {selectedExecution &&
+                formatDateTimeWithSeconds(selectedExecution.executed_at)}
             </DialogDescription>
           </DialogHeader>
           {selectedExecution && (
@@ -366,7 +367,9 @@ export default function WebhookLogsPage() {
                   <div className="space-y-1">
                     <Label>{t("webhooks.completedAt")}</Label>
                     <p className="text-sm">
-                      {formatDateTimeWithSeconds(selectedExecution.completed_at)}
+                      {formatDateTimeWithSeconds(
+                        selectedExecution.completed_at
+                      )}
                     </p>
                   </div>
                 )}

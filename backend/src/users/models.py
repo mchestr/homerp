@@ -33,7 +33,9 @@ class User(Base):
     free_credits_remaining: Mapped[int] = mapped_column(
         Integer, default=5, server_default="5"
     )
-    free_credits_reset_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    free_credits_reset_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True)
+    )
 
     # Admin
     is_admin: Mapped[bool] = mapped_column(
