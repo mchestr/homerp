@@ -260,8 +260,9 @@ class ItemRepository:
         """Update item quantity."""
         item.quantity = quantity
         await self.session.commit()
-        await self.session.refresh(item)
-        return item
+
+        # Reload with relationships
+        return await self.get_by_id(item.id)  # type: ignore
 
     async def delete(self, item: Item) -> None:
         """Delete an item."""

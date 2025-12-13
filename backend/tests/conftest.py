@@ -11,13 +11,21 @@ from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock, patch
 
 import pytest
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy_utils import Ltree
 from testcontainers.postgres import PostgresContainer
 
 from src.billing.models import CreditPack, CreditTransaction
+from src.categories.models import Category
 from src.config import Settings
 from src.database import Base
+from src.feedback.models import Feedback
+from src.images.models import Image
+from src.items.models import Item
+from src.locations.models import Location
 from src.users.models import User
+from src.webhooks.models import WebhookConfig
 
 
 @pytest.fixture(scope="session")
@@ -412,3 +420,184 @@ def mock_stripe_webhook_event(stripe_webhook_payload):
         ].get(key, default)
     )
     return mock_event
+
+
+# HTTP Client Fixtures for Integration Tests
+@pytest.fixture
+async def authenticated_client(
+    async_session: AsyncSession,
+    test_settings: Settings,  # noqa: ARG001
+    test_user: User,  # noqa: ARG001
+) -> AsyncGenerator[AsyncClient, None]:
+    """Create an async HTTP client with authenticated user."""
+    from src.auth.dependencies import get_current_user_id
+    from src.database import get_session
+    from src.main import app
+
+    async def override_session():
+        yield async_session
+
+    app.dependency_overrides[get_session] = override_session
+    app.dependency_overrides[get_current_user_id] = lambda: test_user.id
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        yield client
+
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+async def admin_client(
+    async_session: AsyncSession,
+    test_settings: Settings,  # noqa: ARG001
+    admin_user: User,  # noqa: ARG001
+) -> AsyncGenerator[AsyncClient, None]:
+    """Create an async HTTP client with admin user."""
+    from src.auth.dependencies import get_current_user_id
+    from src.database import get_session
+    from src.main import app
+
+    async def override_session():
+        yield async_session
+
+    app.dependency_overrides[get_session] = override_session
+    app.dependency_overrides[get_current_user_id] = lambda: admin_user.id
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        yield client
+
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+async def unauthenticated_client(
+    async_session: AsyncSession,
+    test_settings: Settings,  # noqa: ARG001
+) -> AsyncGenerator[AsyncClient, None]:
+    """Create an async HTTP client without authentication."""
+    from src.database import get_session
+    from src.main import app
+
+    async def override_session():
+        yield async_session
+
+    app.dependency_overrides[get_session] = override_session
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        yield client
+
+    app.dependency_overrides.clear()
+
+
+# Data Fixtures for Integration Tests
+@pytest.fixture
+async def test_category(async_session: AsyncSession, test_user: User) -> Category:
+    """Create a test category."""
+    category = Category(
+        id=uuid.uuid4(),
+        user_id=test_user.id,
+        name="Electronics",
+        path=Ltree("electronics"),
+    )
+    async_session.add(category)
+    await async_session.commit()
+    await async_session.refresh(category)
+    return category
+
+
+@pytest.fixture
+async def test_location(async_session: AsyncSession, test_user: User) -> Location:
+    """Create a test location."""
+    location = Location(
+        id=uuid.uuid4(),
+        user_id=test_user.id,
+        name="Workshop",
+        path=Ltree("workshop"),
+    )
+    async_session.add(location)
+    await async_session.commit()
+    await async_session.refresh(location)
+    return location
+
+
+@pytest.fixture
+async def test_item(
+    async_session: AsyncSession,
+    test_user: User,
+    test_category: Category,
+    test_location: Location,
+) -> Item:
+    """Create a test item."""
+    item = Item(
+        id=uuid.uuid4(),
+        user_id=test_user.id,
+        name="Multimeter",
+        description="Digital multimeter for electronics",
+        quantity=1,
+        category_id=test_category.id,
+        location_id=test_location.id,
+        attributes={"brand": "Fluke", "model": "117"},
+        tags=["electronics", "tools"],
+    )
+    async_session.add(item)
+    await async_session.commit()
+    await async_session.refresh(item)
+    return item
+
+
+@pytest.fixture
+async def test_image(async_session: AsyncSession, test_user: User) -> Image:
+    """Create a test image."""
+    image = Image(
+        id=uuid.uuid4(),
+        user_id=test_user.id,
+        original_filename="test_image.jpg",
+        mime_type="image/jpeg",
+        size_bytes=1024,
+        storage_path="/uploads/test_image.jpg",
+        thumbnail_path="/uploads/test_image_thumb.jpg",
+        storage_type="local",
+    )
+    async_session.add(image)
+    await async_session.commit()
+    await async_session.refresh(image)
+    return image
+
+
+@pytest.fixture
+async def test_feedback(async_session: AsyncSession, test_user: User) -> Feedback:
+    """Create a test feedback."""
+    feedback = Feedback(
+        id=uuid.uuid4(),
+        user_id=test_user.id,
+        subject="Test Subject",
+        message="Test feedback message",
+        feedback_type="bug",
+        status="pending",
+    )
+    async_session.add(feedback)
+    await async_session.commit()
+    await async_session.refresh(feedback)
+    return feedback
+
+
+@pytest.fixture
+async def test_webhook_config(async_session: AsyncSession) -> WebhookConfig:
+    """Create a test webhook config."""
+    config = WebhookConfig(
+        id=uuid.uuid4(),
+        url="https://webhook.example.com/hook",
+        event_type="test.event",
+        is_active=True,
+        http_method="POST",
+        headers={"X-Custom-Header": "test"},
+        timeout_seconds=30,
+        retry_count=3,
+    )
+    async_session.add(config)
+    await async_session.commit()
+    await async_session.refresh(config)
+    return config
