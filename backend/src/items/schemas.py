@@ -200,3 +200,36 @@ class RecentlyUsedItemResponse(BaseModel):
     last_used: datetime
     action_type: str
     primary_image_url: str | None = None
+
+
+class FindSimilarRequest(BaseModel):
+    """Request schema for finding similar items based on classification."""
+
+    identified_name: str = Field(..., min_length=1, max_length=500)
+    category_path: str | None = Field(None, max_length=500)
+    specifications: dict[str, Any] | None = None
+    limit: int = Field(5, ge=1, le=20)
+
+
+class SimilarItemMatch(BaseModel):
+    """A potential duplicate/similar item match."""
+
+    id: UUID
+    name: str
+    description: str | None
+    quantity: int
+    quantity_unit: str
+    similarity_score: float = Field(..., ge=0.0, le=1.0)
+    match_reasons: list[str]
+    category: CategoryResponse | None = None
+    location: LocationResponse | None = None
+    primary_image_url: str | None = None
+
+    model_config = {"from_attributes": True}
+
+
+class FindSimilarResponse(BaseModel):
+    """Response containing similar items found."""
+
+    similar_items: list[SimilarItemMatch]
+    total_searched: int

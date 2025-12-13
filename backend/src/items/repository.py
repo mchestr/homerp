@@ -1,3 +1,4 @@
+from difflib import SequenceMatcher
 from uuid import UUID
 
 from sqlalchemy import func, or_, select, text
@@ -712,3 +713,154 @@ class ItemRepository:
             )
             return f"/api/v1/images/{primary.id}/file"
         return None
+
+    def _calculate_name_similarity(self, name1: str, name2: str) -> float:
+        """Calculate similarity between two names using SequenceMatcher.
+
+        Normalizes names by lowercasing and returns a score between 0 and 1.
+        """
+        name1_lower = name1.lower().strip()
+        name2_lower = name2.lower().strip()
+
+        # Check for exact match
+        if name1_lower == name2_lower:
+            return 1.0
+
+        # Check if one is substring of other
+        if name1_lower in name2_lower or name2_lower in name1_lower:
+            shorter = min(len(name1_lower), len(name2_lower))
+            longer = max(len(name1_lower), len(name2_lower))
+            return 0.7 + (0.3 * shorter / longer)
+
+        # Use SequenceMatcher for fuzzy matching
+        return SequenceMatcher(None, name1_lower, name2_lower).ratio()
+
+    def _extract_key_terms(self, name: str) -> set[str]:
+        """Extract key terms from a name for matching.
+
+        Filters out common words to focus on meaningful terms.
+        """
+        common_words = {
+            "the",
+            "a",
+            "an",
+            "and",
+            "or",
+            "with",
+            "for",
+            "of",
+            "in",
+            "on",
+            "to",
+            "mm",
+            "cm",
+            "m",
+            "inch",
+            "pcs",
+            "pack",
+            "box",
+            "set",
+        }
+        words = name.lower().split()
+        return {w for w in words if w not in common_words and len(w) > 1}
+
+    async def find_similar(
+        self,
+        identified_name: str,
+        category_path: str | None = None,
+        specifications: dict | None = None,
+        limit: int = 5,
+    ) -> tuple[list[tuple[Item, float, list[str]]], int]:
+        """Find items similar to the given classification result.
+
+        Uses multiple matching strategies:
+        1. Direct name similarity (fuzzy matching)
+        2. Key term overlap
+        3. Category path matching (if AI suggested a category)
+        4. Specification matching (if available)
+
+        Returns a list of (item, similarity_score, match_reasons) tuples
+        and the total number of items searched.
+        """
+        # Get all items for this user (with reasonable limit for performance)
+        result = await self.session.execute(
+            self._base_query()
+            .order_by(Item.updated_at.desc())
+            .limit(10000)  # Cap at 10k for performance
+        )
+        all_items = list(result.scalars().all())
+        total_searched = len(all_items)
+
+        if not all_items:
+            return [], 0
+
+        # Extract key terms from the identified name
+        search_terms = self._extract_key_terms(identified_name)
+
+        # Parse category path parts for matching
+        category_parts = []
+        if category_path:
+            category_parts = [
+                p.strip().lower() for p in category_path.split(">") if p.strip()
+            ]
+
+        scored_items: list[tuple[Item, float, list[str]]] = []
+
+        for item in all_items:
+            score = 0.0
+            reasons: list[str] = []
+
+            # 1. Name similarity (weight: 0.5)
+            name_sim = self._calculate_name_similarity(identified_name, item.name)
+            if name_sim > 0.3:
+                score += name_sim * 0.5
+                if name_sim > 0.7:
+                    reasons.append("Similar name")
+                elif name_sim > 0.5:
+                    reasons.append("Partial name match")
+
+            # 2. Key term overlap (weight: 0.25)
+            item_terms = self._extract_key_terms(item.name)
+            if search_terms and item_terms:
+                common_terms = search_terms & item_terms
+                term_overlap = len(common_terms) / max(
+                    len(search_terms), len(item_terms)
+                )
+                if term_overlap > 0:
+                    score += term_overlap * 0.25
+                    if term_overlap > 0.5:
+                        reasons.append(f"Matching terms: {', '.join(common_terms)}")
+
+            # 3. Category matching (weight: 0.15)
+            if category_parts and item.category:
+                item_cat_name = item.category.name.lower()
+                for cat_part in category_parts:
+                    if cat_part in item_cat_name or item_cat_name in cat_part:
+                        score += 0.15
+                        reasons.append(f"Category: {item.category.name}")
+                        break
+
+            # 4. Specification matching (weight: 0.1)
+            if specifications and item.attributes:
+                item_attrs = item.attributes
+                # Check for matching spec values
+                matching_specs = []
+                for key, value in specifications.items():
+                    if key in item_attrs:
+                        item_val = str(item_attrs[key]).lower()
+                        spec_val = str(value).lower()
+                        if item_val == spec_val:
+                            matching_specs.append(f"{key}: {value}")
+                        elif spec_val in item_val or item_val in spec_val:
+                            matching_specs.append(f"{key}: ~{value}")
+                if matching_specs:
+                    score += min(len(matching_specs) * 0.05, 0.1)
+                    reasons.append(f"Specs: {', '.join(matching_specs[:3])}")
+
+            # Only include items with meaningful similarity
+            if score > 0.15 and reasons:
+                scored_items.append((item, min(score, 1.0), reasons))
+
+        # Sort by score descending and return top matches
+        scored_items.sort(key=lambda x: x[1], reverse=True)
+        return scored_items[:limit], total_searched

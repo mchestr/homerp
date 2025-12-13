@@ -258,6 +258,12 @@ export const itemsApi = {
     apiRequest<RecentlyUsedItem[]>(
       `/api/v1/items/stats/recently-used?limit=${limit}`
     ),
+
+  findSimilar: (data: FindSimilarRequest) =>
+    apiRequest<FindSimilarResponse>("/api/v1/items/find-similar", {
+      method: "POST",
+      body: data,
+    }),
 };
 
 // Categories API
@@ -642,6 +648,32 @@ export type RecentlyUsedItem = {
   last_used: string;
   action_type: "check_in" | "check_out";
   primary_image_url: string | null;
+};
+
+// Similar items types
+export type FindSimilarRequest = {
+  identified_name: string;
+  category_path?: string;
+  specifications?: Record<string, unknown>;
+  limit?: number;
+};
+
+export type SimilarItemMatch = {
+  id: string;
+  name: string;
+  description: string | null;
+  quantity: number;
+  quantity_unit: string;
+  similarity_score: number;
+  match_reasons: string[];
+  category: Category | null;
+  location: Location | null;
+  primary_image_url: string | null;
+};
+
+export type FindSimilarResponse = {
+  similar_items: SimilarItemMatch[];
+  total_searched: number;
 };
 
 export type PaginatedResponse<T> = {

@@ -19,6 +19,7 @@ import { TreeSelect } from "@/components/ui/tree-view";
 import { TagInput } from "@/components/ui/tag-input";
 import { ImageUpload } from "@/components/items/image-upload";
 import { DynamicAttributeForm } from "@/components/items/dynamic-attribute-form";
+import { SimilarItemsDisplay } from "@/components/items/similar-items-display";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,6 +38,7 @@ import {
   ClassificationResult,
   ItemCreate,
   LocationTreeNode,
+  SimilarItemMatch,
 } from "@/lib/api/api-client";
 import { parseQuantityEstimate } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -86,6 +88,9 @@ export default function NewItemPage() {
   const [quantityEstimateRaw, setQuantityEstimateRaw] = useState<string | null>(
     null
   );
+  const [similarItems, setSimilarItems] = useState<SimilarItemMatch[]>([]);
+  const [totalSearched, setTotalSearched] = useState(0);
+  const [isSearchingSimilar, setIsSearchingSimilar] = useState(false);
 
   const [formData, setFormData] = useState<ItemCreate>({
     name: "",
@@ -146,6 +151,8 @@ export default function NewItemPage() {
                 ai_category_suggestion: result.category_path,
               },
             }));
+            // Search for similar items
+            searchForSimilarItems(result);
           }
 
           setInitialImageLoaded(true);
@@ -210,12 +217,55 @@ export default function NewItemPage() {
     },
   });
 
+  const updateQuantityMutation = useMutation({
+    mutationFn: ({ id, quantity }: { id: string; quantity: number }) =>
+      itemsApi.updateQuantity(id, quantity),
+    onSuccess: (updatedItem) => {
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      // Navigate to the updated item
+      router.push(`/items/${updatedItem.id}`);
+    },
+  });
+
+  const handleUpdateExistingQuantity = (
+    itemId: string,
+    currentQuantity: number
+  ) => {
+    // Add the new item's quantity to the existing item
+    const quantityToAdd = formData.quantity || 1;
+    updateQuantityMutation.mutate({
+      id: itemId,
+      quantity: currentQuantity + quantityToAdd,
+    });
+  };
+
   const handleImageUploaded = (image: UploadedImage) => {
     setUploadedImages((prev) => [...prev, image]);
   };
 
   const handleRemoveImage = (id: string) => {
     setUploadedImages((prev) => prev.filter((img) => img.id !== id));
+  };
+
+  const searchForSimilarItems = async (result: ClassificationResult) => {
+    setIsSearchingSimilar(true);
+    try {
+      const response = await itemsApi.findSimilar({
+        identified_name: result.identified_name,
+        category_path: result.category_path,
+        specifications: result.specifications,
+        limit: 5,
+      });
+      setSimilarItems(response.similar_items);
+      setTotalSearched(response.total_searched);
+    } catch (err) {
+      console.error("Failed to search for similar items:", err);
+      // Don't show error to user - this is a non-critical feature
+      setSimilarItems([]);
+      setTotalSearched(0);
+    } finally {
+      setIsSearchingSimilar(false);
+    }
   };
 
   const handleClassificationComplete = (result: ClassificationResult) => {
@@ -240,6 +290,9 @@ export default function NewItemPage() {
         ai_category_suggestion: result.category_path,
       },
     }));
+
+    // Search for similar items in the background
+    searchForSimilarItems(result);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -431,6 +484,26 @@ export default function NewItemPage() {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Similar items section - shown after classification */}
+      {classification && !isSearchingSimilar && similarItems.length > 0 && (
+        <SimilarItemsDisplay
+          items={similarItems}
+          totalSearched={totalSearched}
+          onUpdateQuantity={handleUpdateExistingQuantity}
+          isUpdatingQuantity={updateQuantityMutation.isPending}
+        />
+      )}
+
+      {/* Loading state for similar items search */}
+      {classification && isSearchingSimilar && (
+        <div className="flex items-center justify-center rounded-xl border border-amber-200 bg-amber-50 p-6 dark:border-amber-800 dark:bg-amber-950/30">
+          <Loader2 className="mr-2 h-5 w-5 animate-spin text-amber-600" />
+          <span className="text-amber-700 dark:text-amber-300">
+            Checking for similar items...
+          </span>
         </div>
       )}
 
