@@ -21,13 +21,16 @@ test.describe("Items", () => {
 
     await page.goto("/items");
 
-    // Target the "Add Item" button in the main content area (avoid sidebar "New Item" link)
-    const newItemButton = page
-      .getByRole("main")
-      .getByRole("link", { name: "Add Item" });
-    await newItemButton.click();
+    // Wait for the items page to fully load
+    await expect(page.getByRole("heading", { name: /items/i })).toBeVisible();
 
-    await expect(page).toHaveURL(/.*\/items\/new/);
+    // Use data-testid for reliable selection and wait for it to be visible
+    const addItemButton = page.getByTestId("add-item-button");
+    await addItemButton.waitFor({ state: "visible" });
+    await addItemButton.click();
+
+    // Use longer timeout for navigation in CI
+    await expect(page).toHaveURL(/.*\/items\/new/, { timeout: 10000 });
   });
 
   test("can view item details", async ({ page }) => {
