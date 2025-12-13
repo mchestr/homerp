@@ -46,17 +46,37 @@ class ImageRepository:
         return result.scalar_one_or_none()
 
     async def get_classified_images(
-        self, page: int = 1, limit: int = 20
+        self, page: int = 1, limit: int = 20, search: str | None = None
     ) -> tuple[list[Image], int]:
-        """Get all classified images for the user with pagination."""
+        """Get all classified images for the user with pagination and optional search.
+
+        Args:
+            page: Page number (1-indexed)
+            limit: Number of items per page
+            search: Optional search query to filter by identified_name in ai_result
+        """
         from sqlalchemy import func as sqla_func
+
+        # Build base conditions
+        base_conditions = [
+            Image.user_id == self.user_id,
+            Image.ai_processed.is_(True),
+        ]
+
+        # Add search filter if provided
+        if search:
+            # Escape LIKE wildcards in the search pattern
+            escaped_search = search.replace("%", r"\%").replace("_", r"\_")
+            search_pattern = f"%{escaped_search.lower()}%"
+            # Use COALESCE to handle null ai_result or missing identified_name
+            search_condition = sqla_func.coalesce(
+                sqla_func.lower(Image.ai_result["identified_name"].astext), ""
+            ).like(search_pattern, escape="\\")
+            base_conditions.append(search_condition)
 
         # Count total
         count_result = await self.session.execute(
-            select(sqla_func.count(Image.id)).where(
-                Image.user_id == self.user_id,
-                Image.ai_processed.is_(True),
-            )
+            select(sqla_func.count(Image.id)).where(*base_conditions)
         )
         total = count_result.scalar_one()
 
@@ -64,10 +84,7 @@ class ImageRepository:
         offset = (page - 1) * limit
         result = await self.session.execute(
             select(Image)
-            .where(
-                Image.user_id == self.user_id,
-                Image.ai_processed.is_(True),
-            )
+            .where(*base_conditions)
             .order_by(Image.created_at.desc())
             .offset(offset)
             .limit(limit)

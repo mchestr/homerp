@@ -568,6 +568,83 @@ async def test_image(async_session: AsyncSession, test_user: User) -> Image:
 
 
 @pytest.fixture
+async def classified_images(
+    async_session: AsyncSession, test_user: User
+) -> list[Image]:
+    """Create multiple classified images with AI results for testing search."""
+    images_data = [
+        {
+            "original_filename": "screwdriver.jpg",
+            "ai_result": {
+                "identified_name": "Phillips Head Screwdriver",
+                "confidence": 0.95,
+                "category_path": "Tools > Hand Tools > Screwdrivers",
+                "description": "A standard Phillips head screwdriver",
+            },
+        },
+        {
+            "original_filename": "hammer.jpg",
+            "ai_result": {
+                "identified_name": "Claw Hammer",
+                "confidence": 0.92,
+                "category_path": "Tools > Hand Tools > Hammers",
+                "description": "A standard claw hammer for general use",
+            },
+        },
+        {
+            "original_filename": "wrench.jpg",
+            "ai_result": {
+                "identified_name": "Adjustable Wrench",
+                "confidence": 0.88,
+                "category_path": "Tools > Hand Tools > Wrenches",
+                "description": "An adjustable crescent wrench",
+            },
+        },
+        {
+            "original_filename": "drill.jpg",
+            "ai_result": {
+                "identified_name": "Cordless Drill",
+                "confidence": 0.97,
+                "category_path": "Tools > Power Tools > Drills",
+                "description": "A battery-powered cordless drill",
+            },
+        },
+        {
+            "original_filename": "resistor.jpg",
+            "ai_result": {
+                "identified_name": "10K Ohm Resistor",
+                "confidence": 0.85,
+                "category_path": "Electronics > Components > Resistors",
+                "description": "A 10K ohm carbon resistor",
+            },
+        },
+    ]
+
+    images = []
+    for data in images_data:
+        image = Image(
+            id=uuid.uuid4(),
+            user_id=test_user.id,
+            original_filename=data["original_filename"],
+            mime_type="image/jpeg",
+            size_bytes=1024,
+            storage_path=f"/uploads/{data['original_filename']}",
+            thumbnail_path=f"/uploads/thumb_{data['original_filename']}",
+            storage_type="local",
+            ai_processed=True,
+            ai_result=data["ai_result"],
+        )
+        async_session.add(image)
+        images.append(image)
+
+    await async_session.commit()
+    for image in images:
+        await async_session.refresh(image)
+
+    return images
+
+
+@pytest.fixture
 async def test_feedback(async_session: AsyncSession, test_user: User) -> Feedback:
     """Create a test feedback."""
     feedback = Feedback(
