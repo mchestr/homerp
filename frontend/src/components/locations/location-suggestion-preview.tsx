@@ -59,7 +59,10 @@ export function LocationSuggestionPreview({
     return LOCATION_TYPES.find((t) => t.value === type)?.icon || "📍";
   };
 
-  const handleParentChange = (field: keyof LocationSuggestion, value: string) => {
+  const handleParentChange = (
+    field: keyof LocationSuggestion,
+    value: string
+  ) => {
     setParent((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -248,7 +251,8 @@ export function LocationSuggestionPreview({
 
         {children.length === 0 ? (
           <div className="rounded-lg bg-white/60 p-4 text-center text-sm text-muted-foreground dark:bg-black/20">
-            No compartments identified. Click &quot;Add&quot; to add one manually.
+            No compartments identified. Click &quot;Add&quot; to add one
+            manually.
           </div>
         ) : (
           <div className="space-y-2">
@@ -292,7 +296,11 @@ export function LocationSuggestionPreview({
                       type="text"
                       value={child.description || ""}
                       onChange={(e) =>
-                        handleChildChange(child.id, "description", e.target.value)
+                        handleChildChange(
+                          child.id,
+                          "description",
+                          e.target.value
+                        )
                       }
                       placeholder="Description (optional)"
                       className="h-9 w-full rounded-lg border bg-background px-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"

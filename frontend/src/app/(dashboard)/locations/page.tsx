@@ -151,35 +151,32 @@ export default function LocationsPage() {
     setAnalysisError(null);
   };
 
-  const handleImageUpload = useCallback(
-    async (file: File) => {
-      if (!file.type.startsWith("image/")) {
-        setAnalysisError("Please select an image file");
-        return;
-      }
+  const handleImageUpload = useCallback(async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      setAnalysisError("Please select an image file");
+      return;
+    }
 
-      if (file.size > 10 * 1024 * 1024) {
-        setAnalysisError("Image must be less than 10MB");
-        return;
-      }
+    if (file.size > 10 * 1024 * 1024) {
+      setAnalysisError("Image must be less than 10MB");
+      return;
+    }
 
-      setAnalysisError(null);
-      setIsUploading(true);
+    setAnalysisError(null);
+    setIsUploading(true);
 
-      try {
-        const result = await imagesApi.upload(file);
-        const { url } = await imagesApi.getSignedUrl(result.id);
-        setUploadedImageId(result.id);
-        setUploadedImageUrl(url);
-      } catch (err) {
-        console.error("Upload error:", err);
-        setAnalysisError("Failed to upload image. Please try again.");
-      } finally {
-        setIsUploading(false);
-      }
-    },
-    []
-  );
+    try {
+      const result = await imagesApi.upload(file);
+      const { url } = await imagesApi.getSignedUrl(result.id);
+      setUploadedImageId(result.id);
+      setUploadedImageUrl(url);
+    } catch (err) {
+      console.error("Upload error:", err);
+      setAnalysisError("Failed to upload image. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
+  }, []);
 
   const handleAnalyze = useCallback(async () => {
     if (!uploadedImageId) return;
@@ -493,7 +490,9 @@ export default function LocationsPage() {
                         {isUploading ? (
                           <div className="flex flex-col items-center">
                             <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
-                            <p className="mt-2 text-sm font-medium">Uploading...</p>
+                            <p className="mt-2 text-sm font-medium">
+                              Uploading...
+                            </p>
                           </div>
                         ) : (
                           <div className="flex flex-col items-center">
@@ -551,101 +550,105 @@ export default function LocationsPage() {
           {/* Manual Creation Form - hide when AI result is shown */}
           {!analysisResult && (
             <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="grid gap-5 md:grid-cols-2">
-            <div>
-              <label className="mb-2 block text-sm font-medium">Name *</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, name: e.target.value }))
-                }
-                required
-                data-testid="location-name-input"
-                className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="e.g., Workshop Shelf A"
-              />
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium">
-                Parent Location
-              </label>
-              <TreeSelect
-                nodes={selectTreeWithIcons}
-                value={formData.parent_id ?? null}
-                onChange={(value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    parent_id: value ?? undefined,
-                  }))
-                }
-                placeholder="None (root level)"
-                excludeId={editingId ?? undefined}
-              />
-            </div>
-          </div>
+              <div className="grid gap-5 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm font-medium">
+                    Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, name: e.target.value }))
+                    }
+                    required
+                    data-testid="location-name-input"
+                    className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    placeholder="e.g., Workshop Shelf A"
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium">
+                    Parent Location
+                  </label>
+                  <TreeSelect
+                    nodes={selectTreeWithIcons}
+                    value={formData.parent_id ?? null}
+                    onChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        parent_id: value ?? undefined,
+                      }))
+                    }
+                    placeholder="None (root level)"
+                    excludeId={editingId ?? undefined}
+                  />
+                </div>
+              </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
-            <div>
-              <label className="mb-2 block text-sm font-medium">Type</label>
-              <select
-                value={formData.location_type || ""}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    location_type: e.target.value,
-                  }))
-                }
-                className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="">Select type</option>
-                {LOCATION_TYPES.map((type) => (
-                  <option key={type.value} value={type.value}>
-                    {type.icon} {type.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium">
-                Description
-              </label>
-              <input
-                type="text"
-                value={formData.description || ""}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }))
-                }
-                className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="Optional description"
-              />
-            </div>
-          </div>
+              <div className="grid gap-5 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm font-medium">Type</label>
+                  <select
+                    value={formData.location_type || ""}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        location_type: e.target.value,
+                      }))
+                    }
+                    className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  >
+                    <option value="">Select type</option>
+                    {LOCATION_TYPES.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.icon} {type.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium">
+                    Description
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.description || ""}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
+                    className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    placeholder="Optional description"
+                  />
+                </div>
+              </div>
 
-          <div className="flex flex-col-reverse gap-3 border-t pt-5 sm:flex-row">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-              className="w-full sm:w-auto"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={createMutation.isPending || updateMutation.isPending}
-              className="w-full sm:w-auto"
-              data-testid="location-submit-button"
-            >
-              {(createMutation.isPending || updateMutation.isPending) && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              {editingId ? "Update Location" : "Create Location"}
-            </Button>
-          </div>
+              <div className="flex flex-col-reverse gap-3 border-t pt-5 sm:flex-row">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCancel}
+                  className="w-full sm:w-auto"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={
+                    createMutation.isPending || updateMutation.isPending
+                  }
+                  className="w-full sm:w-auto"
+                  data-testid="location-submit-button"
+                >
+                  {(createMutation.isPending || updateMutation.isPending) && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  {editingId ? "Update Location" : "Create Location"}
+                </Button>
+              </div>
             </form>
           )}
         </div>
