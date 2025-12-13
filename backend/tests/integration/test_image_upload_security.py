@@ -7,7 +7,6 @@ Tests verify:
 - Content-type spoofing is prevented
 """
 
-import pytest
 from httpx import AsyncClient
 
 
@@ -193,23 +192,13 @@ class TestFileTypeValidation:
 class TestContentTypeSpoofing:
     """Tests for content-type spoofing prevention."""
 
-    @pytest.mark.xfail(
-        reason="SECURITY: Content-type spoofing allows malicious files. "
-        "Implementation only checks Content-Type header, not file magic bytes. "
-        "Should validate actual file content matches declared type."
-    )
     async def test_exe_with_image_content_type_rejected(
         self,
         authenticated_client: AsyncClient,
     ):
         """Executable with fake image content-type should fail.
 
-        SECURITY ISSUE: Current implementation only checks Content-Type header,
-        not file magic bytes. Malicious files can be uploaded by spoofing
-        the Content-Type. Pillow may fail during thumbnail generation, but
-        the file could still be stored.
-
-        Expected behavior: Should return 400 after validating file content.
+        The upload validates that file magic bytes match the declared MIME type.
         """
         exe_content = b"MZ" + b"\x00" * 100  # Windows PE header
 
@@ -218,23 +207,17 @@ class TestContentTypeSpoofing:
             files={"file": ("image.jpg", exe_content, "image/jpeg")},
         )
 
-        # EXPECTED: 400 - file content doesn't match declared image type
-        assert response.status_code == 400, (
-            f"Expected 400 for spoofed content-type, got {response.status_code}"
-        )
+        assert response.status_code == 400
+        assert "content" in response.json()["detail"].lower()
 
-    @pytest.mark.xfail(
-        reason="SECURITY: Script files accepted with spoofed image content-type. "
-        "Should validate file magic bytes match declared MIME type."
-    )
     async def test_script_with_image_content_type(
         self,
         authenticated_client: AsyncClient,
     ):
         """JavaScript with image content-type should be rejected.
 
-        SECURITY ISSUE: Script content can be uploaded by declaring image/jpeg
-        content-type. This could lead to XSS if served without proper headers.
+        The upload validates that file magic bytes match the declared MIME type,
+        preventing XSS attacks via uploaded script files.
         """
         js_content = b'alert("xss");'
 
@@ -243,10 +226,8 @@ class TestContentTypeSpoofing:
             files={"file": ("script.jpg", js_content, "image/jpeg")},
         )
 
-        # EXPECTED: 400 - file content doesn't match declared image type
-        assert response.status_code == 400, (
-            f"Expected 400 for spoofed content-type, got {response.status_code}"
-        )
+        assert response.status_code == 400
+        assert "content" in response.json()["detail"].lower()
 
 
 class TestDuplicateImageHandling:
@@ -324,20 +305,15 @@ class TestUnauthenticatedUpload:
 class TestPathTraversalPrevention:
     """Tests for path traversal attack prevention in filenames."""
 
-    @pytest.mark.xfail(
-        reason="SECURITY: Path traversal sequences not sanitized from filenames. "
-        "Should use os.path.basename() or similar to extract only the filename."
-    )
     async def test_filename_with_directory_traversal_sanitized(
         self,
         authenticated_client: AsyncClient,
         small_test_image: bytes,
     ):
-        """Filenames with ../ should be sanitized or rejected.
+        """Filenames with ../ should be sanitized.
 
-        SECURITY ISSUE: Current implementation stores the filename as-is without
-        sanitizing path traversal sequences. While the actual storage path uses
-        a UUID, the original_filename field could be used in unsafe ways.
+        The upload sanitizes filenames by extracting only the basename,
+        preventing path traversal attacks.
         """
         response = await authenticated_client.post(
             "/api/v1/images/upload",
@@ -346,14 +322,11 @@ class TestPathTraversalPrevention:
 
         assert response.status_code == 201
         data = response.json()
-        # EXPECTED: Filename should not contain path traversal sequences
+        # Filename should not contain path traversal sequences
         assert ".." not in data["original_filename"]
         assert "/" not in data["original_filename"]
+        assert data["original_filename"] == "passwd"
 
-    @pytest.mark.xfail(
-        reason="SECURITY: Absolute paths not sanitized from filenames. "
-        "Should extract basename to prevent path information disclosure."
-    )
     async def test_filename_with_absolute_path_sanitized(
         self,
         authenticated_client: AsyncClient,
@@ -361,7 +334,7 @@ class TestPathTraversalPrevention:
     ):
         """Filenames with absolute paths should be sanitized.
 
-        SECURITY ISSUE: Absolute paths in filenames are stored as-is.
+        The upload extracts only the basename from the filename.
         """
         response = await authenticated_client.post(
             "/api/v1/images/upload",
@@ -370,13 +343,9 @@ class TestPathTraversalPrevention:
 
         assert response.status_code == 201
         data = response.json()
-        # EXPECTED: Should only keep the basename
+        # Should only keep the basename
         assert data["original_filename"] == "passwd"
 
-    @pytest.mark.xfail(
-        reason="SECURITY: Windows-style path traversal not sanitized. "
-        "Should handle both forward and backslash path separators."
-    )
     async def test_filename_with_backslash_traversal_sanitized(
         self,
         authenticated_client: AsyncClient,
@@ -384,7 +353,7 @@ class TestPathTraversalPrevention:
     ):
         """Filenames with Windows-style traversal should be sanitized.
 
-        SECURITY ISSUE: Windows-style path traversal sequences are not sanitized.
+        The upload handles both forward and backslash path separators.
         """
         response = await authenticated_client.post(
             "/api/v1/images/upload",
@@ -399,9 +368,10 @@ class TestPathTraversalPrevention:
 
         assert response.status_code == 201
         data = response.json()
-        # EXPECTED: Should not contain traversal sequences
+        # Should not contain traversal sequences, only the basename
         assert ".." not in data["original_filename"]
         assert "\\" not in data["original_filename"]
+        assert data["original_filename"] == "config"
 
     async def test_filename_with_null_byte_sanitized(
         self,

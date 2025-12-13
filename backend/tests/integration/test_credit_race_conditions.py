@@ -20,12 +20,6 @@ from src.users.models import User
 class TestCreditDeductionRaceConditions:
     """Tests for credit deduction race conditions."""
 
-    @pytest.mark.xfail(
-        reason="SECURITY: Race condition allows multiple concurrent deductions. "
-        "Current implementation doesn't use database-level locking (SELECT FOR UPDATE). "
-        "Implement proper locking in CreditService.deduct_credit() to fix.",
-        strict=False,  # Race conditions don't always manifest in single-session tests
-    )
     async def test_concurrent_deductions_dont_go_negative(
         self,
         async_session: AsyncSession,
@@ -34,12 +28,9 @@ class TestCreditDeductionRaceConditions:
     ):
         """Multiple concurrent deductions should not result in negative balance.
 
-        SECURITY ISSUE: Current implementation allows race conditions because
-        it doesn't use database-level locking (SELECT FOR UPDATE). Multiple
-        concurrent requests can deduct credits simultaneously, potentially
-        resulting in negative balances or more credits used than available.
-
-        Expected behavior: Only 1 deduction should succeed when user has 1 credit.
+        The credit deduction uses SELECT FOR UPDATE to prevent race conditions.
+        With row-level locking, only one deduction should succeed when the user
+        has only 1 credit.
         """
         credit_service = CreditService(async_session, test_settings)
         user_id = user_with_one_credit.id
@@ -55,7 +46,7 @@ class TestCreditDeductionRaceConditions:
             credit_service.deduct_credit(user_id, "Concurrent test 3"),
         )
 
-        # Only one should succeed
+        # Only one should succeed due to SELECT FOR UPDATE locking
         successful_deductions = sum(1 for r in results if r is True)
 
         # Check final balance
@@ -65,7 +56,7 @@ class TestCreditDeductionRaceConditions:
             + user_with_one_credit.free_credits_remaining
         )
 
-        # EXPECTED: Only 1 deduction succeeds, balance >= 0
+        # Only 1 deduction should succeed, balance >= 0
         assert successful_deductions == 1, (
             f"Race condition: {successful_deductions} deductions succeeded but user had 1 credit"
         )

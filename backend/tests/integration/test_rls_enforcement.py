@@ -8,7 +8,6 @@ Tests verify:
 
 import uuid
 
-import pytest
 from httpx import AsyncClient
 
 from src.categories.models import Category
@@ -132,11 +131,6 @@ class TestCategoryIsolation:
 
         assert response.status_code == 404
 
-    @pytest.mark.xfail(
-        reason="SECURITY: Current implementation allows referencing other users' "
-        "categories via FK. The category is incorrectly returned in response. "
-        "Should validate category_id belongs to user before creating item."
-    )
     async def test_user_cannot_create_item_with_other_users_category(
         self,
         authenticated_client: AsyncClient,
@@ -145,11 +139,7 @@ class TestCategoryIsolation:
     ):
         """User cannot assign another user's category to their item.
 
-        SECURITY ISSUE: Current implementation allows setting category_id to
-        another user's category. The item is created and the foreign category
-        is returned in the response, which is a data isolation violation.
-
-        Expected behavior: Should return 404 when category doesn't belong to user.
+        The item creation validates that category_id belongs to the current user.
         """
         response = await authenticated_client.post(
             "/api/v1/items",
@@ -160,8 +150,7 @@ class TestCategoryIsolation:
             },
         )
 
-        # EXPECTED: 404 - category not found (for this user)
-        # ACTUAL: 201 with other user's category in response (security issue)
+        # Should return 404 - category not found (for this user)
         assert response.status_code == 404
 
 
@@ -221,10 +210,6 @@ class TestLocationIsolation:
 
         assert response.status_code == 404
 
-    @pytest.mark.xfail(
-        reason="SECURITY: Current implementation allows referencing other users' "
-        "locations via FK. Should validate location_id belongs to user."
-    )
     async def test_user_cannot_create_item_with_other_users_location(
         self,
         authenticated_client: AsyncClient,
@@ -233,8 +218,7 @@ class TestLocationIsolation:
     ):
         """User cannot assign another user's location to their item.
 
-        SECURITY ISSUE: Same as category - location_id is not validated
-        against the current user before item creation.
+        The item creation validates that location_id belongs to the current user.
         """
         response = await authenticated_client.post(
             "/api/v1/items",
@@ -245,7 +229,7 @@ class TestLocationIsolation:
             },
         )
 
-        # EXPECTED: 404 - location not found (for this user)
+        # Should return 404 - location not found (for this user)
         assert response.status_code == 404
 
 
@@ -430,10 +414,6 @@ class TestIDORPrevention:
 class TestCrossUserDataAssociation:
     """Tests that prevent associating data across user boundaries."""
 
-    @pytest.mark.xfail(
-        reason="SECURITY: Item update allows moving to another user's category. "
-        "Should validate category_id ownership during update."
-    )
     async def test_cannot_move_item_to_other_users_category(
         self,
         authenticated_client: AsyncClient,
@@ -442,20 +422,16 @@ class TestCrossUserDataAssociation:
     ):
         """Cannot move an item to another user's category.
 
-        SECURITY ISSUE: Update endpoint doesn't validate category ownership.
+        The update validates that category_id belongs to the current user.
         """
         response = await authenticated_client.put(
             f"/api/v1/items/{test_item.id}",
             json={"category_id": str(second_user_category.id)},
         )
 
-        # EXPECTED: 404 - category not found (for this user)
+        # Should return 404 - category not found (for this user)
         assert response.status_code == 404
 
-    @pytest.mark.xfail(
-        reason="SECURITY: Item update allows moving to another user's location. "
-        "Should validate location_id ownership during update."
-    )
     async def test_cannot_move_item_to_other_users_location(
         self,
         authenticated_client: AsyncClient,
@@ -464,14 +440,14 @@ class TestCrossUserDataAssociation:
     ):
         """Cannot move an item to another user's location.
 
-        SECURITY ISSUE: Same as category - location_id not validated.
+        The update validates that location_id belongs to the current user.
         """
         response = await authenticated_client.put(
             f"/api/v1/items/{test_item.id}",
             json={"location_id": str(second_user_location.id)},
         )
 
-        # EXPECTED: 404 - location not found (for this user)
+        # Should return 404 - location not found (for this user)
         assert response.status_code == 404
 
     async def test_cannot_attach_image_to_other_users_item(
