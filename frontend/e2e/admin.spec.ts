@@ -24,8 +24,9 @@ test.describe("Admin Access Control", () => {
 
     await page.goto("/admin");
 
-    // Should redirect away or show access denied
-    await expect(page).not.toHaveURL(/.*\/admin$/);
+    // Should redirect to dashboard - wait for the redirect to complete
+    // The admin page uses useEffect + router.push for non-admin users
+    await expect(page).toHaveURL(/.*\/dashboard/, { timeout: 10000 });
   });
 
   test("admin link shown only for admin users", async ({ page }) => {

@@ -36,6 +36,10 @@ test.describe("Authentication", () => {
   });
 
   test("successful OAuth callback redirects to dashboard", async ({ page }) => {
+    // Set up API mocks FIRST, then override specific routes
+    await setupApiMocks(page);
+
+    // Override the callback route AFTER setupApiMocks (LIFO - this takes priority)
     await page.route("**/api/v1/auth/callback/google*", async (route) => {
       await route.fulfill({
         status: 200,
@@ -50,19 +54,10 @@ test.describe("Authentication", () => {
       });
     });
 
-    await page.route("**/api/v1/auth/me", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify(fixtures.testUser),
-      });
-    });
-
-    await setupApiMocks(page);
-
     await page.goto("/callback/google?code=mock-auth-code");
 
-    await expect(page).toHaveURL(/.*\/dashboard/);
+    // Wait longer for the redirect to complete - it happens via React's router.push
+    await expect(page).toHaveURL(/.*\/dashboard/, { timeout: 10000 });
   });
 
   test("OAuth error shows error page", async ({ page }) => {

@@ -148,11 +148,14 @@ test.describe("Admin Dashboard", () => {
 
       await page.goto("/admin");
 
+      // Wait for the page to be fully loaded
+      await expect(page.getByTestId("quick-actions-grid")).toBeVisible();
+
       const usersAction = page.getByTestId("quick-action-users");
       await expect(usersAction).toBeVisible();
       await usersAction.click();
 
-      await expect(page).toHaveURL(/.*\/admin\/users/);
+      await expect(page).toHaveURL(/.*\/admin\/users/, { timeout: 10000 });
     });
 
     test("navigates to feedback page when clicking feedback quick action", async ({
@@ -165,11 +168,14 @@ test.describe("Admin Dashboard", () => {
 
       await page.goto("/admin");
 
+      // Wait for the page to be fully loaded
+      await expect(page.getByTestId("quick-actions-grid")).toBeVisible();
+
       const feedbackAction = page.getByTestId("quick-action-feedback");
       await expect(feedbackAction).toBeVisible();
       await feedbackAction.click();
 
-      await expect(page).toHaveURL(/.*\/admin\/feedback/);
+      await expect(page).toHaveURL(/.*\/admin\/feedback/, { timeout: 10000 });
     });
 
     test("navigates to packs page when clicking credit packs quick action", async ({
@@ -182,11 +188,14 @@ test.describe("Admin Dashboard", () => {
 
       await page.goto("/admin");
 
+      // Wait for the page to be fully loaded
+      await expect(page.getByTestId("quick-actions-grid")).toBeVisible();
+
       const packsAction = page.getByTestId("quick-action-packs");
       await expect(packsAction).toBeVisible();
       await packsAction.click();
 
-      await expect(page).toHaveURL(/.*\/admin\/packs/);
+      await expect(page).toHaveURL(/.*\/admin\/packs/, { timeout: 10000 });
     });
 
     test("navigates to webhooks page when clicking webhooks quick action", async ({
@@ -199,11 +208,14 @@ test.describe("Admin Dashboard", () => {
 
       await page.goto("/admin");
 
+      // Wait for the page to be fully loaded
+      await expect(page.getByTestId("quick-actions-grid")).toBeVisible();
+
       const webhooksAction = page.getByTestId("quick-action-webhooks");
       await expect(webhooksAction).toBeVisible();
       await webhooksAction.click();
 
-      await expect(page).toHaveURL(/.*\/admin\/webhooks/);
+      await expect(page).toHaveURL(/.*\/admin\/webhooks/, { timeout: 10000 });
     });
 
     test("navigates to users page when clicking total users stat", async ({
