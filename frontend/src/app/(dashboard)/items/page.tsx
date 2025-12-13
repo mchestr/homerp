@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   Plus,
   Search,
@@ -14,6 +15,8 @@ import {
   X,
   AlertTriangle,
   Minus,
+  LayoutGrid,
+  LayoutList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InlineFacetedFilter } from "@/components/items/faceted-filter";
@@ -21,12 +24,22 @@ import { AuthenticatedImage } from "@/components/ui/authenticated-image";
 import { itemsApi, categoriesApi, locationsApi } from "@/lib/api/api-client";
 import { cn, formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+
+type ViewMode = "grid" | "table";
 
 export default function ItemsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const { user } = useAuth();
+  const t = useTranslations("items");
+  const tCommon = useTranslations("common");
+
+  const [viewMode, setViewMode] = useLocalStorage<ViewMode>(
+    "items-view-mode",
+    "grid"
+  );
 
   const page = Number(searchParams.get("page")) || 1;
   const categoryId = searchParams.get("category_id") || undefined;
@@ -201,16 +214,16 @@ export default function ItemsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-            Items
+            {t("title")}
           </h1>
           <p className="mt-1 text-muted-foreground">
-            {itemsData?.total ?? 0} items in your inventory
+            {t("itemCount", { count: itemsData?.total ?? 0 })}
           </p>
         </div>
         <Link href="/items/new" data-testid="add-item-button">
           <Button className="w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" />
-            Add Item
+            {t("addItem")}
           </Button>
         </Link>
       </div>
@@ -222,14 +235,14 @@ export default function ItemsPage() {
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search items..."
+                placeholder={t("searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="h-10 w-full rounded-lg border bg-background pl-10 pr-4 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
             <Button type="submit" variant="secondary" className="shrink-0">
-              Search
+              {tCommon("search")}
             </Button>
           </form>
 
@@ -242,7 +255,7 @@ export default function ItemsPage() {
             )}
           >
             <Filter className="h-4 w-4" />
-            <span className="hidden sm:inline">Filters</span>
+            <span className="hidden sm:inline">{tCommon("filters")}</span>
             {hasActiveFilters && (
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
                 {
@@ -258,6 +271,41 @@ export default function ItemsPage() {
               </span>
             )}
           </Button>
+
+          {/* View Mode Toggle */}
+          <div
+            className="flex rounded-lg border p-1"
+            data-testid="view-mode-toggle"
+          >
+            <button
+              type="button"
+              onClick={() => setViewMode("grid")}
+              className={cn(
+                "rounded px-2 py-1.5 transition-colors",
+                viewMode === "grid"
+                  ? "bg-primary text-primary-foreground"
+                  : "hover:bg-muted"
+              )}
+              title={t("viewGrid")}
+              data-testid="view-mode-grid"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("table")}
+              className={cn(
+                "rounded px-2 py-1.5 transition-colors",
+                viewMode === "table"
+                  ? "bg-primary text-primary-foreground"
+                  : "hover:bg-muted"
+              )}
+              title={t("viewTable")}
+              data-testid="view-mode-table"
+            >
+              <LayoutList className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
         {showFilters && (
@@ -270,7 +318,7 @@ export default function ItemsPage() {
                 }
                 className="h-9 rounded-lg border bg-background px-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
-                <option value="">All Categories</option>
+                <option value="">{t("allCategories")}</option>
                 {categories?.map((cat) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.icon} {cat.name}
@@ -285,7 +333,7 @@ export default function ItemsPage() {
                 }
                 className="h-9 rounded-lg border bg-background px-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
-                <option value="">All Locations</option>
+                <option value="">{t("allLocations")}</option>
                 {locations?.map((loc) => (
                   <option key={loc.id} value={loc.id}>
                     {loc.name}
@@ -305,7 +353,7 @@ export default function ItemsPage() {
                   className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                 />
                 <AlertTriangle className="h-4 w-4 text-amber-500" />
-                Low stock only
+                {t("lowStockOnly")}
               </label>
 
               {hasActiveFilters && (
@@ -316,7 +364,7 @@ export default function ItemsPage() {
                   className="ml-auto gap-1 text-muted-foreground hover:text-foreground"
                 >
                   <X className="h-4 w-4" />
-                  Clear all
+                  {tCommon("clearAll")}
                 </Button>
               )}
             </div>
@@ -340,7 +388,7 @@ export default function ItemsPage() {
             {allTags && allTags.length > 0 && !categoryId && (
               <div className="border-t pt-3">
                 <p className="mb-2 text-xs font-medium text-muted-foreground">
-                  Filter by tags
+                  {t("filterByTags")}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {allTags.slice(0, 10).map((tag) => (
@@ -378,7 +426,7 @@ export default function ItemsPage() {
         <div className="flex items-center justify-center py-16">
           <div className="flex flex-col items-center gap-4">
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            <p className="text-sm text-muted-foreground">Loading items...</p>
+            <p className="text-sm text-muted-foreground">{t("loadingItems")}</p>
           </div>
         </div>
       ) : itemsData?.items.length === 0 ? (
@@ -386,122 +434,278 @@ export default function ItemsPage() {
           <div className="rounded-full bg-muted p-4">
             <Package className="h-10 w-10 text-muted-foreground" />
           </div>
-          <h3 className="mt-4 text-lg font-semibold">No items found</h3>
+          <h3 className="mt-4 text-lg font-semibold">{t("noItemsFound")}</h3>
           <p className="mt-1 text-center text-muted-foreground">
             {searchQuery || categoryId || locationId || lowStock
-              ? "Try adjusting your filters"
-              : "Get started by adding your first item"}
+              ? t("tryAdjustingFilters")
+              : t("getStartedAddItem")}
           </p>
           <Link href="/items/new" className="mt-6">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Add Item
+              {t("addItem")}
             </Button>
           </Link>
         </div>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {itemsData?.items.map((item) => (
-              <Link
-                key={item.id}
-                href={`/items/${item.id}`}
-                className="group overflow-hidden rounded-xl border bg-card transition-all hover:border-primary/50 hover:shadow-lg"
-              >
-                <div className="relative aspect-square bg-muted">
-                  {item.primary_image_url ? (
-                    <AuthenticatedImage
-                      imageId={item.primary_image_url.split("/").at(-2)!}
-                      alt={item.name}
-                      thumbnail
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      fallback={
-                        <div className="flex h-full items-center justify-center">
-                          <Package className="h-16 w-16 text-muted-foreground/50" />
-                        </div>
-                      }
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center">
-                      <Package className="h-16 w-16 text-muted-foreground/50" />
-                    </div>
-                  )}
-                  {item.is_low_stock && (
-                    <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-medium text-white shadow-sm">
-                      <AlertTriangle className="h-3 w-3" />
-                      Low Stock
-                    </div>
-                  )}
-                </div>
-                <div className="p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="truncate font-semibold transition-colors group-hover:text-primary">
-                      {item.name}
-                    </h3>
-                    {item.price != null && (
-                      <span className="shrink-0 text-sm font-medium text-muted-foreground">
-                        {formatPrice(item.price, user?.currency)}
-                      </span>
+          {viewMode === "grid" ? (
+            <div
+              className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              data-testid="items-grid-view"
+            >
+              {itemsData?.items.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/items/${item.id}`}
+                  className="group overflow-hidden rounded-xl border bg-card transition-all hover:border-primary/50 hover:shadow-lg"
+                  data-testid={`item-card-${item.id}`}
+                >
+                  <div className="relative aspect-square bg-muted">
+                    {item.primary_image_url ? (
+                      <AuthenticatedImage
+                        imageId={item.primary_image_url.split("/").at(-2)!}
+                        alt={item.name}
+                        thumbnail
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        fallback={
+                          <div className="flex h-full items-center justify-center">
+                            <Package className="h-16 w-16 text-muted-foreground/50" />
+                          </div>
+                        }
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <Package className="h-16 w-16 text-muted-foreground/50" />
+                      </div>
+                    )}
+                    {item.is_low_stock && (
+                      <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-medium text-white shadow-sm">
+                        <AlertTriangle className="h-3 w-3" />
+                        {t("lowStock")}
+                      </div>
                     )}
                   </div>
-                  <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                    {item.category?.icon}{" "}
-                    {item.category?.name ?? "Uncategorized"}
-                  </p>
-                  <div className="mt-3 flex items-center justify-between">
-                    {/* Quick quantity buttons */}
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={(e) =>
-                          handleQuickDecrement(e, item.id, item.quantity)
-                        }
-                        disabled={
-                          item.quantity <= 0 || updateQuantityMutation.isPending
-                        }
-                        className={cn(
-                          "flex h-8 w-8 items-center justify-center rounded-lg border transition-colors",
-                          "hover:bg-muted active:bg-muted/80",
-                          "disabled:cursor-not-allowed disabled:opacity-50"
-                        )}
-                        title="Decrease quantity"
-                      >
-                        <Minus className="h-4 w-4" />
-                      </button>
-                      <span
-                        className={cn(
-                          "min-w-[48px] rounded-lg px-2 py-1 text-center text-sm font-medium",
-                          item.is_low_stock
-                            ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-                            : "bg-muted text-muted-foreground"
-                        )}
-                      >
-                        {item.quantity}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={(e) =>
-                          handleQuickIncrement(e, item.id, item.quantity)
-                        }
-                        disabled={updateQuantityMutation.isPending}
-                        className={cn(
-                          "flex h-8 w-8 items-center justify-center rounded-lg border transition-colors",
-                          "hover:bg-muted active:bg-muted/80",
-                          "disabled:cursor-not-allowed disabled:opacity-50"
-                        )}
-                        title="Increase quantity"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </button>
+                  <div className="p-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="truncate font-semibold transition-colors group-hover:text-primary">
+                        {item.name}
+                      </h3>
+                      {item.price != null && (
+                        <span className="shrink-0 text-sm font-medium text-muted-foreground">
+                          {formatPrice(item.price, user?.currency)}
+                        </span>
+                      )}
                     </div>
-                    <span className="truncate text-xs text-muted-foreground">
-                      {item.location?.name ?? "No location"}
-                    </span>
+                    <p className="mt-0.5 truncate text-sm text-muted-foreground">
+                      {item.category?.icon}{" "}
+                      {item.category?.name ?? t("uncategorized")}
+                    </p>
+                    <div className="mt-3 flex items-center justify-between">
+                      {/* Quick quantity buttons */}
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={(e) =>
+                            handleQuickDecrement(e, item.id, item.quantity)
+                          }
+                          disabled={
+                            item.quantity <= 0 ||
+                            updateQuantityMutation.isPending
+                          }
+                          className={cn(
+                            "flex h-8 w-8 items-center justify-center rounded-lg border transition-colors",
+                            "hover:bg-muted active:bg-muted/80",
+                            "disabled:cursor-not-allowed disabled:opacity-50"
+                          )}
+                          title={t("decreaseQuantity")}
+                        >
+                          <Minus className="h-4 w-4" />
+                        </button>
+                        <span
+                          className={cn(
+                            "min-w-[48px] rounded-lg px-2 py-1 text-center text-sm font-medium",
+                            item.is_low_stock
+                              ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                              : "bg-muted text-muted-foreground"
+                          )}
+                        >
+                          {item.quantity}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) =>
+                            handleQuickIncrement(e, item.id, item.quantity)
+                          }
+                          disabled={updateQuantityMutation.isPending}
+                          className={cn(
+                            "flex h-8 w-8 items-center justify-center rounded-lg border transition-colors",
+                            "hover:bg-muted active:bg-muted/80",
+                            "disabled:cursor-not-allowed disabled:opacity-50"
+                          )}
+                          title={t("increaseQuantity")}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </button>
+                      </div>
+                      <span className="truncate text-xs text-muted-foreground">
+                        {item.location?.name ?? t("noLocation")}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div
+              className="overflow-x-auto rounded-lg border"
+              data-testid="items-table-view"
+            >
+              <table className="w-full">
+                <thead className="border-b bg-muted/50">
+                  <tr>
+                    <th className="whitespace-nowrap px-4 py-3 text-left text-sm font-medium">
+                      {tCommon("name")}
+                    </th>
+                    <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium sm:table-cell">
+                      {t("category")}
+                    </th>
+                    <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium md:table-cell">
+                      {t("location")}
+                    </th>
+                    <th className="whitespace-nowrap px-4 py-3 text-center text-sm font-medium">
+                      {t("quantity")}
+                    </th>
+                    <th className="hidden whitespace-nowrap px-4 py-3 text-right text-sm font-medium lg:table-cell">
+                      {t("price")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {itemsData?.items.map((item) => (
+                    <tr
+                      key={item.id}
+                      className="group transition-colors hover:bg-muted/50"
+                      data-testid={`item-row-${item.id}`}
+                    >
+                      <td className="px-4 py-3">
+                        <Link
+                          href={`/items/${item.id}`}
+                          className="flex items-center gap-3"
+                        >
+                          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
+                            {item.primary_image_url ? (
+                              <AuthenticatedImage
+                                imageId={
+                                  item.primary_image_url.split("/").at(-2)!
+                                }
+                                alt={item.name}
+                                thumbnail
+                                className="h-full w-full object-cover"
+                                fallback={
+                                  <div className="flex h-full items-center justify-center">
+                                    <Package className="h-5 w-5 text-muted-foreground/50" />
+                                  </div>
+                                }
+                              />
+                            ) : (
+                              <div className="flex h-full items-center justify-center">
+                                <Package className="h-5 w-5 text-muted-foreground/50" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <span className="block truncate font-medium transition-colors group-hover:text-primary">
+                              {item.name}
+                            </span>
+                            {item.is_low_stock && (
+                              <span className="inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+                                <AlertTriangle className="h-3 w-3" />
+                                {t("lowStock")}
+                              </span>
+                            )}
+                          </div>
+                        </Link>
+                      </td>
+                      <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-muted-foreground sm:table-cell">
+                        {item.category?.icon}{" "}
+                        {item.category?.name ?? t("uncategorized")}
+                      </td>
+                      <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-muted-foreground md:table-cell">
+                        {item.location?.name ?? t("noLocation")}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleQuickDecrement(
+                                {
+                                  preventDefault: () => {},
+                                  stopPropagation: () => {},
+                                } as React.MouseEvent,
+                                item.id,
+                                item.quantity
+                              )
+                            }
+                            disabled={
+                              item.quantity <= 0 ||
+                              updateQuantityMutation.isPending
+                            }
+                            className={cn(
+                              "flex h-7 w-7 items-center justify-center rounded border transition-colors",
+                              "hover:bg-muted active:bg-muted/80",
+                              "disabled:cursor-not-allowed disabled:opacity-50"
+                            )}
+                            title={t("decreaseQuantity")}
+                          >
+                            <Minus className="h-3 w-3" />
+                          </button>
+                          <span
+                            className={cn(
+                              "min-w-[40px] rounded px-2 py-1 text-center text-sm font-medium",
+                              item.is_low_stock
+                                ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                                : "bg-muted text-muted-foreground"
+                            )}
+                          >
+                            {item.quantity}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleQuickIncrement(
+                                {
+                                  preventDefault: () => {},
+                                  stopPropagation: () => {},
+                                } as React.MouseEvent,
+                                item.id,
+                                item.quantity
+                              )
+                            }
+                            disabled={updateQuantityMutation.isPending}
+                            className={cn(
+                              "flex h-7 w-7 items-center justify-center rounded border transition-colors",
+                              "hover:bg-muted active:bg-muted/80",
+                              "disabled:cursor-not-allowed disabled:opacity-50"
+                            )}
+                            title={t("increaseQuantity")}
+                          >
+                            <Plus className="h-3 w-3" />
+                          </button>
+                        </div>
+                      </td>
+                      <td className="hidden whitespace-nowrap px-4 py-3 text-right text-sm text-muted-foreground lg:table-cell">
+                        {item.price != null
+                          ? formatPrice(item.price, user?.currency)
+                          : "-"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
           {itemsData && itemsData.total_pages > 1 && (
             <div className="flex items-center justify-center gap-4 pt-4">
@@ -513,11 +717,12 @@ export default function ItemsPage() {
                 className="gap-1"
               >
                 <ChevronLeft className="h-4 w-4" />
-                Previous
+                {tCommon("previous")}
               </Button>
               <span className="text-sm text-muted-foreground">
-                Page <span className="font-medium text-foreground">{page}</span>{" "}
-                of{" "}
+                {tCommon("page")}{" "}
+                <span className="font-medium text-foreground">{page}</span>{" "}
+                {tCommon("of")}{" "}
                 <span className="font-medium text-foreground">
                   {itemsData.total_pages}
                 </span>
@@ -529,7 +734,7 @@ export default function ItemsPage() {
                 onClick={() => updateFilters({ page: String(page + 1) })}
                 className="gap-1"
               >
-                Next
+                {tCommon("next")}
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
