@@ -227,14 +227,34 @@
   },
   "admin": {
     "title": "Admin Panel",
+    "dashboardSubtitle": "Manage users, billing, and system settings",
     "users": "Users",
     "creditPacks": "Credit Packs",
     "manageUsers": "Manage Users",
+    "manageUsersDescription": "View and manage user accounts, adjust credits, and control admin access",
     "managePacks": "Manage Credit Packs",
+    "managePacksDescription": "Configure available credit packs and pricing",
     "feedback": "Feedback",
     "manageFeedback": "Manage Feedback",
+    "manageFeedbackDescription": "Review and respond to user feedback and bug reports",
     "webhooks": "Webhooks",
-    "manageWebhooks": "Manage Webhooks"
+    "manageWebhooks": "Manage Webhooks",
+    "manageWebhooksDescription": "Configure webhook integrations for system events",
+    "quickActions": "Quick Actions",
+    "recentActivity": "Recent Activity",
+    "noRecentActivity": "No recent activity",
+    "stats": {
+      "totalUsers": "Total Users",
+      "totalRevenue": "Total Revenue",
+      "totalItems": "Total Items",
+      "creditsUsed": "Credits Used",
+      "usedOfPurchased": "Used of total purchased",
+      "thisWeek": "this week",
+      "activePacks": "Active Packs",
+      "creditsPurchased": "Credits Purchased",
+      "pendingFeedback": "Pending Feedback",
+      "active": "active"
+    }
   },
   "webhooks": {
     "title": "Webhooks",

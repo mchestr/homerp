@@ -661,6 +661,17 @@ export type UserAdminUpdate = {
   is_admin: boolean;
 };
 
+export type RecentActivityItem = {
+  id: string;
+  type: "signup" | "feedback" | "purchase" | "credit_usage";
+  title: string;
+  description: string | null;
+  user_email: string | null;
+  user_name: string | null;
+  timestamp: string;
+  metadata?: Record<string, unknown>;
+};
+
 export type AdminStats = {
   total_users: number;
   total_items: number;
@@ -668,6 +679,9 @@ export type AdminStats = {
   active_credit_packs: number;
   total_credits_purchased: number;
   total_credits_used: number;
+  recent_signups_7d: number;
+  pending_feedback_count: number;
+  recent_activity: RecentActivityItem[];
 };
 
 // Admin API

@@ -247,95 +247,160 @@ export default function AdminFeedbackPage() {
         </div>
       ) : (
         <>
-          <div className="rounded-xl border bg-card">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b text-left text-sm text-muted-foreground">
-                  <th className="px-4 py-3 font-medium">Type</th>
-                  <th className="px-4 py-3 font-medium">Subject</th>
-                  <th className="px-4 py-3 font-medium">User</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">Date</th>
-                  <th className="px-4 py-3 text-right font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {feedbackData?.items.map((feedback) => {
-                  const TypeIcon = getTypeIcon(feedback.feedback_type);
-                  return (
-                    <tr key={feedback.id} className="border-b last:border-0">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <TypeIcon className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm capitalize">
-                            {feedback.feedback_type.replace("_", " ")}
+          {/* Desktop Table View */}
+          <div className="hidden rounded-xl border bg-card md:block">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b text-left text-sm text-muted-foreground">
+                    <th className="px-4 py-3 font-medium">Type</th>
+                    <th className="px-4 py-3 font-medium">Subject</th>
+                    <th className="px-4 py-3 font-medium">User</th>
+                    <th className="px-4 py-3 font-medium">Status</th>
+                    <th className="px-4 py-3 font-medium">Date</th>
+                    <th className="px-4 py-3 text-right font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {feedbackData?.items.map((feedback) => {
+                    const TypeIcon = getTypeIcon(feedback.feedback_type);
+                    return (
+                      <tr key={feedback.id} className="border-b last:border-0">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <TypeIcon className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm capitalize">
+                              {feedback.feedback_type.replace("_", " ")}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <p className="max-w-xs truncate font-medium">
+                            {feedback.subject}
+                          </p>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div>
+                            <p className="text-sm font-medium">
+                              {feedback.user_name || "No name"}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {feedback.user_email}
+                            </p>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getStatusBadgeClass(
+                              feedback.status
+                            )}`}
+                          >
+                            {STATUS_OPTIONS.find(
+                              (s) => s.value === feedback.status
+                            )?.label || feedback.status}
                           </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <p className="max-w-xs truncate font-medium">
-                          {feedback.subject}
-                        </p>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div>
-                          <p className="text-sm font-medium">
-                            {feedback.user_name || "No name"}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {feedback.user_email}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getStatusBadgeClass(
-                            feedback.status
-                          )}`}
-                        >
-                          {STATUS_OPTIONS.find(
-                            (s) => s.value === feedback.status
-                          )?.label || feedback.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground">
-                        {formatDate(feedback.created_at)}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => openEditDialog(feedback)}
-                          >
-                            <Eye className="mr-1 h-4 w-4" />
-                            View
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setDeleteConfirm(feedback)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">
+                          {formatDate(feedback.created_at)}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openEditDialog(feedback)}
+                            >
+                              <Eye className="mr-1 h-4 w-4" />
+                              View
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setDeleteConfirm(feedback)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {(!feedbackData?.items || feedbackData.items.length === 0) && (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className="px-4 py-8 text-center text-muted-foreground"
+                      >
+                        No feedback found
                       </td>
                     </tr>
-                  );
-                })}
-                {(!feedbackData?.items || feedbackData.items.length === 0) && (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-4 py-8 text-center text-muted-foreground"
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="space-y-3 md:hidden">
+            {feedbackData?.items.map((feedback) => {
+              const TypeIcon = getTypeIcon(feedback.feedback_type);
+              return (
+                <div key={feedback.id} className="rounded-xl border bg-card p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <TypeIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
+                        <span className="text-xs capitalize text-muted-foreground">
+                          {feedback.feedback_type.replace("_", " ")}
+                        </span>
+                      </div>
+                      <p className="mt-1 truncate font-medium">{feedback.subject}</p>
+                    </div>
+                    <span
+                      className={`shrink-0 inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getStatusBadgeClass(
+                        feedback.status
+                      )}`}
                     >
-                      No feedback found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                      {STATUS_OPTIONS.find((s) => s.value === feedback.status)?.label ||
+                        feedback.status}
+                    </span>
+                  </div>
+                  <div className="mt-2 text-sm">
+                    <p className="text-muted-foreground">
+                      {feedback.user_name || "No name"} · {feedback.user_email}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatDate(feedback.created_at)}
+                    </p>
+                  </div>
+                  <div className="mt-3 flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => openEditDialog(feedback)}
+                    >
+                      <Eye className="mr-1 h-4 w-4" />
+                      View
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setDeleteConfirm(feedback)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+            {(!feedbackData?.items || feedbackData.items.length === 0) && (
+              <div className="rounded-xl border bg-card p-8 text-center text-muted-foreground">
+                No feedback found
+              </div>
+            )}
           </div>
 
           {/* Pagination */}

@@ -95,6 +95,19 @@ class PaginatedUsersResponse(BaseModel):
 
 
 # Stats Schemas
+class RecentActivityItem(BaseModel):
+    """A single activity item for the activity feed."""
+
+    id: UUID
+    type: str  # "signup", "feedback", "purchase", "credit_usage"
+    title: str
+    description: str | None
+    user_email: str | None
+    user_name: str | None
+    timestamp: datetime
+    metadata: dict | None = None
+
+
 class AdminStatsResponse(BaseModel):
     """Admin dashboard statistics."""
 
@@ -104,6 +117,10 @@ class AdminStatsResponse(BaseModel):
     active_credit_packs: int
     total_credits_purchased: int
     total_credits_used: int
+    # New fields for enhanced dashboard
+    recent_signups_7d: int
+    pending_feedback_count: int
+    recent_activity: list[RecentActivityItem]
 
 
 class CreditAdjustmentRequest(BaseModel):
