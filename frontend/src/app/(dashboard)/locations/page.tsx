@@ -16,11 +16,13 @@ import {
   ChevronUp,
   QrCode,
   ExternalLink,
+  Printer,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TreeView, TreeSelect } from "@/components/ui/tree-view";
 import { useConfirmModal } from "@/components/ui/confirm-modal";
 import { useQRCodeModal } from "@/components/locations/qr-code-modal";
+import { useLabelPrintModal } from "@/components/labels";
 import { ItemsPanel } from "@/components/items/items-panel";
 import { LocationSuggestionPreview } from "@/components/locations/location-suggestion-preview";
 import { useInsufficientCreditsModal } from "@/components/billing/insufficient-credits-modal";
@@ -34,6 +36,8 @@ import {
   LocationAnalysisResult,
 } from "@/lib/api/api-client";
 import { cn } from "@/lib/utils";
+import type { LabelData } from "@/lib/labels";
+import { useTranslations } from "next-intl";
 
 const LOCATION_TYPES = [
   { value: "room", label: "Room", icon: "🏠" },
@@ -85,6 +89,8 @@ export default function LocationsPage() {
     useInsufficientCreditsModal();
   const { refreshCredits } = useAuth();
   const { openQRModal, QRCodeModal } = useQRCodeModal();
+  const { openLabelModal, LabelPrintModal } = useLabelPrintModal();
+  const tLabels = useTranslations("labels");
 
   const { data: locations, isLoading } = useQuery({
     queryKey: ["locations"],
@@ -282,6 +288,17 @@ export default function LocationsPage() {
   const handleAddChild = (parentId: string) => {
     setIsCreating(true);
     setFormData((prev) => ({ ...prev, parent_id: parentId }));
+  };
+
+  const handlePrintLabel = (location: Location) => {
+    const labelData: LabelData = {
+      type: "location",
+      id: location.id,
+      name: location.name,
+      description: location.description ?? undefined,
+      qrUrl: `${window.location.origin}/locations/${location.id}`,
+    };
+    openLabelModal(labelData);
   };
 
   const isFormVisible = isCreating || editingId !== null;
@@ -707,6 +724,18 @@ export default function LocationsPage() {
                     type="button"
                     onClick={() => {
                       const location = locations?.find((l) => l.id === node.id);
+                      if (location) handlePrintLabel(location);
+                    }}
+                    className="rounded p-1 hover:bg-accent"
+                    title={tLabels("printLabel")}
+                    data-testid={`print-label-button-${node.id}`}
+                  >
+                    <Printer className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const location = locations?.find((l) => l.id === node.id);
                       if (location) openQRModal(location);
                     }}
                     className="rounded p-1 hover:bg-accent"
@@ -846,6 +875,16 @@ export default function LocationsPage() {
                       <Button
                         variant="ghost"
                         size="icon"
+                        onClick={() => handlePrintLabel(location)}
+                        className="h-8 w-8"
+                        title={tLabels("printLabel")}
+                        data-testid={`grid-print-label-button-${location.id}`}
+                      >
+                        <Printer className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => openQRModal(location)}
                         className="h-8 w-8"
                         title="QR Code"
@@ -899,6 +938,7 @@ export default function LocationsPage() {
 
       <ConfirmModal />
       <QRCodeModal />
+      <LabelPrintModal />
     </div>
   );
 }

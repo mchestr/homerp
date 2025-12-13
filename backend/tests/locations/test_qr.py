@@ -1,4 +1,4 @@
-"""Tests for location QR code generation."""
+"""Tests for QR code generation for locations and items."""
 
 import uuid
 
@@ -102,3 +102,48 @@ class TestQRServiceFactory:
         service = get_qr_service()
         assert isinstance(service, QRCodeService)
         assert service.settings is not None
+
+
+class TestItemQRCodeService:
+    """Tests for item QR code generation."""
+
+    def test_generate_item_qr_returns_png_bytes(self, qr_service: QRCodeService):
+        """Test that generate_item_qr returns PNG image bytes."""
+        item_id = uuid.uuid4()
+        qr_bytes = qr_service.generate_item_qr(item_id)
+
+        assert isinstance(qr_bytes, bytes)
+        assert len(qr_bytes) > 0
+        # Check PNG magic bytes
+        assert qr_bytes[:8] == b"\x89PNG\r\n\x1a\n"
+
+    def test_generate_item_qr_with_different_sizes(self, qr_service: QRCodeService):
+        """Test generating item QR codes with different size parameters."""
+        item_id = uuid.uuid4()
+
+        small = qr_service.generate_item_qr(item_id, size=5)
+        medium = qr_service.generate_item_qr(item_id, size=10)
+        large = qr_service.generate_item_qr(item_id, size=20)
+
+        # Larger sizes should produce larger files
+        assert len(small) < len(medium) < len(large)
+
+    def test_generate_item_qr_with_custom_border(self, qr_service: QRCodeService):
+        """Test generating item QR codes with custom border."""
+        item_id = uuid.uuid4()
+
+        small_border = qr_service.generate_item_qr(item_id, border=1)
+        large_border = qr_service.generate_item_qr(item_id, border=4)
+
+        # Different borders should produce different sized images
+        assert len(small_border) != len(large_border)
+
+    def test_item_qr_different_from_location_qr(self, qr_service: QRCodeService):
+        """Test that item QR codes differ from location QR codes for same UUID."""
+        same_id = uuid.uuid4()
+
+        item_qr = qr_service.generate_item_qr(same_id)
+        location_qr = qr_service.generate_location_qr(same_id)
+
+        # Should be different because they encode different URLs
+        assert item_qr != location_qr

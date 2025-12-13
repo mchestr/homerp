@@ -483,5 +483,25 @@
     "showingRecentHistory": "Showing 5 of {count} records",
     "checkInDisabled": "No items checked out",
     "exceedsCheckedOut": "Cannot check in more than {count} items"
+  },
+  "labels": {
+    "printLabel": "Print Label",
+    "printLabels": "Print Labels",
+    "labelSize": "Label Size",
+    "preview": "Preview",
+    "print": "Print",
+    "download": "Download PDF",
+    "selectedCount": "{count} selected",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "generating": "Generating preview...",
+    "noPreview": "No preview available",
+    "previewError": "Failed to generate preview. Please try again.",
+    "popupBlocked": "Popup blocked. Please allow popups to print labels, or use Download instead.",
+    "contents": "Label Contents",
+    "qrCode": "QR Code",
+    "location": "Location",
+    "category": "Category",
+    "description": "Description"
   }
 }

@@ -1,7 +1,8 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import Response
 
 from src.auth.dependencies import CurrentUserIdDep
 from src.common.schemas import PaginatedResponse
@@ -25,6 +26,7 @@ from src.items.schemas import (
     RecentlyUsedItemResponse,
     SimilarItemMatch,
 )
+from src.locations.qr import QRCodeService, get_qr_service
 
 router = APIRouter()
 
@@ -377,6 +379,38 @@ async def get_item(
         primary_image_url=_get_primary_image_url(item),
         created_at=item.created_at,
         updated_at=item.updated_at,
+    )
+
+
+@router.get("/{item_id}/qr")
+async def get_item_qr_code(
+    item_id: UUID,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+    qr_service: Annotated[QRCodeService, Depends(get_qr_service)],
+    size: int = Query(10, ge=1, le=40, description="Scale factor (1-40)"),
+) -> Response:
+    """Generate a QR code PNG for an item.
+
+    The QR code contains the item's URL for scanning.
+    """
+    repo = ItemRepository(session, user_id)
+    item = await repo.get_by_id(item_id)
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Item not found",
+        )
+
+    qr_bytes = qr_service.generate_item_qr(item_id, size=size)
+
+    return Response(
+        content=qr_bytes,
+        media_type="image/png",
+        headers={
+            "Content-Disposition": f'inline; filename="item-{item_id}-qr.png"',
+            "Cache-Control": "public, max-age=86400",
+        },
     )
 
 

@@ -11,11 +11,14 @@ import {
   Plus,
   ArrowLeft,
   MapPin,
+  Printer,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ItemsPanel } from "@/components/items/items-panel";
 import { useQRCodeModal } from "@/components/locations/qr-code-modal";
+import { useLabelPrintModal } from "@/components/labels";
 import { locationsApi } from "@/lib/api/api-client";
+import type { LabelData } from "@/lib/labels";
 
 const LOCATION_TYPE_ICONS: Record<string, string> = {
   room: "🏠",
@@ -33,6 +36,8 @@ export default function LocationDetailPage() {
   const tCommon = useTranslations("common");
   const locationId = params.id as string;
   const { openQRModal, QRCodeModal } = useQRCodeModal();
+  const { openLabelModal, LabelPrintModal } = useLabelPrintModal();
+  const tLabels = useTranslations("labels");
 
   const {
     data: locationData,
@@ -72,6 +77,17 @@ export default function LocationDetailPage() {
   const typeIcon = location.location_type
     ? LOCATION_TYPE_ICONS[location.location_type] || "📍"
     : "📍";
+
+  const handlePrintLabel = () => {
+    const labelData: LabelData = {
+      type: "location",
+      id: location.id,
+      name: location.name,
+      description: location.description ?? undefined,
+      qrUrl: `${window.location.origin}/locations/${location.id}`,
+    };
+    openLabelModal(labelData);
+  };
 
   return (
     <div className="space-y-6">
@@ -121,6 +137,14 @@ export default function LocationDetailPage() {
         <div className="flex gap-2">
           <Button
             variant="outline"
+            onClick={handlePrintLabel}
+            data-testid="print-label-button"
+          >
+            <Printer className="mr-2 h-4 w-4" />
+            <span className="hidden sm:inline">{tLabels("printLabel")}</span>
+          </Button>
+          <Button
+            variant="outline"
             onClick={() => openQRModal(location)}
             data-testid="generate-qr-button"
           >
@@ -152,6 +176,7 @@ export default function LocationDetailPage() {
       </div>
 
       <QRCodeModal />
+      <LabelPrintModal />
     </div>
   );
 }
