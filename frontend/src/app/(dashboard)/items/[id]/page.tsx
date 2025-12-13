@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -16,13 +17,20 @@ import {
   Calendar,
   Tag,
   DollarSign,
+  LogIn,
+  LogOut,
+  History,
+  BarChart3,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useConfirmModal } from "@/components/ui/confirm-modal";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
-import { itemsApi } from "@/lib/api/api-client";
+import { itemsApi, CheckInOutCreate } from "@/lib/api/api-client";
 import { cn, formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
+import { useTranslations } from "next-intl";
 
 export default function ItemDetailPage() {
   const params = useParams();
@@ -30,6 +38,11 @@ export default function ItemDetailPage() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const itemId = params.id as string;
+  const t = useTranslations("checkInOut");
+  const tCommon = useTranslations("common");
+
+  const [checkInOutQuantity, setCheckInOutQuantity] = useState(1);
+  const [checkInOutNotes, setCheckInOutNotes] = useState("");
 
   const {
     confirm,
@@ -42,11 +55,51 @@ export default function ItemDetailPage() {
     queryFn: () => itemsApi.get(itemId),
   });
 
+  const { data: usageStats } = useQuery({
+    queryKey: ["item", itemId, "usage-stats"],
+    queryFn: () => itemsApi.getUsageStats(itemId),
+    enabled: !!item,
+  });
+
+  const { data: historyData } = useQuery({
+    queryKey: ["item", itemId, "history"],
+    queryFn: () => itemsApi.getHistory(itemId, 1, 5),
+    enabled: !!item,
+  });
+
   const updateQuantityMutation = useMutation({
     mutationFn: (quantity: number) => itemsApi.updateQuantity(itemId, quantity),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["item", itemId] });
       queryClient.invalidateQueries({ queryKey: ["items"] });
+    },
+  });
+
+  const checkOutMutation = useMutation({
+    mutationFn: (data: CheckInOutCreate) => itemsApi.checkOut(itemId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["item", itemId] });
+      queryClient.invalidateQueries({
+        queryKey: ["item", itemId, "usage-stats"],
+      });
+      queryClient.invalidateQueries({ queryKey: ["item", itemId, "history"] });
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      setCheckInOutQuantity(1);
+      setCheckInOutNotes("");
+    },
+  });
+
+  const checkInMutation = useMutation({
+    mutationFn: (data: CheckInOutCreate) => itemsApi.checkIn(itemId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["item", itemId] });
+      queryClient.invalidateQueries({
+        queryKey: ["item", itemId, "usage-stats"],
+      });
+      queryClient.invalidateQueries({ queryKey: ["item", itemId, "history"] });
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      setCheckInOutQuantity(1);
+      setCheckInOutNotes("");
     },
   });
 
@@ -75,6 +128,20 @@ export default function ItemDetailPage() {
     if (!item) return;
     const newQuantity = Math.max(0, item.quantity + delta);
     updateQuantityMutation.mutate(newQuantity);
+  };
+
+  const handleCheckOut = () => {
+    checkOutMutation.mutate({
+      quantity: checkInOutQuantity,
+      notes: checkInOutNotes || undefined,
+    });
+  };
+
+  const handleCheckIn = () => {
+    checkInMutation.mutate({
+      quantity: checkInOutQuantity,
+      notes: checkInOutNotes || undefined,
+    });
   };
 
   if (isLoading) {
@@ -321,6 +388,191 @@ export default function ItemDetailPage() {
               </div>
             );
           })()}
+
+          {/* Check-in/out Card */}
+          <div className="rounded-xl border bg-card p-5">
+            <div className="flex items-center gap-2">
+              <LogOut className="h-4 w-4 text-muted-foreground" />
+              <h2 className="font-semibold">{t("checkInOut")}</h2>
+            </div>
+            <div className="mt-4 space-y-4">
+              <div className="flex items-center gap-2">
+                <label className="w-20 text-sm text-muted-foreground">
+                  {t("quantity")}
+                </label>
+                <Input
+                  type="number"
+                  min={1}
+                  value={checkInOutQuantity}
+                  onChange={(e) =>
+                    setCheckInOutQuantity(
+                      Math.max(1, parseInt(e.target.value) || 1)
+                    )
+                  }
+                  className="w-20"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="w-20 text-sm text-muted-foreground">
+                  {t("notes")}
+                </label>
+                <Input
+                  type="text"
+                  value={checkInOutNotes}
+                  onChange={(e) => setCheckInOutNotes(e.target.value)}
+                  placeholder={t("notesPlaceholder")}
+                  className="flex-1"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={handleCheckOut}
+                  disabled={
+                    checkOutMutation.isPending || checkInMutation.isPending
+                  }
+                  className="flex-1 gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  {checkOutMutation.isPending
+                    ? tCommon("loading")
+                    : t("checkOut")}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleCheckIn}
+                  disabled={
+                    checkOutMutation.isPending || checkInMutation.isPending
+                  }
+                  className="flex-1 gap-2"
+                >
+                  <LogIn className="h-4 w-4" />
+                  {checkInMutation.isPending
+                    ? tCommon("loading")
+                    : t("checkIn")}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Usage Stats Card */}
+          {usageStats && (
+            <div className="rounded-xl border bg-card p-5">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                <h2 className="font-semibold">{t("usageStats")}</h2>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <div className="rounded-lg bg-muted/50 p-3">
+                  <p className="text-xs text-muted-foreground">
+                    {t("totalCheckOuts")}
+                  </p>
+                  <p className="text-2xl font-bold tabular-nums">
+                    {usageStats.total_check_outs}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-muted/50 p-3">
+                  <p className="text-xs text-muted-foreground">
+                    {t("totalCheckIns")}
+                  </p>
+                  <p className="text-2xl font-bold tabular-nums">
+                    {usageStats.total_check_ins}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-muted/50 p-3">
+                  <p className="text-xs text-muted-foreground">
+                    {t("currentlyOut")}
+                  </p>
+                  <p
+                    className={cn(
+                      "text-2xl font-bold tabular-nums",
+                      usageStats.currently_checked_out > 0 &&
+                        "text-amber-600 dark:text-amber-400"
+                    )}
+                  >
+                    {usageStats.currently_checked_out}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-muted/50 p-3">
+                  <p className="text-xs text-muted-foreground">
+                    {t("lastUsed")}
+                  </p>
+                  <p className="text-sm font-medium">
+                    {usageStats.last_check_out
+                      ? new Date(usageStats.last_check_out).toLocaleDateString()
+                      : "-"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* History Card */}
+          {historyData && historyData.items.length > 0 && (
+            <div className="rounded-xl border bg-card p-5">
+              <div className="flex items-center gap-2">
+                <History className="h-4 w-4 text-muted-foreground" />
+                <h2 className="font-semibold">{t("history")}</h2>
+              </div>
+              <div className="mt-4 space-y-3">
+                {historyData.items.map((record) => (
+                  <div
+                    key={record.id}
+                    className="flex items-start gap-3 rounded-lg bg-muted/50 p-3"
+                  >
+                    <div
+                      className={cn(
+                        "rounded-lg p-2",
+                        record.action_type === "check_out"
+                          ? "bg-red-500/10 dark:bg-red-400/10"
+                          : "bg-green-500/10 dark:bg-green-400/10"
+                      )}
+                    >
+                      {record.action_type === "check_out" ? (
+                        <LogOut
+                          className={cn(
+                            "h-4 w-4",
+                            "text-red-600 dark:text-red-400"
+                          )}
+                        />
+                      ) : (
+                        <LogIn
+                          className={cn(
+                            "h-4 w-4",
+                            "text-green-600 dark:text-green-400"
+                          )}
+                        />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium">
+                        {record.action_type === "check_out"
+                          ? t("checkedOut")
+                          : t("checkedIn")}{" "}
+                        <span className="text-muted-foreground">
+                          x{record.quantity}
+                        </span>
+                      </p>
+                      {record.notes && (
+                        <p className="truncate text-xs text-muted-foreground">
+                          {record.notes}
+                        </p>
+                      )}
+                      <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        {new Date(record.occurred_at).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                {historyData.total > 5 && (
+                  <p className="text-center text-xs text-muted-foreground">
+                    {t("showingRecentHistory", { count: historyData.total })}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

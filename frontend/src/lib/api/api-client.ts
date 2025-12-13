@@ -229,6 +229,35 @@ export const itemsApi = {
     apiRequest<DashboardStatsResponse>(
       `/api/v1/items/stats/dashboard?days=${days}`
     ),
+
+  // Check-in/out operations
+  checkOut: (id: string, data: CheckInOutCreate = {}) =>
+    apiRequest<CheckInOutResponse>(`/api/v1/items/${id}/check-out`, {
+      method: "POST",
+      body: data,
+    }),
+
+  checkIn: (id: string, data: CheckInOutCreate = {}) =>
+    apiRequest<CheckInOutResponse>(`/api/v1/items/${id}/check-in`, {
+      method: "POST",
+      body: data,
+    }),
+
+  getHistory: (id: string, page = 1, limit = 20) =>
+    apiRequest<PaginatedResponse<CheckInOutResponse>>(
+      `/api/v1/items/${id}/history?page=${page}&limit=${limit}`
+    ),
+
+  getUsageStats: (id: string) =>
+    apiRequest<ItemUsageStats>(`/api/v1/items/${id}/usage-stats`),
+
+  getMostUsed: (limit = 5) =>
+    apiRequest<MostUsedItem[]>(`/api/v1/items/stats/most-used?limit=${limit}`),
+
+  getRecentlyUsed: (limit = 5) =>
+    apiRequest<RecentlyUsedItem[]>(
+      `/api/v1/items/stats/recently-used?limit=${limit}`
+    ),
 };
 
 // Categories API
@@ -512,6 +541,48 @@ export type DashboardStatsResponse = {
   total_quantity: number;
   categories_used: number;
   locations_used: number;
+};
+
+// Check-in/out types
+export type CheckInOutCreate = {
+  quantity?: number;
+  notes?: string;
+  occurred_at?: string;
+};
+
+export type CheckInOutResponse = {
+  id: string;
+  item_id: string;
+  action_type: "check_in" | "check_out";
+  quantity: number;
+  notes: string | null;
+  occurred_at: string;
+  created_at: string;
+};
+
+export type ItemUsageStats = {
+  total_check_outs: number;
+  total_check_ins: number;
+  total_quantity_out: number;
+  total_quantity_in: number;
+  last_check_out: string | null;
+  last_check_in: string | null;
+  currently_checked_out: number;
+};
+
+export type MostUsedItem = {
+  id: string;
+  name: string;
+  total_check_outs: number;
+  primary_image_url: string | null;
+};
+
+export type RecentlyUsedItem = {
+  id: string;
+  name: string;
+  last_used: string;
+  action_type: "check_in" | "check_out";
+  primary_image_url: string | null;
 };
 
 export type PaginatedResponse<T> = {

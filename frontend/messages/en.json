@@ -338,5 +338,25 @@
     "invalidEmail": "Invalid email address",
     "minLength": "Must be at least {min} characters",
     "maxLength": "Must be at most {max} characters"
+  },
+  "checkInOut": {
+    "checkIn": "Check In",
+    "checkOut": "Check Out",
+    "checkInOut": "Check In / Out",
+    "checkedIn": "Checked in",
+    "checkedOut": "Checked out",
+    "quantity": "Quantity",
+    "notes": "Notes",
+    "notesPlaceholder": "Optional notes...",
+    "history": "Usage History",
+    "usageStats": "Usage Statistics",
+    "totalCheckOuts": "Total Check-outs",
+    "totalCheckIns": "Total Check-ins",
+    "lastUsed": "Last Used",
+    "currentlyOut": "Currently Out",
+    "mostUsed": "Most Used Items",
+    "recentlyUsed": "Recently Used",
+    "noUsageYet": "No usage history yet",
+    "showingRecentHistory": "Showing 5 of {count} records"
   }
 }

@@ -6,8 +6,17 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy_utils import Ltree
 
 from src.categories.models import Category
-from src.items.models import Item
-from src.items.schemas import Facet, FacetValue, ItemCreate, ItemUpdate
+from src.items.models import Item, ItemCheckInOut
+from src.items.schemas import (
+    CheckInOutCreate,
+    Facet,
+    FacetValue,
+    ItemCreate,
+    ItemUpdate,
+    ItemUsageStatsResponse,
+    MostUsedItemResponse,
+    RecentlyUsedItemResponse,
+)
 from src.locations.models import Location
 
 
@@ -499,3 +508,206 @@ class ItemRepository:
             "categories_used": categories_used,
             "locations_used": locations_used,
         }
+
+    # Check-in/out methods
+
+    async def create_check_in_out(
+        self, item_id: UUID, action_type: str, data: CheckInOutCreate
+    ) -> ItemCheckInOut:
+        """Create a check-in or check-out record."""
+        from datetime import UTC, datetime
+
+        record = ItemCheckInOut(
+            user_id=self.user_id,
+            item_id=item_id,
+            action_type=action_type,
+            quantity=data.quantity,
+            notes=data.notes,
+            occurred_at=data.occurred_at or datetime.now(UTC),
+        )
+        self.session.add(record)
+        await self.session.commit()
+        await self.session.refresh(record)
+        return record
+
+    async def get_check_in_out_history(
+        self, item_id: UUID, page: int = 1, limit: int = 20
+    ) -> tuple[list[ItemCheckInOut], int]:
+        """Get paginated check-in/out history for an item."""
+        offset = (page - 1) * limit
+
+        # Count total
+        count_result = await self.session.execute(
+            select(func.count(ItemCheckInOut.id)).where(
+                ItemCheckInOut.user_id == self.user_id,
+                ItemCheckInOut.item_id == item_id,
+            )
+        )
+        total = count_result.scalar_one()
+
+        # Get paginated records
+        result = await self.session.execute(
+            select(ItemCheckInOut)
+            .where(
+                ItemCheckInOut.user_id == self.user_id,
+                ItemCheckInOut.item_id == item_id,
+            )
+            .order_by(ItemCheckInOut.occurred_at.desc())
+            .offset(offset)
+            .limit(limit)
+        )
+        records = list(result.scalars().all())
+
+        return records, total
+
+    async def get_usage_stats(self, item_id: UUID) -> ItemUsageStatsResponse:
+        """Get aggregated usage statistics for an item."""
+        # Get check-out stats
+        checkout_result = await self.session.execute(
+            select(
+                func.count(ItemCheckInOut.id).label("count"),
+                func.coalesce(func.sum(ItemCheckInOut.quantity), 0).label("total_qty"),
+                func.max(ItemCheckInOut.occurred_at).label("last"),
+            ).where(
+                ItemCheckInOut.user_id == self.user_id,
+                ItemCheckInOut.item_id == item_id,
+                ItemCheckInOut.action_type == "check_out",
+            )
+        )
+        checkout_row = checkout_result.fetchone()
+
+        # Get check-in stats
+        checkin_result = await self.session.execute(
+            select(
+                func.count(ItemCheckInOut.id).label("count"),
+                func.coalesce(func.sum(ItemCheckInOut.quantity), 0).label("total_qty"),
+                func.max(ItemCheckInOut.occurred_at).label("last"),
+            ).where(
+                ItemCheckInOut.user_id == self.user_id,
+                ItemCheckInOut.item_id == item_id,
+                ItemCheckInOut.action_type == "check_in",
+            )
+        )
+        checkin_row = checkin_result.fetchone()
+
+        total_out = checkout_row.total_qty if checkout_row else 0
+        total_in = checkin_row.total_qty if checkin_row else 0
+
+        return ItemUsageStatsResponse(
+            total_check_outs=checkout_row.count if checkout_row else 0,
+            total_check_ins=checkin_row.count if checkin_row else 0,
+            total_quantity_out=int(total_out),
+            total_quantity_in=int(total_in),
+            last_check_out=checkout_row.last if checkout_row else None,
+            last_check_in=checkin_row.last if checkin_row else None,
+            currently_checked_out=int(total_out) - int(total_in),
+        )
+
+    async def get_most_used_items(self, limit: int = 5) -> list[MostUsedItemResponse]:
+        """Get items sorted by total check-outs for dashboard."""
+        result = await self.session.execute(
+            select(
+                Item.id,
+                Item.name,
+                func.count(ItemCheckInOut.id).label("total_check_outs"),
+            )
+            .select_from(Item)
+            .join(ItemCheckInOut, ItemCheckInOut.item_id == Item.id)
+            .where(
+                Item.user_id == self.user_id,
+                ItemCheckInOut.action_type == "check_out",
+            )
+            .group_by(Item.id, Item.name)
+            .order_by(func.count(ItemCheckInOut.id).desc())
+            .limit(limit)
+        )
+        rows = result.fetchall()
+
+        # Get primary images for these items
+        if rows:
+            item_ids = [row.id for row in rows]
+            items_with_images = await self.session.execute(
+                self._base_query().where(Item.id.in_(item_ids))
+            )
+            items_map = {item.id: item for item in items_with_images.scalars().all()}
+
+            return [
+                MostUsedItemResponse(
+                    id=row.id,
+                    name=row.name,
+                    total_check_outs=row.total_check_outs,
+                    primary_image_url=self._get_primary_image_url(
+                        items_map.get(row.id)
+                    ),
+                )
+                for row in rows
+            ]
+        return []
+
+    async def get_recently_used_items(
+        self, limit: int = 5
+    ) -> list[RecentlyUsedItemResponse]:
+        """Get items sorted by most recent activity."""
+        # Subquery to get latest activity per item
+        subquery = (
+            select(
+                ItemCheckInOut.item_id,
+                func.max(ItemCheckInOut.occurred_at).label("last_used"),
+            )
+            .where(ItemCheckInOut.user_id == self.user_id)
+            .group_by(ItemCheckInOut.item_id)
+            .subquery()
+        )
+
+        # Get items with their latest activity
+        result = await self.session.execute(
+            select(
+                Item.id,
+                Item.name,
+                subquery.c.last_used,
+                ItemCheckInOut.action_type,
+            )
+            .select_from(Item)
+            .join(subquery, subquery.c.item_id == Item.id)
+            .join(
+                ItemCheckInOut,
+                (ItemCheckInOut.item_id == Item.id)
+                & (ItemCheckInOut.occurred_at == subquery.c.last_used),
+            )
+            .where(Item.user_id == self.user_id)
+            .order_by(subquery.c.last_used.desc())
+            .limit(limit)
+        )
+        rows = result.fetchall()
+
+        # Get primary images for these items
+        if rows:
+            item_ids = [row.id for row in rows]
+            items_with_images = await self.session.execute(
+                self._base_query().where(Item.id.in_(item_ids))
+            )
+            items_map = {item.id: item for item in items_with_images.scalars().all()}
+
+            return [
+                RecentlyUsedItemResponse(
+                    id=row.id,
+                    name=row.name,
+                    last_used=row.last_used,
+                    action_type=row.action_type,
+                    primary_image_url=self._get_primary_image_url(
+                        items_map.get(row.id)
+                    ),
+                )
+                for row in rows
+            ]
+        return []
+
+    def _get_primary_image_url(self, item: Item | None) -> str | None:
+        """Get the primary image URL for an item."""
+        if item and item.images:
+            primary = (
+                next((img for img in item.images if img.is_primary), None)
+                or item.images[0]
+            )
+            return f"/api/v1/images/{primary.id}/file"
+        return None
