@@ -226,7 +226,9 @@ export default function AdminUsersPage() {
                     <th className="px-4 py-3 font-medium">Free Credits</th>
                     <th className="px-4 py-3 font-medium">Joined</th>
                     <th className="px-4 py-3 font-medium">Admin</th>
-                    <th className="px-4 py-3 text-right font-medium">Actions</th>
+                    <th className="px-4 py-3 text-right font-medium">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -264,7 +266,9 @@ export default function AdminUsersPage() {
                             <Shield className="h-3 w-3" /> Admin
                           </span>
                         ) : (
-                          <span className="text-sm text-muted-foreground">-</span>
+                          <span className="text-sm text-muted-foreground">
+                            -
+                          </span>
                         )}
                       </td>
                       <td className="px-4 py-3">

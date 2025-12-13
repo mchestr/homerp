@@ -405,7 +405,10 @@ async def get_stats(
                 user_email=user.email,
                 user_name=user.name,
                 timestamp=feedback.created_at,
-                metadata={"status": feedback.status, "feedback_type": feedback.feedback_type},
+                metadata={
+                    "status": feedback.status,
+                    "feedback_type": feedback.feedback_type,
+                },
             )
         )
 

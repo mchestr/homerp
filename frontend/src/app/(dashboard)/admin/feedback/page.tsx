@@ -258,7 +258,9 @@ export default function AdminFeedbackPage() {
                     <th className="px-4 py-3 font-medium">User</th>
                     <th className="px-4 py-3 font-medium">Status</th>
                     <th className="px-4 py-3 font-medium">Date</th>
-                    <th className="px-4 py-3 text-right font-medium">Actions</th>
+                    <th className="px-4 py-3 text-right font-medium">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -326,7 +328,8 @@ export default function AdminFeedbackPage() {
                       </tr>
                     );
                   })}
-                  {(!feedbackData?.items || feedbackData.items.length === 0) && (
+                  {(!feedbackData?.items ||
+                    feedbackData.items.length === 0) && (
                     <tr>
                       <td
                         colSpan={6}
@@ -346,7 +349,10 @@ export default function AdminFeedbackPage() {
             {feedbackData?.items.map((feedback) => {
               const TypeIcon = getTypeIcon(feedback.feedback_type);
               return (
-                <div key={feedback.id} className="rounded-xl border bg-card p-4">
+                <div
+                  key={feedback.id}
+                  className="rounded-xl border bg-card p-4"
+                >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
@@ -355,15 +361,17 @@ export default function AdminFeedbackPage() {
                           {feedback.feedback_type.replace("_", " ")}
                         </span>
                       </div>
-                      <p className="mt-1 truncate font-medium">{feedback.subject}</p>
+                      <p className="mt-1 truncate font-medium">
+                        {feedback.subject}
+                      </p>
                     </div>
                     <span
-                      className={`shrink-0 inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getStatusBadgeClass(
+                      className={`inline-flex shrink-0 items-center rounded-full px-2 py-1 text-xs font-medium ${getStatusBadgeClass(
                         feedback.status
                       )}`}
                     >
-                      {STATUS_OPTIONS.find((s) => s.value === feedback.status)?.label ||
-                        feedback.status}
+                      {STATUS_OPTIONS.find((s) => s.value === feedback.status)
+                        ?.label || feedback.status}
                     </span>
                   </div>
                   <div className="mt-2 text-sm">

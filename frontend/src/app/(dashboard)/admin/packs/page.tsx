@@ -359,7 +359,9 @@ export default function AdminPacksPage() {
                     <th className="px-4 py-3 font-medium">Stripe Price ID</th>
                     <th className="px-4 py-3 font-medium">Status</th>
                     <th className="px-4 py-3 font-medium">Order</th>
-                    <th className="px-4 py-3 text-right font-medium">Actions</th>
+                    <th className="px-4 py-3 text-right font-medium">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -367,7 +369,9 @@ export default function AdminPacksPage() {
                     <tr key={pack.id} className="border-b last:border-0">
                       <td className="px-4 py-3 font-medium">{pack.name}</td>
                       <td className="px-4 py-3">{pack.credits}</td>
-                      <td className="px-4 py-3">{formatPrice(pack.price_cents)}</td>
+                      <td className="px-4 py-3">
+                        {formatPrice(pack.price_cents)}
+                      </td>
                       <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
                         {pack.stripe_price_id}
                       </td>

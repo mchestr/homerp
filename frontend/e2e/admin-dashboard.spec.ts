@@ -42,7 +42,9 @@ test.describe("Admin Dashboard", () => {
       await expect(totalItemsStat).toContainText("5000");
     });
 
-    test("displays quick action cards with correct badges", async ({ page }) => {
+    test("displays quick action cards with correct badges", async ({
+      page,
+    }) => {
       await authenticateUser(page);
       await setupApiMocks(page, {
         user: fixtures.adminUser,
@@ -55,7 +57,9 @@ test.describe("Admin Dashboard", () => {
       // Users quick action
       const usersAction = page.getByTestId("quick-action-users");
       await expect(usersAction).toBeVisible();
-      await expect(page.getByTestId("quick-action-users-badge")).toContainText("150");
+      await expect(page.getByTestId("quick-action-users-badge")).toContainText(
+        "150"
+      );
 
       // Feedback quick action with pending count
       const feedbackAction = page.getByTestId("quick-action-feedback");
@@ -67,14 +71,18 @@ test.describe("Admin Dashboard", () => {
       // Credit Packs quick action
       const packsAction = page.getByTestId("quick-action-packs");
       await expect(packsAction).toBeVisible();
-      await expect(page.getByTestId("quick-action-packs-badge")).toContainText("3");
+      await expect(page.getByTestId("quick-action-packs-badge")).toContainText(
+        "3"
+      );
 
       // Webhooks quick action
       const webhooksAction = page.getByTestId("quick-action-webhooks");
       await expect(webhooksAction).toBeVisible();
     });
 
-    test("displays recent activity feed with all activity types", async ({ page }) => {
+    test("displays recent activity feed with all activity types", async ({
+      page,
+    }) => {
       await authenticateUser(page);
       await setupApiMocks(page, {
         user: fixtures.adminUser,
@@ -89,11 +97,19 @@ test.describe("Admin Dashboard", () => {
       await expect(activityFeed.getByText("New user registered")).toBeVisible();
       await expect(activityFeed.getByText("newuser@example.com")).toBeVisible();
 
-      await expect(activityFeed.getByText("Bug report submitted")).toBeVisible();
-      await expect(activityFeed.getByText("Unable to upload images")).toBeVisible();
+      await expect(
+        activityFeed.getByText("Bug report submitted")
+      ).toBeVisible();
+      await expect(
+        activityFeed.getByText("Unable to upload images")
+      ).toBeVisible();
 
-      await expect(activityFeed.getByText("Credit pack purchased")).toBeVisible();
-      await expect(activityFeed.getByText("Standard Pack - 100 credits")).toBeVisible();
+      await expect(
+        activityFeed.getByText("Credit pack purchased")
+      ).toBeVisible();
+      await expect(
+        activityFeed.getByText("Standard Pack - 100 credits")
+      ).toBeVisible();
     });
 
     test("displays additional stats row", async ({ page }) => {
@@ -122,7 +138,9 @@ test.describe("Admin Dashboard", () => {
       await expect(pendingFeedbackStat).toContainText("3");
     });
 
-    test("navigates to users page when clicking users quick action", async ({ page }) => {
+    test("navigates to users page when clicking users quick action", async ({
+      page,
+    }) => {
       await authenticateUser(page);
       await setupApiMocks(page, {
         user: fixtures.adminUser,
@@ -137,7 +155,9 @@ test.describe("Admin Dashboard", () => {
       await expect(page).toHaveURL(/.*\/admin\/users/);
     });
 
-    test("navigates to feedback page when clicking feedback quick action", async ({ page }) => {
+    test("navigates to feedback page when clicking feedback quick action", async ({
+      page,
+    }) => {
       await authenticateUser(page);
       await setupApiMocks(page, {
         user: fixtures.adminUser,
@@ -152,7 +172,9 @@ test.describe("Admin Dashboard", () => {
       await expect(page).toHaveURL(/.*\/admin\/feedback/);
     });
 
-    test("navigates to packs page when clicking credit packs quick action", async ({ page }) => {
+    test("navigates to packs page when clicking credit packs quick action", async ({
+      page,
+    }) => {
       await authenticateUser(page);
       await setupApiMocks(page, {
         user: fixtures.adminUser,
@@ -167,7 +189,9 @@ test.describe("Admin Dashboard", () => {
       await expect(page).toHaveURL(/.*\/admin\/packs/);
     });
 
-    test("navigates to webhooks page when clicking webhooks quick action", async ({ page }) => {
+    test("navigates to webhooks page when clicking webhooks quick action", async ({
+      page,
+    }) => {
       await authenticateUser(page);
       await setupApiMocks(page, {
         user: fixtures.adminUser,
@@ -182,7 +206,9 @@ test.describe("Admin Dashboard", () => {
       await expect(page).toHaveURL(/.*\/admin\/webhooks/);
     });
 
-    test("navigates to users page when clicking total users stat", async ({ page }) => {
+    test("navigates to users page when clicking total users stat", async ({
+      page,
+    }) => {
       await authenticateUser(page);
       await setupApiMocks(page, {
         user: fixtures.adminUser,
@@ -197,7 +223,9 @@ test.describe("Admin Dashboard", () => {
       await expect(page).toHaveURL(/.*\/admin\/users/);
     });
 
-    test("navigates to packs page when clicking active packs stat", async ({ page }) => {
+    test("navigates to packs page when clicking active packs stat", async ({
+      page,
+    }) => {
       await authenticateUser(page);
       await setupApiMocks(page, {
         user: fixtures.adminUser,
@@ -212,7 +240,9 @@ test.describe("Admin Dashboard", () => {
       await expect(page).toHaveURL(/.*\/admin\/packs/);
     });
 
-    test("navigates to feedback page when clicking pending feedback stat", async ({ page }) => {
+    test("navigates to feedback page when clicking pending feedback stat", async ({
+      page,
+    }) => {
       await authenticateUser(page);
       await setupApiMocks(page, {
         user: fixtures.adminUser,
@@ -279,8 +309,12 @@ test.describe("Admin Dashboard", () => {
 
       // Activity items should be visible
       await expect(activityFeed.getByText("New user registered")).toBeVisible();
-      await expect(activityFeed.getByText("Bug report submitted")).toBeVisible();
-      await expect(activityFeed.getByText("Credit pack purchased")).toBeVisible();
+      await expect(
+        activityFeed.getByText("Bug report submitted")
+      ).toBeVisible();
+      await expect(
+        activityFeed.getByText("Credit pack purchased")
+      ).toBeVisible();
     });
 
     test("can navigate from mobile quick actions", async ({ page }) => {
@@ -346,7 +380,9 @@ test.describe("Admin Dashboard", () => {
       await expect(page.getByTestId("no-activity-message")).toBeVisible();
     });
 
-    test("does not show trend badge when no recent signups", async ({ page }) => {
+    test("does not show trend badge when no recent signups", async ({
+      page,
+    }) => {
       await authenticateUser(page);
 
       // Create custom admin stats with no recent signups
@@ -374,10 +410,14 @@ test.describe("Admin Dashboard", () => {
       await expect(totalUsersStat).toBeVisible();
 
       // Trend badge should not be visible
-      await expect(page.getByTestId("stat-total-users-trend")).not.toBeVisible();
+      await expect(
+        page.getByTestId("stat-total-users-trend")
+      ).not.toBeVisible();
     });
 
-    test("does not show feedback badge when no pending feedback", async ({ page }) => {
+    test("does not show feedback badge when no pending feedback", async ({
+      page,
+    }) => {
       await authenticateUser(page);
 
       // Create custom admin stats with no pending feedback
@@ -405,7 +445,9 @@ test.describe("Admin Dashboard", () => {
       await expect(feedbackAction).toBeVisible();
 
       // Badge should not be visible
-      await expect(page.getByTestId("quick-action-feedback-badge")).not.toBeVisible();
+      await expect(
+        page.getByTestId("quick-action-feedback-badge")
+      ).not.toBeVisible();
     });
   });
 });

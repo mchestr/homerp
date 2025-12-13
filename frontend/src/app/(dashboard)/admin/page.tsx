@@ -63,7 +63,10 @@ function StatCard({
   testId?: string;
 }) {
   const content = (
-    <div data-testid={testId} className="rounded-xl border bg-card p-4 transition-colors hover:bg-accent/50 sm:p-6">
+    <div
+      data-testid={testId}
+      className="rounded-xl border bg-card p-4 transition-colors hover:bg-accent/50 sm:p-6"
+    >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <div className="rounded-lg bg-primary/10 p-2">
@@ -75,7 +78,11 @@ function StatCard({
           </div>
         </div>
         {trend && trend.value > 0 && (
-          <Badge variant="secondary" className="text-xs" data-testid={testId ? `${testId}-trend` : undefined}>
+          <Badge
+            variant="secondary"
+            className="text-xs"
+            data-testid={testId ? `${testId}-trend` : undefined}
+          >
             +{trend.value} {trend.label}
           </Badge>
         )}
@@ -117,7 +124,12 @@ function QuickActionCard({
             <Icon className="h-5 w-5 text-primary" />
           </div>
           {badge !== undefined && (
-            <Badge variant={badgeVariant} data-testid={testId ? `${testId}-badge` : undefined}>{badge}</Badge>
+            <Badge
+              variant={badgeVariant}
+              data-testid={testId ? `${testId}-badge` : undefined}
+            >
+              {badge}
+            </Badge>
           )}
         </div>
         <div className="mt-4 flex-1">
@@ -239,14 +251,20 @@ export default function AdminPage() {
       ) : stats ? (
         <>
           {/* Key Metrics Grid */}
-          <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4" data-testid="admin-metrics-grid">
+          <div
+            className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4"
+            data-testid="admin-metrics-grid"
+          >
             <StatCard
               title={t("admin.stats.totalUsers")}
               value={stats.total_users}
               icon={Users}
               trend={
                 stats.recent_signups_7d > 0
-                  ? { value: stats.recent_signups_7d, label: t("admin.stats.thisWeek") }
+                  ? {
+                      value: stats.recent_signups_7d,
+                      label: t("admin.stats.thisWeek"),
+                    }
                   : undefined
               }
               href="/admin/users"
@@ -280,7 +298,10 @@ export default function AdminPage() {
               <h2 className="mb-4 text-lg font-semibold">
                 {t("admin.quickActions")}
               </h2>
-              <div className="grid gap-3 sm:grid-cols-2 sm:gap-4" data-testid="quick-actions-grid">
+              <div
+                className="grid gap-3 sm:grid-cols-2 sm:gap-4"
+                data-testid="quick-actions-grid"
+              >
                 <QuickActionCard
                   title={t("admin.users")}
                   description={t("admin.manageUsersDescription")}
@@ -294,8 +315,16 @@ export default function AdminPage() {
                   description={t("admin.manageFeedbackDescription")}
                   icon={MessageSquare}
                   href="/admin/feedback"
-                  badge={stats.pending_feedback_count > 0 ? stats.pending_feedback_count : undefined}
-                  badgeVariant={stats.pending_feedback_count > 0 ? "destructive" : "secondary"}
+                  badge={
+                    stats.pending_feedback_count > 0
+                      ? stats.pending_feedback_count
+                      : undefined
+                  }
+                  badgeVariant={
+                    stats.pending_feedback_count > 0
+                      ? "destructive"
+                      : "secondary"
+                  }
                   testId="quick-action-feedback"
                 />
                 <QuickActionCard
@@ -321,7 +350,10 @@ export default function AdminPage() {
               <h2 className="mb-4 text-lg font-semibold">
                 {t("admin.recentActivity")}
               </h2>
-              <div className="rounded-xl border bg-card" data-testid="recent-activity-feed">
+              <div
+                className="rounded-xl border bg-card"
+                data-testid="recent-activity-feed"
+              >
                 {stats.recent_activity.length > 0 ? (
                   <div className="max-h-[400px] divide-y overflow-y-auto">
                     {stats.recent_activity.map((activity) => (
@@ -329,7 +361,10 @@ export default function AdminPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center p-8 text-center" data-testid="no-activity-message">
+                  <div
+                    className="flex flex-col items-center justify-center p-8 text-center"
+                    data-testid="no-activity-message"
+                  >
                     <AlertCircle className="mb-2 h-8 w-8 text-muted-foreground" />
                     <p className="text-sm text-muted-foreground">
                       {t("admin.noRecentActivity")}
@@ -341,7 +376,10 @@ export default function AdminPage() {
           </div>
 
           {/* Additional Stats Row */}
-          <div className="grid gap-3 sm:grid-cols-3 sm:gap-4" data-testid="additional-stats-grid">
+          <div
+            className="grid gap-3 sm:grid-cols-3 sm:gap-4"
+            data-testid="additional-stats-grid"
+          >
             <StatCard
               title={t("admin.stats.activePacks")}
               value={stats.active_credit_packs}
