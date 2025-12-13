@@ -298,6 +298,18 @@ export const locationsApi = {
 
   delete: (id: string) =>
     apiRequest<void>(`/api/v1/locations/${id}`, { method: "DELETE" }),
+
+  analyzeImage: (imageId: string) =>
+    apiRequest<LocationAnalysisResponse>("/api/v1/locations/analyze-image", {
+      method: "POST",
+      body: { image_id: imageId },
+    }),
+
+  createBulk: (data: LocationBulkCreate) =>
+    apiRequest<LocationBulkCreateResponse>("/api/v1/locations/bulk", {
+      method: "POST",
+      body: data,
+    }),
 };
 
 // Images API
@@ -432,6 +444,35 @@ export type LocationCreate = {
 };
 
 export type LocationUpdate = Partial<LocationCreate>;
+
+export type LocationSuggestion = {
+  name: string;
+  location_type: string;
+  description: string | null;
+};
+
+export type LocationAnalysisResult = {
+  parent: LocationSuggestion;
+  children: LocationSuggestion[];
+  confidence: number;
+  reasoning: string;
+};
+
+export type LocationAnalysisResponse = {
+  success: boolean;
+  result?: LocationAnalysisResult;
+  error?: string;
+};
+
+export type LocationBulkCreate = {
+  parent: LocationCreate;
+  children: LocationCreate[];
+};
+
+export type LocationBulkCreateResponse = {
+  parent: Location;
+  children: Location[];
+};
 
 export type ItemListItem = {
   id: string;

@@ -8,6 +8,7 @@ from sqlalchemy_utils import Ltree
 
 from src.locations.models import Location
 from src.locations.schemas import (
+    LocationBulkCreate,
     LocationCreate,
     LocationTreeNode,
     LocationUpdate,
@@ -170,6 +171,35 @@ class LocationService:
         await self.session.commit()
         await self.session.refresh(location)
         return location
+
+    async def create_bulk(
+        self, data: LocationBulkCreate
+    ) -> tuple[Location, list[Location]]:
+        """Create a parent location with multiple children.
+
+        Args:
+            data: Bulk creation data with parent and children
+
+        Returns:
+            Tuple of (parent location, list of child locations)
+        """
+        # Create parent first
+        parent = await self.create(data.parent)
+
+        # Create children with parent_id set
+        children: list[Location] = []
+        for child_data in data.children:
+            # Create a new LocationCreate with the parent_id set
+            child_create = LocationCreate(
+                name=child_data.name,
+                description=child_data.description,
+                location_type=child_data.location_type,
+                parent_id=parent.id,
+            )
+            child = await self.create(child_create)
+            children.append(child)
+
+        return parent, children
 
     async def update(self, location: Location, data: LocationUpdate) -> Location:
         """Update a location, handling path changes if parent or name changes."""

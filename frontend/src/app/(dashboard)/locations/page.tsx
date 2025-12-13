@@ -1,18 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Edit, Trash2, MapPin, Loader2, X } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  MapPin,
+  Loader2,
+  X,
+  ImagePlus,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TreeView, TreeSelect } from "@/components/ui/tree-view";
 import { useConfirmModal } from "@/components/ui/confirm-modal";
 import { ItemsPanel } from "@/components/items/items-panel";
+import { LocationSuggestionPreview } from "@/components/locations/location-suggestion-preview";
+import { useInsufficientCreditsModal } from "@/components/billing/insufficient-credits-modal";
+import { useAuth } from "@/context/auth-context";
 import {
   locationsApi,
+  imagesApi,
   Location,
   LocationCreate,
   LocationTreeNode,
+  LocationAnalysisResult,
 } from "@/lib/api/api-client";
+import { cn } from "@/lib/utils";
 
 const LOCATION_TYPES = [
   { value: "room", label: "Room", icon: "🏠" },
@@ -48,7 +65,21 @@ export default function LocationsPage() {
     parent_id: undefined,
   });
 
+  // AI Analysis state
+  const [showAiSection, setShowAiSection] = useState(false);
+  const [uploadedImageId, setUploadedImageId] = useState<string | null>(null);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] =
+    useState<LocationAnalysisResult | null>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
   const { confirm, ConfirmModal } = useConfirmModal();
+  const { show: showInsufficientCredits, InsufficientCreditsModal } =
+    useInsufficientCreditsModal();
+  const { refreshCredits } = useAuth();
 
   const { data: locations, isLoading } = useQuery({
     queryKey: ["locations"],
@@ -87,6 +118,22 @@ export default function LocationsPage() {
     },
   });
 
+  const bulkCreateMutation = useMutation({
+    mutationFn: ({
+      parent,
+      children,
+    }: {
+      parent: LocationCreate;
+      children: LocationCreate[];
+    }) => locationsApi.createBulk({ parent, children }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["locations"] });
+      setIsCreating(false);
+      resetForm();
+      resetAiState();
+    },
+  });
+
   const resetForm = () => {
     setFormData({
       name: "",
@@ -94,6 +141,102 @@ export default function LocationsPage() {
       location_type: "",
       parent_id: undefined,
     });
+  };
+
+  const resetAiState = () => {
+    setShowAiSection(false);
+    setUploadedImageId(null);
+    setUploadedImageUrl(null);
+    setAnalysisResult(null);
+    setAnalysisError(null);
+  };
+
+  const handleImageUpload = useCallback(
+    async (file: File) => {
+      if (!file.type.startsWith("image/")) {
+        setAnalysisError("Please select an image file");
+        return;
+      }
+
+      if (file.size > 10 * 1024 * 1024) {
+        setAnalysisError("Image must be less than 10MB");
+        return;
+      }
+
+      setAnalysisError(null);
+      setIsUploading(true);
+
+      try {
+        const result = await imagesApi.upload(file);
+        const { url } = await imagesApi.getSignedUrl(result.id);
+        setUploadedImageId(result.id);
+        setUploadedImageUrl(url);
+      } catch (err) {
+        console.error("Upload error:", err);
+        setAnalysisError("Failed to upload image. Please try again.");
+      } finally {
+        setIsUploading(false);
+      }
+    },
+    []
+  );
+
+  const handleAnalyze = useCallback(async () => {
+    if (!uploadedImageId) return;
+
+    setIsAnalyzing(true);
+    setAnalysisError(null);
+
+    try {
+      const response = await locationsApi.analyzeImage(uploadedImageId);
+      if (response.success && response.result) {
+        setAnalysisResult(response.result);
+        refreshCredits();
+      } else {
+        setAnalysisError(response.error || "Analysis failed");
+      }
+    } catch (err: unknown) {
+      console.error("Analysis error:", err);
+      if (
+        err &&
+        typeof err === "object" &&
+        "status" in err &&
+        (err as { status: number }).status === 402
+      ) {
+        showInsufficientCredits();
+      } else {
+        setAnalysisError("Failed to analyze image. Please try again.");
+      }
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }, [uploadedImageId, refreshCredits, showInsufficientCredits]);
+
+  const handleBulkCreate = useCallback(
+    (parent: LocationCreate, children: LocationCreate[]) => {
+      bulkCreateMutation.mutate({ parent, children });
+    },
+    [bulkCreateMutation]
+  );
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      await handleImageUpload(file);
+    }
   };
 
   const handleEdit = (location: Location) => {
@@ -131,6 +274,7 @@ export default function LocationsPage() {
     setIsCreating(false);
     setEditingId(null);
     resetForm();
+    resetAiState();
   };
 
   const handleAddChild = (parentId: string) => {
@@ -238,10 +382,7 @@ export default function LocationsPage() {
       </div>
 
       {isFormVisible && (
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-5 rounded-xl border bg-card p-6"
-        >
+        <div className="space-y-5 rounded-xl border bg-card p-6">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">
               {editingId ? "Edit Location" : "New Location"}
@@ -255,6 +396,161 @@ export default function LocationsPage() {
             </button>
           </div>
 
+          {/* AI Analysis Section - only show for new locations */}
+          {!editingId && !analysisResult && (
+            <div className="space-y-4">
+              <button
+                type="button"
+                onClick={() => setShowAiSection(!showAiSection)}
+                className="flex w-full items-center justify-between rounded-lg border border-violet-200 bg-violet-50/50 p-4 text-left transition-colors hover:bg-violet-100/50 dark:border-violet-800 dark:bg-violet-950/30 dark:hover:bg-violet-900/30"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="rounded-full bg-violet-100 p-2 dark:bg-violet-900/50">
+                    <Sparkles className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-violet-900 dark:text-violet-100">
+                      Use AI to analyze an image
+                    </p>
+                    <p className="text-sm text-violet-600 dark:text-violet-400">
+                      Upload a photo of a storage space to suggest locations
+                    </p>
+                  </div>
+                </div>
+                {showAiSection ? (
+                  <ChevronUp className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                )}
+              </button>
+
+              {showAiSection && (
+                <div className="space-y-4 rounded-lg border border-violet-200 bg-violet-50/30 p-4 dark:border-violet-800 dark:bg-violet-950/20">
+                  {uploadedImageUrl ? (
+                    <div className="space-y-4">
+                      <div className="group relative overflow-hidden rounded-lg border">
+                        <img
+                          src={uploadedImageUrl}
+                          alt="Uploaded storage"
+                          className="aspect-video w-full bg-black/5 object-contain"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUploadedImageId(null);
+                            setUploadedImageUrl(null);
+                          }}
+                          className="absolute right-2 top-2 rounded-full bg-black/50 p-2 text-white transition-opacity hover:bg-black/70"
+                          title="Remove image"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={handleAnalyze}
+                        disabled={isAnalyzing}
+                        className="w-full gap-2"
+                      >
+                        {isAnalyzing ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Analyzing...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-4 w-4" />
+                            Analyze with AI (1 credit)
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  ) : (
+                    <label
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      className={cn(
+                        "flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-all",
+                        isDragging
+                          ? "border-violet-500 bg-violet-100/50 dark:bg-violet-900/30"
+                          : "border-violet-300 hover:border-violet-500 hover:bg-violet-100/30 dark:border-violet-700 dark:hover:bg-violet-900/20",
+                        isUploading && "pointer-events-none opacity-50"
+                      )}
+                    >
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleImageUpload(file);
+                          e.target.value = "";
+                        }}
+                        className="hidden"
+                        disabled={isUploading}
+                      />
+                      <div className="text-center">
+                        {isUploading ? (
+                          <div className="flex flex-col items-center">
+                            <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+                            <p className="mt-2 text-sm font-medium">Uploading...</p>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center">
+                            <ImagePlus className="h-8 w-8 text-violet-400" />
+                            <p className="mt-2 text-sm font-medium">
+                              {isDragging
+                                ? "Drop image here"
+                                : "Click or drag to upload"}
+                            </p>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              PNG, JPG up to 10MB
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </label>
+                  )}
+
+                  {analysisError && (
+                    <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+                      {analysisError}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="relative flex items-center py-2">
+                <div className="flex-grow border-t" />
+                <span className="mx-4 flex-shrink text-sm text-muted-foreground">
+                  or create manually
+                </span>
+                <div className="flex-grow border-t" />
+              </div>
+            </div>
+          )}
+
+          {/* AI Analysis Result */}
+          {analysisResult && (
+            <>
+              <LocationSuggestionPreview
+                result={analysisResult}
+                onConfirm={handleBulkCreate}
+                onCancel={() => {
+                  setAnalysisResult(null);
+                  setUploadedImageId(null);
+                  setUploadedImageUrl(null);
+                }}
+                isCreating={bulkCreateMutation.isPending}
+                existingParentId={formData.parent_id}
+              />
+              <InsufficientCreditsModal />
+            </>
+          )}
+
+          {/* Manual Creation Form - hide when AI result is shown */}
+          {!analysisResult && (
+            <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid gap-5 md:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm font-medium">Name *</label>
@@ -350,8 +646,12 @@ export default function LocationsPage() {
               {editingId ? "Update Location" : "Create Location"}
             </Button>
           </div>
-        </form>
+            </form>
+          )}
+        </div>
       )}
+
+      <InsufficientCreditsModal />
 
       {isLoading || isTreeLoading ? (
         <div className="flex items-center justify-center py-16">
