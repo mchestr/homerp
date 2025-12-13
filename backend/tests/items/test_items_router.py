@@ -412,10 +412,18 @@ class TestCheckOutEndpoint:
 class TestCheckInEndpoint:
     """Tests for POST /api/v1/items/{item_id}/check-in."""
 
-    async def test_check_in_item(
+    async def test_check_in_item_after_checkout(
         self, authenticated_client: AsyncClient, test_item: Item
     ):
-        """Test checking in an item."""
+        """Test checking in an item after it has been checked out."""
+        # First check out the item
+        checkout_response = await authenticated_client.post(
+            f"/api/v1/items/{test_item.id}/check-out",
+            json={"quantity": 2},
+        )
+        assert checkout_response.status_code == 201
+
+        # Now check in the item
         response = await authenticated_client.post(
             f"/api/v1/items/{test_item.id}/check-in",
             json={"quantity": 1, "notes": "Test checkin"},
@@ -424,6 +432,7 @@ class TestCheckInEndpoint:
         assert response.status_code == 201
         data = response.json()
         assert data["action_type"] == "check_in"
+        assert data["quantity"] == 1
 
     async def test_check_in_item_not_found(self, authenticated_client: AsyncClient):
         """Test checking in non-existent item."""
@@ -432,6 +441,98 @@ class TestCheckInEndpoint:
         )
 
         assert response.status_code == 404
+
+    async def test_check_in_without_prior_checkout_fails(
+        self, authenticated_client: AsyncClient, test_item: Item
+    ):
+        """Test that checking in without prior checkout returns 400."""
+        response = await authenticated_client.post(
+            f"/api/v1/items/{test_item.id}/check-in",
+            json={"quantity": 1},
+        )
+
+        assert response.status_code == 400
+        assert (
+            response.json()["detail"]
+            == "Cannot check in item that has not been checked out"
+        )
+
+    async def test_check_in_more_than_checked_out_fails(
+        self, authenticated_client: AsyncClient, test_item: Item
+    ):
+        """Test that checking in more than checked out returns 400."""
+        # First check out 2 items
+        checkout_response = await authenticated_client.post(
+            f"/api/v1/items/{test_item.id}/check-out",
+            json={"quantity": 2},
+        )
+        assert checkout_response.status_code == 201
+
+        # Try to check in 3 items (more than checked out)
+        response = await authenticated_client.post(
+            f"/api/v1/items/{test_item.id}/check-in",
+            json={"quantity": 3},
+        )
+
+        assert response.status_code == 400
+        assert "Cannot check in 3 items" in response.json()["detail"]
+        assert "Only 2 currently checked out" in response.json()["detail"]
+
+    async def test_check_in_exact_amount_succeeds(
+        self, authenticated_client: AsyncClient, test_item: Item
+    ):
+        """Test checking in exact amount that was checked out."""
+        # First check out 3 items
+        checkout_response = await authenticated_client.post(
+            f"/api/v1/items/{test_item.id}/check-out",
+            json={"quantity": 3},
+        )
+        assert checkout_response.status_code == 201
+
+        # Check in all 3
+        response = await authenticated_client.post(
+            f"/api/v1/items/{test_item.id}/check-in",
+            json={"quantity": 3},
+        )
+
+        assert response.status_code == 201
+
+        # Check usage stats - should be 0 currently checked out
+        stats_response = await authenticated_client.get(
+            f"/api/v1/items/{test_item.id}/usage-stats"
+        )
+        assert stats_response.status_code == 200
+        assert stats_response.json()["currently_checked_out"] == 0
+
+    async def test_check_in_after_full_return_fails(
+        self, authenticated_client: AsyncClient, test_item: Item
+    ):
+        """Test that check in fails after all items have been returned."""
+        # Check out 2 items
+        checkout_response = await authenticated_client.post(
+            f"/api/v1/items/{test_item.id}/check-out",
+            json={"quantity": 2},
+        )
+        assert checkout_response.status_code == 201
+
+        # Check in all 2
+        checkin_response = await authenticated_client.post(
+            f"/api/v1/items/{test_item.id}/check-in",
+            json={"quantity": 2},
+        )
+        assert checkin_response.status_code == 201
+
+        # Try to check in 1 more (should fail as currently_checked_out is 0)
+        response = await authenticated_client.post(
+            f"/api/v1/items/{test_item.id}/check-in",
+            json={"quantity": 1},
+        )
+
+        assert response.status_code == 400
+        assert (
+            response.json()["detail"]
+            == "Cannot check in item that has not been checked out"
+        )
 
 
 class TestItemHistoryEndpoint:

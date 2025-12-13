@@ -444,6 +444,22 @@ async def check_in_item(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Item not found",
         )
+
+    # Validate that item has been checked out first
+    usage_stats = await repo.get_usage_stats(item_id)
+    if usage_stats.currently_checked_out <= 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot check in item that has not been checked out",
+        )
+
+    # Validate that check-in quantity doesn't exceed what's currently checked out
+    if data.quantity > usage_stats.currently_checked_out:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot check in {data.quantity} items. Only {usage_stats.currently_checked_out} currently checked out",
+        )
+
     record = await repo.create_check_in_out(item_id, "check_in", data)
     return CheckInOutResponse.model_validate(record)
 
