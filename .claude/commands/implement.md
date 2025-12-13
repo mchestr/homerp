@@ -31,11 +31,23 @@ glab issue view $ARGUMENTS
   - Test both desktop and mobile viewports
 
 ### 5. Verify
-Run lint and build before committing:
+Run lint, format, and build before committing:
+```bash
+# Backend - run BOTH check and format
+cd backend
+uv run ruff check .
+uv run ruff format .
+
+# Frontend - run BOTH lint and format
+cd frontend
+pnpm lint
+pnpm format
+
+# Build (or pnpm tsc --noEmit if Docker unavailable)
+mise run build
 ```
-mise run lint
-mise run build  # or pnpm tsc --noEmit if Docker unavailable
-```
+
+**IMPORTANT:** Always run format commands, not just check. The CI runs `--check` mode which will fail if files need formatting.
 
 ### 6. Create Merge Request
 - Create a feature branch: `feat/<short-description>`
@@ -49,9 +61,14 @@ After pushing, monitor the pipeline and fix any failures:
 # Check pipeline status
 glab ci status
 
-# View logs for a failed job
-glab api projects/mchestr%2Fhomerp/jobs/<JOB_ID>/trace | tail -100
+# Get job IDs from the current pipeline
+glab api "/projects/mchestr%2Fhomerp/pipelines/<PIPELINE_ID>/jobs" | jq '.[] | {name, id, status}'
+
+# View logs for a failed job (use API for fresh results)
+glab api "/projects/mchestr%2Fhomerp/jobs/<JOB_ID>/trace" | tail -100
 ```
+
+**Note:** The `glab ci trace` command can sometimes show cached/stale results. Always use the API directly for accurate job traces. Verify the SHA in the trace matches your expected commit.
 
 ## Troubleshooting Pipeline Failures
 
@@ -63,16 +80,14 @@ glab api projects/mchestr%2Fhomerp/jobs/<JOB_ID>/trace | tail -100
 **Fix:**
 ```bash
 cd frontend
-pnpm exec prettier --write <affected-files>
-# Or format all files:
-pnpm exec prettier --write .
+pnpm format  # Uses the project's prettier config
 ```
 
-Then commit and push the fix:
+Then amend your commit (if fixing immediately after push) or create a new commit:
 ```bash
-git add <affected-files>
-git commit -m "style: fix prettier formatting issues"
-git push
+git add -u
+git commit --amend --no-edit  # If fixing your own recent commit
+git push --force-with-lease
 ```
 
 ### ESLint Errors
@@ -84,14 +99,23 @@ cd frontend
 pnpm lint
 ```
 
-### Backend Lint Errors
-**Symptom:** `backend:lint` job fails with ruff errors
+### Backend Lint Errors (Ruff)
+**Symptom:** `backend:lint` job fails with ruff check or format errors
 
-**Fix:** Run ruff with auto-fix:
+**Cause:** The pipeline runs both `uv run ruff check .` and `uv run ruff format --check .`
+
+**Fix:** Run both ruff check (with auto-fix) and format:
 ```bash
 cd backend
-uv run ruff check . --fix
-uv run ruff format .
+uv run ruff check . --fix  # Fix linting issues
+uv run ruff format .       # Format code (required - CI runs --check mode)
+```
+
+Then amend your commit and push:
+```bash
+git add -u
+git commit --amend --no-edit
+git push --force-with-lease
 ```
 
 ### Backend Test Failures
@@ -118,6 +142,20 @@ cd frontend && pnpm build
 mise run build:frontend
 mise run build:backend
 ```
+
+### Merged Results Pipeline Issues
+**Symptom:** Pipeline shows job as failed but trace shows "Job succeeded", or pipeline is testing old code
+
+**Cause:** GitLab runs "merged results" pipelines that merge your MR into the target branch before testing. If `main` was updated by another MR, your pipeline may be testing stale merged code.
+
+**Fix:** Rebase your branch onto the latest main:
+```bash
+git fetch origin
+git rebase origin/main
+git push --force-with-lease
+```
+
+This triggers a new pipeline with the correct merged result.
 
 ## Requirements
 - Always use the todo list to track progress
