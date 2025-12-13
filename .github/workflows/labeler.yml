@@ -1,0 +1,61 @@
+name: Issue Labeler
+
+on:
+  issues:
+    types: [opened, edited]
+  pull_request:
+    types: [opened, edited]
+
+jobs:
+  label-issues:
+    name: Label Issues
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues'
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Label issues with Claude
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: claude-haiku-4-20250514
+          direct_prompt: |
+            Analyze this GitHub issue and suggest appropriate labels from this list:
+            - bug: Something isn't working
+            - enhancement: New feature or request
+            - documentation: Improvements or additions to documentation
+            - question: Further information is requested
+            - backend: Related to FastAPI backend
+            - frontend: Related to Next.js frontend
+            - database: Related to PostgreSQL or migrations
+            - ai: Related to OpenAI integration
+            - billing: Related to Stripe or credits
+            - auth: Related to authentication
+            - performance: Performance improvements
+            - security: Security-related issues
+            - testing: Related to tests
+            - ci: Related to CI/CD
+
+            Issue Title: ${{ github.event.issue.title }}
+            Issue Body: ${{ github.event.issue.body }}
+
+            Respond with ONLY a JSON array of label names that apply, e.g. ["bug", "backend"]
+            Choose the most relevant 1-3 labels.
+          timeout_minutes: 5
+
+  label-prs:
+    name: Label Pull Requests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: .github/labeler.yml
