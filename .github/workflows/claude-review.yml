@@ -32,4 +32,3 @@ jobs:
           model: claude-sonnet-4-20250514
           trigger_phrase: "@claude"
           timeout_minutes: 60
-          mode: auto_review
