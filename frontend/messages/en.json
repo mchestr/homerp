@@ -4,6 +4,7 @@
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
+    "success": "Success",
     "edit": "Edit",
     "create": "Create",
     "update": "Update",
@@ -407,7 +408,10 @@
     "filterByStatus": "Filter by status",
     "filterByType": "Filter by type",
     "allStatuses": "All Statuses",
-    "allTypes": "All Types"
+    "allTypes": "All Types",
+    "retriggerWebhook": "Retrigger Webhook",
+    "retriggerWebhookSuccess": "Webhook has been re-triggered successfully",
+    "retriggerWebhookConfirm": "This will re-trigger the feedback.created webhook event for this feedback item. Are you sure?"
   },
   "errors": {
     "somethingWentWrong": "Something went wrong",
