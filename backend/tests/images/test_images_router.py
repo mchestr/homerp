@@ -135,6 +135,94 @@ class TestListClassifiedImagesEndpoint:
 
         assert response.status_code == 401
 
+    async def test_list_classified_images_with_search(
+        self, authenticated_client: AsyncClient, classified_images: list[Image]
+    ):
+        """Test searching classified images by identified name."""
+        # Search for "screwdriver"
+        response = await authenticated_client.get(
+            "/api/v1/images/classified", params={"search": "screwdriver"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total"] == 1
+        assert len(data["items"]) == 1
+        assert (
+            data["items"][0]["ai_result"]["identified_name"]
+            == "Phillips Head Screwdriver"
+        )
+
+    async def test_list_classified_images_search_case_insensitive(
+        self, authenticated_client: AsyncClient, classified_images: list[Image]
+    ):
+        """Test that search is case-insensitive."""
+        # Search for "HAMMER" (uppercase)
+        response = await authenticated_client.get(
+            "/api/v1/images/classified", params={"search": "HAMMER"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total"] == 1
+        assert len(data["items"]) == 1
+        assert data["items"][0]["ai_result"]["identified_name"] == "Claw Hammer"
+
+    async def test_list_classified_images_search_partial_match(
+        self, authenticated_client: AsyncClient, classified_images: list[Image]
+    ):
+        """Test that search works with partial matches."""
+        # Search for "drill" should match "Cordless Drill"
+        response = await authenticated_client.get(
+            "/api/v1/images/classified", params={"search": "drill"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total"] == 1
+        assert "Drill" in data["items"][0]["ai_result"]["identified_name"]
+
+    async def test_list_classified_images_search_no_results(
+        self, authenticated_client: AsyncClient, classified_images: list[Image]
+    ):
+        """Test search with no matching results."""
+        response = await authenticated_client.get(
+            "/api/v1/images/classified", params={"search": "nonexistent"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total"] == 0
+        assert len(data["items"]) == 0
+
+    async def test_list_classified_images_empty_search(
+        self, authenticated_client: AsyncClient, classified_images: list[Image]
+    ):
+        """Test that empty search returns all classified images."""
+        response = await authenticated_client.get(
+            "/api/v1/images/classified", params={"search": ""}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        # Empty search should return all classified images
+        assert data["total"] == len(classified_images)
+
+    async def test_list_classified_images_search_with_pagination(
+        self, authenticated_client: AsyncClient, classified_images: list[Image]
+    ):
+        """Test search with pagination parameters."""
+        response = await authenticated_client.get(
+            "/api/v1/images/classified",
+            params={"search": "screwdriver", "page": 1, "limit": 10},
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["page"] == 1
+        assert data["limit"] == 10
+        assert data["total"] == 1
+
 
 class TestDeleteImageEndpoint:
     """Tests for DELETE /api/v1/images/{image_id}."""

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   Image as ImageIcon,
   ChevronLeft,
@@ -12,8 +13,11 @@ import {
   Sparkles,
   Check,
   Plus,
+  Search,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
 import { imagesApi, Image, ClassificationResult } from "@/lib/api/api-client";
 import {
@@ -23,16 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+import { formatDateTime } from "@/lib/utils";
 
 function formatConfidence(confidence: number): string {
   return `${Math.round(confidence * 100)}%`;
@@ -41,25 +36,64 @@ function formatConfidence(confidence: number): string {
 export default function ClassifiedImagesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations("images");
+  const tCommon = useTranslations("common");
+
   const page = Number(searchParams.get("page")) || 1;
+  const searchQuery = searchParams.get("search") || "";
+
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
+  const [searchInput, setSearchInput] = useState(searchQuery);
+
+  // Sync searchInput with URL on mount and URL changes
+  useEffect(() => {
+    setSearchInput(searchQuery);
+  }, [searchQuery]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["images", "classified", page],
-    queryFn: () => imagesApi.listClassified(page, 12),
+    queryKey: ["images", "classified", page, searchQuery],
+    queryFn: () => imagesApi.listClassified(page, 12, searchQuery || undefined),
   });
 
-  const updatePage = (newPage: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (newPage > 1) {
-      params.set("page", String(newPage));
-    } else {
-      params.delete("page");
-    }
-    router.push(`/images/classified?${params.toString()}`);
-  };
+  const updateUrl = useCallback(
+    (newPage: number, newSearch: string) => {
+      const params = new URLSearchParams();
+      if (newPage > 1) {
+        params.set("page", String(newPage));
+      }
+      if (newSearch) {
+        params.set("search", newSearch);
+      }
+      const queryString = params.toString();
+      router.push(`/images/classified${queryString ? `?${queryString}` : ""}`);
+    },
+    [router]
+  );
+
+  const handleSearch = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      updateUrl(1, searchInput.trim());
+    },
+    [searchInput, updateUrl]
+  );
+
+  const clearSearch = useCallback(() => {
+    setSearchInput("");
+    updateUrl(1, "");
+  }, [updateUrl]);
+
+  const updatePage = useCallback(
+    (newPage: number) => {
+      updateUrl(newPage, searchQuery);
+    },
+    [searchQuery, updateUrl]
+  );
 
   const aiResult = selectedImage?.ai_result as ClassificationResult | null;
+
+  const showNoResults = !isLoading && data?.items.length === 0 && searchQuery;
+  const showEmpty = !isLoading && data?.items.length === 0 && !searchQuery;
 
   return (
     <div className="space-y-6">
@@ -71,36 +105,86 @@ export default function ClassifiedImagesPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-            Classified Images
+            {t("classifiedImages")}
           </h1>
           <p className="mt-1 text-muted-foreground">
-            {data?.total ?? 0} images have been classified by AI
+            {t("classifiedImagesSubtitle", { count: data?.total ?? 0 })}
           </p>
         </div>
       </div>
+
+      {/* Search Bar */}
+      <form onSubmit={handleSearch} className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder={t("searchPlaceholder")}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="pl-9 pr-9"
+            data-testid="classified-images-search-input"
+          />
+          {searchInput && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              data-testid="classified-images-clear-search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        <Button type="submit" data-testid="classified-images-search-button">
+          {tCommon("search")}
+        </Button>
+      </form>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-16">
           <div className="flex flex-col items-center gap-4">
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            <p className="text-sm text-muted-foreground">Loading images...</p>
+            <p className="text-sm text-muted-foreground">
+              {t("loadingImages")}
+            </p>
           </div>
         </div>
-      ) : data?.items.length === 0 ? (
+      ) : showEmpty ? (
         <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed py-16">
           <div className="rounded-full bg-muted p-4">
             <Sparkles className="h-10 w-10 text-muted-foreground" />
           </div>
-          <h3 className="mt-4 text-lg font-semibold">No classified images</h3>
+          <h3 className="mt-4 text-lg font-semibold">
+            {t("noClassifiedImages")}
+          </h3>
           <p className="mt-1 text-center text-muted-foreground">
-            Upload and classify images to see them here
+            {t("uploadAndClassify")}
           </p>
           <Link href="/items/new" className="mt-6">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Add Item
+              {tCommon("add")} {tCommon("item")}
             </Button>
           </Link>
+        </div>
+      ) : showNoResults ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed py-16">
+          <div className="rounded-full bg-muted p-4">
+            <Search className="h-10 w-10 text-muted-foreground" />
+          </div>
+          <h3 className="mt-4 text-lg font-semibold">{t("noSearchResults")}</h3>
+          <p className="mt-1 text-center text-muted-foreground">
+            {t("noSearchResultsDescription")}
+          </p>
+          <Button
+            variant="outline"
+            className="mt-6"
+            onClick={clearSearch}
+            data-testid="classified-images-clear-search-results"
+          >
+            {t("clearSearch")}
+          </Button>
         </div>
       ) : (
         <>
@@ -113,11 +197,12 @@ export default function ClassifiedImagesPage() {
                   type="button"
                   onClick={() => setSelectedImage(image)}
                   className="group overflow-hidden rounded-xl border bg-card text-left transition-all hover:border-primary/50 hover:shadow-lg"
+                  data-testid={`classified-image-card-${image.id}`}
                 >
                   <div className="relative aspect-square bg-muted">
                     <AuthenticatedImage
                       imageId={image.id}
-                      alt={result?.identified_name || "Classified image"}
+                      alt={result?.identified_name || t("unknown")}
                       thumbnail
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                       fallback={
@@ -128,24 +213,24 @@ export default function ClassifiedImagesPage() {
                     />
                     <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-green-500 px-2 py-1 text-xs font-medium text-white">
                       <Check className="h-3 w-3" />
-                      Identified
+                      {t("identified")}
                     </div>
                   </div>
                   <div className="p-4">
                     <h3 className="truncate font-semibold transition-colors group-hover:text-primary">
-                      {result?.identified_name || "Unknown"}
+                      {result?.identified_name || t("unknown")}
                     </h3>
                     <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                      {result?.category_path || "No category"}
+                      {result?.category_path || t("noCategory")}
                     </p>
                     <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
                       <span>
                         {result?.confidence
                           ? formatConfidence(result.confidence)
                           : "N/A"}{" "}
-                        confidence
+                        {t("confidence")}
                       </span>
-                      <span>{formatDate(image.created_at)}</span>
+                      <span>{formatDateTime(image.created_at)}</span>
                     </div>
                   </div>
                 </button>
@@ -161,13 +246,15 @@ export default function ClassifiedImagesPage() {
                 disabled={page <= 1}
                 onClick={() => updatePage(page - 1)}
                 className="gap-1"
+                data-testid="classified-images-prev-page"
               >
                 <ChevronLeft className="h-4 w-4" />
-                Previous
+                {tCommon("previous")}
               </Button>
               <span className="text-sm text-muted-foreground">
-                Page <span className="font-medium text-foreground">{page}</span>{" "}
-                of{" "}
+                {tCommon("page")}{" "}
+                <span className="font-medium text-foreground">{page}</span>{" "}
+                {tCommon("of")}{" "}
                 <span className="font-medium text-foreground">
                   {data.total_pages}
                 </span>
@@ -178,8 +265,9 @@ export default function ClassifiedImagesPage() {
                 disabled={page >= data.total_pages}
                 onClick={() => updatePage(page + 1)}
                 className="gap-1"
+                data-testid="classified-images-next-page"
               >
-                Next
+                {tCommon("next")}
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -195,18 +283,16 @@ export default function ClassifiedImagesPage() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>
-              {aiResult?.identified_name || "Image Details"}
+              {aiResult?.identified_name || t("imageDetails")}
             </DialogTitle>
-            <DialogDescription>
-              Classification result from AI analysis
-            </DialogDescription>
+            <DialogDescription>{t("classificationResult")}</DialogDescription>
           </DialogHeader>
           {selectedImage && (
             <div className="space-y-4">
               <div className="aspect-video overflow-hidden rounded-lg bg-muted">
                 <AuthenticatedImage
                   imageId={selectedImage.id}
-                  alt={aiResult?.identified_name || "Classified image"}
+                  alt={aiResult?.identified_name || t("unknown")}
                   className="h-full w-full object-contain"
                   fallback={
                     <div className="flex h-full items-center justify-center">
@@ -221,7 +307,7 @@ export default function ClassifiedImagesPage() {
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="font-medium text-muted-foreground">
-                        Confidence
+                        {t("confidence")}
                       </p>
                       <p className="mt-1">
                         {formatConfidence(aiResult.confidence)}
@@ -229,7 +315,7 @@ export default function ClassifiedImagesPage() {
                     </div>
                     <div>
                       <p className="font-medium text-muted-foreground">
-                        Category
+                        {tCommon("name")}
                       </p>
                       <p className="mt-1">{aiResult.category_path}</p>
                     </div>
@@ -237,7 +323,7 @@ export default function ClassifiedImagesPage() {
 
                   <div>
                     <p className="font-medium text-muted-foreground">
-                      Description
+                      {t("description")}
                     </p>
                     <p className="mt-1 text-sm">{aiResult.description}</p>
                   </div>
@@ -245,7 +331,7 @@ export default function ClassifiedImagesPage() {
                   {aiResult.quantity_estimate && (
                     <div>
                       <p className="font-medium text-muted-foreground">
-                        Quantity Estimate
+                        {t("quantityEstimate")}
                       </p>
                       <p className="mt-1 text-sm">
                         {aiResult.quantity_estimate}
@@ -257,7 +343,7 @@ export default function ClassifiedImagesPage() {
                     Object.keys(aiResult.specifications).length > 0 && (
                       <div>
                         <p className="font-medium text-muted-foreground">
-                          Specifications
+                          {t("specifications")}
                         </p>
                         <div className="mt-1 grid grid-cols-2 gap-2 text-sm">
                           {Object.entries(aiResult.specifications).map(
@@ -279,7 +365,7 @@ export default function ClassifiedImagesPage() {
                     aiResult.alternative_suggestions.length > 0 && (
                       <div>
                         <p className="font-medium text-muted-foreground">
-                          Alternative Suggestions
+                          {t("alternativeSuggestions")}
                         </p>
                         <div className="mt-1 flex flex-wrap gap-2">
                           {aiResult.alternative_suggestions.map((alt, i) => (
@@ -298,9 +384,12 @@ export default function ClassifiedImagesPage() {
 
               <div className="flex justify-between border-t pt-4 text-xs text-muted-foreground">
                 <span>
-                  Filename: {selectedImage.original_filename || "Unknown"}
+                  {t("filename")}:{" "}
+                  {selectedImage.original_filename || t("unknown")}
                 </span>
-                <span>Classified: {formatDate(selectedImage.created_at)}</span>
+                <span>
+                  {t("classified")}: {formatDateTime(selectedImage.created_at)}
+                </span>
               </div>
 
               {!selectedImage.item_id && (
@@ -309,9 +398,9 @@ export default function ClassifiedImagesPage() {
                     href={`/items/new?image_id=${selectedImage.id}`}
                     onClick={() => setSelectedImage(null)}
                   >
-                    <Button>
+                    <Button data-testid="create-item-from-image">
                       <Plus className="mr-2 h-4 w-4" />
-                      Create Item from This
+                      {t("createItemFromThis")}
                     </Button>
                   </Link>
                 </div>

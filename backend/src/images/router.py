@@ -160,10 +160,14 @@ async def list_classified_images(
     user_id: CurrentUserIdDep,
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
+    search: str | None = Query(None, description="Search by identified item name"),
 ) -> PaginatedImagesResponse:
-    """List all images that have been classified by AI."""
+    """List all images that have been classified by AI.
+
+    Supports optional search by the identified item name (case-insensitive partial match).
+    """
     repo = ImageRepository(session, user_id)
-    images, total = await repo.get_classified_images(page, limit)
+    images, total = await repo.get_classified_images(page, limit, search)
     items = [ImageResponse.model_validate(img) for img in images]
     return PaginatedImagesResponse.create(items, total, page, limit)
 

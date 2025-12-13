@@ -376,10 +376,16 @@ export const imagesApi = {
       { method: "POST" }
     ),
 
-  listClassified: (page = 1, limit = 12) =>
-    apiRequest<PaginatedResponse<Image>>(
-      `/api/v1/images/classified?page=${page}&limit=${limit}`
-    ),
+  listClassified: (page = 1, limit = 12, search?: string) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (search) params.set("search", search);
+    return apiRequest<PaginatedResponse<Image>>(
+      `/api/v1/images/classified?${params}`
+    );
+  },
 };
 
 // Types
