@@ -199,6 +199,104 @@ git push --force-with-lease
 
 This triggers a new pipeline with the correct merged result.
 
+### Flaky E2E Playwright Tests
+**Symptom:** `e2e:playwright` job fails with navigation or element interaction errors like:
+- `expect(page).toHaveURL(expected) failed` - page stays on wrong URL after click
+- `Element not found` or `Element not visible` errors
+- Tests pass locally but fail in CI
+
+**Cause:** CI environments are slower than local machines. Elements may not be fully interactive when clicked, or navigation may take longer than the default timeout.
+
+**Diagnosis:**
+```bash
+# Get the e2e job trace
+glab api "projects/:id/pipelines/<PIPELINE_ID>/jobs" | jq '.[] | select(.name == "e2e:playwright") | .id'
+glab api "projects/:id/jobs/<JOB_ID>/trace" | tail -200
+```
+
+Look for patterns like:
+- `Timeout: 5000ms` - default assertion timeout may be too short
+- `unexpected value "http://localhost:3000/dashboard"` - navigation didn't happen
+- Element clicks that don't trigger expected behavior
+
+**Fix:** Improve test stability with these patterns:
+
+1. **Add `data-testid` attributes** to elements for reliable selection:
+```tsx
+// Component
+<Link href="/items" data-testid="sidebar-link-items">Items</Link>
+<Button data-testid="add-item-button">Add Item</Button>
+```
+
+2. **Wait for page to fully load** before interacting:
+```typescript
+// Wait for a key element that indicates the page is ready
+await expect(page.getByRole("heading", { name: /dashboard/i })).toBeVisible();
+```
+
+3. **Wait for elements to be visible** before clicking:
+```typescript
+const button = page.getByTestId("add-item-button");
+await button.waitFor({ state: "visible" });
+await button.click();
+```
+
+4. **Increase navigation timeout** for CI:
+```typescript
+// Default is 5000ms which may be too short in CI
+await expect(page).toHaveURL(/.*\/items/, { timeout: 10000 });
+```
+
+5. **Complete example** of a stable navigation test:
+```typescript
+test("sidebar navigation works", async ({ page, isMobile }) => {
+  await authenticateUser(page);
+  await setupApiMocks(page);
+  await page.goto("/dashboard");
+
+  // Wait for page to fully load
+  await expect(page.getByRole("heading", { name: /dashboard/i })).toBeVisible();
+
+  // On mobile, open sidebar first
+  if (isMobile) {
+    const menuButton = page.getByRole("button").filter({ has: page.locator("svg.lucide-menu") });
+    await menuButton.waitFor({ state: "visible" });
+    await menuButton.click();
+  }
+
+  // Use data-testid for reliable selection
+  const itemsLink = page.getByTestId("sidebar-link-items");
+  await itemsLink.waitFor({ state: "visible" });
+  await itemsLink.click();
+
+  // Longer timeout for CI
+  await expect(page).toHaveURL(/.*\/items/, { timeout: 10000 });
+});
+```
+
+**Key principles:**
+- Always add `data-testid` to interactive elements when creating new UI
+- Never assume an element is ready immediately after page load
+- Use explicit waits (`waitFor`) instead of relying on implicit timeouts
+- Increase assertion timeouts for navigation checks in CI
+
+### CI Quota Exceeded
+**Symptom:** All jobs in pipeline show `failed` status almost immediately
+
+**Diagnosis:**
+```bash
+# Check job failure reason
+glab api "projects/:id/jobs/<JOB_ID>" | jq '{status, failure_reason}'
+# Output: { "status": "failed", "failure_reason": "ci_quota_exceeded" }
+```
+
+**Cause:** GitLab CI minutes have run out for the month/billing period.
+
+**Fix:** This is not a code issue. Options:
+- Wait for CI quota to reset (monthly)
+- Purchase additional CI minutes
+- Use a self-hosted runner
+
 ## Requirements
 - Always use the todo list to track progress
 - Use specialized agents (Explore, Plan, playwright-e2e-architect) where appropriate
