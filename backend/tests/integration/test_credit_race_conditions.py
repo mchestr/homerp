@@ -20,6 +20,12 @@ from src.users.models import User
 class TestCreditDeductionRaceConditions:
     """Tests for credit deduction race conditions."""
 
+    @pytest.mark.xfail(
+        reason="SECURITY: Race condition allows multiple concurrent deductions. "
+        "Current implementation doesn't use database-level locking (SELECT FOR UPDATE). "
+        "Implement proper locking in CreditService.deduct_credit() to fix.",
+        strict=False,  # Race conditions don't always manifest in single-session tests
+    )
     async def test_concurrent_deductions_dont_go_negative(
         self,
         async_session: AsyncSession,
@@ -28,8 +34,12 @@ class TestCreditDeductionRaceConditions:
     ):
         """Multiple concurrent deductions should not result in negative balance.
 
-        This test documents the current behavior. If this test fails,
-        it means a race condition allowed more credits to be used than available.
+        SECURITY ISSUE: Current implementation allows race conditions because
+        it doesn't use database-level locking (SELECT FOR UPDATE). Multiple
+        concurrent requests can deduct credits simultaneously, potentially
+        resulting in negative balances or more credits used than available.
+
+        Expected behavior: Only 1 deduction should succeed when user has 1 credit.
         """
         credit_service = CreditService(async_session, test_settings)
         user_id = user_with_one_credit.id
@@ -55,21 +65,11 @@ class TestCreditDeductionRaceConditions:
             + user_with_one_credit.free_credits_remaining
         )
 
-        # IMPORTANT: This test documents current behavior
-        # Current implementation may allow race conditions because it doesn't use
-        # database-level locking (SELECT FOR UPDATE).
-        # If successful_deductions > 1, there's a race condition vulnerability
-        if successful_deductions > 1:
-            # Document the vulnerability - this should ideally be fixed
-            pytest.skip(
-                f"Race condition detected: {successful_deductions} deductions succeeded "
-                f"but user only had 1 credit. Final balance: {final_balance}. "
-                "Consider adding database-level locking to prevent this."
-            )
-        else:
-            # Expected behavior - only 1 deduction succeeded
-            assert successful_deductions == 1
-            assert final_balance >= 0
+        # EXPECTED: Only 1 deduction succeeds, balance >= 0
+        assert successful_deductions == 1, (
+            f"Race condition: {successful_deductions} deductions succeeded but user had 1 credit"
+        )
+        assert final_balance >= 0, f"Balance went negative: {final_balance}"
 
     async def test_sequential_deductions_work_correctly(
         self,

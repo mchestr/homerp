@@ -22,6 +22,11 @@ from src.items.models import Item
 from src.locations.models import Location
 from src.users.models import User
 
+# Image dimension constants for test images
+SMALL_IMAGE_DIMENSIONS = (10, 10)  # Creates ~1KB JPEG
+LARGE_IMAGE_DIMENSIONS = (4000, 4000)  # Creates ~5MB compressed JPEG
+OVERSIZED_IMAGE_DIMENSIONS = (5000, 5000)  # Exceeds 10MB limit as BMP
+
 
 def create_test_image_bytes(
     width: int = 100,
@@ -39,7 +44,7 @@ def create_test_image_bytes(
 @pytest.fixture
 def small_test_image() -> bytes:
     """Create a small valid JPEG image (under 1KB)."""
-    return create_test_image_bytes(10, 10, "JPEG")
+    return create_test_image_bytes(*SMALL_IMAGE_DIMENSIONS, "JPEG")
 
 
 @pytest.fixture
@@ -47,7 +52,7 @@ def large_test_image() -> bytes:
     """Create a large JPEG image (about 5MB uncompressed, but compressed)."""
     # Create a large image that will be > 10MB to test size limits
     # Using large dimensions to increase file size
-    return create_test_image_bytes(4000, 4000, "JPEG")
+    return create_test_image_bytes(*LARGE_IMAGE_DIMENSIONS, "JPEG")
 
 
 @pytest.fixture
@@ -57,10 +62,9 @@ def oversized_test_image() -> bytes:
     This creates raw bytes that will exceed 10MB when processed.
     We create it as uncompressed PNG to ensure large size.
     """
-    # Create a very large image as PNG (no compression)
-    img = PILImage.new("RGB", (5000, 5000), color=(255, 0, 0))
+    # Create a very large image as BMP (no compression) to guarantee large size
+    img = PILImage.new("RGB", OVERSIZED_IMAGE_DIMENSIONS, color=(255, 0, 0))
     buffer = BytesIO()
-    # Use BMP format which is uncompressed to guarantee large size
     img.save(buffer, format="BMP")
     return buffer.getvalue()
 
