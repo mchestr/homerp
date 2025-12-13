@@ -111,16 +111,22 @@ test.describe("Location Detail Page", () => {
   test("shows breadcrumb navigation", async ({ page }) => {
     await page.goto("/locations/loc-1");
 
-    // Should have breadcrumb with Locations link
-    await expect(page.getByRole("link", { name: "Locations" })).toBeVisible();
+    // Should have breadcrumb with Locations link (use main to exclude sidebar)
+    await expect(
+      page.getByRole("main").getByRole("link", { name: "Locations" })
+    ).toBeVisible();
   });
 
   test("shows child location with parent in breadcrumb", async ({ page }) => {
     await page.goto("/locations/loc-2");
 
-    // Should show breadcrumb with parent
-    await expect(page.getByRole("link", { name: "Locations" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Workshop" })).toBeVisible();
+    // Should show breadcrumb with parent (use main to exclude sidebar)
+    await expect(
+      page.getByRole("main").getByRole("link", { name: "Locations" })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("main").getByRole("link", { name: "Workshop" })
+    ).toBeVisible();
     // Use heading role since "Shelf A" appears in both breadcrumb and h1
     await expect(page.getByRole("heading", { name: "Shelf A" })).toBeVisible();
   });
@@ -144,6 +150,11 @@ test.describe("Location Detail Page", () => {
 
   test("shows not found for invalid location", async ({ page }) => {
     await page.goto("/locations/invalid-id");
+
+    // Wait for loading to finish and error state to appear
+    await expect(page.getByText("Loading...")).not.toBeVisible({
+      timeout: 10000,
+    });
 
     // Should show not found message (uses h2 heading)
     await expect(

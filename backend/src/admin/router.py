@@ -352,7 +352,8 @@ async def get_stats(
     total_credits_used = abs(used_result.scalar() or 0)
 
     # Recent signups (last 7 days)
-    seven_days_ago = datetime.now(UTC) - timedelta(days=7)
+    # Use naive datetime since database column is TIMESTAMP WITHOUT TIME ZONE
+    seven_days_ago = datetime.now(UTC).replace(tzinfo=None) - timedelta(days=7)
     recent_signups_result = await session.execute(
         select(func.count(User.id)).where(User.created_at >= seven_days_ago)
     )

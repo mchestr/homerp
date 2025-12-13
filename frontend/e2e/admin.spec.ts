@@ -12,7 +12,7 @@ test.describe("Admin Access Control", () => {
     await page.goto("/admin");
 
     await expect(
-      page.getByRole("heading", { name: "Admin Dashboard" })
+      page.getByRole("heading", { name: "Admin Panel" })
     ).toBeVisible();
   });
 

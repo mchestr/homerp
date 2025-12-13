@@ -359,9 +359,9 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     });
   });
 
-  // With ancestors endpoint
+  // With ancestors endpoint - use glob pattern for consistency
   await page.route(
-    /\/api\/v1\/locations\/[^/]+\/with-ancestors$/,
+    "**/api/v1/locations/*/with-ancestors",
     async (route) => {
       const url = route.request().url();
       const parts = url.split("/");

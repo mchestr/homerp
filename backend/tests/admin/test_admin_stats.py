@@ -84,6 +84,7 @@ class TestAdminStats:
             user_id=test_user.id,
             amount=credit_pack.credits,
             transaction_type="purchase",
+            description="Normal purchase",
             credit_pack_id=credit_pack.id,
             is_refunded=False,
         )
@@ -93,6 +94,7 @@ class TestAdminStats:
             user_id=test_user.id,
             amount=credit_pack.credits,
             transaction_type="purchase",
+            description="Refunded purchase",
             credit_pack_id=credit_pack.id,
             is_refunded=True,
         )
@@ -135,13 +137,15 @@ class TestAdminStats:
     ):
         """Test that stats endpoint returns correct recent signups count."""
         # Create users with different signup dates
+        # Use naive datetimes since database column is TIMESTAMP WITHOUT TIME ZONE
+        now = datetime.now(UTC).replace(tzinfo=None)
         recent_user = User(
             id=uuid.uuid4(),
             email="recent@example.com",
             name="Recent User",
             oauth_provider="google",
             oauth_id="google_recent",
-            created_at=datetime.now(UTC) - timedelta(days=2),
+            created_at=now - timedelta(days=2),
         )
         old_user = User(
             id=uuid.uuid4(),
@@ -149,7 +153,7 @@ class TestAdminStats:
             name="Old User",
             oauth_provider="google",
             oauth_id="google_old",
-            created_at=datetime.now(UTC) - timedelta(days=10),
+            created_at=now - timedelta(days=10),
         )
         async_session.add_all([recent_user, old_user])
         await async_session.commit()
