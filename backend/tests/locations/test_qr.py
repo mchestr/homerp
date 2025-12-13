@@ -33,7 +33,9 @@ async def test_location(
 ) -> Location:
     """Create a test location."""
     location = await location_service.create(
-        LocationCreate(name="Workshop", description="Main workshop", location_type="room")
+        LocationCreate(
+            name="Workshop", description="Main workshop", location_type="room"
+        )
     )
     await async_session.commit()
     return location
@@ -42,9 +44,7 @@ async def test_location(
 class TestQRCodeService:
     """Tests for QR code generation service."""
 
-    def test_generate_qr_returns_png_bytes(
-        self, qr_service: QRCodeService
-    ):
+    def test_generate_qr_returns_png_bytes(self, qr_service: QRCodeService):
         """Test that generate_location_qr returns PNG image bytes."""
         location_id = uuid.uuid4()
         qr_bytes = qr_service.generate_location_qr(location_id)
@@ -55,7 +55,9 @@ class TestQRCodeService:
         assert qr_bytes[:8] == b"\x89PNG\r\n\x1a\n"
 
     def test_generate_qr_contains_correct_url(
-        self, qr_service: QRCodeService, test_settings: Settings  # noqa: ARG002
+        self,
+        qr_service: QRCodeService,
+        test_settings: Settings,  # noqa: ARG002
     ):
         """Test that QR code encodes the correct URL."""
         location_id = uuid.uuid4()
@@ -64,9 +66,7 @@ class TestQRCodeService:
         qr_bytes = qr_service.generate_location_qr(location_id)
         assert len(qr_bytes) > 0
 
-    def test_generate_qr_with_different_sizes(
-        self, qr_service: QRCodeService
-    ):
+    def test_generate_qr_with_different_sizes(self, qr_service: QRCodeService):
         """Test generating QR codes with different size parameters."""
         location_id = uuid.uuid4()
 
@@ -77,9 +77,7 @@ class TestQRCodeService:
         # Larger sizes should produce larger files
         assert len(small) < len(medium) < len(large)
 
-    def test_generate_qr_with_custom_border(
-        self, qr_service: QRCodeService
-    ):
+    def test_generate_qr_with_custom_border(self, qr_service: QRCodeService):
         """Test generating QR codes with custom border."""
         location_id = uuid.uuid4()
 

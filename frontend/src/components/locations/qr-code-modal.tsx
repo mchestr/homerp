@@ -114,7 +114,7 @@ export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
     >
       <div
         ref={modalRef}
-        className="w-full max-w-md rounded-xl bg-background shadow-2xl animate-in fade-in-0 zoom-in-95 duration-200"
+        className="animate-in fade-in-0 zoom-in-95 w-full max-w-md rounded-xl bg-background shadow-2xl duration-200"
       >
         <div className="flex items-center justify-between border-b p-4">
           <div className="flex items-center gap-2">
@@ -147,7 +147,9 @@ export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
           </div>
 
           <div className="mb-4">
-            <label className="mb-2 block text-sm font-medium">{t("size")}</label>
+            <label className="mb-2 block text-sm font-medium">
+              {t("size")}
+            </label>
             <div className="flex gap-2">
               {SIZE_OPTIONS.map((option) => (
                 <button

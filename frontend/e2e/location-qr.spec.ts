@@ -37,9 +37,7 @@ test.describe("Location QR Code", () => {
 
     // Modal should show location name
     await expect(page.getByRole("dialog")).toBeVisible();
-    await expect(
-      page.getByRole("dialog").getByText("Workshop")
-    ).toBeVisible();
+    await expect(page.getByRole("dialog").getByText("Workshop")).toBeVisible();
   });
 
   test("can close QR code modal", async ({ page }) => {
@@ -148,7 +146,9 @@ test.describe("Location Detail Page", () => {
 
     // Should show not found message
     await expect(page.getByText(/not found/i)).toBeVisible();
-    await expect(page.getByRole("link", { name: /back to locations/i })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /back to locations/i })
+    ).toBeVisible();
   });
 
   test("has Edit and Add Item buttons", async ({ page }) => {
@@ -172,7 +172,10 @@ test.describe("Navigation from Locations Page", () => {
     await expect(page.getByText("Workshop")).toBeVisible();
 
     // Click the view details link
-    await page.getByRole("link", { name: /view details/i }).first().click();
+    await page
+      .getByRole("link", { name: /view details/i })
+      .first()
+      .click();
 
     // Should navigate to detail page
     await expect(page).toHaveURL(/\/locations\/loc-1/);
