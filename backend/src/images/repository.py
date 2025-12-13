@@ -65,11 +65,13 @@ class ImageRepository:
 
         # Add search filter if provided
         if search:
-            # Search in JSONB ai_result->identified_name (case-insensitive)
-            search_pattern = f"%{search.lower()}%"
-            search_condition = sqla_func.lower(
-                Image.ai_result["identified_name"].astext
-            ).like(search_pattern)
+            # Escape LIKE wildcards in the search pattern
+            escaped_search = search.replace("%", r"\%").replace("_", r"\_")
+            search_pattern = f"%{escaped_search.lower()}%"
+            # Use COALESCE to handle null ai_result or missing identified_name
+            search_condition = sqla_func.coalesce(
+                sqla_func.lower(Image.ai_result["identified_name"].astext), ""
+            ).like(search_pattern, escape="\\")
             base_conditions.append(search_condition)
 
         # Count total
