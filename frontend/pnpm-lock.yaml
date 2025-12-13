@@ -69,9 +69,6 @@ importers:
         specifier: ^2.5.5
         version: 2.6.0
     devDependencies:
-      '@eslint/eslintrc':
-        specifier: ^3.3.3
-        version: 3.3.3
       '@hey-api/openapi-ts':
         specifier: ^0.88.2
         version: 0.88.2(typescript@5.9.3)
