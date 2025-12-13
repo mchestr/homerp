@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import Boolean, ForeignKey, Integer, String, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database import Base
@@ -23,7 +23,9 @@ class CreditPack(Base):
         Boolean, default=True, server_default="true"
     )
     sort_order: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
     # Relationships
     transactions: Mapped[list["CreditTransaction"]] = relationship(
@@ -57,7 +59,9 @@ class CreditTransaction(Base):
     is_refunded: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default="false"
     )
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
     # Relationships
     user: Mapped["User"] = relationship(back_populates="credit_transactions")

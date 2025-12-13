@@ -8,6 +8,7 @@ import {
   FeedbackCreate,
   FeedbackResponse,
 } from "@/lib/api/api-client";
+import { formatDate } from "@/lib/utils";
 import {
   MessageSquare,
   Send,
@@ -71,14 +72,6 @@ function getStatusLabel(status: string) {
     default:
       return status;
   }
-}
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
 }
 
 export default function FeedbackPage() {

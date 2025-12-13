@@ -396,10 +396,10 @@ class ItemRepository:
 
     async def get_dashboard_stats(self, days: int = 30) -> dict:
         """Get dashboard statistics including time series data."""
-        from datetime import datetime, timedelta
+        from datetime import UTC, datetime, timedelta
 
         # Items created over time (last N days)
-        start_date = datetime.utcnow() - timedelta(days=days)
+        start_date = datetime.now(UTC) - timedelta(days=days)
 
         date_trunc_expr = func.date_trunc("day", Item.created_at)
         items_over_time_result = await self.session.execute(
@@ -423,7 +423,7 @@ class ItemRepository:
         date_counts = {item["date"]: item["count"] for item in items_over_time}
         filled_data = []
         current_date = start_date.date()
-        end_date = datetime.utcnow().date()
+        end_date = datetime.now(UTC).date()
         while current_date <= end_date:
             date_str = current_date.strftime("%Y-%m-%d")
             filled_data.append(

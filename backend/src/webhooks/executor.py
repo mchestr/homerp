@@ -3,7 +3,7 @@
 import asyncio
 import json
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -92,7 +92,7 @@ class WebhookExecutor:
 
                 if 200 <= response.status_code < 300:
                     execution.status = "success"
-                    execution.completed_at = datetime.utcnow()
+                    execution.completed_at = datetime.now(UTC)
                     await self.repository.update_execution(execution)
                     logger.info(
                         f"Webhook {config.event_type} succeeded: {response.status_code}"
@@ -119,7 +119,7 @@ class WebhookExecutor:
 
         # All attempts exhausted
         execution.status = "failed"
-        execution.completed_at = datetime.utcnow()
+        execution.completed_at = datetime.now(UTC)
         await self.repository.update_execution(execution)
         logger.error(
             f"Webhook {config.event_type} failed after {max_attempts} attempts"

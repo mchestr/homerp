@@ -47,32 +47,22 @@ class CreditService:
 
     async def _check_and_reset_free_credits(self, user: User) -> None:
         """Reset free credits if the reset date has passed (anniversary-based)."""
-        # Use naive UTC datetime to match database column (TIMESTAMP WITHOUT TIME ZONE)
-        now = datetime.now(UTC).replace(tzinfo=None)
+        now = datetime.now(UTC)
 
         # Initialize reset date if not set (new user)
         if user.free_credits_reset_at is None:
-            # Ensure created_at is naive (strip timezone if present)
-            created_at = user.created_at
-            if created_at.tzinfo is not None:
-                created_at = created_at.replace(tzinfo=None)
-            user.free_credits_reset_at = created_at + timedelta(days=30)
+            user.free_credits_reset_at = user.created_at + timedelta(days=30)
             # Ensure new users have their initial free credits
             if user.free_credits_remaining == 0:
                 user.free_credits_remaining = self.settings.free_monthly_credits
             await self.session.commit()
             return
 
-        # Ensure reset_at is naive for comparison
-        reset_at = user.free_credits_reset_at
-        if reset_at.tzinfo is not None:
-            reset_at = reset_at.replace(tzinfo=None)
-
         # Check if reset is due
-        if now >= reset_at:
+        if now >= user.free_credits_reset_at:
             # Reset free credits
             user.free_credits_remaining = self.settings.free_monthly_credits
-            # Set next reset to 30 days from now (naive UTC)
+            # Set next reset to 30 days from now
             user.free_credits_reset_at = now + timedelta(days=30)
 
             # Log the reset transaction

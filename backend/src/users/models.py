@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import Boolean, Integer, String, func
+from sqlalchemy import Boolean, DateTime, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database import Base
@@ -20,9 +20,11 @@ class User(Base):
     avatar_url: Mapped[str | None] = mapped_column(String(500))
     oauth_provider: Mapped[str] = mapped_column(String(50), nullable=False)
     oauth_id: Mapped[str] = mapped_column(String(255), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
     updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), onupdate=func.now()
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
     # Billing fields
@@ -31,7 +33,7 @@ class User(Base):
     free_credits_remaining: Mapped[int] = mapped_column(
         Integer, default=5, server_default="5"
     )
-    free_credits_reset_at: Mapped[datetime | None] = mapped_column()
+    free_credits_reset_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     # Admin
     is_admin: Mapped[bool] = mapped_column(

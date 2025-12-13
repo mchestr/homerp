@@ -1,7 +1,7 @@
 """Webhook service for triggering webhooks on events."""
 
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 from uuid import UUID
 
 from fastapi import BackgroundTasks
@@ -42,7 +42,7 @@ class WebhookService:
             return
 
         # Add timestamp to payload
-        payload["timestamp"] = datetime.utcnow().isoformat()
+        payload["timestamp"] = datetime.now(UTC).isoformat()
 
         # Execute in background
         background_tasks.add_task(

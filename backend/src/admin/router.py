@@ -352,8 +352,7 @@ async def get_stats(
     total_credits_used = abs(used_result.scalar() or 0)
 
     # Recent signups (last 7 days)
-    # Use naive datetime since database column is TIMESTAMP WITHOUT TIME ZONE
-    seven_days_ago = datetime.now(UTC).replace(tzinfo=None) - timedelta(days=7)
+    seven_days_ago = datetime.now(UTC) - timedelta(days=7)
     recent_signups_result = await session.execute(
         select(func.count(User.id)).where(User.created_at >= seven_days_ago)
     )
@@ -441,13 +440,7 @@ async def get_stats(
         )
 
     # Sort all activity by timestamp and take most recent 15
-    # Normalize timestamps to handle mix of naive/aware datetimes from database
-    def normalize_timestamp(ts: datetime) -> datetime:
-        if ts.tzinfo is None:
-            return ts.replace(tzinfo=UTC)
-        return ts
-
-    recent_activity.sort(key=lambda x: normalize_timestamp(x.timestamp), reverse=True)
+    recent_activity.sort(key=lambda x: x.timestamp, reverse=True)
     recent_activity = recent_activity[:15]
 
     return AdminStatsResponse(

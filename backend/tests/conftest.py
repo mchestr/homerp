@@ -7,7 +7,7 @@ avoiding issues with PostgreSQL-specific types (UUID, JSONB, LtreeType).
 
 import uuid
 from collections.abc import AsyncGenerator
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -129,7 +129,7 @@ async def test_user(async_session: AsyncSession, user_id: uuid.UUID) -> User:
         oauth_id="google_123",
         credit_balance=0,
         free_credits_remaining=5,
-        free_credits_reset_at=datetime.utcnow() + timedelta(days=30),
+        free_credits_reset_at=datetime.now(UTC) + timedelta(days=30),
         is_admin=False,
     )
     async_session.add(user)
@@ -149,7 +149,7 @@ async def admin_user(async_session: AsyncSession) -> User:
         oauth_id="google_admin_123",
         credit_balance=0,
         free_credits_remaining=5,
-        free_credits_reset_at=datetime.utcnow() + timedelta(days=30),
+        free_credits_reset_at=datetime.now(UTC) + timedelta(days=30),
         is_admin=True,
     )
     async_session.add(user)
@@ -169,7 +169,7 @@ async def user_with_purchased_credits(async_session: AsyncSession) -> User:
         oauth_id="google_purchaser_123",
         credit_balance=100,
         free_credits_remaining=5,
-        free_credits_reset_at=datetime.utcnow() + timedelta(days=30),
+        free_credits_reset_at=datetime.now(UTC) + timedelta(days=30),
         is_admin=False,
     )
     async_session.add(user)
@@ -189,7 +189,7 @@ async def user_with_no_credits(async_session: AsyncSession) -> User:
         oauth_id="google_nocredits_123",
         credit_balance=0,
         free_credits_remaining=0,
-        free_credits_reset_at=datetime.utcnow() + timedelta(days=30),
+        free_credits_reset_at=datetime.now(UTC) + timedelta(days=30),
         is_admin=False,
     )
     async_session.add(user)
@@ -209,7 +209,7 @@ async def user_with_expired_free_credits(async_session: AsyncSession) -> User:
         oauth_id="google_expired_123",
         credit_balance=10,
         free_credits_remaining=0,  # Used all free credits
-        free_credits_reset_at=datetime.utcnow()
+        free_credits_reset_at=datetime.now(UTC)
         - timedelta(days=1),  # Reset date passed
         is_admin=False,
     )
