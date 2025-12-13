@@ -42,8 +42,86 @@ mise run build  # or pnpm tsc --noEmit if Docker unavailable
 - Commit with a descriptive message referencing the issue
 - Push and create an MR that closes the issue
 
+### 7. Monitor & Fix Pipeline
+After pushing, monitor the pipeline and fix any failures:
+
+```bash
+# Check pipeline status
+glab ci status
+
+# View logs for a failed job
+glab api projects/mchestr%2Fhomerp/jobs/<JOB_ID>/trace | tail -100
+```
+
+## Troubleshooting Pipeline Failures
+
+### Prettier Formatting Issues
+**Symptom:** `frontend:lint` job fails with "Code style issues found"
+
+**Cause:** The pipeline runs `pnpm format:check` which fails if files aren't formatted with Prettier.
+
+**Fix:**
+```bash
+cd frontend
+pnpm exec prettier --write <affected-files>
+# Or format all files:
+pnpm exec prettier --write .
+```
+
+Then commit and push the fix:
+```bash
+git add <affected-files>
+git commit -m "style: fix prettier formatting issues"
+git push
+```
+
+### ESLint Errors
+**Symptom:** `frontend:lint` job fails with ESLint errors
+
+**Fix:** Run lint locally and fix reported issues:
+```bash
+cd frontend
+pnpm lint
+```
+
+### Backend Lint Errors
+**Symptom:** `backend:lint` job fails with ruff errors
+
+**Fix:** Run ruff with auto-fix:
+```bash
+cd backend
+uv run ruff check . --fix
+uv run ruff format .
+```
+
+### Backend Test Failures
+**Symptom:** `backend:test` job fails
+
+**Debug:** Check the test output for specific failures:
+```bash
+# Run tests locally (requires Docker for testcontainers)
+mise run test:backend
+
+# Run specific test file
+mise run test:backend -- -v tests/path/to/test.py
+```
+
+### Build Failures
+**Symptom:** `frontend:build` or `backend:build:docker` fails
+
+**Fix:** Test builds locally:
+```bash
+# Frontend build (without Docker)
+cd frontend && pnpm build
+
+# With Docker
+mise run build:frontend
+mise run build:backend
+```
+
 ## Requirements
 - Always use the todo list to track progress
 - Use specialized agents (Explore, Plan, playwright-e2e-architect) where appropriate
 - Ensure all tests pass before creating the MR
 - Include "Closes #$ARGUMENTS" in the MR description
+- Monitor the pipeline after pushing and fix any failures promptly
