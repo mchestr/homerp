@@ -121,7 +121,8 @@ test.describe("Location Detail Page", () => {
     // Should show breadcrumb with parent
     await expect(page.getByRole("link", { name: "Locations" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Workshop" })).toBeVisible();
-    await expect(page.getByText("Shelf A")).toBeVisible();
+    // Use heading role since "Shelf A" appears in both breadcrumb and h1
+    await expect(page.getByRole("heading", { name: "Shelf A" })).toBeVisible();
   });
 
   test("has QR Code button", async ({ page }) => {
@@ -144,10 +145,13 @@ test.describe("Location Detail Page", () => {
   test("shows not found for invalid location", async ({ page }) => {
     await page.goto("/locations/invalid-id");
 
-    // Should show not found message
-    await expect(page.getByText(/not found/i)).toBeVisible();
+    // Should show not found message (uses h2 heading)
     await expect(
-      page.getByRole("link", { name: /back to locations/i })
+      page.getByRole("heading", { name: /location not found/i })
+    ).toBeVisible();
+    // Back button is a button, not a link
+    await expect(
+      page.getByRole("button", { name: /back to locations/i })
     ).toBeVisible();
   });
 
