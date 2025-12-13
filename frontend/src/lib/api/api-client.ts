@@ -820,3 +820,114 @@ export const feedbackApi = {
       `/api/v1/feedback?page=${page}&limit=${limit}`
     ),
 };
+
+// Webhook Types
+export type WebhookConfig = {
+  id: string;
+  event_type: string;
+  url: string;
+  http_method: string;
+  headers: Record<string, string>;
+  body_template: string | null;
+  is_active: boolean;
+  retry_count: number;
+  timeout_seconds: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type WebhookConfigCreate = {
+  event_type: string;
+  url: string;
+  http_method?: string;
+  headers?: Record<string, string>;
+  body_template?: string;
+  is_active?: boolean;
+  retry_count?: number;
+  timeout_seconds?: number;
+};
+
+export type WebhookConfigUpdate = Partial<
+  Omit<WebhookConfigCreate, "event_type">
+>;
+
+export type WebhookExecution = {
+  id: string;
+  webhook_config_id: string;
+  event_type: string;
+  event_payload: Record<string, unknown>;
+  request_url: string;
+  request_headers: Record<string, string>;
+  request_body: string;
+  response_status: number | null;
+  response_body: string | null;
+  status: "pending" | "success" | "failed" | "retrying";
+  attempt_number: number;
+  error_message: string | null;
+  executed_at: string;
+  completed_at: string | null;
+};
+
+export type EventTypeInfo = {
+  value: string;
+  label: string;
+  variables: string[];
+};
+
+export type WebhookTestResponse = {
+  success: boolean;
+  status_code: number | null;
+  response_body: string | null;
+  error: string | null;
+};
+
+// Webhooks API
+export const webhooksApi = {
+  listEventTypes: () =>
+    apiRequest<EventTypeInfo[]>("/api/v1/webhooks/event-types"),
+
+  listConfigs: () => apiRequest<WebhookConfig[]>("/api/v1/webhooks/configs"),
+
+  getConfig: (id: string) =>
+    apiRequest<WebhookConfig>(`/api/v1/webhooks/configs/${id}`),
+
+  createConfig: (data: WebhookConfigCreate) =>
+    apiRequest<WebhookConfig>("/api/v1/webhooks/configs", {
+      method: "POST",
+      body: data,
+    }),
+
+  updateConfig: (id: string, data: WebhookConfigUpdate) =>
+    apiRequest<WebhookConfig>(`/api/v1/webhooks/configs/${id}`, {
+      method: "PUT",
+      body: data,
+    }),
+
+  deleteConfig: (id: string) =>
+    apiRequest<void>(`/api/v1/webhooks/configs/${id}`, { method: "DELETE" }),
+
+  testConfig: (id: string, testPayload?: Record<string, unknown>) =>
+    apiRequest<WebhookTestResponse>(`/api/v1/webhooks/configs/${id}/test`, {
+      method: "POST",
+      body: { test_payload: testPayload || {} },
+    }),
+
+  listExecutions: (
+    page = 1,
+    limit = 20,
+    configId?: string,
+    eventType?: string,
+    status?: string
+  ) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (configId) params.set("config_id", configId);
+    if (eventType) params.set("event_type", eventType);
+    if (status) params.set("status", status);
+    return apiRequest<PaginatedResponse<WebhookExecution>>(
+      `/api/v1/webhooks/executions?${params}`
+    );
+  },
+};

@@ -2,7 +2,7 @@
 
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query, status
 
 from src.auth.dependencies import AdminUserDep, CurrentUserIdDep
 from src.database import AsyncSessionDep
@@ -14,6 +14,8 @@ from src.feedback.schemas import (
     FeedbackResponse,
     PaginatedFeedbackResponse,
 )
+from src.users.repository import UserRepository
+from src.webhooks.service import WebhookService
 
 router = APIRouter()
 
@@ -28,10 +30,37 @@ async def create_feedback(
     data: FeedbackCreate,
     session: AsyncSessionDep,
     user_id: CurrentUserIdDep,
+    background_tasks: BackgroundTasks,
 ) -> FeedbackResponse:
     """Submit feedback."""
     repo = FeedbackRepository(session, user_id)
     feedback = await repo.create(data)
+
+    # Get user info for webhook payload
+    user_repo = UserRepository(session)
+    user = await user_repo.get_by_id(user_id)
+
+    # Trigger webhook (runs in background)
+    webhook_service = WebhookService(session)
+    await webhook_service.trigger_event(
+        event_type="feedback.created",
+        payload={
+            "feedback": {
+                "id": str(feedback.id),
+                "subject": feedback.subject,
+                "message": feedback.message,
+                "feedback_type": feedback.feedback_type,
+                "status": feedback.status,
+            },
+            "user": {
+                "id": str(user_id),
+                "email": user.email if user else None,
+                "name": user.name if user else None,
+            },
+        },
+        background_tasks=background_tasks,
+    )
+
     return FeedbackResponse.model_validate(feedback)
 
 
