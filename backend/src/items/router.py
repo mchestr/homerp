@@ -8,6 +8,8 @@ from src.common.schemas import PaginatedResponse
 from src.database import AsyncSessionDep
 from src.items.repository import ItemRepository
 from src.items.schemas import (
+    CheckInOutCreate,
+    CheckInOutResponse,
     DashboardStatsResponse,
     FacetedSearchResponse,
     FacetValue,
@@ -15,7 +17,10 @@ from src.items.schemas import (
     ItemDetailResponse,
     ItemListResponse,
     ItemUpdate,
+    ItemUsageStatsResponse,
+    MostUsedItemResponse,
     QuantityUpdate,
+    RecentlyUsedItemResponse,
 )
 
 router = APIRouter()
@@ -162,6 +167,28 @@ async def get_dashboard_stats(
     repo = ItemRepository(session, user_id)
     stats = await repo.get_dashboard_stats(days=days)
     return DashboardStatsResponse(**stats)
+
+
+@router.get("/stats/most-used")
+async def get_most_used_items(
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+    limit: int = Query(5, ge=1, le=20),
+) -> list[MostUsedItemResponse]:
+    """Get items with most check-outs for dashboard."""
+    repo = ItemRepository(session, user_id)
+    return await repo.get_most_used_items(limit=limit)
+
+
+@router.get("/stats/recently-used")
+async def get_recently_used_items(
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+    limit: int = Query(5, ge=1, le=20),
+) -> list[RecentlyUsedItemResponse]:
+    """Get items with most recent check-in/out activity."""
+    repo = ItemRepository(session, user_id)
+    return await repo.get_recently_used_items(limit=limit)
 
 
 @router.get("/search")
@@ -381,6 +408,82 @@ async def update_item_quantity(
         created_at=item.created_at,
         updated_at=item.updated_at,
     )
+
+
+@router.post("/{item_id}/check-out", status_code=status.HTTP_201_CREATED)
+async def check_out_item(
+    item_id: UUID,
+    data: CheckInOutCreate,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+) -> CheckInOutResponse:
+    """Record a check-out event for an item."""
+    repo = ItemRepository(session, user_id)
+    item = await repo.get_by_id(item_id)
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Item not found",
+        )
+    record = await repo.create_check_in_out(item_id, "check_out", data)
+    return CheckInOutResponse.model_validate(record)
+
+
+@router.post("/{item_id}/check-in", status_code=status.HTTP_201_CREATED)
+async def check_in_item(
+    item_id: UUID,
+    data: CheckInOutCreate,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+) -> CheckInOutResponse:
+    """Record a check-in event for an item."""
+    repo = ItemRepository(session, user_id)
+    item = await repo.get_by_id(item_id)
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Item not found",
+        )
+    record = await repo.create_check_in_out(item_id, "check_in", data)
+    return CheckInOutResponse.model_validate(record)
+
+
+@router.get("/{item_id}/history")
+async def get_item_history(
+    item_id: UUID,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+) -> PaginatedResponse[CheckInOutResponse]:
+    """Get check-in/out history for an item."""
+    repo = ItemRepository(session, user_id)
+    item = await repo.get_by_id(item_id)
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Item not found",
+        )
+    records, total = await repo.get_check_in_out_history(item_id, page, limit)
+    responses = [CheckInOutResponse.model_validate(r) for r in records]
+    return PaginatedResponse.create(responses, total, page, limit)
+
+
+@router.get("/{item_id}/usage-stats")
+async def get_item_usage_stats(
+    item_id: UUID,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+) -> ItemUsageStatsResponse:
+    """Get usage statistics for an item."""
+    repo = ItemRepository(session, user_id)
+    item = await repo.get_by_id(item_id)
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Item not found",
+        )
+    return await repo.get_usage_stats(item_id)
 
 
 @router.delete("/{item_id}", status_code=status.HTTP_204_NO_CONTENT)

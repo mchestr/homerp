@@ -25,7 +25,12 @@ function GoogleCallbackContent() {
         const response = await authApi.handleGoogleCallback(code, redirectUri);
 
         login(response.token.access_token, response.user);
-        router.push("/dashboard");
+
+        // Check for stored redirect URL (from QR scan or protected route access)
+        const redirectPath = sessionStorage.getItem("post_login_redirect");
+        sessionStorage.removeItem("post_login_redirect");
+
+        router.push(redirectPath || "/dashboard");
       } catch (err) {
         console.error("Callback error:", err);
         setError("Authentication failed. Please try again.");

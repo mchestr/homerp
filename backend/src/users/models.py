@@ -63,6 +63,9 @@ class User(Base):
     feedback: Mapped[list["Feedback"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    check_in_outs: Mapped[list["ItemCheckInOut"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
 
     __table_args__ = (
         # Unique constraint on oauth_provider + oauth_id
@@ -75,5 +78,5 @@ from src.billing.models import CreditTransaction  # noqa: E402
 from src.categories.models import Category  # noqa: E402
 from src.feedback.models import Feedback  # noqa: E402
 from src.images.models import Image  # noqa: E402
-from src.items.models import Item  # noqa: E402
+from src.items.models import Item, ItemCheckInOut  # noqa: E402
 from src.locations.models import Location  # noqa: E402

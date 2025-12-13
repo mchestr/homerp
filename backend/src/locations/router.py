@@ -1,7 +1,8 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import Response
 
 from src.ai.service import AIClassificationService, get_ai_service
 from src.auth.dependencies import CurrentUserIdDep
@@ -9,6 +10,7 @@ from src.billing.router import CreditServiceDep
 from src.database import AsyncSessionDep
 from src.images.repository import ImageRepository
 from src.images.storage import LocalStorage, get_storage
+from src.locations.qr import QRCodeService, get_qr_service
 from src.locations.schemas import (
     LocationAnalysisRequest,
     LocationAnalysisResponse,
@@ -19,6 +21,7 @@ from src.locations.schemas import (
     LocationResponse,
     LocationTreeNode,
     LocationUpdate,
+    LocationWithAncestors,
 )
 from src.locations.service import LocationService
 
@@ -306,6 +309,67 @@ async def move_location(
         ) from None
 
     return LocationResponse.model_validate(location)
+
+
+@router.get("/{location_id}/with-ancestors")
+async def get_location_with_ancestors(
+    location_id: UUID,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+) -> LocationWithAncestors:
+    """Get a location with its full ancestor path for breadcrumb navigation."""
+    service = LocationService(session, user_id)
+    location = await service.get_by_id(location_id)
+    if not location:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Location not found",
+        )
+
+    ancestors = await service.get_ancestors(location)
+
+    return LocationWithAncestors(
+        id=location.id,
+        name=location.name,
+        description=location.description,
+        location_type=location.location_type,
+        parent_id=location.parent_id,
+        path=str(location.path) if location.path else "",
+        created_at=location.created_at,
+        ancestors=[LocationResponse.model_validate(a) for a in ancestors],
+    )
+
+
+@router.get("/{location_id}/qr")
+async def get_location_qr_code(
+    location_id: UUID,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+    qr_service: Annotated[QRCodeService, Depends(get_qr_service)],
+    size: int = Query(10, ge=1, le=40, description="Scale factor (1-40)"),
+) -> Response:
+    """Generate a QR code PNG for a location.
+
+    The QR code contains the location's URL for scanning.
+    """
+    service = LocationService(session, user_id)
+    location = await service.get_by_id(location_id)
+    if not location:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Location not found",
+        )
+
+    qr_bytes = qr_service.generate_location_qr(location_id, size=size)
+
+    return Response(
+        content=qr_bytes,
+        media_type="image/png",
+        headers={
+            "Content-Disposition": f'inline; filename="location-{location_id}-qr.png"',
+            "Cache-Control": "public, max-age=86400",
+        },
+    )
 
 
 @router.delete("/{location_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, Integer, Numeric, String, func
+from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, func
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -47,6 +47,9 @@ class Item(Base):
     images: Mapped[list["Image"]] = relationship(
         back_populates="item", cascade="all, delete-orphan"
     )
+    check_in_outs: Mapped[list["ItemCheckInOut"]] = relationship(
+        back_populates="item", cascade="all, delete-orphan"
+    )
 
     @property
     def is_low_stock(self) -> bool:
@@ -54,6 +57,35 @@ class Item(Base):
         if self.min_quantity is None:
             return False
         return self.quantity < self.min_quantity
+
+
+class ItemCheckInOut(Base):
+    """Track item check-in/out events for usage history."""
+
+    __tablename__ = "item_check_in_outs"
+
+    id: Mapped[UUID] = mapped_column(
+        primary_key=True, server_default=func.gen_random_uuid()
+    )
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    item_id: Mapped[UUID] = mapped_column(
+        ForeignKey("items.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    action_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    quantity: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    notes: Mapped[str | None] = mapped_column(String(500))
+    occurred_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    # Relationships
+    user: Mapped["User"] = relationship(back_populates="check_in_outs")
+    item: Mapped["Item"] = relationship(back_populates="check_in_outs")
 
 
 # Import at bottom to avoid circular imports

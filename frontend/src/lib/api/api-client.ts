@@ -229,6 +229,35 @@ export const itemsApi = {
     apiRequest<DashboardStatsResponse>(
       `/api/v1/items/stats/dashboard?days=${days}`
     ),
+
+  // Check-in/out operations
+  checkOut: (id: string, data: CheckInOutCreate = {}) =>
+    apiRequest<CheckInOutResponse>(`/api/v1/items/${id}/check-out`, {
+      method: "POST",
+      body: data,
+    }),
+
+  checkIn: (id: string, data: CheckInOutCreate = {}) =>
+    apiRequest<CheckInOutResponse>(`/api/v1/items/${id}/check-in`, {
+      method: "POST",
+      body: data,
+    }),
+
+  getHistory: (id: string, page = 1, limit = 20) =>
+    apiRequest<PaginatedResponse<CheckInOutResponse>>(
+      `/api/v1/items/${id}/history?page=${page}&limit=${limit}`
+    ),
+
+  getUsageStats: (id: string) =>
+    apiRequest<ItemUsageStats>(`/api/v1/items/${id}/usage-stats`),
+
+  getMostUsed: (limit = 5) =>
+    apiRequest<MostUsedItem[]>(`/api/v1/items/stats/most-used?limit=${limit}`),
+
+  getRecentlyUsed: (limit = 5) =>
+    apiRequest<RecentlyUsedItem[]>(
+      `/api/v1/items/stats/recently-used?limit=${limit}`
+    ),
 };
 
 // Categories API
@@ -277,6 +306,14 @@ export const locationsApi = {
   tree: () => apiRequest<LocationTreeNode[]>("/api/v1/locations/tree"),
 
   get: (id: string) => apiRequest<Location>(`/api/v1/locations/${id}`),
+
+  getWithAncestors: (id: string) =>
+    apiRequest<LocationWithAncestors>(`/api/v1/locations/${id}/with-ancestors`),
+
+  getQrCodeUrl: (id: string, size?: number) => {
+    const params = size ? `?size=${size}` : "";
+    return `${getApiBaseUrl()}/api/v1/locations/${id}/qr${params}`;
+  },
 
   getDescendants: (id: string) =>
     apiRequest<Location[]>(`/api/v1/locations/${id}/descendants`),
@@ -436,6 +473,10 @@ export type LocationTreeNode = {
   children: LocationTreeNode[];
 };
 
+export type LocationWithAncestors = Location & {
+  ancestors: Location[];
+};
+
 export type LocationCreate = {
   name: string;
   description?: string;
@@ -553,6 +594,48 @@ export type DashboardStatsResponse = {
   total_quantity: number;
   categories_used: number;
   locations_used: number;
+};
+
+// Check-in/out types
+export type CheckInOutCreate = {
+  quantity?: number;
+  notes?: string;
+  occurred_at?: string;
+};
+
+export type CheckInOutResponse = {
+  id: string;
+  item_id: string;
+  action_type: "check_in" | "check_out";
+  quantity: number;
+  notes: string | null;
+  occurred_at: string;
+  created_at: string;
+};
+
+export type ItemUsageStats = {
+  total_check_outs: number;
+  total_check_ins: number;
+  total_quantity_out: number;
+  total_quantity_in: number;
+  last_check_out: string | null;
+  last_check_in: string | null;
+  currently_checked_out: number;
+};
+
+export type MostUsedItem = {
+  id: string;
+  name: string;
+  total_check_outs: number;
+  primary_image_url: string | null;
+};
+
+export type RecentlyUsedItem = {
+  id: string;
+  name: string;
+  last_used: string;
+  action_type: "check_in" | "check_out";
+  primary_image_url: string | null;
 };
 
 export type PaginatedResponse<T> = {
@@ -702,6 +785,17 @@ export type UserAdminUpdate = {
   is_admin: boolean;
 };
 
+export type RecentActivityItem = {
+  id: string;
+  type: "signup" | "feedback" | "purchase" | "credit_usage";
+  title: string;
+  description: string | null;
+  user_email: string | null;
+  user_name: string | null;
+  timestamp: string;
+  metadata?: Record<string, unknown>;
+};
+
 export type AdminStats = {
   total_users: number;
   total_items: number;
@@ -709,6 +803,9 @@ export type AdminStats = {
   active_credit_packs: number;
   total_credits_purchased: number;
   total_credits_used: number;
+  recent_signups_7d: number;
+  pending_feedback_count: number;
+  recent_activity: RecentActivityItem[];
 };
 
 // Admin API

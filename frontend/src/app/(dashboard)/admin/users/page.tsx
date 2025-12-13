@@ -215,105 +215,193 @@ export default function AdminUsersPage() {
         </div>
       ) : (
         <>
-          <div className="rounded-xl border bg-card">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b text-left text-sm text-muted-foreground">
-                  <th className="px-4 py-3 font-medium">User</th>
-                  <th className="px-4 py-3 font-medium">Credits</th>
-                  <th className="px-4 py-3 font-medium">Free Credits</th>
-                  <th className="px-4 py-3 font-medium">Joined</th>
-                  <th className="px-4 py-3 font-medium">Admin</th>
-                  <th className="px-4 py-3 text-right font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {usersData?.items.map((u) => (
-                  <tr key={u.id} className="border-b last:border-0">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        {u.avatar_url ? (
-                          <img
-                            src={u.avatar_url}
-                            alt=""
-                            className="h-8 w-8 rounded-full"
-                          />
-                        ) : (
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">
-                            {u.email[0].toUpperCase()}
-                          </div>
-                        )}
-                        <div>
-                          <p className="font-medium">{u.name || "No name"}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {u.email}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">{u.credit_balance}</td>
-                    <td className="px-4 py-3">{u.free_credits_remaining}</td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">
-                      {formatDate(u.created_at)}
-                    </td>
-                    <td className="px-4 py-3">
-                      {u.is_admin ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
-                          <Shield className="h-3 w-3" /> Admin
-                        </span>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">-</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openCreditAdjustment(u)}
-                        >
-                          <Coins className="mr-1 h-4 w-4" />
-                          Adjust Credits
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleAdminToggle(u)}
-                          disabled={u.id === user.id}
-                          title={
-                            u.id === user.id
-                              ? "Cannot change your own admin status"
-                              : ""
-                          }
-                        >
-                          {u.is_admin ? (
-                            <>
-                              <ShieldOff className="mr-1 h-4 w-4" />
-                              Revoke Admin
-                            </>
+          {/* Desktop Table View */}
+          <div className="hidden rounded-xl border bg-card md:block">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b text-left text-sm text-muted-foreground">
+                    <th className="px-4 py-3 font-medium">User</th>
+                    <th className="px-4 py-3 font-medium">Credits</th>
+                    <th className="px-4 py-3 font-medium">Free Credits</th>
+                    <th className="px-4 py-3 font-medium">Joined</th>
+                    <th className="px-4 py-3 font-medium">Admin</th>
+                    <th className="px-4 py-3 text-right font-medium">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {usersData?.items.map((u) => (
+                    <tr key={u.id} className="border-b last:border-0">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          {u.avatar_url ? (
+                            <img
+                              src={u.avatar_url}
+                              alt=""
+                              className="h-8 w-8 rounded-full"
+                            />
                           ) : (
-                            <>
-                              <Shield className="mr-1 h-4 w-4" />
-                              Make Admin
-                            </>
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">
+                              {u.email[0].toUpperCase()}
+                            </div>
                           )}
-                        </Button>
+                          <div>
+                            <p className="font-medium">{u.name || "No name"}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {u.email}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">{u.credit_balance}</td>
+                      <td className="px-4 py-3">{u.free_credits_remaining}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                        {formatDate(u.created_at)}
+                      </td>
+                      <td className="px-4 py-3">
+                        {u.is_admin ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+                            <Shield className="h-3 w-3" /> Admin
+                          </span>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">
+                            -
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openCreditAdjustment(u)}
+                          >
+                            <Coins className="mr-1 h-4 w-4" />
+                            Adjust Credits
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleAdminToggle(u)}
+                            disabled={u.id === user.id}
+                            title={
+                              u.id === user.id
+                                ? "Cannot change your own admin status"
+                                : ""
+                            }
+                          >
+                            {u.is_admin ? (
+                              <>
+                                <ShieldOff className="mr-1 h-4 w-4" />
+                                Revoke Admin
+                              </>
+                            ) : (
+                              <>
+                                <Shield className="mr-1 h-4 w-4" />
+                                Make Admin
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {(!usersData?.items || usersData.items.length === 0) && (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className="px-4 py-8 text-center text-muted-foreground"
+                      >
+                        No users found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="space-y-3 md:hidden">
+            {usersData?.items.map((u) => (
+              <div key={u.id} className="rounded-xl border bg-card p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    {u.avatar_url ? (
+                      <img
+                        src={u.avatar_url}
+                        alt=""
+                        className="h-10 w-10 rounded-full"
+                      />
+                    ) : (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">
+                        {u.email[0].toUpperCase()}
                       </div>
-                    </td>
-                  </tr>
-                ))}
-                {(!usersData?.items || usersData.items.length === 0) && (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-4 py-8 text-center text-muted-foreground"
-                    >
-                      No users found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                    )}
+                    <div>
+                      <p className="font-medium">{u.name || "No name"}</p>
+                      <p className="text-sm text-muted-foreground">{u.email}</p>
+                    </div>
+                  </div>
+                  {u.is_admin && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+                      <Shield className="h-3 w-3" /> Admin
+                    </span>
+                  )}
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-2 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Credits</p>
+                    <p className="font-medium">{u.credit_balance}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Free</p>
+                    <p className="font-medium">{u.free_credits_remaining}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Joined</p>
+                    <p className="font-medium">{formatDate(u.created_at)}</p>
+                  </div>
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => openCreditAdjustment(u)}
+                  >
+                    <Coins className="mr-1 h-4 w-4" />
+                    Adjust
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => handleAdminToggle(u)}
+                    disabled={u.id === user.id}
+                  >
+                    {u.is_admin ? (
+                      <>
+                        <ShieldOff className="mr-1 h-4 w-4" />
+                        Revoke
+                      </>
+                    ) : (
+                      <>
+                        <Shield className="mr-1 h-4 w-4" />
+                        Admin
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            ))}
+            {(!usersData?.items || usersData.items.length === 0) && (
+              <div className="rounded-xl border bg-card p-8 text-center text-muted-foreground">
+                No users found
+              </div>
+            )}
           </div>
 
           {/* Pagination */}
