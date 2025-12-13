@@ -58,13 +58,15 @@ mise run build
 After pushing, monitor the pipeline and fix any failures:
 
 ```bash
-# Check pipeline status
+# Check pipeline status for current branch
 glab ci status
 
-# List recent pipelines (find your MR's pipeline)
-glab ci list --per-page 10
+# Get pipeline directly for a specific MR (most reliable method)
+glab api "projects/:id/merge_requests/4/pipelines"
+# Returns: [{"id":2212521051,"status":"failed",...}]
 
-# Find pipeline for a specific MR (e.g., MR 8)
+# Alternative: List recent pipelines and grep
+glab ci list --per-page 10
 glab ci list --per-page 20 | grep "merge-requests/8"
 
 # Get job details from a pipeline (use pipeline ID from ci list output)
@@ -82,47 +84,55 @@ glab api "projects/:id/jobs/<JOB_ID>/trace" | tail -100
 ## Troubleshooting Pipeline Failures
 
 ### Diagnostic Workflow Example
-Here's a complete example of diagnosing and fixing a failed pipeline for MR 8:
+Here's a complete example of diagnosing and fixing a failed pipeline for MR 4:
 
 ```bash
-# 1. Find the pipeline for your MR
-glab ci list --per-page 20 | grep "merge-requests/8"
-# Output: (failed) • #2212590593  (#36)  refs/merge-requests/8/head
+# 1. Get pipeline status directly from MR number (most reliable)
+glab api "projects/:id/merge_requests/4/pipelines"
+# Output: [{"id":2212521051,"status":"failed",...}]
 
-# 2. Get job status for that pipeline
-glab api "projects/:id/pipelines/2212590593/jobs" | jq '.[] | {name, status, stage}'
-# Output shows which jobs failed (e.g., frontend:lint, backend:lint)
+# Alternative: Search through pipeline list
+glab ci list --per-page 20 | grep "merge-requests/4"
+# Output: (failed) • #2212521051  (#31)  refs/merge-requests/4/head
 
-# 3. Get the job IDs for failed jobs
-glab api "projects/:id/pipelines/2212590593/jobs" | jq '.[] | select(.status == "failed") | {name, id}'
-# Output: { "name": "frontend:lint", "id": 12425201471 }
-#         { "name": "backend:lint", "id": 12425201468 }
+# 2. Get all jobs for that pipeline
+glab api "projects/:id/pipelines/2212521051/jobs" | jq '.[] | {name, status, stage}'
+# Output shows which jobs failed (e.g., frontend:lint status:"failed")
 
-# 4. View the trace for each failed job (last 100 lines usually enough)
-glab api "projects/:id/jobs/12425201471/trace" | tail -100
-# Shows: "Code style issues found in 5 files" - Prettier formatting needed
+# 3. Get the job IDs for failed jobs only
+glab api "projects/:id/pipelines/2212521051/jobs" | jq '.[] | select(.status == "failed") | {name, id}'
+# Output: { "name": "frontend:lint", "id": 12425029382 }
 
-glab api "projects/:id/jobs/12425201468/trace" | tail -100
-# Shows: "1 file would be reformatted" - Ruff formatting needed
+# 4. View the trace for the failed job (last 100 lines usually enough)
+glab api "projects/:id/jobs/12425029382/trace" | tail -100
+# Shows: "Code style issues found in 2 files" with file paths
+# e.g., src/components/layout/header.tsx, src/components/ui/tooltip.tsx
 
-# 5. Fix the issues locally
-cd frontend && pnpm format
-cd ../backend && uv run ruff format .
+# 5. Fix the specific files mentioned in the trace
+cd frontend
+pnpm exec prettier --write src/components/layout/header.tsx src/components/ui/tooltip.tsx
+# Or fix all: pnpm format
 
 # 6. Commit and push
-git add -A && git commit -m "style: fix formatting issues"
+git add -u && git commit -m "style: fix prettier formatting"
 git push
 ```
 
 ### Prettier Formatting Issues
-**Symptom:** `frontend:lint` job fails with "Code style issues found"
+**Symptom:** `frontend:lint` job fails with "Code style issues found in X files"
 
 **Cause:** The pipeline runs `pnpm format:check` which fails if files aren't formatted with Prettier.
 
-**Fix:**
+**Fix (all files):**
 ```bash
 cd frontend
-pnpm format  # Uses the project's prettier config
+pnpm format  # Format all files using project's prettier config
+```
+
+**Fix (specific files - faster when CI tells you which files):**
+```bash
+cd frontend
+pnpm exec prettier --write src/components/layout/header.tsx src/components/ui/tooltip.tsx
 ```
 
 Then amend your commit (if fixing immediately after push) or create a new commit:
