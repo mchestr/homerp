@@ -27,6 +27,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useConfirmModal } from "@/components/ui/confirm-modal";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { itemsApi, CheckInOutCreate } from "@/lib/api/api-client";
 import { cn, formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
@@ -438,19 +444,48 @@ export default function ItemDetailPage() {
                     ? tCommon("loading")
                     : t("checkOut")}
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleCheckIn}
-                  disabled={
-                    checkOutMutation.isPending || checkInMutation.isPending
-                  }
-                  className="flex-1 gap-2"
-                >
-                  <LogIn className="h-4 w-4" />
-                  {checkInMutation.isPending
-                    ? tCommon("loading")
-                    : t("checkIn")}
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="flex-1">
+                        <Button
+                          variant="outline"
+                          onClick={handleCheckIn}
+                          disabled={
+                            checkOutMutation.isPending ||
+                            checkInMutation.isPending ||
+                            !usageStats ||
+                            usageStats.currently_checked_out <= 0 ||
+                            checkInOutQuantity >
+                              usageStats.currently_checked_out
+                          }
+                          className="w-full gap-2"
+                        >
+                          <LogIn className="h-4 w-4" />
+                          {checkInMutation.isPending
+                            ? tCommon("loading")
+                            : t("checkIn")}
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    {usageStats && usageStats.currently_checked_out <= 0 && (
+                      <TooltipContent>
+                        <p>{t("checkInDisabled")}</p>
+                      </TooltipContent>
+                    )}
+                    {usageStats &&
+                      usageStats.currently_checked_out > 0 &&
+                      checkInOutQuantity > usageStats.currently_checked_out && (
+                        <TooltipContent>
+                          <p>
+                            {t("exceedsCheckedOut", {
+                              count: usageStats.currently_checked_out,
+                            })}
+                          </p>
+                        </TooltipContent>
+                      )}
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
           </div>

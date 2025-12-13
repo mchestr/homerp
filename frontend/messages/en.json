@@ -468,6 +468,8 @@
     "mostUsed": "Most Used Items",
     "recentlyUsed": "Recently Used",
     "noUsageYet": "No usage history yet",
-    "showingRecentHistory": "Showing 5 of {count} records"
+    "showingRecentHistory": "Showing 5 of {count} records",
+    "checkInDisabled": "No items checked out",
+    "exceedsCheckedOut": "Cannot check in more than {count} items"
   }
 }

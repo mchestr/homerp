@@ -337,23 +337,6 @@ class TestUsageStats:
         assert stats.last_check_out is not None
         assert stats.last_check_in is not None
 
-    async def test_usage_stats_currently_checked_out_can_be_negative(
-        self,
-        async_session: AsyncSession,
-        test_user: User,
-        test_item: Item,
-    ):
-        """Test that currently_checked_out can be negative (more check-ins than check-outs)."""
-        repo = ItemRepository(async_session, test_user.id)
-
-        await repo.create_check_in_out(
-            test_item.id, "check_in", CheckInOutCreate(quantity=5)
-        )
-
-        stats = await repo.get_usage_stats(test_item.id)
-
-        assert stats.currently_checked_out == -5
-
 
 class TestMostUsedItems:
     """Tests for most used items dashboard widget."""
