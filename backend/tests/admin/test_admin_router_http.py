@@ -21,9 +21,7 @@ class TestListPacksEndpoint:
         data = response.json()
         assert isinstance(data, list)
 
-    async def test_list_packs_as_non_admin(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_list_packs_as_non_admin(self, authenticated_client: AsyncClient):
         """Test that non-admin gets 403."""
         response = await authenticated_client.get("/api/v1/admin/packs")
 
@@ -60,9 +58,7 @@ class TestCreatePackEndpoint:
         assert data["name"] == "Test Pack"
         assert data["credits"] == 50
 
-    async def test_create_pack_as_non_admin(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_create_pack_as_non_admin(self, authenticated_client: AsyncClient):
         """Test that non-admin gets 403."""
         response = await authenticated_client.post(
             "/api/v1/admin/packs",
@@ -175,9 +171,7 @@ class TestListUsersEndpoint:
 
         assert response.status_code == 200
 
-    async def test_list_users_as_non_admin(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_list_users_as_non_admin(self, authenticated_client: AsyncClient):
         """Test that non-admin gets 403."""
         response = await authenticated_client.get("/api/v1/admin/users")
 
@@ -187,9 +181,7 @@ class TestListUsersEndpoint:
 class TestGetUserEndpoint:
     """Tests for GET /api/v1/admin/users/{user_id}."""
 
-    async def test_get_user_as_admin(
-        self, admin_client: AsyncClient, test_user: User
-    ):
+    async def test_get_user_as_admin(self, admin_client: AsyncClient, test_user: User):
         """Test getting a user as admin."""
         response = await admin_client.get(f"/api/v1/admin/users/{test_user.id}")
 
@@ -293,9 +285,7 @@ class TestGetStatsEndpoint:
         assert "total_revenue_cents" in data
         assert "recent_activity" in data
 
-    async def test_get_stats_as_non_admin(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_get_stats_as_non_admin(self, authenticated_client: AsyncClient):
         """Test that non-admin gets 403."""
         response = await authenticated_client.get("/api/v1/admin/stats")
 

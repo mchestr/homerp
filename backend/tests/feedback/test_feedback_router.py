@@ -128,9 +128,7 @@ class TestGetFeedbackAdminEndpoint:
         self, admin_client: AsyncClient, test_feedback: Feedback
     ):
         """Test getting specific feedback as admin."""
-        response = await admin_client.get(
-            f"/api/v1/feedback/admin/{test_feedback.id}"
-        )
+        response = await admin_client.get(f"/api/v1/feedback/admin/{test_feedback.id}")
 
         assert response.status_code == 200
         data = response.json()
@@ -222,8 +220,6 @@ class TestDeleteFeedbackAdminEndpoint:
 
     async def test_delete_feedback_not_found(self, admin_client: AsyncClient):
         """Test deleting non-existent feedback."""
-        response = await admin_client.delete(
-            f"/api/v1/feedback/admin/{uuid.uuid4()}"
-        )
+        response = await admin_client.delete(f"/api/v1/feedback/admin/{uuid.uuid4()}")
 
         assert response.status_code == 404

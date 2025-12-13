@@ -50,9 +50,7 @@ class TestListConfigsEndpoint:
         data = response.json()
         assert isinstance(data, list)
 
-    async def test_list_configs_as_non_admin(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_list_configs_as_non_admin(self, authenticated_client: AsyncClient):
         """Test that non-admin gets 403."""
         response = await authenticated_client.get("/api/v1/webhooks/configs")
 
@@ -95,9 +93,7 @@ class TestCreateConfigEndpoint:
         assert response.status_code == 409
         assert "already exists" in response.json()["detail"]
 
-    async def test_create_config_as_non_admin(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_create_config_as_non_admin(self, authenticated_client: AsyncClient):
         """Test that non-admin gets 403."""
         response = await authenticated_client.post(
             "/api/v1/webhooks/configs",
@@ -130,9 +126,7 @@ class TestGetConfigEndpoint:
 
     async def test_get_config_not_found(self, admin_client: AsyncClient):
         """Test getting non-existent config."""
-        response = await admin_client.get(
-            f"/api/v1/webhooks/configs/{uuid.uuid4()}"
-        )
+        response = await admin_client.get(f"/api/v1/webhooks/configs/{uuid.uuid4()}")
 
         assert response.status_code == 404
 
@@ -207,9 +201,7 @@ class TestDeleteConfigEndpoint:
 
     async def test_delete_config_not_found(self, admin_client: AsyncClient):
         """Test deleting non-existent config."""
-        response = await admin_client.delete(
-            f"/api/v1/webhooks/configs/{uuid.uuid4()}"
-        )
+        response = await admin_client.delete(f"/api/v1/webhooks/configs/{uuid.uuid4()}")
 
         assert response.status_code == 404
 

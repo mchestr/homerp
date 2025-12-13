@@ -425,7 +425,9 @@ def mock_stripe_webhook_event(stripe_webhook_payload):
 # HTTP Client Fixtures for Integration Tests
 @pytest.fixture
 async def authenticated_client(
-    async_session: AsyncSession, test_settings: Settings, test_user: User  # noqa: ARG001
+    async_session: AsyncSession,
+    test_settings: Settings,  # noqa: ARG001
+    test_user: User,  # noqa: ARG001
 ) -> AsyncGenerator[AsyncClient, None]:
     """Create an async HTTP client with authenticated user."""
     from src.auth.dependencies import get_current_user_id
@@ -447,7 +449,9 @@ async def authenticated_client(
 
 @pytest.fixture
 async def admin_client(
-    async_session: AsyncSession, test_settings: Settings, admin_user: User  # noqa: ARG001
+    async_session: AsyncSession,
+    test_settings: Settings,  # noqa: ARG001
+    admin_user: User,  # noqa: ARG001
 ) -> AsyncGenerator[AsyncClient, None]:
     """Create an async HTTP client with admin user."""
     from src.auth.dependencies import get_current_user_id
@@ -469,7 +473,8 @@ async def admin_client(
 
 @pytest.fixture
 async def unauthenticated_client(
-    async_session: AsyncSession, test_settings: Settings  # noqa: ARG001
+    async_session: AsyncSession,
+    test_settings: Settings,  # noqa: ARG001
 ) -> AsyncGenerator[AsyncClient, None]:
     """Create an async HTTP client without authentication."""
     from src.database import get_session

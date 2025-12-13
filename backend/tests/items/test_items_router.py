@@ -172,9 +172,7 @@ class TestCreateItemEndpoint:
 class TestGetItemEndpoint:
     """Tests for GET /api/v1/items/{item_id}."""
 
-    async def test_get_item(
-        self, authenticated_client: AsyncClient, test_item: Item
-    ):
+    async def test_get_item(self, authenticated_client: AsyncClient, test_item: Item):
         """Test getting an item by ID."""
         response = await authenticated_client.get(f"/api/v1/items/{test_item.id}")
 
@@ -250,9 +248,7 @@ class TestUpdateQuantityEndpoint:
         data = response.json()
         assert data["quantity"] == 50
 
-    async def test_update_quantity_not_found(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_update_quantity_not_found(self, authenticated_client: AsyncClient):
         """Test updating quantity for non-existent item."""
         response = await authenticated_client.patch(
             f"/api/v1/items/{uuid.uuid4()}/quantity", json={"quantity": 10}
@@ -308,9 +304,7 @@ class TestSearchItemsEndpoint:
         data = response.json()
         assert len(data) == 0
 
-    async def test_search_items_missing_query(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_search_items_missing_query(self, authenticated_client: AsyncClient):
         """Test search without query parameter."""
         response = await authenticated_client.get("/api/v1/items/search")
 
@@ -344,9 +338,7 @@ class TestFacetsEndpoint:
 class TestTagsEndpoint:
     """Tests for GET /api/v1/items/tags."""
 
-    async def test_get_tags(
-        self, authenticated_client: AsyncClient, test_item: Item
-    ):
+    async def test_get_tags(self, authenticated_client: AsyncClient, test_item: Item):
         """Test getting all tags."""
         response = await authenticated_client.get("/api/v1/items/tags")
 
@@ -458,9 +450,7 @@ class TestItemHistoryEndpoint:
         assert "items" in data
         assert "total" in data
 
-    async def test_get_item_history_not_found(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_get_item_history_not_found(self, authenticated_client: AsyncClient):
         """Test getting history for non-existent item."""
         response = await authenticated_client.get(
             f"/api/v1/items/{uuid.uuid4()}/history"
@@ -485,9 +475,7 @@ class TestItemUsageStatsEndpoint:
         assert "total_check_outs" in data
         assert "total_check_ins" in data
 
-    async def test_get_usage_stats_not_found(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_get_usage_stats_not_found(self, authenticated_client: AsyncClient):
         """Test getting usage stats for non-existent item."""
         response = await authenticated_client.get(
             f"/api/v1/items/{uuid.uuid4()}/usage-stats"

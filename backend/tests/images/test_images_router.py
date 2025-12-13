@@ -65,9 +65,7 @@ class TestGetImageSignedUrlEndpoint:
         data = response.json()
         assert "thumbnail" in data["url"]
 
-    async def test_get_signed_url_not_found(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_get_signed_url_not_found(self, authenticated_client: AsyncClient):
         """Test getting signed URL for non-existent image."""
         response = await authenticated_client.get(
             f"/api/v1/images/{uuid.uuid4()}/signed-url"
@@ -143,9 +141,7 @@ class TestDeleteImageEndpoint:
 
     async def test_delete_image_not_found(self, authenticated_client: AsyncClient):
         """Test deleting non-existent image."""
-        response = await authenticated_client.delete(
-            f"/api/v1/images/{uuid.uuid4()}"
-        )
+        response = await authenticated_client.delete(f"/api/v1/images/{uuid.uuid4()}")
 
         assert response.status_code == 404
 
@@ -163,9 +159,7 @@ class TestDeleteImageEndpoint:
 class TestAttachImageEndpoint:
     """Tests for POST /api/v1/images/{image_id}/attach/{item_id}."""
 
-    async def test_attach_image_not_found(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_attach_image_not_found(self, authenticated_client: AsyncClient):
         """Test attaching non-existent image."""
         response = await authenticated_client.post(
             f"/api/v1/images/{uuid.uuid4()}/attach/{uuid.uuid4()}"

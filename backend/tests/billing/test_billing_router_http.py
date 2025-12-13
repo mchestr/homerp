@@ -144,9 +144,7 @@ class TestRequestRefundEndpoint:
 
         assert response.status_code == 400
 
-    async def test_refund_unauthenticated(
-        self, unauthenticated_client: AsyncClient
-    ):
+    async def test_refund_unauthenticated(self, unauthenticated_client: AsyncClient):
         """Test that unauthenticated request returns 401."""
         response = await unauthenticated_client.post(
             "/api/v1/billing/refund", json={"transaction_id": str(uuid.uuid4())}
@@ -158,9 +156,7 @@ class TestRequestRefundEndpoint:
 class TestWebhookEndpoint:
     """Tests for POST /api/v1/billing/webhook."""
 
-    async def test_webhook_missing_signature(
-        self, unauthenticated_client: AsyncClient
-    ):
+    async def test_webhook_missing_signature(self, unauthenticated_client: AsyncClient):
         """Test webhook without signature header."""
         response = await unauthenticated_client.post(
             "/api/v1/billing/webhook", content="{}"
@@ -168,9 +164,7 @@ class TestWebhookEndpoint:
 
         assert response.status_code == 422  # Missing required header
 
-    async def test_webhook_invalid_signature(
-        self, unauthenticated_client: AsyncClient
-    ):
+    async def test_webhook_invalid_signature(self, unauthenticated_client: AsyncClient):
         """Test webhook with invalid signature."""
         response = await unauthenticated_client.post(
             "/api/v1/billing/webhook",

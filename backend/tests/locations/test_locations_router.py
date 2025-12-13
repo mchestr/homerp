@@ -183,9 +183,7 @@ class TestGetLocationEndpoint:
 
     async def test_get_location_not_found(self, authenticated_client: AsyncClient):
         """Test getting a non-existent location."""
-        response = await authenticated_client.get(
-            f"/api/v1/locations/{uuid.uuid4()}"
-        )
+        response = await authenticated_client.get(f"/api/v1/locations/{uuid.uuid4()}")
 
         assert response.status_code == 404
         assert response.json()["detail"] == "Location not found"
@@ -205,9 +203,7 @@ class TestGetLocationDescendantsEndpoint:
         assert response.status_code == 200
         assert isinstance(response.json(), list)
 
-    async def test_get_descendants_not_found(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_get_descendants_not_found(self, authenticated_client: AsyncClient):
         """Test getting descendants for non-existent location."""
         response = await authenticated_client.get(
             f"/api/v1/locations/{uuid.uuid4()}/descendants"
@@ -260,9 +256,7 @@ class TestUpdateLocationEndpoint:
         assert data["name"] == "Updated Workshop"
         assert data["description"] == "Updated description"
 
-    async def test_update_location_not_found(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_update_location_not_found(self, authenticated_client: AsyncClient):
         """Test updating a non-existent location."""
         response = await authenticated_client.put(
             f"/api/v1/locations/{uuid.uuid4()}", json={"name": "Test"}
@@ -285,9 +279,7 @@ class TestMoveLocationEndpoint:
 
         assert response.status_code == 200
 
-    async def test_move_location_not_found(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_move_location_not_found(self, authenticated_client: AsyncClient):
         """Test moving a non-existent location."""
         response = await authenticated_client.patch(
             f"/api/v1/locations/{uuid.uuid4()}/move", json={"new_parent_id": None}
@@ -310,9 +302,7 @@ class TestGetLocationQREndpoint:
         assert response.status_code == 200
         assert response.headers["content-type"] == "image/png"
 
-    async def test_get_location_qr_not_found(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_get_location_qr_not_found(self, authenticated_client: AsyncClient):
         """Test getting QR for non-existent location."""
         response = await authenticated_client.get(
             f"/api/v1/locations/{uuid.uuid4()}/qr"
@@ -340,9 +330,7 @@ class TestDeleteLocationEndpoint:
         )
         assert get_response.status_code == 404
 
-    async def test_delete_location_not_found(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_delete_location_not_found(self, authenticated_client: AsyncClient):
         """Test deleting a non-existent location."""
         response = await authenticated_client.delete(
             f"/api/v1/locations/{uuid.uuid4()}"

@@ -72,9 +72,7 @@ class TestCreateCategoryEndpoint:
                 "name": "Tools",
                 "description": "All tools",
                 "attribute_template": {
-                    "fields": [
-                        {"name": "brand", "label": "Brand", "type": "text"}
-                    ]
+                    "fields": [{"name": "brand", "label": "Brand", "type": "text"}]
                 },
             },
         )
@@ -176,9 +174,7 @@ class TestGetCategoryEndpoint:
 
     async def test_get_category_not_found(self, authenticated_client: AsyncClient):
         """Test getting a non-existent category."""
-        response = await authenticated_client.get(
-            f"/api/v1/categories/{uuid.uuid4()}"
-        )
+        response = await authenticated_client.get(f"/api/v1/categories/{uuid.uuid4()}")
 
         assert response.status_code == 404
         assert response.json()["detail"] == "Category not found"
@@ -224,9 +220,7 @@ class TestGetCategoryDescendantsEndpoint:
         assert response.status_code == 200
         assert isinstance(response.json(), list)
 
-    async def test_get_descendants_not_found(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_get_descendants_not_found(self, authenticated_client: AsyncClient):
         """Test getting descendants for non-existent category."""
         response = await authenticated_client.get(
             f"/api/v1/categories/{uuid.uuid4()}/descendants"
@@ -252,9 +246,7 @@ class TestUpdateCategoryEndpoint:
         assert data["name"] == "Updated Name"
         assert data["description"] == "Updated description"
 
-    async def test_update_category_not_found(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_update_category_not_found(self, authenticated_client: AsyncClient):
         """Test updating a non-existent category."""
         response = await authenticated_client.put(
             f"/api/v1/categories/{uuid.uuid4()}", json={"name": "Test"}
@@ -277,9 +269,7 @@ class TestMoveCategoryEndpoint:
 
         assert response.status_code == 200
 
-    async def test_move_category_not_found(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_move_category_not_found(self, authenticated_client: AsyncClient):
         """Test moving a non-existent category."""
         response = await authenticated_client.patch(
             f"/api/v1/categories/{uuid.uuid4()}/move", json={"new_parent_id": None}
@@ -307,9 +297,7 @@ class TestDeleteCategoryEndpoint:
         )
         assert get_response.status_code == 404
 
-    async def test_delete_category_not_found(
-        self, authenticated_client: AsyncClient
-    ):
+    async def test_delete_category_not_found(self, authenticated_client: AsyncClient):
         """Test deleting a non-existent category."""
         response = await authenticated_client.delete(
             f"/api/v1/categories/{uuid.uuid4()}"
