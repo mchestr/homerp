@@ -13,6 +13,8 @@ from src.items.schemas import (
     DashboardStatsResponse,
     FacetedSearchResponse,
     FacetValue,
+    FindSimilarRequest,
+    FindSimilarResponse,
     ItemCreate,
     ItemDetailResponse,
     ItemListResponse,
@@ -21,6 +23,7 @@ from src.items.schemas import (
     MostUsedItemResponse,
     QuantityUpdate,
     RecentlyUsedItemResponse,
+    SimilarItemMatch,
 )
 
 router = APIRouter()
@@ -220,6 +223,47 @@ async def search_items(
         )
         for item in items
     ]
+
+
+@router.post("/find-similar")
+async def find_similar_items(
+    data: FindSimilarRequest,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+) -> FindSimilarResponse:
+    """Find items similar to a classification result.
+
+    Use this endpoint after AI classification to check for potential duplicates
+    before creating a new item. Returns items sorted by similarity score.
+    """
+    repo = ItemRepository(session, user_id)
+    matches, total_searched = await repo.find_similar(
+        identified_name=data.identified_name,
+        category_path=data.category_path,
+        specifications=data.specifications,
+        limit=data.limit,
+    )
+
+    similar_items = [
+        SimilarItemMatch(
+            id=item.id,
+            name=item.name,
+            description=item.description,
+            quantity=item.quantity,
+            quantity_unit=item.quantity_unit,
+            similarity_score=score,
+            match_reasons=reasons,
+            category=item.category,
+            location=item.location,
+            primary_image_url=_get_primary_image_url(item),
+        )
+        for item, score, reasons in matches
+    ]
+
+    return FindSimilarResponse(
+        similar_items=similar_items,
+        total_searched=total_searched,
+    )
 
 
 @router.get("/low-stock")

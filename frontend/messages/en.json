@@ -450,6 +450,15 @@
     "minLength": "Must be at least {min} characters",
     "maxLength": "Must be at most {max} characters"
   },
+  "similarItems": {
+    "title": "Potential Duplicates Found",
+    "description": "We found similar items in your inventory ({count} items searched)",
+    "quantity": "Qty",
+    "match": "match",
+    "addToQuantity": "Add to quantity",
+    "continueToCreate": "If this is a new item, continue filling out the form below to create it.",
+    "searchError": "Unable to check for duplicates. You can still create the item."
+  },
   "checkInOut": {
     "checkIn": "Check In",
     "checkOut": "Check Out",

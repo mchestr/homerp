@@ -583,3 +583,131 @@ class TestItemUsageStatsEndpoint:
         )
 
         assert response.status_code == 404
+
+
+class TestFindSimilarEndpoint:
+    """Tests for POST /api/v1/items/find-similar."""
+
+    async def test_find_similar_items(
+        self, authenticated_client: AsyncClient, test_item: Item
+    ):
+        """Test finding similar items with matching name."""
+        response = await authenticated_client.post(
+            "/api/v1/items/find-similar",
+            json={
+                "identified_name": "Multimeter",
+                "category_path": "Tools > Electronics",
+                "limit": 5,
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "similar_items" in data
+        assert "total_searched" in data
+        assert isinstance(data["similar_items"], list)
+        # The test_item is named "Multimeter" so it should match
+        assert data["total_searched"] >= 1
+
+    async def test_find_similar_items_with_partial_match(
+        self, authenticated_client: AsyncClient, test_item: Item
+    ):
+        """Test finding similar items with partial name match."""
+        response = await authenticated_client.post(
+            "/api/v1/items/find-similar",
+            json={
+                "identified_name": "Digital Multimeter Pro",
+                "limit": 5,
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "similar_items" in data
+        # Should find the test_item which contains "Multimeter"
+
+    async def test_find_similar_items_no_matches(
+        self, authenticated_client: AsyncClient
+    ):
+        """Test finding similar items when none exist."""
+        response = await authenticated_client.post(
+            "/api/v1/items/find-similar",
+            json={
+                "identified_name": "Completely Unique Item XYZ123",
+                "limit": 5,
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["similar_items"] == []
+
+    async def test_find_similar_items_with_specifications(
+        self, authenticated_client: AsyncClient, test_item: Item
+    ):
+        """Test finding similar items with specification matching."""
+        response = await authenticated_client.post(
+            "/api/v1/items/find-similar",
+            json={
+                "identified_name": "Multimeter",
+                "specifications": {"voltage": "12V"},
+                "limit": 5,
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "similar_items" in data
+
+    async def test_find_similar_items_validation_error(
+        self, authenticated_client: AsyncClient
+    ):
+        """Test find similar with invalid data."""
+        response = await authenticated_client.post(
+            "/api/v1/items/find-similar",
+            json={
+                "limit": 5,
+            },  # Missing required 'identified_name' field
+        )
+
+        assert response.status_code == 422
+
+    async def test_find_similar_items_unauthenticated(
+        self, unauthenticated_client: AsyncClient
+    ):
+        """Test that unauthenticated request returns 401."""
+        response = await unauthenticated_client.post(
+            "/api/v1/items/find-similar",
+            json={"identified_name": "Test Item", "limit": 5},
+        )
+
+        assert response.status_code == 401
+
+    async def test_find_similar_items_response_structure(
+        self, authenticated_client: AsyncClient, test_item: Item
+    ):
+        """Test that similar item response has correct structure."""
+        response = await authenticated_client.post(
+            "/api/v1/items/find-similar",
+            json={
+                "identified_name": test_item.name,
+                "limit": 5,
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "similar_items" in data
+        assert "total_searched" in data
+
+        if len(data["similar_items"]) > 0:
+            item = data["similar_items"][0]
+            assert "id" in item
+            assert "name" in item
+            assert "description" in item
+            assert "quantity" in item
+            assert "quantity_unit" in item
+            assert "similarity_score" in item
+            assert "match_reasons" in item
+            assert isinstance(item["match_reasons"], list)
+            assert 0.0 <= item["similarity_score"] <= 1.0

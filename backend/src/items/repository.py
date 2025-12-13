@@ -1,3 +1,5 @@
+import json
+from difflib import SequenceMatcher
 from uuid import UUID
 
 from sqlalchemy import func, or_, select, text
@@ -142,7 +144,7 @@ class ItemRepository:
                 # Use JSONB containment operator for filtering
                 query = query.where(
                     text("attributes @> :attr").bindparams(
-                        attr=f'{{"{key}": "{value}"}}'
+                        attr=json.dumps({key: value})
                     )
                 )
 
@@ -204,7 +206,7 @@ class ItemRepository:
             for key, value in attribute_filters.items():
                 query = query.where(
                     text("attributes @> :attr").bindparams(
-                        attr=f'{{"{key}": "{value}"}}'
+                        attr=json.dumps({key: value})
                     )
                 )
 
@@ -712,3 +714,229 @@ class ItemRepository:
             )
             return f"/api/v1/images/{primary.id}/file"
         return None
+
+    def _calculate_name_similarity(self, name1: str, name2: str) -> float:
+        """Calculate similarity between two names using SequenceMatcher.
+
+        Normalizes names by lowercasing and returns a score between 0 and 1.
+        """
+        name1_lower = name1.lower().strip()
+        name2_lower = name2.lower().strip()
+
+        # Check for exact match
+        if name1_lower == name2_lower:
+            return 1.0
+
+        # Check if one is substring of other
+        if name1_lower in name2_lower or name2_lower in name1_lower:
+            shorter = min(len(name1_lower), len(name2_lower))
+            longer = max(len(name1_lower), len(name2_lower))
+            return 0.7 + (0.3 * shorter / longer)
+
+        # Use SequenceMatcher for fuzzy matching
+        return SequenceMatcher(None, name1_lower, name2_lower).ratio()
+
+    def _extract_key_terms(self, name: str) -> set[str]:
+        """Extract key terms from a name for matching.
+
+        Filters out common words to focus on meaningful terms.
+        """
+        common_words = {
+            "the",
+            "a",
+            "an",
+            "and",
+            "or",
+            "with",
+            "for",
+            "of",
+            "in",
+            "on",
+            "to",
+            "mm",
+            "cm",
+            "m",
+            "inch",
+            "pcs",
+            "pack",
+            "box",
+            "set",
+        }
+        words = name.lower().split()
+        return {w for w in words if w not in common_words and len(w) > 1}
+
+    async def find_similar(
+        self,
+        identified_name: str,
+        category_path: str | None = None,
+        specifications: dict | None = None,
+        limit: int = 5,
+    ) -> tuple[list[tuple[Item, float, list[str]]], int]:
+        """Find items similar to the given classification result.
+
+        Uses multiple matching strategies:
+        1. Direct name similarity (fuzzy matching)
+        2. Key term overlap
+        3. Category path matching (if AI suggested a category)
+        4. Specification matching (if available)
+
+        Scoring weights:
+        - Name similarity: 50% (exact=1.0, substring=0.7-1.0, fuzzy=ratio)
+        - Key term overlap: 25% (Jaccard similarity of non-common words)
+        - Category matching: 15% (any category path part matches)
+        - Specification matching: 10% (max 0.05 per spec, capped at 0.1)
+
+        Threshold: Items with score < 0.15 are excluded.
+
+        Returns a list of (item, similarity_score, match_reasons) tuples
+        and the total number of items searched.
+        """
+        # Extract key terms from the identified name for pre-filtering
+        search_terms = self._extract_key_terms(identified_name)
+
+        # Build a pre-filter query to narrow down candidates using DB-level filtering
+        # This avoids loading all items into memory
+        pre_filter_conditions = []
+
+        # Add ILIKE conditions for key terms (OR logic - match any term)
+        if search_terms:
+            term_conditions = [
+                Item.name.ilike(f"%{term}%") for term in list(search_terms)[:5]
+            ]
+            if term_conditions:
+                pre_filter_conditions.append(or_(*term_conditions))
+
+        # Also search for the full name as a substring
+        pre_filter_conditions.append(
+            Item.name.ilike(
+                f"%{identified_name.split()[0] if identified_name else ''}%"
+            )
+        )
+
+        # First pass: get candidate items (names only, no eager loading)
+        # Limit to 500 candidates for performance
+        base_query = select(
+            Item.id, Item.name, Item.category_id, Item.attributes
+        ).where(Item.user_id == self.user_id)
+
+        if pre_filter_conditions:
+            base_query = base_query.where(or_(*pre_filter_conditions))
+
+        base_query = base_query.order_by(Item.updated_at.desc()).limit(500)
+
+        result = await self.session.execute(base_query)
+        candidates = list(result.fetchall())
+
+        # Get total count for reporting
+        count_result = await self.session.execute(
+            select(func.count(Item.id)).where(Item.user_id == self.user_id)
+        )
+        total_searched = count_result.scalar_one()
+
+        if not candidates:
+            return [], total_searched
+
+        # Parse category path parts for matching
+        category_parts = []
+        if category_path:
+            category_parts = [
+                p.strip().lower() for p in category_path.split(">") if p.strip()
+            ]
+
+        # Get category names for matching (only if we have category path)
+        category_names: dict[str, str] = {}
+        if category_parts:
+            category_ids = {c.category_id for c in candidates if c.category_id}
+            if category_ids:
+                cat_result = await self.session.execute(
+                    select(Category.id, Category.name).where(
+                        Category.id.in_(category_ids)
+                    )
+                )
+                category_names = {
+                    str(row.id): row.name for row in cat_result.fetchall()
+                }
+
+        # Score candidates without full item loading
+        scored_candidates: list[tuple[str, float, list[str]]] = []
+
+        for candidate in candidates:
+            item_id = str(candidate.id)
+            item_name = candidate.name
+            item_cat_id = str(candidate.category_id) if candidate.category_id else None
+            item_attrs = candidate.attributes or {}
+
+            score = 0.0
+            reasons: list[str] = []
+
+            # 1. Name similarity (weight: 0.5)
+            name_sim = self._calculate_name_similarity(identified_name, item_name)
+            if name_sim > 0.3:
+                score += name_sim * 0.5
+                if name_sim > 0.7:
+                    reasons.append("Similar name")
+                elif name_sim > 0.5:
+                    reasons.append("Partial name match")
+
+            # 2. Key term overlap (weight: 0.25)
+            item_terms = self._extract_key_terms(item_name)
+            if search_terms and item_terms:
+                common_terms = search_terms & item_terms
+                term_overlap = len(common_terms) / max(
+                    len(search_terms), len(item_terms)
+                )
+                if term_overlap > 0:
+                    score += term_overlap * 0.25
+                    if term_overlap > 0.5:
+                        reasons.append(f"Matching terms: {', '.join(common_terms)}")
+
+            # 3. Category matching (weight: 0.15)
+            if category_parts and item_cat_id and item_cat_id in category_names:
+                item_cat_name = category_names[item_cat_id].lower()
+                for cat_part in category_parts:
+                    if cat_part in item_cat_name or item_cat_name in cat_part:
+                        score += 0.15
+                        reasons.append(f"Category: {category_names[item_cat_id]}")
+                        break
+
+            # 4. Specification matching (weight: 0.1)
+            if specifications and item_attrs:
+                matching_specs = []
+                for key, value in specifications.items():
+                    if key in item_attrs:
+                        item_val = str(item_attrs[key]).lower()
+                        spec_val = str(value).lower()
+                        if item_val == spec_val:
+                            matching_specs.append(f"{key}: {value}")
+                        elif spec_val in item_val or item_val in spec_val:
+                            matching_specs.append(f"{key}: ~{value}")
+                if matching_specs:
+                    score += min(len(matching_specs) * 0.05, 0.1)
+                    reasons.append(f"Specs: {', '.join(matching_specs[:3])}")
+
+            # Only include items with meaningful similarity
+            if score > 0.15 and reasons:
+                scored_candidates.append((item_id, min(score, 1.0), reasons))
+
+        # Sort by score descending and take top matches
+        scored_candidates.sort(key=lambda x: x[1], reverse=True)
+        top_candidates = scored_candidates[:limit]
+
+        if not top_candidates:
+            return [], total_searched
+
+        # Now load full items with relationships only for the top matches
+        top_ids = [UUID(c[0]) for c in top_candidates]
+        full_result = await self.session.execute(
+            self._base_query().where(Item.id.in_(top_ids))
+        )
+        items_map = {item.id: item for item in full_result.scalars().all()}
+
+        # Build final result maintaining score order
+        final_results: list[tuple[Item, float, list[str]]] = []
+        for item_id_str, score, reasons in top_candidates:
+            item = items_map.get(UUID(item_id_str))
+            if item:
+                final_results.append((item, score, reasons))
+
+        return final_results, total_searched
