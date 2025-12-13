@@ -10,6 +10,10 @@ import {
   ArrowRight,
   Plus,
   Boxes,
+  TrendingUp,
+  Clock,
+  LogIn,
+  LogOut,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -29,6 +33,7 @@ import { itemsApi, categoriesApi, locationsApi } from "@/lib/api/api-client";
 export default function DashboardPage() {
   const t = useTranslations("dashboard");
   const tCommon = useTranslations("common");
+  const tCheckInOut = useTranslations("checkInOut");
 
   const { data: dashboardStats, isLoading: statsLoading } = useQuery({
     queryKey: ["dashboard-stats"],
@@ -48,6 +53,16 @@ export default function DashboardPage() {
   const { data: locations } = useQuery({
     queryKey: ["locations"],
     queryFn: () => locationsApi.list(),
+  });
+
+  const { data: mostUsedItems } = useQuery({
+    queryKey: ["items", "most-used"],
+    queryFn: () => itemsApi.getMostUsed(5),
+  });
+
+  const { data: recentlyUsedItems } = useQuery({
+    queryKey: ["items", "recently-used"],
+    queryFn: () => itemsApi.getRecentlyUsed(5),
   });
 
   const stats = [
@@ -423,6 +438,108 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Most Used and Recently Used */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Most Used Items */}
+        <div className="rounded-xl border bg-card">
+          <div className="flex items-center gap-3 border-b px-5 py-4">
+            <div className="rounded-lg bg-blue-500/10 p-2">
+              <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <h2 className="font-medium">{tCheckInOut("mostUsed")}</h2>
+              <p className="text-sm text-muted-foreground">
+                {tCheckInOut("totalCheckOuts")}
+              </p>
+            </div>
+          </div>
+          {mostUsedItems && mostUsedItems.length > 0 ? (
+            <div className="divide-y">
+              {mostUsedItems.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/items/${item.id}`}
+                  className="group flex items-center justify-between px-5 py-3 transition-colors hover:bg-muted/50"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{item.name}</p>
+                  </div>
+                  <div className="ml-4 flex items-center gap-3">
+                    <span className="rounded-md bg-blue-500/10 px-2 py-1 text-sm font-medium text-blue-600 dark:text-blue-400">
+                      {item.total_check_outs}x
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="flex h-[150px] flex-col items-center justify-center text-center">
+              <TrendingUp className="h-10 w-10 text-muted-foreground/50" />
+              <p className="mt-2 text-sm text-muted-foreground">
+                {tCheckInOut("noUsageYet")}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Recently Used Items */}
+        <div className="rounded-xl border bg-card">
+          <div className="flex items-center gap-3 border-b px-5 py-4">
+            <div className="rounded-lg bg-purple-500/10 p-2">
+              <Clock className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+            </div>
+            <div>
+              <h2 className="font-medium">{tCheckInOut("recentlyUsed")}</h2>
+              <p className="text-sm text-muted-foreground">
+                {tCheckInOut("lastUsed")}
+              </p>
+            </div>
+          </div>
+          {recentlyUsedItems && recentlyUsedItems.length > 0 ? (
+            <div className="divide-y">
+              {recentlyUsedItems.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/items/${item.id}`}
+                  className="group flex items-center justify-between px-5 py-3 transition-colors hover:bg-muted/50"
+                >
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
+                    <div
+                      className={`rounded-lg p-1.5 ${
+                        item.action_type === "check_out"
+                          ? "bg-red-500/10"
+                          : "bg-green-500/10"
+                      }`}
+                    >
+                      {item.action_type === "check_out" ? (
+                        <LogOut className="h-3 w-3 text-red-600 dark:text-red-400" />
+                      ) : (
+                        <LogIn className="h-3 w-3 text-green-600 dark:text-green-400" />
+                      )}
+                    </div>
+                    <p className="truncate font-medium">{item.name}</p>
+                  </div>
+                  <div className="ml-4 flex items-center gap-3">
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(item.last_used).toLocaleDateString()}
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="flex h-[150px] flex-col items-center justify-center text-center">
+              <Clock className="h-10 w-10 text-muted-foreground/50" />
+              <p className="mt-2 text-sm text-muted-foreground">
+                {tCheckInOut("noUsageYet")}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

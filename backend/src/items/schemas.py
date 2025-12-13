@@ -144,3 +144,59 @@ class DashboardStatsResponse(BaseModel):
     total_quantity: int
     categories_used: int
     locations_used: int
+
+
+# Check-in/out schemas
+
+
+class CheckInOutCreate(BaseModel):
+    """Schema for creating a check-in/out event."""
+
+    quantity: int = Field(default=1, ge=1)
+    notes: str | None = Field(default=None, max_length=500)
+    occurred_at: datetime | None = None
+
+
+class CheckInOutResponse(BaseModel):
+    """Schema for check-in/out event response."""
+
+    id: UUID
+    item_id: UUID
+    action_type: str
+    quantity: int
+    notes: str | None
+    occurred_at: datetime
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class ItemUsageStatsResponse(BaseModel):
+    """Aggregated usage statistics for an item."""
+
+    total_check_outs: int
+    total_check_ins: int
+    total_quantity_out: int
+    total_quantity_in: int
+    last_check_out: datetime | None
+    last_check_in: datetime | None
+    currently_checked_out: int
+
+
+class MostUsedItemResponse(BaseModel):
+    """Item with usage count for most-used list."""
+
+    id: UUID
+    name: str
+    total_check_outs: int
+    primary_image_url: str | None = None
+
+
+class RecentlyUsedItemResponse(BaseModel):
+    """Item with last used date for recently-used list."""
+
+    id: UUID
+    name: str
+    last_used: datetime
+    action_type: str
+    primary_image_url: str | None = None
