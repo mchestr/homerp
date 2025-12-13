@@ -1,7 +1,25 @@
 """Template parsing utilities for webhook body templates."""
 
+import json
 import re
 from typing import Any
+
+
+def escape_json_string(value: str) -> str:
+    """Escape a string for safe embedding in JSON.
+
+    Uses json.dumps to properly escape quotes, backslashes, newlines, etc.,
+    then strips the outer quotes since we're embedding in an existing JSON template.
+
+    Args:
+        value: The string to escape
+
+    Returns:
+        JSON-escaped string without surrounding quotes
+    """
+    # json.dumps adds quotes and escapes everything properly
+    # We strip the outer quotes since the template already has them
+    return json.dumps(value)[1:-1]
 
 
 def get_nested_value(data: dict, path: str) -> Any:
@@ -47,6 +65,9 @@ def render_template(template: str, context: dict) -> str:
         value = get_nested_value(context, var_path)
         if value is None:
             return ""
+        # Escape string values for safe JSON embedding
+        if isinstance(value, str):
+            return escape_json_string(value)
         return str(value)
 
     # Match {{variable}} patterns
