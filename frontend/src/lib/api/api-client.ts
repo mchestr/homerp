@@ -307,6 +307,14 @@ export const locationsApi = {
 
   get: (id: string) => apiRequest<Location>(`/api/v1/locations/${id}`),
 
+  getWithAncestors: (id: string) =>
+    apiRequest<LocationWithAncestors>(`/api/v1/locations/${id}/with-ancestors`),
+
+  getQrCodeUrl: (id: string, size?: number) => {
+    const params = size ? `?size=${size}` : "";
+    return `${getApiBaseUrl()}/api/v1/locations/${id}/qr${params}`;
+  },
+
   getDescendants: (id: string) =>
     apiRequest<Location[]>(`/api/v1/locations/${id}/descendants`),
 
@@ -451,6 +459,10 @@ export type LocationTreeNode = {
   item_count: number;
   total_value: number;
   children: LocationTreeNode[];
+};
+
+export type LocationWithAncestors = Location & {
+  ancestors: Location[];
 };
 
 export type LocationCreate = {

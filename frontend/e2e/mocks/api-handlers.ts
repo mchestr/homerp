@@ -345,6 +345,64 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     });
   });
 
+  // QR code endpoint - returns a small transparent PNG for testing
+  await page.route(/\/api\/v1\/locations\/[^/]+\/qr/, async (route) => {
+    // Return a 1x1 transparent PNG for testing
+    const transparentPng = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+      "base64"
+    );
+    await route.fulfill({
+      status: 200,
+      contentType: "image/png",
+      body: transparentPng,
+    });
+  });
+
+  // With ancestors endpoint
+  await page.route(
+    /\/api\/v1\/locations\/[^/]+\/with-ancestors$/,
+    async (route) => {
+      const url = route.request().url();
+      const parts = url.split("/");
+      const locId = parts[parts.length - 2]; // Get ID before /with-ancestors
+
+      const location = fixtures.testLocations.find((l) => l.id === locId);
+
+      if (location) {
+        // Build ancestors list based on parent_id
+        const ancestors: typeof fixtures.testLocations = [];
+        let currentParentId = location.parent_id;
+        while (currentParentId) {
+          const parent = fixtures.testLocations.find(
+            (l) => l.id === currentParentId
+          );
+          if (parent) {
+            ancestors.unshift(parent);
+            currentParentId = parent.parent_id;
+          } else {
+            break;
+          }
+        }
+
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ...location,
+            ancestors,
+          }),
+        });
+      } else {
+        await route.fulfill({
+          status: 404,
+          contentType: "application/json",
+          body: JSON.stringify({ detail: "Location not found" }),
+        });
+      }
+    }
+  );
+
   // Billing endpoints
   await page.route("**/api/v1/billing/balance", async (route) => {
     await route.fulfill({
