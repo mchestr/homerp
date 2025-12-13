@@ -61,16 +61,58 @@ After pushing, monitor the pipeline and fix any failures:
 # Check pipeline status
 glab ci status
 
-# Get job IDs from the current pipeline
-glab api "/projects/mchestr%2Fhomerp/pipelines/<PIPELINE_ID>/jobs" | jq '.[] | {name, id, status}'
+# List recent pipelines (find your MR's pipeline)
+glab ci list --per-page 10
 
-# View logs for a failed job (use API for fresh results)
-glab api "/projects/mchestr%2Fhomerp/jobs/<JOB_ID>/trace" | tail -100
+# Find pipeline for a specific MR (e.g., MR 8)
+glab ci list --per-page 20 | grep "merge-requests/8"
+
+# Get job details from a pipeline (use pipeline ID from ci list output)
+glab api "projects/:id/pipelines/<PIPELINE_ID>/jobs" | jq '.[] | {name, id, status, stage}'
+
+# Find failed jobs specifically
+glab api "projects/:id/pipelines/<PIPELINE_ID>/jobs" | jq '.[] | select(.status == "failed") | {name, id}'
+
+# View logs for a failed job (use job ID from above)
+glab api "projects/:id/jobs/<JOB_ID>/trace" | tail -100
 ```
 
-**Note:** The `glab ci trace` command can sometimes show cached/stale results. Always use the API directly for accurate job traces. Verify the SHA in the trace matches your expected commit.
+**Note:** The `glab ci trace` command can sometimes show cached/stale results. Always use the API directly for accurate job traces. The `:id` shorthand in API paths is automatically resolved by glab to your project ID.
 
 ## Troubleshooting Pipeline Failures
+
+### Diagnostic Workflow Example
+Here's a complete example of diagnosing and fixing a failed pipeline for MR 8:
+
+```bash
+# 1. Find the pipeline for your MR
+glab ci list --per-page 20 | grep "merge-requests/8"
+# Output: (failed) • #2212590593  (#36)  refs/merge-requests/8/head
+
+# 2. Get job status for that pipeline
+glab api "projects/:id/pipelines/2212590593/jobs" | jq '.[] | {name, status, stage}'
+# Output shows which jobs failed (e.g., frontend:lint, backend:lint)
+
+# 3. Get the job IDs for failed jobs
+glab api "projects/:id/pipelines/2212590593/jobs" | jq '.[] | select(.status == "failed") | {name, id}'
+# Output: { "name": "frontend:lint", "id": 12425201471 }
+#         { "name": "backend:lint", "id": 12425201468 }
+
+# 4. View the trace for each failed job (last 100 lines usually enough)
+glab api "projects/:id/jobs/12425201471/trace" | tail -100
+# Shows: "Code style issues found in 5 files" - Prettier formatting needed
+
+glab api "projects/:id/jobs/12425201468/trace" | tail -100
+# Shows: "1 file would be reformatted" - Ruff formatting needed
+
+# 5. Fix the issues locally
+cd frontend && pnpm format
+cd ../backend && uv run ruff format .
+
+# 6. Commit and push
+git add -A && git commit -m "style: fix formatting issues"
+git push
+```
 
 ### Prettier Formatting Issues
 **Symptom:** `frontend:lint` job fails with "Code style issues found"
