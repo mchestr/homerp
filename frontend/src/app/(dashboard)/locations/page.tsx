@@ -1,11 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Edit, Trash2, MapPin, Loader2, X } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  MapPin,
+  Loader2,
+  X,
+  QrCode,
+  ExternalLink,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TreeView, TreeSelect } from "@/components/ui/tree-view";
 import { useConfirmModal } from "@/components/ui/confirm-modal";
+import { useQRCodeModal } from "@/components/locations/qr-code-modal";
 import { ItemsPanel } from "@/components/items/items-panel";
 import {
   locationsApi,
@@ -49,6 +60,7 @@ export default function LocationsPage() {
   });
 
   const { confirm, ConfirmModal } = useConfirmModal();
+  const { openQRModal, QRCodeModal } = useQRCodeModal();
 
   const { data: locations, isLoading } = useQuery({
     queryKey: ["locations"],
@@ -388,6 +400,25 @@ export default function LocationsPage() {
                   className="flex gap-1"
                   onClick={(e) => e.stopPropagation()}
                 >
+                  <Link
+                    href={`/locations/${node.id}`}
+                    className="rounded p-1 hover:bg-accent"
+                    title="View details"
+                  >
+                    <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const location = locations?.find((l) => l.id === node.id);
+                      if (location) openQRModal(location);
+                    }}
+                    className="rounded p-1 hover:bg-accent"
+                    title="Generate QR Code"
+                    data-testid={`qr-button-${node.id}`}
+                  >
+                    <QrCode className="h-4 w-4 text-muted-foreground" />
+                  </button>
                   <button
                     type="button"
                     onClick={() => handleAddChild(node.id)}
@@ -508,6 +539,27 @@ export default function LocationsPage() {
                       <Button
                         variant="ghost"
                         size="icon"
+                        asChild
+                        className="h-8 w-8"
+                        title="View details"
+                      >
+                        <Link href={`/locations/${location.id}`}>
+                          <ExternalLink className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openQRModal(location)}
+                        className="h-8 w-8"
+                        title="QR Code"
+                        data-testid={`grid-qr-button-${location.id}`}
+                      >
+                        <QrCode className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => handleAddChild(location.id)}
                         className="h-8 w-8"
                         title="Add child"
@@ -550,6 +602,7 @@ export default function LocationsPage() {
       )}
 
       <ConfirmModal />
+      <QRCodeModal />
     </div>
   );
 }

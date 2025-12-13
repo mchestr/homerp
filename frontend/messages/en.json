@@ -179,7 +179,20 @@
     "noItemsInLocation": "No items in this location",
     "selectLocationToView": "Select a location to view its items",
     "tree": "Tree",
-    "grid": "Grid"
+    "grid": "Grid",
+    "qrCode": "QR Code",
+    "scanToView": "Scan to view this location",
+    "download": "Download",
+    "print": "Print",
+    "size": "Size",
+    "sizeSmall": "Small",
+    "sizeMedium": "Medium",
+    "sizeLarge": "Large",
+    "viewDetails": "View Details",
+    "addItem": "Add Item",
+    "notFound": "Location not found",
+    "notFoundDescription": "This location may have been deleted or you don't have access.",
+    "backToLocations": "Back to Locations"
   },
   "images": {
     "title": "Images",

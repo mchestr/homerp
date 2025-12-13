@@ -21,6 +21,7 @@ dependencies = [
     "aiofiles>=24.1.0",
     "pillow>=11.0.0",
     "stripe>=11.0.0",
+    "segno>=1.6.0",
 ]
 
 
