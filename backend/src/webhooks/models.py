@@ -20,12 +20,12 @@ class WebhookConfig(Base):
         String(100), unique=True, nullable=False, index=True
     )
     url: Mapped[str] = mapped_column(String(2048), nullable=False)
-    http_method: Mapped[str] = mapped_column(
-        String(10), nullable=False, default="POST"
-    )
+    http_method: Mapped[str] = mapped_column(String(10), nullable=False, default="POST")
     headers: Mapped[dict] = mapped_column(JSONB, default=dict, server_default="{}")
     body_template: Mapped[str | None] = mapped_column(Text)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, default=True, server_default="true"
+    )
     retry_count: Mapped[int] = mapped_column(Integer, default=3, server_default="3")
     timeout_seconds: Mapped[int] = mapped_column(
         Integer, default=30, server_default="30"

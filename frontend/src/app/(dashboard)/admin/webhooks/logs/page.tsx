@@ -81,7 +81,9 @@ export default function WebhookLogsPage() {
   const t = useTranslations();
 
   const [page, setPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(
+    undefined
+  );
   const [selectedExecution, setSelectedExecution] =
     useState<WebhookExecution | null>(null);
 
@@ -160,12 +162,22 @@ export default function WebhookLogsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b text-left text-sm text-muted-foreground">
-                  <th className="px-4 py-3 font-medium">{t("webhooks.eventType")}</th>
-                  <th className="px-4 py-3 font-medium">{t("webhooks.requestUrl")}</th>
+                  <th className="px-4 py-3 font-medium">
+                    {t("webhooks.eventType")}
+                  </th>
+                  <th className="px-4 py-3 font-medium">
+                    {t("webhooks.requestUrl")}
+                  </th>
                   <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">{t("webhooks.attempt")}</th>
-                  <th className="px-4 py-3 font-medium">{t("webhooks.executedAt")}</th>
-                  <th className="px-4 py-3 text-right font-medium">{t("common.actions")}</th>
+                  <th className="px-4 py-3 font-medium">
+                    {t("webhooks.attempt")}
+                  </th>
+                  <th className="px-4 py-3 font-medium">
+                    {t("webhooks.executedAt")}
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium">
+                    {t("common.actions")}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -184,7 +196,9 @@ export default function WebhookLogsPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <Badge variant={getStatusBadgeVariant(execution.status)}>
+                        <Badge
+                          variant={getStatusBadgeVariant(execution.status)}
+                        >
                           <StatusIcon className="mr-1 h-3 w-3" />
                           {t(`webhooks.status.${execution.status}`)}
                         </Badge>
@@ -251,7 +265,9 @@ export default function WebhookLogsPage() {
           <div className="rounded-full bg-muted p-4">
             <Clock className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h3 className="mt-4 text-lg font-medium">{t("webhooks.noExecutions")}</h3>
+          <h3 className="mt-4 text-lg font-medium">
+            {t("webhooks.noExecutions")}
+          </h3>
           <p className="mt-2 text-sm text-muted-foreground">
             {t("webhooks.noExecutionsDescription")}
           </p>
@@ -267,7 +283,8 @@ export default function WebhookLogsPage() {
           <DialogHeader>
             <DialogTitle>{t("webhooks.executionDetails")}</DialogTitle>
             <DialogDescription>
-              {selectedExecution?.event_type} - {selectedExecution && formatDate(selectedExecution.executed_at)}
+              {selectedExecution?.event_type} -{" "}
+              {selectedExecution && formatDate(selectedExecution.executed_at)}
             </DialogDescription>
           </DialogHeader>
           {selectedExecution && (
@@ -275,7 +292,9 @@ export default function WebhookLogsPage() {
               {/* Status */}
               <div className="flex items-center gap-2">
                 <Label>Status:</Label>
-                <Badge variant={getStatusBadgeVariant(selectedExecution.status)}>
+                <Badge
+                  variant={getStatusBadgeVariant(selectedExecution.status)}
+                >
                   {t(`webhooks.status.${selectedExecution.status}`)}
                 </Badge>
                 <span className="text-sm text-muted-foreground">

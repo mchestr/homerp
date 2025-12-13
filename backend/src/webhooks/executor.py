@@ -78,9 +78,7 @@ class WebhookExecutor:
                 await asyncio.sleep(2**attempt)
 
             try:
-                async with httpx.AsyncClient(
-                    timeout=config.timeout_seconds
-                ) as client:
+                async with httpx.AsyncClient(timeout=config.timeout_seconds) as client:
                     response = await client.request(
                         method=config.http_method,
                         url=config.url,
@@ -115,9 +113,7 @@ class WebhookExecutor:
                 )
             except Exception as e:
                 execution.error_message = f"Unexpected error: {e}"
-                logger.error(
-                    f"Webhook {config.event_type} error: {e}", exc_info=True
-                )
+                logger.error(f"Webhook {config.event_type} error: {e}", exc_info=True)
 
             await self.repository.update_execution(execution)
 

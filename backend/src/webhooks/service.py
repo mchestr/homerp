@@ -77,9 +77,7 @@ class WebhookService:
                 executor = WebhookExecutor(session)
                 await executor.execute(config, payload)
             except Exception as e:
-                logger.error(
-                    f"Background webhook execution failed: {e}", exc_info=True
-                )
+                logger.error(f"Background webhook execution failed: {e}", exc_info=True)
 
 
 def get_webhook_service(session: AsyncSession) -> WebhookService:

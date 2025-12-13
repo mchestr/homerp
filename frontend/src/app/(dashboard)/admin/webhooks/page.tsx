@@ -92,7 +92,9 @@ export default function AdminWebhooksPage() {
   const [formEventType, setFormEventType] = useState("");
   const [formUrl, setFormUrl] = useState("");
   const [formMethod, setFormMethod] = useState("POST");
-  const [formHeaders, setFormHeaders] = useState<{ key: string; value: string }[]>([]);
+  const [formHeaders, setFormHeaders] = useState<
+    { key: string; value: string }[]
+  >([]);
   const [formBodyTemplate, setFormBodyTemplate] = useState("");
   const [formIsActive, setFormIsActive] = useState(true);
   const [formRetryCount, setFormRetryCount] = useState(3);
@@ -308,18 +310,26 @@ export default function AdminWebhooksPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b text-left text-sm text-muted-foreground">
-                <th className="px-4 py-3 font-medium">{t("webhooks.eventType")}</th>
+                <th className="px-4 py-3 font-medium">
+                  {t("webhooks.eventType")}
+                </th>
                 <th className="px-4 py-3 font-medium">{t("webhooks.url")}</th>
-                <th className="px-4 py-3 font-medium">{t("webhooks.httpMethod")}</th>
+                <th className="px-4 py-3 font-medium">
+                  {t("webhooks.httpMethod")}
+                </th>
                 <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 text-right font-medium">{t("common.actions")}</th>
+                <th className="px-4 py-3 text-right font-medium">
+                  {t("common.actions")}
+                </th>
               </tr>
             </thead>
             <tbody>
               {webhooks.map((webhook) => (
                 <tr key={webhook.id} className="border-b last:border-0">
                   <td className="px-4 py-3">
-                    <span className="font-mono text-sm">{webhook.event_type}</span>
+                    <span className="font-mono text-sm">
+                      {webhook.event_type}
+                    </span>
                   </td>
                   <td className="px-4 py-3">
                     <span className="max-w-xs truncate text-sm text-muted-foreground">
@@ -377,7 +387,9 @@ export default function AdminWebhooksPage() {
           <div className="rounded-full bg-muted p-4">
             <History className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h3 className="mt-4 text-lg font-medium">{t("webhooks.noWebhooks")}</h3>
+          <h3 className="mt-4 text-lg font-medium">
+            {t("webhooks.noWebhooks")}
+          </h3>
           <p className="mt-2 text-sm text-muted-foreground">
             {t("webhooks.noWebhooksDescription")}
           </p>
@@ -401,11 +413,11 @@ export default function AdminWebhooksPage() {
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingWebhook ? t("webhooks.editWebhook") : t("webhooks.createWebhook")}
+              {editingWebhook
+                ? t("webhooks.editWebhook")
+                : t("webhooks.createWebhook")}
             </DialogTitle>
-            <DialogDescription>
-              {t("webhooks.description")}
-            </DialogDescription>
+            <DialogDescription>{t("webhooks.description")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             {/* Event Type */}
@@ -432,7 +444,9 @@ export default function AdminWebhooksPage() {
             {/* Available Variables */}
             {selectedEventType && (
               <div className="rounded-lg bg-muted/50 p-3">
-                <p className="text-sm font-medium">{t("webhooks.availableVariables")}</p>
+                <p className="text-sm font-medium">
+                  {t("webhooks.availableVariables")}
+                </p>
                 <div className="mt-2 flex flex-wrap gap-1">
                   {selectedEventType.variables.map((variable) => (
                     <Badge
@@ -484,12 +498,19 @@ export default function AdminWebhooksPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>{t("webhooks.headers")}</Label>
-                <Button type="button" variant="outline" size="sm" onClick={addHeader}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addHeader}
+                >
                   <Plus className="mr-1 h-3 w-3" />
                   {t("webhooks.addHeader")}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">{t("webhooks.headersHelp")}</p>
+              <p className="text-xs text-muted-foreground">
+                {t("webhooks.headersHelp")}
+              </p>
               {formHeaders.map((header, index) => (
                 <div key={index} className="flex gap-2">
                   <Input
@@ -501,7 +522,9 @@ export default function AdminWebhooksPage() {
                   <Input
                     placeholder={t("webhooks.headerValue")}
                     value={header.value}
-                    onChange={(e) => updateHeader(index, "value", e.target.value)}
+                    onChange={(e) =>
+                      updateHeader(index, "value", e.target.value)
+                    }
                     className="flex-1"
                   />
                   <Button
@@ -518,7 +541,9 @@ export default function AdminWebhooksPage() {
 
             {/* Body Template */}
             <div className="space-y-2">
-              <Label htmlFor="body_template">{t("webhooks.bodyTemplate")}</Label>
+              <Label htmlFor="body_template">
+                {t("webhooks.bodyTemplate")}
+              </Label>
               <Textarea
                 id="body_template"
                 value={formBodyTemplate}
@@ -553,7 +578,9 @@ export default function AdminWebhooksPage() {
                 min={0}
                 max={10}
                 value={formRetryCount}
-                onChange={(e) => setFormRetryCount(parseInt(e.target.value) || 0)}
+                onChange={(e) =>
+                  setFormRetryCount(parseInt(e.target.value) || 0)
+                }
               />
               <p className="text-xs text-muted-foreground">
                 {t("webhooks.retryCountHelp")}
@@ -617,9 +644,7 @@ export default function AdminWebhooksPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t("webhooks.testWebhook")}</DialogTitle>
-            <DialogDescription>
-              {testingWebhook?.event_type}
-            </DialogDescription>
+            <DialogDescription>{testingWebhook?.event_type}</DialogDescription>
           </DialogHeader>
           <div className="py-4">
             {testMutation.isPending ? (
@@ -648,13 +673,17 @@ export default function AdminWebhooksPage() {
                 {testResult.status_code && (
                   <div>
                     <Label>{t("webhooks.responseStatus")}</Label>
-                    <p className="font-mono text-sm">{testResult.status_code}</p>
+                    <p className="font-mono text-sm">
+                      {testResult.status_code}
+                    </p>
                   </div>
                 )}
                 {testResult.error && (
                   <div>
                     <Label>{t("webhooks.errorMessage")}</Label>
-                    <p className="text-sm text-destructive">{testResult.error}</p>
+                    <p className="text-sm text-destructive">
+                      {testResult.error}
+                    </p>
                   </div>
                 )}
                 {testResult.response_body && (
@@ -717,7 +746,9 @@ export default function AdminWebhooksPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("errors.somethingWentWrong")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("errors.somethingWentWrong")}
+            </AlertDialogTitle>
             <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -847,7 +847,9 @@ export type WebhookConfigCreate = {
   timeout_seconds?: number;
 };
 
-export type WebhookConfigUpdate = Partial<Omit<WebhookConfigCreate, "event_type">>;
+export type WebhookConfigUpdate = Partial<
+  Omit<WebhookConfigCreate, "event_type">
+>;
 
 export type WebhookExecution = {
   id: string;
@@ -884,8 +886,7 @@ export const webhooksApi = {
   listEventTypes: () =>
     apiRequest<EventTypeInfo[]>("/api/v1/webhooks/event-types"),
 
-  listConfigs: () =>
-    apiRequest<WebhookConfig[]>("/api/v1/webhooks/configs"),
+  listConfigs: () => apiRequest<WebhookConfig[]>("/api/v1/webhooks/configs"),
 
   getConfig: (id: string) =>
     apiRequest<WebhookConfig>(`/api/v1/webhooks/configs/${id}`),
