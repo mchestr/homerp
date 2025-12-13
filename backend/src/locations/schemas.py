@@ -89,3 +89,53 @@ class LocationWithAncestors(LocationResponse):
         default_factory=list,
         description="List of ancestor locations from root to parent",
     )
+
+
+# AI Location Analysis Schemas
+
+
+class LocationSuggestion(BaseModel):
+    """Schema for a suggested location from AI analysis."""
+
+    name: str = Field(..., min_length=1, max_length=255)
+    location_type: str = Field(
+        ..., description="Type: room, shelf, bin, drawer, box, cabinet"
+    )
+    description: str | None = Field(None, max_length=500)
+
+
+class LocationAnalysisResult(BaseModel):
+    """Schema for AI location analysis result."""
+
+    parent: LocationSuggestion
+    children: list[LocationSuggestion] = Field(default_factory=list)
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    reasoning: str = Field(..., description="AI's reasoning for the suggestions")
+
+
+class LocationAnalysisRequest(BaseModel):
+    """Schema for location analysis request."""
+
+    image_id: UUID
+
+
+class LocationAnalysisResponse(BaseModel):
+    """Schema for location analysis response."""
+
+    success: bool
+    result: LocationAnalysisResult | None = None
+    error: str | None = None
+
+
+class LocationBulkCreate(BaseModel):
+    """Schema for bulk location creation with parent and children."""
+
+    parent: LocationCreate
+    children: list[LocationCreate] = Field(default_factory=list)
+
+
+class LocationBulkCreateResponse(BaseModel):
+    """Schema for bulk creation response."""
+
+    parent: LocationResponse
+    children: list[LocationResponse]

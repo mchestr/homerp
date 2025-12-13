@@ -20,15 +20,26 @@ test.describe("Dashboard", () => {
 
     await page.goto("/dashboard");
 
+    // Wait for the dashboard to fully load
+    await expect(
+      page.getByRole("heading", { name: /dashboard/i })
+    ).toBeVisible();
+
     // On mobile, need to open the sidebar first via the menu button
     if (isMobile) {
-      await page
+      const menuButton = page
         .getByRole("button")
-        .filter({ has: page.locator("svg.lucide-menu") })
-        .click();
+        .filter({ has: page.locator("svg.lucide-menu") });
+      await menuButton.waitFor({ state: "visible" });
+      await menuButton.click();
     }
 
-    await page.getByRole("link", { name: /items/i }).first().click();
-    await expect(page).toHaveURL(/.*\/items/);
+    // Use data-testid for reliable selection and wait for it to be visible
+    const itemsLink = page.getByTestId("sidebar-link-items");
+    await itemsLink.waitFor({ state: "visible" });
+    await itemsLink.click();
+
+    // Use longer timeout for navigation in CI
+    await expect(page).toHaveURL(/.*\/items/, { timeout: 10000 });
   });
 });

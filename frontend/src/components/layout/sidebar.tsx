@@ -176,6 +176,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                         key={item.href}
                         href={item.href}
                         onClick={onClose}
+                        data-testid={`sidebar-link-${item.href.replace(/\//g, "-").replace(/^-/, "")}`}
                         className={cn(
                           "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                           isActive

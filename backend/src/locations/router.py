@@ -4,10 +4,18 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import Response
 
+from src.ai.service import AIClassificationService, get_ai_service
 from src.auth.dependencies import CurrentUserIdDep
+from src.billing.router import CreditServiceDep
 from src.database import AsyncSessionDep
+from src.images.repository import ImageRepository
+from src.images.storage import LocalStorage, get_storage
 from src.locations.qr import QRCodeService, get_qr_service
 from src.locations.schemas import (
+    LocationAnalysisRequest,
+    LocationAnalysisResponse,
+    LocationBulkCreate,
+    LocationBulkCreateResponse,
     LocationCreate,
     LocationMoveRequest,
     LocationResponse,
@@ -39,6 +47,122 @@ async def get_location_tree(
     """Get locations as a nested tree structure with item counts."""
     service = LocationService(session, user_id)
     return await service.get_tree()
+
+
+@router.post("/analyze-image")
+async def analyze_location_image(
+    data: LocationAnalysisRequest,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+    storage: Annotated[LocalStorage, Depends(get_storage)],
+    ai_service: Annotated[AIClassificationService, Depends(get_ai_service)],
+    credit_service: CreditServiceDep,
+) -> LocationAnalysisResponse:
+    """Analyze an image to suggest location structure using AI.
+
+    Consumes 1 credit on successful analysis.
+    """
+    # Check if user has credits
+    if not await credit_service.has_credits(user_id):
+        raise HTTPException(
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            detail="Insufficient credits. Please purchase more credits to use AI analysis.",
+        )
+
+    # Get image record
+    repo = ImageRepository(session, user_id)
+    image = await repo.get_by_id(data.image_id)
+    if not image:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image not found",
+        )
+
+    try:
+        # Read image data
+        image_data = await storage.read(image.storage_path)
+
+        # Analyze with AI
+        result = await ai_service.analyze_location_image(
+            image_data,
+            mime_type=image.mime_type or "image/jpeg",
+        )
+
+        # Deduct credit after successful analysis
+        await credit_service.deduct_credit(
+            user_id,
+            f"Location analysis: {image.original_filename or 'image'}",
+        )
+
+        return LocationAnalysisResponse(
+            success=True,
+            result=result,
+        )
+
+    except Exception as e:
+        return LocationAnalysisResponse(
+            success=False,
+            error=str(e),
+        )
+
+
+@router.post("/bulk", status_code=status.HTTP_201_CREATED)
+async def create_locations_bulk(
+    data: LocationBulkCreate,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+) -> LocationBulkCreateResponse:
+    """Create a parent location with multiple children in a single operation."""
+    service = LocationService(session, user_id)
+
+    # Check for duplicate parent name
+    existing = await service.get_by_name(data.parent.name)
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Location with name '{data.parent.name}' already exists",
+        )
+
+    # Validate parent's parent exists if provided
+    if data.parent.parent_id:
+        parent_parent = await service.get_by_id(data.parent.parent_id)
+        if not parent_parent:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Parent location not found",
+            )
+
+    # Check for duplicate names among children
+    child_names = [child.name for child in data.children]
+    if len(child_names) != len(set(child_names)):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Duplicate child location names are not allowed",
+        )
+
+    # Check children names don't conflict with parent
+    if data.parent.name in child_names:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Child location cannot have the same name as parent",
+        )
+
+    # Check for existing locations with child names
+    for child_name in child_names:
+        existing_child = await service.get_by_name(child_name)
+        if existing_child:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Location with name '{child_name}' already exists",
+            )
+
+    # Create parent and children
+    parent, children = await service.create_bulk(data)
+
+    return LocationBulkCreateResponse(
+        parent=LocationResponse.model_validate(parent),
+        children=[LocationResponse.model_validate(child) for child in children],
+    )
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
