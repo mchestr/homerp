@@ -223,3 +223,37 @@ class TestDeleteFeedbackAdminEndpoint:
         response = await admin_client.delete(f"/api/v1/feedback/admin/{uuid.uuid4()}")
 
         assert response.status_code == 404
+
+
+class TestRetriggerFeedbackWebhookEndpoint:
+    """Tests for POST /api/v1/feedback/admin/{feedback_id}/retrigger-webhook."""
+
+    async def test_retrigger_webhook_as_admin(
+        self, admin_client: AsyncClient, test_feedback: Feedback
+    ):
+        """Test re-triggering webhook as admin."""
+        response = await admin_client.post(
+            f"/api/v1/feedback/admin/{test_feedback.id}/retrigger-webhook"
+        )
+
+        assert response.status_code == 202
+        data = response.json()
+        assert data["message"] == "Webhook re-triggered successfully"
+
+    async def test_retrigger_webhook_as_non_admin(
+        self, authenticated_client: AsyncClient, test_feedback: Feedback
+    ):
+        """Test that non-admin gets 403."""
+        response = await authenticated_client.post(
+            f"/api/v1/feedback/admin/{test_feedback.id}/retrigger-webhook"
+        )
+
+        assert response.status_code == 403
+
+    async def test_retrigger_webhook_not_found(self, admin_client: AsyncClient):
+        """Test re-triggering webhook for non-existent feedback."""
+        response = await admin_client.post(
+            f"/api/v1/feedback/admin/{uuid.uuid4()}/retrigger-webhook"
+        )
+
+        assert response.status_code == 404

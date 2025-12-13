@@ -893,6 +893,14 @@ export const adminApi = {
 
   deleteFeedback: (id: string) =>
     apiRequest<void>(`/api/v1/feedback/admin/${id}`, { method: "DELETE" }),
+
+  retriggerFeedbackWebhook: (id: string) =>
+    apiRequest<{ message: string }>(
+      `/api/v1/feedback/admin/${id}/retrigger-webhook`,
+      {
+        method: "POST",
+      }
+    ),
 };
 
 // Feedback Types

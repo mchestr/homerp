@@ -202,3 +202,45 @@ async def delete_feedback(
             detail="Feedback not found",
         )
     await repo.delete(feedback)
+
+
+@router.post(
+    "/admin/{feedback_id}/retrigger-webhook", status_code=status.HTTP_202_ACCEPTED
+)
+async def retrigger_feedback_webhook(
+    feedback_id: UUID,
+    _admin: AdminUserDep,
+    session: AsyncSessionDep,
+    background_tasks: BackgroundTasks,
+) -> dict:
+    """Re-trigger the feedback.created webhook for a specific feedback item (admin only)."""
+    repo = FeedbackRepository(session)
+    feedback = await repo.get_by_id(feedback_id)
+    if not feedback:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Feedback not found",
+        )
+
+    # Trigger webhook (runs in background)
+    webhook_service = WebhookService(session)
+    await webhook_service.trigger_event(
+        event_type="feedback.created",
+        payload={
+            "feedback": {
+                "id": str(feedback.id),
+                "subject": feedback.subject,
+                "message": feedback.message,
+                "feedback_type": feedback.feedback_type,
+                "status": feedback.status,
+            },
+            "user": {
+                "id": str(feedback.user_id),
+                "email": feedback.user.email if feedback.user else None,
+                "name": feedback.user.name if feedback.user else None,
+            },
+        },
+        background_tasks=background_tasks,
+    )
+
+    return {"message": "Webhook re-triggered successfully"}

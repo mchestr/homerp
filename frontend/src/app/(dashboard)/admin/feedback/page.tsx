@@ -21,6 +21,7 @@ import {
   HelpCircle,
   Trash2,
   Eye,
+  RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -114,7 +115,10 @@ export default function AdminFeedbackPage() {
   const [editNotes, setEditNotes] = useState("");
   const [deleteConfirm, setDeleteConfirm] =
     useState<FeedbackAdminResponse | null>(null);
+  const [retriggerConfirm, setRetriggerConfirm] =
+    useState<FeedbackAdminResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const { data: feedbackData, isLoading: feedbackLoading } = useQuery({
     queryKey: ["admin-feedback", page, statusFilter, typeFilter],
@@ -143,6 +147,18 @@ export default function AdminFeedbackPage() {
     onError: (error: Error) => {
       setErrorMessage(error.message);
       setDeleteConfirm(null);
+    },
+  });
+
+  const retriggerMutation = useMutation({
+    mutationFn: (id: string) => adminApi.retriggerFeedbackWebhook(id),
+    onSuccess: () => {
+      setRetriggerConfirm(null);
+      setSuccessMessage(t("feedback.retriggerWebhookSuccess"));
+    },
+    onError: (error: Error) => {
+      setErrorMessage(error.message);
+      setRetriggerConfirm(null);
     },
   });
 
@@ -496,19 +512,35 @@ export default function AdminFeedbackPage() {
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedFeedback(null)}>
-              {t("common.cancel")}
-            </Button>
+          <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-between">
             <Button
-              onClick={handleUpdateSubmit}
-              disabled={updateMutation.isPending}
+              variant="outline"
+              onClick={() => {
+                if (selectedFeedback) {
+                  setRetriggerConfirm(selectedFeedback);
+                }
+              }}
             >
-              {updateMutation.isPending && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              {t("common.save")}
+              <RefreshCw className="mr-2 h-4 w-4" />
+              {t("feedback.retriggerWebhook")}
             </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setSelectedFeedback(null)}
+              >
+                {t("common.cancel")}
+              </Button>
+              <Button
+                onClick={handleUpdateSubmit}
+                disabled={updateMutation.isPending}
+              >
+                {updateMutation.isPending && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                {t("common.save")}
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -556,6 +588,55 @@ export default function AdminFeedbackPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction onClick={() => setErrorMessage(null)}>
+              {t("common.close")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Retrigger Webhook Confirmation */}
+      <AlertDialog
+        open={!!retriggerConfirm}
+        onOpenChange={() => setRetriggerConfirm(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("feedback.retriggerWebhook")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("feedback.retriggerWebhookConfirm")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() =>
+                retriggerConfirm &&
+                retriggerMutation.mutate(retriggerConfirm.id)
+              }
+            >
+              {retriggerMutation.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {t("feedback.retriggerWebhook")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Success Dialog */}
+      <AlertDialog
+        open={!!successMessage}
+        onOpenChange={() => setSuccessMessage(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("common.success")}</AlertDialogTitle>
+            <AlertDialogDescription>{successMessage}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setSuccessMessage(null)}>
               {t("common.close")}
             </AlertDialogAction>
           </AlertDialogFooter>
