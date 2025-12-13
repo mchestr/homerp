@@ -38,6 +38,8 @@ import {
   ItemCreate,
   LocationTreeNode,
 } from "@/lib/api/api-client";
+import { parseQuantityEstimate } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 type UploadedImage = {
   id: string;
@@ -70,6 +72,7 @@ export default function NewItemPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [classification, setClassification] =
@@ -80,6 +83,9 @@ export default function NewItemPage() {
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [categoriesCreated, setCategoriesCreated] = useState(false);
   const [initialImageLoaded, setInitialImageLoaded] = useState(false);
+  const [quantityEstimateRaw, setQuantityEstimateRaw] = useState<string | null>(
+    null
+  );
 
   const [formData, setFormData] = useState<ItemCreate>({
     name: "",
@@ -118,10 +124,21 @@ export default function NewItemPage() {
           if (imageData.ai_processed && imageData.ai_result) {
             const result = imageData.ai_result as ClassificationResult;
             setClassification(result);
+
+            // Parse quantity estimate
+            const parsedQuantity = parseQuantityEstimate(
+              result.quantity_estimate
+            );
+            if (result.quantity_estimate) {
+              setQuantityEstimateRaw(result.quantity_estimate);
+            }
+
             setFormData((prev) => ({
               ...prev,
               name: result.identified_name,
               description: result.description,
+              quantity: parsedQuantity.quantity,
+              quantity_unit: parsedQuantity.quantity_unit,
               attributes: {
                 ...prev.attributes,
                 specifications: result.specifications,
@@ -204,10 +221,18 @@ export default function NewItemPage() {
   const handleClassificationComplete = (result: ClassificationResult) => {
     setClassification(result);
 
+    // Parse quantity estimate
+    const parsedQuantity = parseQuantityEstimate(result.quantity_estimate);
+    if (result.quantity_estimate) {
+      setQuantityEstimateRaw(result.quantity_estimate);
+    }
+
     setFormData((prev) => ({
       ...prev,
       name: result.identified_name,
       description: result.description,
+      quantity: parsedQuantity.quantity,
+      quantity_unit: parsedQuantity.quantity_unit,
       attributes: {
         ...prev.attributes,
         specifications: result.specifications,
@@ -486,11 +511,17 @@ export default function NewItemPage() {
               <input
                 type="number"
                 name="quantity"
+                data-testid="item-quantity-input"
                 value={formData.quantity}
                 onChange={handleInputChange}
                 min={0}
                 className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
+              {quantityEstimateRaw && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {t("ai.quantityEstimate", { estimate: quantityEstimateRaw })}
+                </p>
+              )}
             </div>
 
             <div>
@@ -498,6 +529,7 @@ export default function NewItemPage() {
               <input
                 type="text"
                 name="quantity_unit"
+                data-testid="item-quantity-unit-input"
                 value={formData.quantity_unit}
                 onChange={handleInputChange}
                 className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
