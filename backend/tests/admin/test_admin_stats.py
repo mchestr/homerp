@@ -353,7 +353,8 @@ class TestAdminStats:
                 description="Feedback with aware timestamp",
                 user_email="test@example.com",
                 user_name="Test User",
-                timestamp=datetime.now(UTC) - timedelta(hours=1),  # Timezone-aware, older
+                timestamp=datetime.now(UTC)
+                - timedelta(hours=1),  # Timezone-aware, older
             ),
             RecentActivityItem(
                 id=uuid.uuid4(),
