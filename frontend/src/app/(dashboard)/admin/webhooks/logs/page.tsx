@@ -297,7 +297,7 @@ export default function WebhookLogsPage() {
               {selectedExecution.error_message && (
                 <div className="space-y-1">
                   <Label>{t("webhooks.errorMessage")}</Label>
-                  <p className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+                  <p className="break-words rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
                     {selectedExecution.error_message}
                   </p>
                 </div>
@@ -306,7 +306,7 @@ export default function WebhookLogsPage() {
               {/* Request URL */}
               <div className="space-y-1">
                 <Label>{t("webhooks.requestUrl")}</Label>
-                <p className="rounded-lg bg-muted p-3 font-mono text-sm">
+                <p className="break-all rounded-lg bg-muted p-3 font-mono text-sm">
                   {selectedExecution.request_url}
                 </p>
               </div>
@@ -314,7 +314,7 @@ export default function WebhookLogsPage() {
               {/* Request Headers */}
               <div className="space-y-1">
                 <Label>{t("webhooks.requestHeaders")}</Label>
-                <pre className="max-h-40 overflow-auto rounded-lg bg-muted p-3 text-xs">
+                <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap break-words rounded-lg bg-muted p-3 text-xs">
                   {JSON.stringify(selectedExecution.request_headers, null, 2)}
                 </pre>
               </div>
@@ -322,7 +322,7 @@ export default function WebhookLogsPage() {
               {/* Request Body */}
               <div className="space-y-1">
                 <Label>{t("webhooks.requestBody")}</Label>
-                <pre className="max-h-60 overflow-auto rounded-lg bg-muted p-3 text-xs">
+                <pre className="max-h-60 overflow-y-auto whitespace-pre-wrap break-words rounded-lg bg-muted p-3 text-xs">
                   {selectedExecution.request_body}
                 </pre>
               </div>
@@ -341,7 +341,7 @@ export default function WebhookLogsPage() {
               {selectedExecution.response_body && (
                 <div className="space-y-1">
                   <Label>{t("webhooks.responseBody")}</Label>
-                  <pre className="max-h-40 overflow-auto rounded-lg bg-muted p-3 text-xs">
+                  <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap break-words rounded-lg bg-muted p-3 text-xs">
                     {selectedExecution.response_body}
                   </pre>
                 </div>
@@ -350,7 +350,7 @@ export default function WebhookLogsPage() {
               {/* Event Payload */}
               <div className="space-y-1">
                 <Label>{t("webhooks.eventPayload")}</Label>
-                <pre className="max-h-60 overflow-auto rounded-lg bg-muted p-3 text-xs">
+                <pre className="max-h-60 overflow-y-auto whitespace-pre-wrap break-words rounded-lg bg-muted p-3 text-xs">
                   {JSON.stringify(selectedExecution.event_payload, null, 2)}
                 </pre>
               </div>
