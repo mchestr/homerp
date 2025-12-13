@@ -209,7 +209,7 @@ Core tables:
 - always use the most idiomatic and standard way to solve issues, do not invent hacks or workarounds.
 - never use browser alerts always use our common modal components
 - all frontend strings hould be translated using the i18n library
-- always run lint/build/docker build before pushing remotely to ensure the gitlab ci workflows will pass
+- always run lint/build/docker build before pushing remotely to ensure the GitHub Actions workflows will pass
 
 ## Playwright E2E Testing
 

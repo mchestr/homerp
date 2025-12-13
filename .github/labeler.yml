@@ -1,0 +1,62 @@
+# Pull Request Labeler Configuration
+# Labels PRs based on files changed
+
+backend:
+  - changed-files:
+      - any-glob-to-any-file: "backend/**/*"
+
+frontend:
+  - changed-files:
+      - any-glob-to-any-file: "frontend/**/*"
+
+database:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "backend/alembic/**/*"
+          - "backend/src/**/models.py"
+          - "backend/src/**/repository.py"
+
+ai:
+  - changed-files:
+      - any-glob-to-any-file: "backend/src/ai/**/*"
+
+billing:
+  - changed-files:
+      - any-glob-to-any-file: "backend/src/billing/**/*"
+
+auth:
+  - changed-files:
+      - any-glob-to-any-file: "backend/src/auth/**/*"
+
+testing:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "backend/tests/**/*"
+          - "frontend/e2e/**/*"
+          - "**/*.test.*"
+          - "**/*.spec.*"
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**/*"
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
+          - "docs/**/*"
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "backend/pyproject.toml"
+          - "backend/uv.lock"
+          - "frontend/package.json"
+          - "frontend/pnpm-lock.yaml"
+
+docker:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/Dockerfile"
+          - "docker-compose*.yml"
