@@ -149,18 +149,18 @@ export default function LocationDetailPage() {
             data-testid="generate-qr-button"
           >
             <QrCode className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">{t("qrCode")}</span>
+            {t("qrCode")}
           </Button>
           <Button variant="outline" asChild>
             <Link href={`/locations?edit=${location.id}`}>
               <Edit className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">{tCommon("edit")}</span>
+              {tCommon("edit")}
             </Link>
           </Button>
           <Button asChild>
             <Link href={`/items/new?location_id=${location.id}`}>
               <Plus className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">{t("addItem")}</span>
+              {t("addItem")}
             </Link>
           </Button>
         </div>
