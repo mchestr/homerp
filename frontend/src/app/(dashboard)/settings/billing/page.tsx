@@ -10,15 +10,22 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
+  ChevronDown,
+  ChevronUp,
   Coins,
   CreditCard,
   ExternalLink,
+  HelpCircle,
   Loader2,
   RefreshCw,
   Sparkles,
+  Zap,
+  Calendar,
+  ShoppingBag,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 function formatPrice(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
@@ -123,6 +130,68 @@ function TransactionRow({ transaction }: { transaction: CreditTransaction }) {
   );
 }
 
+function CreditsInfoCard() {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const t = useTranslations("billing");
+
+  return (
+    <div className="rounded-xl border bg-card">
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex w-full items-center justify-between p-6 text-left"
+      >
+        <div className="flex items-center gap-2">
+          <HelpCircle className="h-5 w-5 text-primary" />
+          <h2 className="font-semibold">{t("howCreditsWork")}</h2>
+        </div>
+        {isExpanded ? (
+          <ChevronUp className="h-5 w-5 text-muted-foreground" />
+        ) : (
+          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+        )}
+      </button>
+      {isExpanded && (
+        <div className="border-t px-6 pb-6 pt-4">
+          <p className="text-sm text-muted-foreground">
+            {t("creditsExplanation")}
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            <div className="rounded-lg bg-muted/50 p-4">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-primary" />
+                <h3 className="text-sm font-medium">{t("freeCreditsInfo")}</h3>
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {t("freeCreditsDescription")}
+              </p>
+            </div>
+            <div className="rounded-lg bg-muted/50 p-4">
+              <div className="flex items-center gap-2">
+                <ShoppingBag className="h-4 w-4 text-primary" />
+                <h3 className="text-sm font-medium">
+                  {t("purchasedCreditsInfo")}
+                </h3>
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {t("purchasedCreditsDescription")}
+              </p>
+            </div>
+            <div className="rounded-lg bg-muted/50 p-4">
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4 text-primary" />
+                <h3 className="text-sm font-medium">{t("creditCostInfo")}</h3>
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {t("creditCostDescription")}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function BillingSettingsPage() {
   const { creditBalance, refreshCredits } = useAuth();
   const queryClient = useQueryClient();
@@ -183,6 +252,9 @@ export default function BillingSettingsPage() {
           </p>
         </div>
       </div>
+
+      {/* How Credits Work Info Card */}
+      <CreditsInfoCard />
 
       {/* Current Balance */}
       <div className="rounded-xl border bg-card p-6">

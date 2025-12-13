@@ -5,15 +5,31 @@ import { LogOut, User, Menu, Package, Coins } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 interface HeaderProps {
   onMenuClick?: () => void;
 }
 
+function formatDate(dateString: string): string {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 export function Header({ onMenuClick }: HeaderProps) {
   const router = useRouter();
   const { user, logout, creditBalance } = useAuth();
+  const t = useTranslations("billing");
 
   const handleLogout = () => {
     logout();
@@ -38,19 +54,50 @@ export function Header({ onMenuClick }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-4">
-        {/* Credit Balance */}
+        {/* Credit Balance with Tooltip */}
         {creditBalance !== null && (
-          <Link
-            href="/settings/billing"
-            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors hover:bg-muted ${
-              creditBalance.total_credits <= 5
-                ? "text-amber-600 dark:text-amber-400"
-                : "text-muted-foreground"
-            }`}
-          >
-            <Coins className="h-4 w-4" />
-            <span>{creditBalance.total_credits}</span>
-          </Link>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/settings/billing"
+                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors hover:bg-muted ${
+                    creditBalance.total_credits <= 5
+                      ? "text-amber-600 dark:text-amber-400"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  <Coins className="h-4 w-4" />
+                  <span>{creditBalance.total_credits}</span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="w-56">
+                <div className="space-y-2">
+                  <p className="font-semibold">{t("creditTooltipTitle")}</p>
+                  <div className="text-xs space-y-1">
+                    <p>
+                      {t("creditTooltipPurchased", {
+                        count: creditBalance.purchased_credits,
+                      })}
+                    </p>
+                    <p>
+                      {t("creditTooltipFree", {
+                        count: creditBalance.free_credits,
+                      })}
+                    </p>
+                    {creditBalance.next_free_reset_at && (
+                      <p className="text-muted-foreground">
+                        {t("creditTooltipResets", {
+                          date: formatDate(creditBalance.next_free_reset_at),
+                        })}
+                      </p>
+                    )}
+                  </div>
+                  <p className="text-xs text-primary pt-1">{t("manageCredits")}</p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
 
         <ThemeToggle />
