@@ -74,7 +74,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               <TooltipContent side="bottom" className="w-56">
                 <div className="space-y-2">
                   <p className="font-semibold">{t("creditTooltipTitle")}</p>
-                  <div className="text-xs space-y-1">
+                  <div className="space-y-1 text-xs">
                     <p>
                       {t("creditTooltipPurchased", {
                         count: creditBalance.purchased_credits,
@@ -93,7 +93,9 @@ export function Header({ onMenuClick }: HeaderProps) {
                       </p>
                     )}
                   </div>
-                  <p className="text-xs text-primary pt-1">{t("manageCredits")}</p>
+                  <p className="pt-1 text-xs text-primary">
+                    {t("manageCredits")}
+                  </p>
                 </div>
               </TooltipContent>
             </Tooltip>
