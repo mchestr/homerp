@@ -1,5 +1,6 @@
 import base64
 import json
+import re
 from typing import Any
 
 from openai import AsyncOpenAI
@@ -7,6 +8,123 @@ from openai import AsyncOpenAI
 from src.config import Settings, get_settings
 from src.images.schemas import ClassificationResult
 from src.locations.schemas import LocationAnalysisResult, LocationSuggestion
+
+# Unit aliases for normalization
+UNIT_ALIASES: dict[str, str] = {
+    "pieces": "pcs",
+    "piece": "pcs",
+    "pcs": "pcs",
+    "pc": "pcs",
+    "units": "pcs",
+    "unit": "pcs",
+    "items": "pcs",
+    "item": "pcs",
+    "meters": "m",
+    "meter": "m",
+    "m": "m",
+    "centimeters": "cm",
+    "centimeter": "cm",
+    "cm": "cm",
+    "millimeters": "mm",
+    "millimeter": "mm",
+    "mm": "mm",
+    "feet": "ft",
+    "foot": "ft",
+    "ft": "ft",
+    "inches": "in",
+    "inch": "in",
+    "in": "in",
+    "kilograms": "kg",
+    "kilogram": "kg",
+    "kg": "kg",
+    "grams": "g",
+    "gram": "g",
+    "g": "g",
+    "pounds": "lb",
+    "pound": "lb",
+    "lbs": "lb",
+    "lb": "lb",
+    "ounces": "oz",
+    "ounce": "oz",
+    "oz": "oz",
+    "liters": "L",
+    "liter": "L",
+    "l": "L",
+    "milliliters": "mL",
+    "milliliter": "mL",
+    "ml": "mL",
+    "rolls": "rolls",
+    "roll": "rolls",
+    "packs": "packs",
+    "pack": "packs",
+    "boxes": "boxes",
+    "box": "boxes",
+    "bags": "bags",
+    "bag": "bags",
+    "sets": "sets",
+    "set": "sets",
+    "pairs": "pairs",
+    "pair": "pairs",
+}
+
+
+def parse_quantity_estimate(estimate: str | None) -> dict[str, Any]:
+    """
+    Parse a quantity estimate string into numeric quantity and unit.
+
+    Examples:
+        "5 pieces" -> {"quantity": 5, "quantity_unit": "pcs"}
+        "approximately 10" -> {"quantity": 10, "quantity_unit": "pcs"}
+        "10m of cable" -> {"quantity": 10, "quantity_unit": "m"}
+        "about 25 meters" -> {"quantity": 25, "quantity_unit": "m"}
+        "1 kg" -> {"quantity": 1, "quantity_unit": "kg"}
+        None or unparseable -> {"quantity": 1, "quantity_unit": "pcs"}
+
+    Args:
+        estimate: The quantity estimate string from AI
+
+    Returns:
+        Dictionary with quantity (int) and quantity_unit (str)
+    """
+    if not estimate:
+        return {"quantity": 1, "quantity_unit": "pcs"}
+
+    estimate = estimate.strip().lower()
+
+    # Pattern 1: "10m", "5kg", "25cm" (number directly followed by unit abbreviation)
+    match = re.match(r"(-?\d+(?:\.\d+)?)\s*([a-zA-Z]+)", estimate)
+    if match:
+        num_str, unit_str = match.groups()
+        try:
+            quantity = int(float(num_str))
+            quantity = max(1, quantity)  # Ensure at least 1
+            unit = UNIT_ALIASES.get(unit_str.lower(), "pcs")
+            return {"quantity": quantity, "quantity_unit": unit}
+        except ValueError:
+            pass
+
+    # Pattern 2: Extract first number and look for unit words
+    # Matches patterns like "approximately 10 pieces", "about 5", "around 25 meters"
+    num_match = re.search(r"(-?\d+(?:\.\d+)?)", estimate)
+    if num_match:
+        try:
+            quantity = int(float(num_match.group(1)))
+            quantity = max(1, quantity)  # Ensure at least 1
+
+            # Look for unit words in the rest of the string
+            unit = "pcs"  # Default
+            for alias, normalized_unit in UNIT_ALIASES.items():
+                if re.search(rf"\b{re.escape(alias)}\b", estimate):
+                    unit = normalized_unit
+                    break
+
+            return {"quantity": quantity, "quantity_unit": unit}
+        except ValueError:
+            pass
+
+    # Fallback: couldn't parse, return defaults
+    return {"quantity": 1, "quantity_unit": "pcs"}
+
 
 SYSTEM_PROMPT = """You are an expert inventory classification assistant specializing in hobby, DIY, and electronics components. Your task is to analyze images and identify items with high precision.
 
@@ -174,6 +292,9 @@ class AIClassificationService:
         Returns:
             Dictionary with prefill data for item creation
         """
+        # Parse quantity estimate into numeric values
+        quantity_data = parse_quantity_estimate(classification.quantity_estimate)
+
         return {
             "name": classification.identified_name,
             "description": classification.description,
@@ -181,6 +302,9 @@ class AIClassificationService:
                 "specifications": classification.specifications,
             },
             "suggested_category_path": classification.category_path,
+            "quantity": quantity_data["quantity"],
+            "quantity_unit": quantity_data["quantity_unit"],
+            "quantity_estimate_raw": classification.quantity_estimate,
         }
 
     async def analyze_location_image(

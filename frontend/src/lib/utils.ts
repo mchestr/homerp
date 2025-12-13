@@ -157,6 +157,134 @@ export function formatRelativeTime(
   }
 }
 
+// ============================================================================
+// Quantity Parsing Utilities
+// ============================================================================
+
+/**
+ * Unit aliases for normalizing quantity units
+ */
+const UNIT_ALIASES: Record<string, string> = {
+  pieces: "pcs",
+  piece: "pcs",
+  pcs: "pcs",
+  pc: "pcs",
+  units: "pcs",
+  unit: "pcs",
+  items: "pcs",
+  item: "pcs",
+  meters: "m",
+  meter: "m",
+  m: "m",
+  centimeters: "cm",
+  centimeter: "cm",
+  cm: "cm",
+  millimeters: "mm",
+  millimeter: "mm",
+  mm: "mm",
+  feet: "ft",
+  foot: "ft",
+  ft: "ft",
+  inches: "in",
+  inch: "in",
+  in: "in",
+  kilograms: "kg",
+  kilogram: "kg",
+  kg: "kg",
+  grams: "g",
+  gram: "g",
+  g: "g",
+  pounds: "lb",
+  pound: "lb",
+  lbs: "lb",
+  lb: "lb",
+  ounces: "oz",
+  ounce: "oz",
+  oz: "oz",
+  liters: "L",
+  liter: "L",
+  l: "L",
+  milliliters: "mL",
+  milliliter: "mL",
+  ml: "mL",
+  rolls: "rolls",
+  roll: "rolls",
+  packs: "packs",
+  pack: "packs",
+  boxes: "boxes",
+  box: "boxes",
+  bags: "bags",
+  bag: "bags",
+  sets: "sets",
+  set: "sets",
+  pairs: "pairs",
+  pair: "pairs",
+};
+
+export type ParsedQuantity = {
+  quantity: number;
+  quantity_unit: string;
+};
+
+/**
+ * Parse a quantity estimate string into numeric quantity and unit.
+ *
+ * @example
+ * parseQuantityEstimate("5 pieces") // { quantity: 5, quantity_unit: "pcs" }
+ * parseQuantityEstimate("approximately 10") // { quantity: 10, quantity_unit: "pcs" }
+ * parseQuantityEstimate("10m of cable") // { quantity: 10, quantity_unit: "m" }
+ * parseQuantityEstimate("about 25 meters") // { quantity: 25, quantity_unit: "m" }
+ * parseQuantityEstimate(null) // { quantity: 1, quantity_unit: "pcs" }
+ */
+export function parseQuantityEstimate(
+  estimate: string | null | undefined
+): ParsedQuantity {
+  if (!estimate) {
+    return { quantity: 1, quantity_unit: "pcs" };
+  }
+
+  const normalizedEstimate = estimate.trim().toLowerCase();
+
+  // Pattern 1: "10m", "5kg", "25cm" (number directly followed by unit abbreviation)
+  const directMatch = normalizedEstimate.match(
+    /^(-?\d+(?:\.\d+)?)\s*([a-zA-Z]+)/
+  );
+  if (directMatch) {
+    const [, numStr, unitStr] = directMatch;
+    const quantity = Math.max(1, Math.floor(parseFloat(numStr)));
+    const unit = UNIT_ALIASES[unitStr.toLowerCase()] || "pcs";
+    return { quantity, quantity_unit: unit };
+  }
+
+  // Pattern 2: Extract first number and look for unit words
+  // Matches patterns like "approximately 10 pieces", "about 5", "around 25 meters"
+  const numMatch = normalizedEstimate.match(/(-?\d+(?:\.\d+)?)/);
+  if (numMatch) {
+    const quantity = Math.max(1, Math.floor(parseFloat(numMatch[1])));
+
+    // Look for unit words in the rest of the string
+    let unit = "pcs"; // Default
+    for (const [alias, normalizedUnit] of Object.entries(UNIT_ALIASES)) {
+      // Escape special regex characters in alias
+      const escapedAlias = alias.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(`\\b${escapedAlias}\\b`);
+      if (regex.test(normalizedEstimate)) {
+        unit = normalizedUnit;
+        break;
+      }
+    }
+
+    return { quantity, quantity_unit: unit };
+  }
+
+  // Fallback: couldn't parse, return defaults
+  return { quantity: 1, quantity_unit: "pcs" };
+}
+
+// ============================================================================
+// Currency Formatting Utilities
+// ============================================================================
+
 /**
  * Currency code to symbol mapping for common currencies
  */
