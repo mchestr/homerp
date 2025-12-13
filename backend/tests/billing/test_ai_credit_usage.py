@@ -1,7 +1,7 @@
 """Tests for AI classification credit consumption - the main credit-consuming feature."""
 
 import uuid
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -276,7 +276,7 @@ class TestClassificationCreditEdgeCases:
 
         # User has expired reset date and 0 free credits
         assert user_with_expired_free_credits.free_credits_remaining == 0
-        assert user_with_expired_free_credits.free_credits_reset_at < datetime.utcnow()
+        assert user_with_expired_free_credits.free_credits_reset_at < datetime.now(UTC)
 
         # has_credits should trigger reset
         has_credits = await service.has_credits(user_with_expired_free_credits.id)
@@ -302,7 +302,7 @@ class TestClassificationCreditEdgeCases:
             oauth_id="google_mixed_ai",
             credit_balance=3,
             free_credits_remaining=2,
-            free_credits_reset_at=datetime.utcnow() + timedelta(days=30),
+            free_credits_reset_at=datetime.now(UTC) + timedelta(days=30),
         )
         async_session.add(user)
         await async_session.commit()

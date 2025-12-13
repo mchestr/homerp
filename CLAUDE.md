@@ -209,7 +209,86 @@ Core tables:
 - always use the most idiomatic and standard way to solve issues, do not invent hacks or workarounds.
 - never use browser alerts always use our common modal components
 - all frontend strings should be translated using the i18n library
-- always run lint/build/docker build before pushing remotely to ensure the GitHub Actions workflows will pass
+- always run the pre-push checks below before pushing remotely to ensure the GitHub Actions workflows will pass
+
+## Pre-Push Checklist
+
+**IMPORTANT:** Before pushing any changes, run these commands to match what CI checks:
+
+### Backend (from `backend/` directory)
+```bash
+# Lint check (catches code issues)
+uv run ruff check .
+
+# Format check (catches formatting issues) - CI runs this too!
+uv run ruff format --check .
+
+# If format check fails, fix with:
+uv run ruff format .
+
+# Run tests
+uv run pytest
+```
+
+### Frontend (from `frontend/` directory)
+```bash
+# ESLint check
+pnpm lint
+
+# Prettier format check - CI runs this too!
+pnpm format:check
+
+# If format check fails, fix with:
+pnpm format
+
+# Build check
+pnpm build
+```
+
+### Quick All-in-One Commands
+```bash
+# Backend: lint + format check + tests
+cd backend && uv run ruff check . && uv run ruff format --check . && uv run pytest
+
+# Frontend: lint + format check + build
+cd frontend && pnpm lint && pnpm format:check && pnpm build
+```
+
+### Common CI Failures and Fixes
+| CI Check | Command to Verify | Fix Command |
+|----------|------------------|-------------|
+| Backend Lint | `uv run ruff check .` | `uv run ruff check --fix .` |
+| Backend Format | `uv run ruff format --check .` | `uv run ruff format .` |
+| Frontend Lint | `pnpm lint` | `pnpm lint:fix` |
+| Frontend Format | `pnpm format:check` | `pnpm format` |
+
+## Timezone Handling
+
+All datetime values must be timezone-aware (UTC) throughout the application:
+
+### Backend
+- **Models:** Always use `DateTime(timezone=True)` for datetime columns
+- **Python code:** Use `datetime.now(UTC)` instead of deprecated `datetime.utcnow()`
+- **Database:** All datetime columns are `TIMESTAMP WITH TIME ZONE`
+- **Never** use `.replace(tzinfo=None)` to strip timezone info
+
+```python
+# Correct
+from datetime import UTC, datetime
+now = datetime.now(UTC)
+
+# Wrong - deprecated and returns naive datetime
+now = datetime.utcnow()
+```
+
+### Frontend
+- Use shared utilities from `@/lib/utils` for date formatting:
+  - `formatDate()` - Standard format (Dec 12, 2024)
+  - `formatDateShort()` - Short format (Dec 12)
+  - `formatDateTime()` - With time
+  - `formatDateTimeWithSeconds()` - Full timestamp
+  - `formatRelativeTime()` - Relative (5m ago)
+- JavaScript's `new Date()` automatically converts UTC to local timezone
 
 ## Agent Usage
 

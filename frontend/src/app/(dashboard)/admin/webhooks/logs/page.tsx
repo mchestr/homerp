@@ -6,6 +6,7 @@ import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { webhooksApi, WebhookExecution } from "@/lib/api/api-client";
+import { formatDateTimeWithSeconds } from "@/lib/utils";
 import {
   ArrowLeft,
   Loader2,
@@ -42,17 +43,6 @@ const STATUS_OPTIONS = [
   { value: "failed", label: "Failed", icon: XCircle },
   { value: "retrying", label: "Retrying", icon: RefreshCw },
 ];
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-}
 
 function getStatusIcon(status: string) {
   const StatusIcon =
@@ -207,7 +197,7 @@ export default function WebhookLogsPage() {
                         {execution.attempt_number}
                       </td>
                       <td className="px-4 py-3 text-sm text-muted-foreground">
-                        {formatDate(execution.executed_at)}
+                        {formatDateTimeWithSeconds(execution.executed_at)}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex justify-end">
@@ -284,7 +274,8 @@ export default function WebhookLogsPage() {
             <DialogTitle>{t("webhooks.executionDetails")}</DialogTitle>
             <DialogDescription>
               {selectedExecution?.event_type} -{" "}
-              {selectedExecution && formatDate(selectedExecution.executed_at)}
+              {selectedExecution &&
+                formatDateTimeWithSeconds(selectedExecution.executed_at)}
             </DialogDescription>
           </DialogHeader>
           {selectedExecution && (
@@ -369,14 +360,16 @@ export default function WebhookLogsPage() {
                 <div className="space-y-1">
                   <Label>{t("webhooks.executedAt")}</Label>
                   <p className="text-sm">
-                    {formatDate(selectedExecution.executed_at)}
+                    {formatDateTimeWithSeconds(selectedExecution.executed_at)}
                   </p>
                 </div>
                 {selectedExecution.completed_at && (
                   <div className="space-y-1">
                     <Label>{t("webhooks.completedAt")}</Label>
                     <p className="text-sm">
-                      {formatDate(selectedExecution.completed_at)}
+                      {formatDateTimeWithSeconds(
+                        selectedExecution.completed_at
+                      )}
                     </p>
                   </div>
                 )}

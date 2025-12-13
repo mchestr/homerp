@@ -1,7 +1,7 @@
 """Tests for free credit reset logic - anniversary-based reset system."""
 
 import uuid
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -59,7 +59,7 @@ class TestFreeCreditsReset:
 
         # Verify initial state - reset date is in the past
         assert user_with_expired_free_credits.free_credits_reset_at is not None
-        assert user_with_expired_free_credits.free_credits_reset_at < datetime.utcnow()
+        assert user_with_expired_free_credits.free_credits_reset_at < datetime.now(UTC)
         assert user_with_expired_free_credits.free_credits_remaining == 0
 
         # Get balance triggers the reset
@@ -74,9 +74,9 @@ class TestFreeCreditsReset:
         )
 
         # New reset date should be ~30 days in the future
-        assert user_with_expired_free_credits.free_credits_reset_at > datetime.utcnow()
+        assert user_with_expired_free_credits.free_credits_reset_at > datetime.now(UTC)
         days_until_reset = (
-            user_with_expired_free_credits.free_credits_reset_at - datetime.utcnow()
+            user_with_expired_free_credits.free_credits_reset_at - datetime.now(UTC)
         ).days
         assert 29 <= days_until_reset <= 30
 
@@ -116,7 +116,7 @@ class TestFreeCreditsReset:
 
         # Set user to have used some credits but reset date in future
         test_user.free_credits_remaining = 2
-        test_user.free_credits_reset_at = datetime.utcnow() + timedelta(days=15)
+        test_user.free_credits_reset_at = datetime.now(UTC) + timedelta(days=15)
         await async_session.commit()
 
         # Get balance
@@ -226,7 +226,7 @@ class TestFreeCreditsReset:
         )
         # Next reset should be in the future
         assert balance.next_free_reset_at is not None
-        assert balance.next_free_reset_at > datetime.utcnow()
+        assert balance.next_free_reset_at > datetime.now(UTC)
 
 
 class TestFreeCreditsEdgeCases:
@@ -275,7 +275,7 @@ class TestFreeCreditsEdgeCases:
             credit_balance=0,
             free_credits_remaining=0,
             # Set reset time to now (should trigger reset)
-            free_credits_reset_at=datetime.utcnow(),
+            free_credits_reset_at=datetime.now(UTC),
         )
         async_session.add(user)
         await async_session.commit()

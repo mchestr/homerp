@@ -1,7 +1,7 @@
 """Tests for refund eligibility and processing logic."""
 
 import uuid
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -131,7 +131,7 @@ class TestCanRefundPurchase:
             oauth_id="google_low_123",
             credit_balance=10,  # Less than 25 from purchase
             free_credits_remaining=0,
-            free_credits_reset_at=datetime.utcnow() + timedelta(days=30),
+            free_credits_reset_at=datetime.now(UTC) + timedelta(days=30),
         )
         async_session.add(user)
         await async_session.commit()
@@ -293,7 +293,7 @@ class TestRefundEdgeCases:
             oauth_id="google_exact_456",
             credit_balance=25,
             free_credits_remaining=0,
-            free_credits_reset_at=datetime.utcnow() + timedelta(days=30),
+            free_credits_reset_at=datetime.now(UTC) + timedelta(days=30),
         )
         async_session.add(user)
         await async_session.commit()
@@ -338,7 +338,7 @@ class TestRefundEdgeCases:
             oauth_id="google_multi_789",
             credit_balance=75,  # 3 x 25 credits
             free_credits_remaining=0,
-            free_credits_reset_at=datetime.utcnow() + timedelta(days=30),
+            free_credits_reset_at=datetime.now(UTC) + timedelta(days=30),
         )
         async_session.add(user)
         await async_session.commit()
@@ -391,7 +391,7 @@ class TestRefundEdgeCases:
             oauth_id="google_mixed_123",
             credit_balance=25,
             free_credits_remaining=5,
-            free_credits_reset_at=datetime.utcnow() + timedelta(days=30),
+            free_credits_reset_at=datetime.now(UTC) + timedelta(days=30),
         )
         async_session.add(user)
         await async_session.commit()

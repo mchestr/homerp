@@ -29,6 +29,7 @@ import {
 } from "recharts";
 import { Button } from "@/components/ui/button";
 import { itemsApi, categoriesApi, locationsApi } from "@/lib/api/api-client";
+import { formatDateShort, formatDate } from "@/lib/utils";
 
 export default function DashboardPage() {
   const t = useTranslations("dashboard");
@@ -91,12 +92,6 @@ export default function DashboardPage() {
       href: "/locations",
     },
   ];
-
-  // Format dates for display
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  };
 
   // Calculate cumulative items for the area chart
   const cumulativeData =
@@ -199,7 +194,7 @@ export default function DashboardPage() {
                 />
                 <XAxis
                   dataKey="date"
-                  tickFormatter={formatDate}
+                  tickFormatter={(value) => formatDateShort(value)}
                   tick={{ fontSize: 12 }}
                   tickLine={false}
                   axisLine={false}
@@ -229,7 +224,7 @@ export default function DashboardPage() {
                       return (
                         <div className="rounded-md border bg-popover px-2.5 py-1.5 text-xs shadow-sm">
                           <span className="font-medium">
-                            {formatDate(label)}
+                            {formatDateShort(label as string)}
                           </span>
                           <span className="text-muted-foreground">
                             {" "}
@@ -525,7 +520,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="ml-4 flex items-center gap-3">
                     <span className="text-xs text-muted-foreground">
-                      {new Date(item.last_used).toLocaleDateString()}
+                      {formatDate(item.last_used)}
                     </span>
                     <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
                   </div>

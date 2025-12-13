@@ -7,6 +7,7 @@ import {
   CreditPack,
   CreditTransaction,
 } from "@/lib/api/api-client";
+import { formatDate } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
@@ -29,14 +30,6 @@ import { useTranslations } from "next-intl";
 
 function formatPrice(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
-}
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
 }
 
 function CreditPackCard({

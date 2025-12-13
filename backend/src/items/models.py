@@ -35,9 +35,11 @@ class Item(Base):
     attributes: Mapped[dict] = mapped_column(JSONB, default=dict)
     tags: Mapped[list[str]] = mapped_column(ARRAY(String(100)), default=list)
     ai_classification: Mapped[dict] = mapped_column(JSONB, default=dict)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
     updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), onupdate=func.now()
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
     # Relationships

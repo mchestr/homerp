@@ -6,6 +6,7 @@ import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { adminApi, UserAdmin, CreditAdjustment } from "@/lib/api/api-client";
+import { formatDate } from "@/lib/utils";
 import {
   Search,
   Loader2,
@@ -39,14 +40,6 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
 
 export default function AdminUsersPage() {
   const { user, isLoading: authLoading } = useAuth();
