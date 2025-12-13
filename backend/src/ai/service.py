@@ -92,7 +92,7 @@ def parse_quantity_estimate(estimate: str | None) -> dict[str, Any]:
     estimate = estimate.strip().lower()
 
     # Pattern 1: "10m", "5kg", "25cm" (number directly followed by unit abbreviation)
-    match = re.match(r"(\d+(?:\.\d+)?)\s*([a-zA-Z]+)", estimate)
+    match = re.match(r"(-?\d+(?:\.\d+)?)\s*([a-zA-Z]+)", estimate)
     if match:
         num_str, unit_str = match.groups()
         try:
@@ -105,7 +105,7 @@ def parse_quantity_estimate(estimate: str | None) -> dict[str, Any]:
 
     # Pattern 2: Extract first number and look for unit words
     # Matches patterns like "approximately 10 pieces", "about 5", "around 25 meters"
-    num_match = re.search(r"(\d+(?:\.\d+)?)", estimate)
+    num_match = re.search(r"(-?\d+(?:\.\d+)?)", estimate)
     if num_match:
         try:
             quantity = int(float(num_match.group(1)))

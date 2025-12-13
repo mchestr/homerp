@@ -519,7 +519,9 @@ export default function NewItemPage() {
               />
               {quantityEstimateRaw && (
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {t("ai.quantityEstimate", { estimate: quantityEstimateRaw })}
+                  {t("items.quantityEstimateFromAi", {
+                    estimate: quantityEstimateRaw,
+                  })}
                 </p>
               )}
             </div>

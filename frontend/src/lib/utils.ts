@@ -247,7 +247,7 @@ export function parseQuantityEstimate(
 
   // Pattern 1: "10m", "5kg", "25cm" (number directly followed by unit abbreviation)
   const directMatch = normalizedEstimate.match(
-    /^(\d+(?:\.\d+)?)\s*([a-zA-Z]+)/
+    /^(-?\d+(?:\.\d+)?)\s*([a-zA-Z]+)/
   );
   if (directMatch) {
     const [, numStr, unitStr] = directMatch;
@@ -258,14 +258,16 @@ export function parseQuantityEstimate(
 
   // Pattern 2: Extract first number and look for unit words
   // Matches patterns like "approximately 10 pieces", "about 5", "around 25 meters"
-  const numMatch = normalizedEstimate.match(/(\d+(?:\.\d+)?)/);
+  const numMatch = normalizedEstimate.match(/(-?\d+(?:\.\d+)?)/);
   if (numMatch) {
     const quantity = Math.max(1, Math.floor(parseFloat(numMatch[1])));
 
     // Look for unit words in the rest of the string
     let unit = "pcs"; // Default
     for (const [alias, normalizedUnit] of Object.entries(UNIT_ALIASES)) {
-      const regex = new RegExp(`\\b${alias}\\b`);
+      // Escape special regex characters in alias
+      const escapedAlias = alias.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(`\\b${escapedAlias}\\b`);
       if (regex.test(normalizedEstimate)) {
         unit = normalizedUnit;
         break;

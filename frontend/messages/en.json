@@ -126,7 +126,8 @@
     "attributes": "Attributes",
     "images": "Images",
     "notes": "Notes",
-    "price": "Price"
+    "price": "Price",
+    "quantityEstimateFromAi": "AI estimate: {estimate}"
   },
   "categories": {
     "title": "Categories",
@@ -240,9 +241,7 @@
     "setAsPrimary": "Set as primary",
     "primaryImage": "Primary image"
   },
-  "ai": {
-    "quantityEstimate": "AI estimate: {estimate}"
-  },
+  "ai": {},
   "billing": {
     "title": "Billing",
     "subtitle": "Manage your AI credits and billing",

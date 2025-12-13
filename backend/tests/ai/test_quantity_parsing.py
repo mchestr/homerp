@@ -129,6 +129,12 @@ class TestParseQuantityEstimate:
         assert result["quantity"] == 1
         assert result["quantity_unit"] == "pcs"
 
+    def test_negative_quantity_becomes_one(self):
+        """Negative quantity should become 1."""
+        result = parse_quantity_estimate("-5 pieces")
+        assert result["quantity"] == 1
+        assert result["quantity_unit"] == "pcs"
+
     @pytest.mark.parametrize(
         "estimate",
         [
