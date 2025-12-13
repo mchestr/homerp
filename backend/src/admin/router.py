@@ -441,7 +441,13 @@ async def get_stats(
         )
 
     # Sort all activity by timestamp and take most recent 15
-    recent_activity.sort(key=lambda x: x.timestamp, reverse=True)
+    # Normalize timestamps to handle mix of naive/aware datetimes from database
+    def normalize_timestamp(ts: datetime) -> datetime:
+        if ts.tzinfo is None:
+            return ts.replace(tzinfo=UTC)
+        return ts
+
+    recent_activity.sort(key=lambda x: normalize_timestamp(x.timestamp), reverse=True)
     recent_activity = recent_activity[:15]
 
     return AdminStatsResponse(
