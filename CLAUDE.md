@@ -208,8 +208,65 @@ Core tables:
 ## Guidelines
 - always use the most idiomatic and standard way to solve issues, do not invent hacks or workarounds.
 - never use browser alerts always use our common modal components
-- all frontend strings hould be translated using the i18n library
+- all frontend strings should be translated using the i18n library
 - always run lint/build/docker build before pushing remotely to ensure the gitlab ci workflows will pass
+
+## Agent Usage
+
+Use specialized agents for efficient task completion:
+
+### Explore Agent
+Use for codebase exploration and research:
+- Finding files by pattern (e.g., "src/components/**/*.tsx")
+- Searching code for keywords (e.g., "API endpoints")
+- Understanding codebase structure and patterns
+- Answering questions about the codebase
+
+```
+Task tool with subagent_type="Explore"
+```
+
+### Plan Agent
+Use for designing implementation strategies:
+- Planning multi-step feature implementations
+- Identifying critical files and dependencies
+- Considering architectural trade-offs
+- Creating step-by-step implementation plans
+
+```
+Task tool with subagent_type="Plan"
+```
+
+### Playwright E2E Architect Agent
+Use for all Playwright end-to-end testing work:
+- Writing new e2e test files
+- Refactoring existing tests for stability/speed
+- Adding `data-testid` attributes to React components
+- Investigating flaky tests
+- Optimizing test execution time
+
+**IMPORTANT:** Use this agent proactively after implementing new UI features that need e2e coverage.
+
+```
+Task tool with subagent_type="playwright-e2e-architect"
+```
+
+### Claude Code Guide Agent
+Use for questions about:
+- Claude Code CLI features, hooks, slash commands, MCP servers
+- Claude Agent SDK for building custom agents
+- Claude API usage and Anthropic SDK
+
+```
+Task tool with subagent_type="claude-code-guide"
+```
+
+### General Purpose Agent
+Use for complex, multi-step research tasks when you're not confident about finding the right match quickly.
+
+```
+Task tool with subagent_type="general-purpose"
+```
 
 ## Playwright E2E Testing
 
