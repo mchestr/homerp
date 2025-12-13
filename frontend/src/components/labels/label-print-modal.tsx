@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Download, Printer, X, Tag } from "lucide-react";
+import { Download, Printer, X, Tag, AlertCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -34,6 +34,8 @@ export function LabelPrintModal({
   );
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const [printError, setPrintError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
 
@@ -47,6 +49,7 @@ export function LabelPrintModal({
     if (isOpen && items.length > 0) {
       let cancelled = false;
       setIsGenerating(true);
+      setPreviewError(null);
 
       generateLabelPreview(items, options)
         .then((url) => {
@@ -55,8 +58,10 @@ export function LabelPrintModal({
             setIsGenerating(false);
           }
         })
-        .catch(() => {
+        .catch((error) => {
           if (!cancelled) {
+            console.error("Preview generation failed:", error);
+            setPreviewError(t("previewError"));
             setIsGenerating(false);
           }
         });
@@ -65,7 +70,7 @@ export function LabelPrintModal({
         cancelled = true;
       };
     }
-  }, [isOpen, items, options]);
+  }, [isOpen, items, options, t]);
 
   // Handle escape key and focus management
   useEffect(() => {
@@ -112,7 +117,11 @@ export function LabelPrintModal({
   };
 
   const handlePrint = async () => {
-    await printLabels(items, options);
+    setPrintError(null);
+    const success = await printLabels(items, options);
+    if (!success) {
+      setPrintError(t("popupBlocked"));
+    }
   };
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -183,6 +192,11 @@ export function LabelPrintModal({
               {isGenerating ? (
                 <div className="text-sm text-muted-foreground">
                   {t("generating")}
+                </div>
+              ) : previewError ? (
+                <div className="flex flex-col items-center gap-2 text-destructive">
+                  <AlertCircle className="h-5 w-5" />
+                  <span className="text-sm">{previewError}</span>
                 </div>
               ) : previewUrl ? (
                 <iframe
@@ -298,27 +312,35 @@ export function LabelPrintModal({
           </div>
         </div>
 
-        <div className="flex gap-3 border-t bg-muted/30 px-6 py-4">
-          <Button
-            variant="outline"
-            className="flex-1"
-            onClick={handleDownload}
-            disabled={isGenerating}
-            data-testid="label-download"
-          >
-            <Download className="mr-2 h-4 w-4" />
-            {t("download")}
-          </Button>
-          <Button
-            variant="outline"
-            className="flex-1"
-            onClick={handlePrint}
-            disabled={isGenerating}
-            data-testid="label-print"
-          >
-            <Printer className="mr-2 h-4 w-4" />
-            {t("print")}
-          </Button>
+        <div className="border-t bg-muted/30 px-6 py-4">
+          {printError && (
+            <div className="mb-3 flex items-center gap-2 rounded-lg border border-destructive/50 bg-destructive/10 p-2 text-sm text-destructive">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>{printError}</span>
+            </div>
+          )}
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={handleDownload}
+              disabled={isGenerating}
+              data-testid="label-download"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              {t("download")}
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={handlePrint}
+              disabled={isGenerating}
+              data-testid="label-print"
+            >
+              <Printer className="mr-2 h-4 w-4" />
+              {t("print")}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

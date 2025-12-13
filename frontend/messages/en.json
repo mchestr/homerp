@@ -493,6 +493,8 @@
     "deselectAll": "Deselect All",
     "generating": "Generating preview...",
     "noPreview": "No preview available",
+    "previewError": "Failed to generate preview. Please try again.",
+    "popupBlocked": "Popup blocked. Please allow popups to print labels, or use Download instead.",
     "contents": "Label Contents",
     "qrCode": "QR Code",
     "location": "Location",

@@ -124,6 +124,7 @@ function renderText(
   size: LabelSize,
   options: LabelPrintOptions
 ): void {
+  const margin = 2;
   let y = startY;
 
   // Calculate font sizes based on label size
@@ -174,8 +175,6 @@ function renderText(
     }
   }
 }
-
-const margin = 2;
 
 /**
  * Truncate text to fit within a maximum width.
@@ -229,11 +228,12 @@ export async function downloadLabelsPDF(
 
 /**
  * Open print dialog for labels.
+ * @returns true if print dialog was opened, false if popup was blocked
  */
 export async function printLabels(
   items: LabelData[],
   options: LabelPrintOptions
-): Promise<void> {
+): Promise<boolean> {
   const pdf = await generateLabelPDF(items, options);
   const blob = pdf.output("blob");
   const url = URL.createObjectURL(blob);
@@ -245,5 +245,7 @@ export async function printLabels(
         printWindow.print();
       }, 100);
     });
+    return true;
   }
+  return false;
 }
