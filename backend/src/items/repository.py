@@ -29,6 +29,40 @@ class ItemRepository:
         self.session = session
         self.user_id = user_id
 
+    async def _validate_category_ownership(self, category_id: UUID | None) -> None:
+        """Validate that the category belongs to the current user.
+
+        Raises ValueError if the category doesn't exist or belongs to another user.
+        """
+        if category_id is None:
+            return
+
+        result = await self.session.execute(
+            select(Category.id).where(
+                Category.id == category_id,
+                Category.user_id == self.user_id,
+            )
+        )
+        if result.scalar_one_or_none() is None:
+            raise ValueError(f"Category {category_id} not found or access denied")
+
+    async def _validate_location_ownership(self, location_id: UUID | None) -> None:
+        """Validate that the location belongs to the current user.
+
+        Raises ValueError if the location doesn't exist or belongs to another user.
+        """
+        if location_id is None:
+            return
+
+        result = await self.session.execute(
+            select(Location.id).where(
+                Location.id == location_id,
+                Location.user_id == self.user_id,
+            )
+        )
+        if result.scalar_one_or_none() is None:
+            raise ValueError(f"Location {location_id} not found or access denied")
+
     def _base_query(self):
         """Base query with eager loading."""
         return (
@@ -226,7 +260,15 @@ class ItemRepository:
         return result.scalar_one_or_none()
 
     async def create(self, data: ItemCreate) -> Item:
-        """Create a new item."""
+        """Create a new item.
+
+        Validates that category_id and location_id belong to the current user.
+        Raises ValueError if validation fails.
+        """
+        # Validate foreign key ownership before creating
+        await self._validate_category_ownership(data.category_id)
+        await self._validate_location_ownership(data.location_id)
+
         item = Item(
             user_id=self.user_id,
             name=data.name,
@@ -248,8 +290,19 @@ class ItemRepository:
         return await self.get_by_id(item.id)  # type: ignore
 
     async def update(self, item: Item, data: ItemUpdate) -> Item:
-        """Update an item."""
+        """Update an item.
+
+        Validates that category_id and location_id belong to the current user
+        if they are being updated. Raises ValueError if validation fails.
+        """
         update_data = data.model_dump(exclude_unset=True)
+
+        # Validate foreign key ownership if being updated
+        if "category_id" in update_data:
+            await self._validate_category_ownership(update_data["category_id"])
+        if "location_id" in update_data:
+            await self._validate_location_ownership(update_data["location_id"])
+
         for field, value in update_data.items():
             setattr(item, field, value)
         await self.session.commit()

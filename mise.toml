@@ -84,6 +84,16 @@ description = "Run backend tests"
 dir = "backend"
 run = "uv run pytest"
 
+[tasks."test:backend:unit"]
+description = "Run backend unit tests only (excludes integration)"
+dir = "backend"
+run = "uv run pytest --ignore=tests/integration"
+
+[tasks."test:integration"]
+description = "Run backend integration tests (security-critical tests)"
+dir = "backend"
+run = "uv run pytest tests/integration -v"
+
 [tasks."test:frontend"]
 description = "Run frontend e2e tests"
 dir = "frontend"

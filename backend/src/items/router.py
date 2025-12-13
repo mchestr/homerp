@@ -136,7 +136,13 @@ async def create_item(
 ) -> ItemDetailResponse:
     """Create a new item."""
     repo = ItemRepository(session, user_id)
-    item = await repo.create(data)
+    try:
+        item = await repo.create(data)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from None
 
     return ItemDetailResponse(
         id=item.id,
@@ -390,7 +396,13 @@ async def update_item(
             detail="Item not found",
         )
 
-    item = await repo.update(item, data)
+    try:
+        item = await repo.update(item, data)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from None
 
     return ItemDetailResponse(
         id=item.id,

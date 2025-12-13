@@ -24,6 +24,17 @@ class CreditService:
         result = await self.session.execute(select(User).where(User.id == user_id))
         return result.scalar_one_or_none()
 
+    async def get_user_for_update(self, user_id: UUID) -> User | None:
+        """Get user by ID with row-level lock (SELECT FOR UPDATE).
+
+        This prevents race conditions when multiple concurrent requests
+        try to modify the user's credit balance simultaneously.
+        """
+        result = await self.session.execute(
+            select(User).where(User.id == user_id).with_for_update()
+        )
+        return result.scalar_one_or_none()
+
     async def get_balance(self, user_id: UUID) -> CreditBalanceResponse:
         """Get credit balance for a user, resetting free credits if needed."""
         user = await self.get_user(user_id)
@@ -90,8 +101,12 @@ class CreditService:
         Uses free credits first, then purchased credits.
         Admins bypass credit deduction entirely.
         Returns True if successful, False if insufficient credits.
+
+        Uses SELECT FOR UPDATE to prevent race conditions when multiple
+        concurrent requests try to deduct credits simultaneously.
         """
-        user = await self.get_user(user_id)
+        # Use row-level locking to prevent race conditions
+        user = await self.get_user_for_update(user_id)
         if not user:
             return False
 
