@@ -346,73 +346,136 @@ export default function AdminPacksPage() {
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       ) : (
-        <div className="rounded-xl border bg-card">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b text-left text-sm text-muted-foreground">
-                <th className="px-4 py-3 font-medium">Name</th>
-                <th className="px-4 py-3 font-medium">Credits</th>
-                <th className="px-4 py-3 font-medium">Price</th>
-                <th className="px-4 py-3 font-medium">Stripe Price ID</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Order</th>
-                <th className="px-4 py-3 text-right font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {packs?.map((pack) => (
-                <tr key={pack.id} className="border-b last:border-0">
-                  <td className="px-4 py-3 font-medium">{pack.name}</td>
-                  <td className="px-4 py-3">{pack.credits}</td>
-                  <td className="px-4 py-3">{formatPrice(pack.price_cents)}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden rounded-xl border bg-card md:block">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b text-left text-sm text-muted-foreground">
+                    <th className="px-4 py-3 font-medium">Name</th>
+                    <th className="px-4 py-3 font-medium">Credits</th>
+                    <th className="px-4 py-3 font-medium">Price</th>
+                    <th className="px-4 py-3 font-medium">Stripe Price ID</th>
+                    <th className="px-4 py-3 font-medium">Status</th>
+                    <th className="px-4 py-3 font-medium">Order</th>
+                    <th className="px-4 py-3 text-right font-medium">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {packs?.map((pack) => (
+                    <tr key={pack.id} className="border-b last:border-0">
+                      <td className="px-4 py-3 font-medium">{pack.name}</td>
+                      <td className="px-4 py-3">{pack.credits}</td>
+                      <td className="px-4 py-3">
+                        {formatPrice(pack.price_cents)}
+                      </td>
+                      <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                        {pack.stripe_price_id}
+                      </td>
+                      <td className="px-4 py-3">
+                        {pack.is_active ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-200">
+                            <Check className="h-3 w-3" /> Active
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-200">
+                            <X className="h-3 w-3" /> Inactive
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">{pack.sort_order}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setEditingPack(pack)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeletePackId(pack.id)}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {(!packs || packs.length === 0) && (
+                    <tr>
+                      <td
+                        colSpan={7}
+                        className="px-4 py-8 text-center text-muted-foreground"
+                      >
+                        No credit packs yet. Create one to get started.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="space-y-3 md:hidden">
+            {packs?.map((pack) => (
+              <div key={pack.id} className="rounded-xl border bg-card p-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-medium">{pack.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {pack.credits} credits · {formatPrice(pack.price_cents)}
+                    </p>
+                  </div>
+                  {pack.is_active ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-200">
+                      <Check className="h-3 w-3" /> Active
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-200">
+                      <X className="h-3 w-3" /> Inactive
+                    </span>
+                  )}
+                </div>
+                <div className="mt-2">
+                  <p className="truncate font-mono text-xs text-muted-foreground">
                     {pack.stripe_price_id}
-                  </td>
-                  <td className="px-4 py-3">
-                    {pack.is_active ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
-                        <Check className="h-3 w-3" /> Active
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
-                        <X className="h-3 w-3" /> Inactive
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">{pack.sort_order}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setEditingPack(pack)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setDeletePackId(pack.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {(!packs || packs.length === 0) && (
-                <tr>
-                  <td
-                    colSpan={7}
-                    className="px-4 py-8 text-center text-muted-foreground"
+                  </p>
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => setEditingPack(pack)}
                   >
-                    No credit packs yet. Create one to get started.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                    <Pencil className="mr-1 h-4 w-4" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setDeletePackId(pack.id)}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+            {(!packs || packs.length === 0) && (
+              <div className="rounded-xl border bg-card p-8 text-center text-muted-foreground">
+                No credit packs yet. Create one to get started.
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       {/* Create Dialog */}

@@ -1,10 +1,11 @@
 """Admin API router."""
 
+from datetime import UTC, datetime, timedelta
 from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 
 from src.admin.schemas import (
     AdminStatsResponse,
@@ -14,6 +15,7 @@ from src.admin.schemas import (
     CreditPackCreate,
     CreditPackUpdate,
     PaginatedUsersResponse,
+    RecentActivityItem,
     UserAdminResponse,
     UserAdminUpdate,
 )
@@ -21,6 +23,7 @@ from src.auth.dependencies import AdminUserDep
 from src.billing.models import CreditPack, CreditTransaction
 from src.config import Settings, get_settings
 from src.database import AsyncSessionDep
+from src.feedback.models import Feedback
 from src.items.models import Item
 from src.users.models import User
 
@@ -348,6 +351,98 @@ async def get_stats(
     )
     total_credits_used = abs(used_result.scalar() or 0)
 
+    # Recent signups (last 7 days)
+    seven_days_ago = datetime.now(UTC) - timedelta(days=7)
+    recent_signups_result = await session.execute(
+        select(func.count(User.id)).where(User.created_at >= seven_days_ago)
+    )
+    recent_signups_7d = recent_signups_result.scalar() or 0
+
+    # Pending feedback count
+    pending_feedback_result = await session.execute(
+        select(func.count(Feedback.id)).where(
+            or_(Feedback.status == "pending", Feedback.status == "in_progress")
+        )
+    )
+    pending_feedback_count = pending_feedback_result.scalar() or 0
+
+    # Recent activity - gather from multiple sources
+    recent_activity: list[RecentActivityItem] = []
+
+    # Recent signups (last 10)
+    recent_users_result = await session.execute(
+        select(User).order_by(User.created_at.desc()).limit(5)
+    )
+    for user in recent_users_result.scalars():
+        recent_activity.append(
+            RecentActivityItem(
+                id=user.id,
+                type="signup",
+                title="New user signup",
+                description=user.name or user.email,
+                user_email=user.email,
+                user_name=user.name,
+                timestamp=user.created_at,
+            )
+        )
+
+    # Recent feedback (last 5)
+    recent_feedback_result = await session.execute(
+        select(Feedback, User)
+        .join(User, Feedback.user_id == User.id)
+        .order_by(Feedback.created_at.desc())
+        .limit(5)
+    )
+    for feedback, user in recent_feedback_result:
+        recent_activity.append(
+            RecentActivityItem(
+                id=feedback.id,
+                type="feedback",
+                title=f"{feedback.feedback_type.replace('_', ' ').title()}: {feedback.subject}",
+                description=feedback.message[:100] + "..."
+                if len(feedback.message) > 100
+                else feedback.message,
+                user_email=user.email,
+                user_name=user.name,
+                timestamp=feedback.created_at,
+                metadata={
+                    "status": feedback.status,
+                    "feedback_type": feedback.feedback_type,
+                },
+            )
+        )
+
+    # Recent credit purchases (last 5)
+    recent_purchases_result = await session.execute(
+        select(CreditTransaction, User, CreditPack)
+        .join(User, CreditTransaction.user_id == User.id)
+        .outerjoin(CreditPack, CreditTransaction.credit_pack_id == CreditPack.id)
+        .where(CreditTransaction.transaction_type == "purchase")
+        .order_by(CreditTransaction.created_at.desc())
+        .limit(5)
+    )
+    for transaction, user, pack in recent_purchases_result:
+        pack_name = pack.name if pack else "Credit Pack"
+        recent_activity.append(
+            RecentActivityItem(
+                id=transaction.id,
+                type="purchase",
+                title=f"Credit purchase: {pack_name}",
+                description=f"{transaction.amount} credits",
+                user_email=user.email,
+                user_name=user.name,
+                timestamp=transaction.created_at,
+                metadata={
+                    "amount": transaction.amount,
+                    "pack_name": pack_name,
+                },
+            )
+        )
+
+    # Sort all activity by timestamp and take most recent 15
+    recent_activity.sort(key=lambda x: x.timestamp, reverse=True)
+    recent_activity = recent_activity[:15]
+
     return AdminStatsResponse(
         total_users=total_users,
         total_items=total_items,
@@ -355,4 +450,7 @@ async def get_stats(
         active_credit_packs=active_credit_packs,
         total_credits_purchased=total_credits_purchased,
         total_credits_used=total_credits_used,
+        recent_signups_7d=recent_signups_7d,
+        pending_feedback_count=pending_feedback_count,
+        recent_activity=recent_activity,
     )

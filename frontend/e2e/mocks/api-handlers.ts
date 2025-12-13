@@ -556,6 +556,52 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
       });
     }
   });
+
+  await page.route("**/api/v1/admin/feedback*", async (route) => {
+    if (user.is_admin) {
+      if (route.request().method() === "GET") {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            items: fixtures.testAdminFeedback,
+            total: fixtures.testAdminFeedback.length,
+            page: 1,
+            limit: 20,
+            total_pages: 1,
+          }),
+        });
+      } else {
+        await route.continue();
+      }
+    } else {
+      await route.fulfill({
+        status: 403,
+        contentType: "application/json",
+        body: JSON.stringify({ detail: "Admin access required" }),
+      });
+    }
+  });
+
+  await page.route("**/api/v1/admin/webhooks*", async (route) => {
+    if (user.is_admin) {
+      if (route.request().method() === "GET") {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([]),
+        });
+      } else {
+        await route.continue();
+      }
+    } else {
+      await route.fulfill({
+        status: 403,
+        contentType: "application/json",
+        body: JSON.stringify({ detail: "Admin access required" }),
+      });
+    }
+  });
 }
 
 /**
