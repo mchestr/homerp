@@ -12,8 +12,10 @@ import {
   CheckCircle2,
   FolderPlus,
   Check,
+  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { TreeSelect } from "@/components/ui/tree-view";
 import { TagInput } from "@/components/ui/tag-input";
@@ -41,7 +43,6 @@ import {
   SimilarItemMatch,
 } from "@/lib/api/api-client";
 import { parseQuantityEstimate } from "@/lib/utils";
-import { useTranslations } from "next-intl";
 
 type UploadedImage = {
   id: string;
@@ -91,6 +92,7 @@ export default function NewItemPage() {
   const [similarItems, setSimilarItems] = useState<SimilarItemMatch[]>([]);
   const [totalSearched, setTotalSearched] = useState(0);
   const [isSearchingSimilar, setIsSearchingSimilar] = useState(false);
+  const [similarSearchError, setSimilarSearchError] = useState(false);
 
   const [formData, setFormData] = useState<ItemCreate>({
     name: "",
@@ -249,6 +251,7 @@ export default function NewItemPage() {
 
   const searchForSimilarItems = async (result: ClassificationResult) => {
     setIsSearchingSimilar(true);
+    setSimilarSearchError(false);
     try {
       const response = await itemsApi.findSimilar({
         identified_name: result.identified_name,
@@ -260,9 +263,9 @@ export default function NewItemPage() {
       setTotalSearched(response.total_searched);
     } catch (err) {
       console.error("Failed to search for similar items:", err);
-      // Don't show error to user - this is a non-critical feature
       setSimilarItems([]);
       setTotalSearched(0);
+      setSimilarSearchError(true);
     } finally {
       setIsSearchingSimilar(false);
     }
@@ -503,6 +506,16 @@ export default function NewItemPage() {
           <Loader2 className="mr-2 h-5 w-5 animate-spin text-amber-600" />
           <span className="text-amber-700 dark:text-amber-300">
             Checking for similar items...
+          </span>
+        </div>
+      )}
+
+      {/* Error state for similar items search */}
+      {classification && !isSearchingSimilar && similarSearchError && (
+        <div className="flex items-center gap-3 rounded-xl border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-950/30">
+          <AlertCircle className="h-5 w-5 shrink-0 text-yellow-600 dark:text-yellow-400" />
+          <span className="text-sm text-yellow-700 dark:text-yellow-300">
+            {t("similarItems.searchError")}
           </span>
         </div>
       )}

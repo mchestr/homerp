@@ -456,7 +456,8 @@
     "quantity": "Qty",
     "match": "match",
     "addToQuantity": "Add to quantity",
-    "continueToCreate": "If this is a new item, continue filling out the form below to create it."
+    "continueToCreate": "If this is a new item, continue filling out the form below to create it.",
+    "searchError": "Unable to check for duplicates. You can still create the item."
   },
   "checkInOut": {
     "checkIn": "Check In",
