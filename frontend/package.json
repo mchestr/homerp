@@ -41,7 +41,7 @@
     "@eslint/eslintrc": "^3.3.3",
     "@hey-api/openapi-ts": "^0.88.2",
     "@playwright/test": "^1.57.0",
-    "@types/node": "^22.10.1",
+    "@types/node": "^25.0.1",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.1",
     "eslint": "^9.16.0",
