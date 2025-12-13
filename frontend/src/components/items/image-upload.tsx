@@ -15,6 +15,7 @@ import { imagesApi, ClassificationResult } from "@/lib/api/api-client";
 import { cn } from "@/lib/utils";
 import { useInsufficientCreditsModal } from "@/components/billing/insufficient-credits-modal";
 import { useAuth } from "@/context/auth-context";
+import { useTranslations } from "next-intl";
 
 type UploadedImage = {
   id: string;
@@ -49,6 +50,7 @@ export function ImageUpload({
   const { show: showInsufficientCredits, InsufficientCreditsModal } =
     useInsufficientCreditsModal();
   const { refreshCredits } = useAuth();
+  const t = useTranslations("billing");
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -236,12 +238,12 @@ export function ImageUpload({
               {isClassifying && classifyingImageId === currentImage.id ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Analyzing...
+                  {t("analyzing")}
                 </>
               ) : (
                 <>
                   <Sparkles className="h-4 w-4" />
-                  Identify Item
+                  {t("identifyItemCost")}
                 </>
               )}
             </Button>
