@@ -711,3 +711,68 @@ class TestFindSimilarEndpoint:
             assert "match_reasons" in item
             assert isinstance(item["match_reasons"], list)
             assert 0.0 <= item["similarity_score"] <= 1.0
+
+
+class TestItemQRCodeEndpoint:
+    """Tests for GET /api/v1/items/{item_id}/qr."""
+
+    async def test_get_item_qr_code(
+        self, authenticated_client: AsyncClient, test_item: Item
+    ):
+        """Test getting QR code for an item."""
+        response = await authenticated_client.get(f"/api/v1/items/{test_item.id}/qr")
+
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "image/png"
+        # Check PNG magic bytes
+        assert response.content[:8] == b"\x89PNG\r\n\x1a\n"
+
+    async def test_get_item_qr_code_with_size(
+        self, authenticated_client: AsyncClient, test_item: Item
+    ):
+        """Test getting QR code with custom size."""
+        small = await authenticated_client.get(
+            f"/api/v1/items/{test_item.id}/qr", params={"size": 5}
+        )
+        large = await authenticated_client.get(
+            f"/api/v1/items/{test_item.id}/qr", params={"size": 20}
+        )
+
+        assert small.status_code == 200
+        assert large.status_code == 200
+        # Larger size should produce larger image
+        assert len(small.content) < len(large.content)
+
+    async def test_get_item_qr_code_invalid_size(
+        self, authenticated_client: AsyncClient, test_item: Item
+    ):
+        """Test getting QR code with invalid size parameter."""
+        response = await authenticated_client.get(
+            f"/api/v1/items/{test_item.id}/qr", params={"size": 100}
+        )
+
+        assert response.status_code == 422
+
+    async def test_get_item_qr_code_not_found(self, authenticated_client: AsyncClient):
+        """Test getting QR code for non-existent item."""
+        response = await authenticated_client.get(f"/api/v1/items/{uuid.uuid4()}/qr")
+
+        assert response.status_code == 404
+
+    async def test_get_item_qr_code_unauthenticated(
+        self, unauthenticated_client: AsyncClient, test_item: Item
+    ):
+        """Test that unauthenticated request returns 401."""
+        response = await unauthenticated_client.get(f"/api/v1/items/{test_item.id}/qr")
+
+        assert response.status_code == 401
+
+    async def test_get_item_qr_code_cache_header(
+        self, authenticated_client: AsyncClient, test_item: Item
+    ):
+        """Test that QR code response has cache headers."""
+        response = await authenticated_client.get(f"/api/v1/items/{test_item.id}/qr")
+
+        assert response.status_code == 200
+        assert "cache-control" in response.headers
+        assert "max-age" in response.headers["cache-control"]

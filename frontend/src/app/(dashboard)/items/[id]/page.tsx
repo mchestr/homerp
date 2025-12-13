@@ -22,6 +22,7 @@ import {
   History,
   BarChart3,
   Clock,
+  Printer,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +38,8 @@ import { itemsApi, CheckInOutCreate } from "@/lib/api/api-client";
 import { cn, formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import { useTranslations } from "next-intl";
+import { useLabelPrintModal } from "@/components/labels";
+import type { LabelData } from "@/lib/labels";
 
 export default function ItemDetailPage() {
   const params = useParams();
@@ -55,6 +58,9 @@ export default function ItemDetailPage() {
     setIsLoading: setDeleteLoading,
     ConfirmModal,
   } = useConfirmModal();
+
+  const { openLabelModal, LabelPrintModal } = useLabelPrintModal();
+  const tLabels = useTranslations("labels");
 
   const { data: item, isLoading } = useQuery({
     queryKey: ["item", itemId],
@@ -150,6 +156,20 @@ export default function ItemDetailPage() {
     });
   };
 
+  const handlePrintLabel = () => {
+    if (!item) return;
+    const labelData: LabelData = {
+      type: "item",
+      id: item.id,
+      name: item.name,
+      category: item.category?.name,
+      location: item.location?.name,
+      description: item.description ?? undefined,
+      qrUrl: `${window.location.origin}/items/${item.id}`,
+    };
+    openLabelModal(labelData);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -214,6 +234,15 @@ export default function ItemDetailPage() {
         </div>
 
         <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={handlePrintLabel}
+            className="gap-2"
+            data-testid="print-label-button"
+          >
+            <Printer className="h-4 w-4" />
+            <span className="hidden sm:inline">{tLabels("printLabel")}</span>
+          </Button>
           <Link href={`/items/${itemId}/edit`}>
             <Button variant="outline" className="gap-2">
               <Edit className="h-4 w-4" />
@@ -612,6 +641,7 @@ export default function ItemDetailPage() {
       </div>
 
       <ConfirmModal />
+      <LabelPrintModal />
     </div>
   );
 }
