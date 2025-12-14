@@ -5,7 +5,11 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import Response
 
 from src.ai.service import AIClassificationService, get_ai_service
-from src.auth.dependencies import CurrentUserIdDep
+from src.auth.dependencies import (
+    CurrentUserIdDep,
+    EditableInventoryContextDep,
+    InventoryContextDep,
+)
 from src.billing.router import CreditServiceDep
 from src.common.schemas import PaginatedResponse
 from src.database import AsyncSessionDep
@@ -53,7 +57,7 @@ def _get_primary_image_url(item) -> str | None:
 @router.get("")
 async def list_items(
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
     category_id: UUID | None = Query(None),
     include_subcategories: bool = Query(
         True, description="Include items from subcategories"
@@ -86,7 +90,7 @@ async def list_items(
     Filter by tags using ?tags=tag1&tags=tag2 (items must have ALL specified tags).
     Filter by attributes using ?attr=key1:value1&attr=key2:value2.
     """
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     offset = (page - 1) * limit
 
     # Parse attribute filters from key:value format
@@ -152,10 +156,10 @@ async def list_items(
 async def create_item(
     data: ItemCreate,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: EditableInventoryContextDep,
 ) -> ItemDetailResponse:
     """Create a new item."""
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     try:
         item = await repo.create(data)
     except ValueError as e:
@@ -190,7 +194,7 @@ async def create_item(
 async def batch_update_items(
     data: BatchUpdateRequest,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: EditableInventoryContextDep,
 ) -> BatchUpdateResponse:
     """Batch update multiple items with the same category and/or location.
 
@@ -198,7 +202,7 @@ async def batch_update_items(
     You can also use clear_category=true or clear_location=true to remove
     the category or location from the selected items.
     """
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     try:
         updated_ids = await repo.batch_update(
             data.item_ids,
@@ -222,11 +226,11 @@ async def batch_update_items(
 @router.get("/stats/dashboard")
 async def get_dashboard_stats(
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
     days: int = Query(30, ge=7, le=90),
 ) -> DashboardStatsResponse:
     """Get dashboard statistics including time series data."""
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     stats = await repo.get_dashboard_stats(days=days)
     return DashboardStatsResponse(**stats)
 
@@ -234,34 +238,34 @@ async def get_dashboard_stats(
 @router.get("/stats/most-used")
 async def get_most_used_items(
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
     limit: int = Query(5, ge=1, le=20),
 ) -> list[MostUsedItemResponse]:
     """Get items with most check-outs for dashboard."""
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     return await repo.get_most_used_items(limit=limit)
 
 
 @router.get("/stats/recently-used")
 async def get_recently_used_items(
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
     limit: int = Query(5, ge=1, le=20),
 ) -> list[RecentlyUsedItemResponse]:
     """Get items with most recent check-in/out activity."""
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     return await repo.get_recently_used_items(limit=limit)
 
 
 @router.get("/search")
 async def search_items(
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
     q: str = Query(..., min_length=1),
     limit: int = Query(20, ge=1, le=100),
 ) -> list[ItemListResponse]:
     """Search items by name, description, or tags."""
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     items = await repo.search(q, limit)
 
     return [
@@ -288,14 +292,14 @@ async def search_items(
 async def find_similar_items(
     data: FindSimilarRequest,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
 ) -> FindSimilarResponse:
     """Find items similar to a classification result.
 
     Use this endpoint after AI classification to check for potential duplicates
     before creating a new item. Returns items sorted by similarity score.
     """
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     matches, total_searched = await repo.find_similar(
         identified_name=data.identified_name,
         category_path=data.category_path,
@@ -330,6 +334,7 @@ async def suggest_item_location(
     data: ItemLocationSuggestionRequest,
     session: AsyncSessionDep,
     user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
     ai_service: Annotated[AIClassificationService, Depends(get_ai_service)],
     credit_service: CreditServiceDep,
 ) -> ItemLocationSuggestionResponse:
@@ -340,15 +345,15 @@ async def suggest_item_location(
 
     Consumes 1 credit on successful suggestion.
     """
-    # Check if user has credits
+    # Check if user has credits (use the actual user's credits, not the inventory owner)
     if not await credit_service.has_credits(user_id):
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
             detail="Insufficient credits. Please purchase more credits to use AI suggestions.",
         )
 
-    # Get user's locations with sample items
-    location_service = LocationService(session, user_id)
+    # Get locations with sample items from the inventory context
+    location_service = LocationService(session, inventory_owner_id)
     locations = await location_service.get_locations_with_sample_items()
 
     if not locations:
@@ -359,7 +364,7 @@ async def suggest_item_location(
         )
 
     # Find similar items to help with suggestion
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     similar_items_data = None
 
     try:
@@ -420,10 +425,10 @@ async def suggest_item_location(
 @router.get("/low-stock")
 async def list_low_stock_items(
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
 ) -> list[ItemListResponse]:
     """List items that are below their minimum quantity threshold."""
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     items = await repo.get_all(low_stock_only=True, limit=100)
 
     return [
@@ -449,7 +454,7 @@ async def list_low_stock_items(
 @router.get("/facets")
 async def get_item_facets(
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
     category_id: UUID | None = Query(None, description="Filter facets by category"),
     include_subcategories: bool = Query(
         True, description="Include items from subcategories"
@@ -464,7 +469,7 @@ async def get_item_facets(
     Facets are based on the category's attribute template if a category is specified,
     or all unique attribute keys found in matching items.
     """
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     facets, total_items = await repo.get_facets(
         category_id=category_id,
         include_subcategories=include_subcategories,
@@ -478,11 +483,11 @@ async def get_item_facets(
 @router.get("/tags")
 async def get_all_tags(
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
     limit: int = Query(100, ge=1, le=500),
 ) -> list[FacetValue]:
     """Get all unique tags with their counts."""
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     tag_counts = await repo.get_all_tags(limit=limit)
 
     return [FacetValue(value=tag, count=count) for tag, count in tag_counts]
@@ -492,10 +497,10 @@ async def get_all_tags(
 async def get_item(
     item_id: UUID,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
 ) -> ItemDetailResponse:
     """Get an item by ID."""
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     item = await repo.get_by_id(item_id)
     if not item:
         raise HTTPException(
@@ -529,7 +534,7 @@ async def get_item(
 async def get_item_qr_code(
     item_id: UUID,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
     qr_service: Annotated[QRCodeService, Depends(get_qr_service)],
     size: int = Query(10, ge=1, le=40, description="Scale factor (1-40)"),
 ) -> Response:
@@ -537,7 +542,7 @@ async def get_item_qr_code(
 
     The QR code contains the item's URL for scanning.
     """
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     item = await repo.get_by_id(item_id)
     if not item:
         raise HTTPException(
@@ -562,10 +567,10 @@ async def update_item(
     item_id: UUID,
     data: ItemUpdate,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: EditableInventoryContextDep,
 ) -> ItemDetailResponse:
     """Update an item."""
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     item = await repo.get_by_id(item_id)
     if not item:
         raise HTTPException(
@@ -608,10 +613,10 @@ async def update_item_quantity(
     item_id: UUID,
     data: QuantityUpdate,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: EditableInventoryContextDep,
 ) -> ItemDetailResponse:
     """Quick update for item quantity."""
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     item = await repo.get_by_id(item_id)
     if not item:
         raise HTTPException(
@@ -648,10 +653,10 @@ async def check_out_item(
     item_id: UUID,
     data: CheckInOutCreate,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: EditableInventoryContextDep,
 ) -> CheckInOutResponse:
     """Record a check-out event for an item."""
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     item = await repo.get_by_id(item_id)
     if not item:
         raise HTTPException(
@@ -667,14 +672,14 @@ async def check_in_item(
     item_id: UUID,
     data: CheckInOutCreate,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: EditableInventoryContextDep,
 ) -> CheckInOutResponse:
     """Record a check-in event for an item.
 
     Uses row-level locking to prevent race conditions where concurrent
     check-ins could result in negative 'currently out' counts.
     """
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
 
     # Acquire a row-level lock on the item to prevent race conditions
     # This ensures no concurrent check-ins can bypass the validation
@@ -709,12 +714,12 @@ async def check_in_item(
 async def get_item_history(
     item_id: UUID,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
 ) -> PaginatedResponse[CheckInOutResponse]:
     """Get check-in/out history for an item."""
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     item = await repo.get_by_id(item_id)
     if not item:
         raise HTTPException(
@@ -730,10 +735,10 @@ async def get_item_history(
 async def get_item_usage_stats(
     item_id: UUID,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
 ) -> ItemUsageStatsResponse:
     """Get usage statistics for an item."""
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     item = await repo.get_by_id(item_id)
     if not item:
         raise HTTPException(
