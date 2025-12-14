@@ -25,6 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { InlineFacetedFilter } from "@/components/items/faceted-filter";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
+import { SpecificationTags } from "@/components/items/specification-tags";
 import { itemsApi, categoriesApi, locationsApi } from "@/lib/api/api-client";
 import { cn, formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
@@ -877,37 +878,11 @@ export default function ItemsPage() {
                       {item.category?.name ?? t("uncategorized")}
                     </p>
                     {/* Specifications preview */}
-                    {(() => {
-                      const attrs = item.attributes;
-                      if (!attrs || typeof attrs !== "object") return null;
-                      const specs = (attrs as Record<string, unknown>)[
-                        "specifications"
-                      ];
-                      if (!specs || typeof specs !== "object") return null;
-                      const entries = Object.entries(
-                        specs as Record<string, unknown>
-                      ).slice(0, 3);
-                      if (entries.length === 0) return null;
-                      return (
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {entries.map(([key, value]) => (
-                            <span
-                              key={key}
-                              className="inline-flex items-center rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground"
-                              title={`${key.replace(/_/g, " ")}: ${String(value)}`}
-                            >
-                              <span className="max-w-[60px] truncate capitalize">
-                                {key.replace(/_/g, " ")}
-                              </span>
-                              :{" "}
-                              <span className="ml-0.5 max-w-[50px] truncate font-medium">
-                                {String(value)}
-                              </span>
-                            </span>
-                          ))}
-                        </div>
-                      );
-                    })()}
+                    <SpecificationTags
+                      attributes={item.attributes}
+                      maxCount={3}
+                      className="mt-2"
+                    />
                     <div className="mt-3 flex items-center justify-between">
                       {/* Quick quantity buttons */}
                       <div className="flex items-center gap-1">
@@ -1115,37 +1090,11 @@ export default function ItemsPage() {
                         {item.location?.name ?? t("noLocation")}
                       </td>
                       <td className="hidden px-4 py-3 lg:table-cell">
-                        {(() => {
-                          const attrs = item.attributes;
-                          if (!attrs || typeof attrs !== "object") return "-";
-                          const specs = (attrs as Record<string, unknown>)[
-                            "specifications"
-                          ];
-                          if (!specs || typeof specs !== "object") return "-";
-                          const entries = Object.entries(
-                            specs as Record<string, unknown>
-                          ).slice(0, 2);
-                          if (entries.length === 0) return "-";
-                          return (
-                            <div className="flex flex-wrap gap-1">
-                              {entries.map(([key, value]) => (
-                                <span
-                                  key={key}
-                                  className="inline-flex items-center rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground"
-                                  title={`${key.replace(/_/g, " ")}: ${String(value)}`}
-                                >
-                                  <span className="max-w-[50px] truncate capitalize">
-                                    {key.replace(/_/g, " ")}
-                                  </span>
-                                  :{" "}
-                                  <span className="ml-0.5 max-w-[40px] truncate font-medium">
-                                    {String(value)}
-                                  </span>
-                                </span>
-                              ))}
-                            </div>
-                          );
-                        })()}
+                        <SpecificationTags
+                          attributes={item.attributes}
+                          maxCount={2}
+                          emptyFallback="-"
+                        />
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-center gap-1">

@@ -134,6 +134,7 @@
     "tags": "Tags",
     "attributes": "Attributes",
     "specifications": "Specifications",
+    "moreSpecifications": "{count} more",
     "images": "Images",
     "notes": "Notes",
     "price": "Price",
