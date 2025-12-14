@@ -66,6 +66,8 @@ async def pending_invitation(
     second_user: User,
 ) -> InventoryCollaborator:
     """Create a pending invitation from test_user to second_user."""
+    from datetime import UTC, datetime, timedelta
+
     invitation = InventoryCollaborator(
         id=uuid.uuid4(),
         owner_id=test_user.id,
@@ -74,6 +76,7 @@ async def pending_invitation(
         role=CollaboratorRole.VIEWER.value,
         status=CollaboratorStatus.PENDING.value,
         invitation_token="test_token_123",
+        invitation_expires_at=datetime.now(UTC) + timedelta(days=7),
     )
     async_session.add(invitation)
     await async_session.commit()

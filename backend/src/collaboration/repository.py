@@ -1,7 +1,7 @@
 """Repository for collaboration operations."""
 
 import secrets
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 from sqlalchemy import select
@@ -14,6 +14,9 @@ from src.collaboration.models import (
     InventoryCollaborator,
 )
 from src.users.models import User
+
+# Default invitation expiration time (7 days)
+INVITATION_EXPIRY_DAYS = 7
 
 
 class CollaborationRepository:
@@ -76,13 +79,17 @@ class CollaborationRepository:
         return list(result.scalars().unique().all())
 
     async def get_by_invitation_token(self, token: str) -> InventoryCollaborator | None:
-        """Get invitation by token."""
+        """Get invitation by token (only if not expired)."""
+        now = datetime.now(UTC)
         result = await self.session.execute(
             select(InventoryCollaborator)
             .options(joinedload(InventoryCollaborator.owner))
             .where(
                 InventoryCollaborator.invitation_token == token,
                 InventoryCollaborator.status == CollaboratorStatus.PENDING.value,
+                # Check expiration (allow if expires_at is NULL for backwards compat)
+                (InventoryCollaborator.invitation_expires_at.is_(None))
+                | (InventoryCollaborator.invitation_expires_at > now),
             )
         )
         return result.scalar_one_or_none()
@@ -105,6 +112,8 @@ class CollaborationRepository:
         """Create a new collaboration invitation."""
         # Generate a secure token
         token = secrets.token_urlsafe(32)
+        # Set expiration time
+        expires_at = datetime.now(UTC) + timedelta(days=INVITATION_EXPIRY_DAYS)
 
         # Check if the invited user already exists
         user_result = await self.session.execute(
@@ -119,6 +128,7 @@ class CollaborationRepository:
             role=role.value,
             status=CollaboratorStatus.PENDING.value,
             invitation_token=token,
+            invitation_expires_at=expires_at,
         )
 
         self.session.add(collaborator)

@@ -147,6 +147,7 @@ async def accept_invitation(
     data: AcceptInvitationRequest,
     session: AsyncSessionDep,
     user_id: CurrentUserIdDep,
+    current_user: CurrentUserDep,
 ) -> AcceptInvitationResponse:
     """Accept a collaboration invitation using the token."""
     repo = CollaborationRepository(session, user_id)
@@ -156,6 +157,13 @@ async def accept_invitation(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Invalid or expired invitation token",
+        )
+
+    # Validate that the invitation was sent to the current user's email
+    if invitation.invited_email.lower() != current_user.email.lower():
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This invitation was not sent to your email address",
         )
 
     accepted = await repo.accept_invitation(invitation)
