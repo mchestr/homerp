@@ -534,6 +534,61 @@ class TestCheckInEndpoint:
             == "Cannot check in item that has not been checked out"
         )
 
+    async def test_check_in_prevents_negative_count_sequential(
+        self, authenticated_client: AsyncClient, test_item: Item
+    ):
+        """Test that sequential check-ins properly prevent negative currently_checked_out.
+
+        This test verifies that the validation logic correctly prevents
+        check-ins that would result in negative counts, even when attempted
+        back-to-back.
+        """
+        # First check out 2 items
+        checkout_response = await authenticated_client.post(
+            f"/api/v1/items/{test_item.id}/check-out",
+            json={"quantity": 2},
+        )
+        assert checkout_response.status_code == 201
+
+        # Verify currently checked out is 2
+        stats = await authenticated_client.get(
+            f"/api/v1/items/{test_item.id}/usage-stats"
+        )
+        assert stats.json()["currently_checked_out"] == 2
+
+        # First check-in of 2 should succeed
+        first_checkin = await authenticated_client.post(
+            f"/api/v1/items/{test_item.id}/check-in",
+            json={"quantity": 2},
+        )
+        assert first_checkin.status_code == 201
+
+        # Verify currently checked out is now 0
+        stats_after_first = await authenticated_client.get(
+            f"/api/v1/items/{test_item.id}/usage-stats"
+        )
+        assert stats_after_first.json()["currently_checked_out"] == 0
+
+        # Second check-in should fail since nothing is checked out
+        second_checkin = await authenticated_client.post(
+            f"/api/v1/items/{test_item.id}/check-in",
+            json={"quantity": 2},
+        )
+        assert second_checkin.status_code == 400
+        assert (
+            second_checkin.json()["detail"]
+            == "Cannot check in item that has not been checked out"
+        )
+
+        # Verify final state: currently_checked_out should be exactly 0, not negative
+        final_stats = await authenticated_client.get(
+            f"/api/v1/items/{test_item.id}/usage-stats"
+        )
+        assert final_stats.status_code == 200
+        assert final_stats.json()["currently_checked_out"] == 0, (
+            "currently_checked_out should never be negative"
+        )
+
 
 class TestItemHistoryEndpoint:
     """Tests for GET /api/v1/items/{item_id}/history."""

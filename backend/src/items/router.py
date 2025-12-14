@@ -526,9 +526,16 @@ async def check_in_item(
     session: AsyncSessionDep,
     user_id: CurrentUserIdDep,
 ) -> CheckInOutResponse:
-    """Record a check-in event for an item."""
+    """Record a check-in event for an item.
+
+    Uses row-level locking to prevent race conditions where concurrent
+    check-ins could result in negative 'currently out' counts.
+    """
     repo = ItemRepository(session, user_id)
-    item = await repo.get_by_id(item_id)
+
+    # Acquire a row-level lock on the item to prevent race conditions
+    # This ensures no concurrent check-ins can bypass the validation
+    item = await repo.get_by_id_for_update(item_id)
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -536,6 +543,7 @@ async def check_in_item(
         )
 
     # Validate that item has been checked out first
+    # The lock ensures these stats remain accurate until we commit
     usage_stats = await repo.get_usage_stats(item_id)
     if usage_stats.currently_checked_out <= 0:
         raise HTTPException(
