@@ -3,7 +3,7 @@ Analyze this image and identify the item(s) shown.
 Provide your response as a JSON object with this exact structure:
 {
   "identified_name": "specific item name",
-  "confidence": 0.0 to 1.0,
+  "confidence": 0.0 to 1.0 (calibrate honestly per system instructions - do NOT default to 0.95),
   "category_path": "Top > Middle > Bottom",
   "description": "brief description of the item and its common uses",
   "specifications": {
@@ -14,5 +14,7 @@ Provide your response as a JSON object with this exact structure:
   ],
   "quantity_estimate": "approximate count if multiple items visible"
 }
+
+Remember: Confidence should reflect actual certainty based on image quality and distinguishing features. Reserve 0.95+ only for items with clearly visible labels or unmistakable identification.
 
 Respond ONLY with the JSON object, no additional text.
