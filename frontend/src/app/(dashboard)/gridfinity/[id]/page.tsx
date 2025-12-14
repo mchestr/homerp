@@ -22,6 +22,7 @@ import {
   Search,
   GripVertical,
   X,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,6 +52,7 @@ export default function GridfinityEditorPage() {
 
   const [itemSearch, setItemSearch] = useState("");
   const [activeItem, setActiveItem] = useState<DraggableItem | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Configure pointer sensor with a small activation constraint to distinguish click from drag
   const sensors = useSensors(
@@ -79,9 +81,13 @@ export default function GridfinityEditorPage() {
     mutationFn: (data: GridfinityPlacementCreate) =>
       gridfinityApi.createPlacement(unitId, data),
     onSuccess: () => {
+      setErrorMessage(null);
       queryClient.invalidateQueries({
         queryKey: ["gridfinity", "units", unitId, "layout"],
       });
+    },
+    onError: (error: Error) => {
+      setErrorMessage(error.message);
     },
   });
 
@@ -95,9 +101,13 @@ export default function GridfinityEditorPage() {
       data: { grid_x: number; grid_y: number };
     }) => gridfinityApi.updatePlacement(placementId, data),
     onSuccess: () => {
+      setErrorMessage(null);
       queryClient.invalidateQueries({
         queryKey: ["gridfinity", "units", unitId, "layout"],
       });
+    },
+    onError: (error: Error) => {
+      setErrorMessage(error.message);
     },
   });
 
@@ -106,9 +116,13 @@ export default function GridfinityEditorPage() {
     mutationFn: (placementId: string) =>
       gridfinityApi.deletePlacement(placementId),
     onSuccess: () => {
+      setErrorMessage(null);
       queryClient.invalidateQueries({
         queryKey: ["gridfinity", "units", unitId, "layout"],
       });
+    },
+    onError: (error: Error) => {
+      setErrorMessage(error.message);
     },
   });
 
@@ -116,17 +130,32 @@ export default function GridfinityEditorPage() {
   const autoLayoutMutation = useMutation({
     mutationFn: (itemIds: string[]) =>
       gridfinityApi.autoLayout(unitId, itemIds),
-    onSuccess: (result: AutoLayoutResult) => {
-      // Create placements for all placed items
-      result.placed.forEach((placement) => {
-        createPlacementMutation.mutate({
-          item_id: placement.item_id,
-          grid_x: placement.grid_x,
-          grid_y: placement.grid_y,
-          width_units: placement.width_units,
-          depth_units: placement.depth_units,
+    onSuccess: async (result: AutoLayoutResult) => {
+      setErrorMessage(null);
+      // Create placements for all placed items using Promise.all for better performance
+      try {
+        await Promise.all(
+          result.placed.map((placement) =>
+            gridfinityApi.createPlacement(unitId, {
+              item_id: placement.item_id,
+              grid_x: placement.grid_x,
+              grid_y: placement.grid_y,
+              width_units: placement.width_units,
+              depth_units: placement.depth_units,
+            })
+          )
+        );
+        queryClient.invalidateQueries({
+          queryKey: ["gridfinity", "units", unitId, "layout"],
         });
-      });
+      } catch (error) {
+        setErrorMessage(
+          error instanceof Error ? error.message : "Failed to create placements"
+        );
+      }
+    },
+    onError: (error: Error) => {
+      setErrorMessage(error.message);
     },
   });
 
@@ -203,6 +232,13 @@ export default function GridfinityEditorPage() {
     autoLayoutMutation.mutate(availableItems.map((item) => item.id));
   };
 
+  // Check if any mutation is in progress
+  const isMutating =
+    createPlacementMutation.isPending ||
+    updatePlacementMutation.isPending ||
+    deletePlacementMutation.isPending ||
+    autoLayoutMutation.isPending;
+
   if (unitLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -266,8 +302,29 @@ export default function GridfinityEditorPage() {
           </div>
         </div>
 
+        {/* Error message */}
+        {errorMessage && (
+          <div className="flex items-center gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-3">
+            <AlertCircle className="h-5 w-5 text-destructive" />
+            <p className="flex-1 text-sm text-destructive">{errorMessage}</p>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => setErrorMessage(null)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
         {/* Main content */}
-        <div className="flex flex-1 gap-4 overflow-hidden pt-4">
+        <div
+          className={cn(
+            "flex flex-1 gap-4 overflow-hidden pt-4",
+            isMutating && "pointer-events-none opacity-70"
+          )}
+        >
           {/* Grid editor */}
           <div className="flex-1 overflow-auto">
             <div

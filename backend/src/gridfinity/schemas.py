@@ -146,7 +146,10 @@ class AutoLayoutRequest(BaseModel):
     """Request for automatic item layout."""
 
     item_ids: list[UUID] = Field(
-        ..., min_length=1, description="Items to auto-layout in the unit"
+        ...,
+        min_length=1,
+        max_length=100,
+        description="Items to auto-layout in the unit (max 100)",
     )
 
 
