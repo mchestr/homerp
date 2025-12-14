@@ -32,6 +32,15 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     });
   });
 
+  // OAuth providers - must be before generic auth routes
+  await page.route("**/api/v1/auth/providers", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([{ id: "google", name: "Google", icon: "google" }]),
+    });
+  });
+
   await page.route("**/api/v1/auth/google*", async (route) => {
     await route.fulfill({
       status: 200,
