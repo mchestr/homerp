@@ -1256,6 +1256,7 @@ export type PurgeRecommendationUpdate = {
 
 export type GenerateRecommendationsRequest = {
   max_recommendations?: number;
+  items_to_analyze?: number;
 };
 
 export type GenerateRecommendationsResponse = {
@@ -1264,18 +1265,15 @@ export type GenerateRecommendationsResponse = {
   credits_used: number;
 };
 
-// Spring Cleaning Audit Types
-export type SpringCleaningCostResponse = {
+// Declutter Cost Types
+export type DeclutterCostResponse = {
   total_items: number;
+  items_to_analyze: number;
   credits_required: number;
   items_per_credit: number;
   has_sufficient_credits: boolean;
   user_credit_balance: number;
   has_profile: boolean;
-};
-
-export type SpringCleaningAuditRequest = {
-  max_recommendations?: number;
 };
 
 // API Key Types
@@ -1581,18 +1579,9 @@ export const profileApi = {
       method: "DELETE",
     }),
 
-  // Spring Cleaning Audit
-  getSpringCleaningCost: () =>
-    apiRequest<SpringCleaningCostResponse>(
-      "/api/v1/profile/spring-cleaning/cost"
-    ),
-
-  runSpringCleaningAudit: (data?: SpringCleaningAuditRequest) =>
-    apiRequest<GenerateRecommendationsResponse>(
-      "/api/v1/profile/spring-cleaning/audit",
-      {
-        method: "POST",
-        body: data || {},
-      }
+  // Declutter Cost
+  getDeclutterCost: (itemsToAnalyze = 50) =>
+    apiRequest<DeclutterCostResponse>(
+      `/api/v1/profile/recommendations/cost?items_to_analyze=${itemsToAnalyze}`
     ),
 };

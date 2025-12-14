@@ -266,101 +266,89 @@ class TestPurgeRecommendations:
         assert "profile" in response.json()["detail"].lower()
 
 
-class TestSpringCleaning:
-    """Tests for spring cleaning audit endpoints."""
+class TestDeclutterCost:
+    """Tests for declutter cost estimation endpoint."""
 
     @pytest.mark.asyncio
-    async def test_get_spring_cleaning_cost_no_items(
-        self, authenticated_client: AsyncClient
-    ):
-        """Test getting cost when user has no items."""
+    async def test_get_cost_default_items(self, authenticated_client: AsyncClient):
+        """Test getting cost with default items_to_analyze."""
         response = await authenticated_client.get(
-            "/api/v1/profile/spring-cleaning/cost"
+            "/api/v1/profile/recommendations/cost"
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["total_items"] == 0
-        assert data["credits_required"] == 0
+        assert data["items_to_analyze"] == 50
+        assert data["credits_required"] == 1  # 50 items = 1 credit
         assert data["items_per_credit"] == 50
         assert "has_sufficient_credits" in data
         assert "user_credit_balance" in data
+        assert "total_items" in data
         assert data["has_profile"] is False
 
     @pytest.mark.asyncio
-    async def test_get_spring_cleaning_cost_with_items(
-        self, authenticated_client: AsyncClient, test_item
+    async def test_get_cost_with_items_to_analyze(
+        self, authenticated_client: AsyncClient
     ):
-        """Test getting cost when user has items."""
+        """Test getting cost with custom items_to_analyze."""
         response = await authenticated_client.get(
-            "/api/v1/profile/spring-cleaning/cost"
+            "/api/v1/profile/recommendations/cost?items_to_analyze=100"
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["total_items"] == 1
-        # 1 item = 1 credit (minimum)
-        assert data["credits_required"] == 1
-        assert data["items_per_credit"] == 50
+        assert data["items_to_analyze"] == 100
+        assert data["credits_required"] == 2  # 100 items = 2 credits
 
     @pytest.mark.asyncio
-    async def test_get_spring_cleaning_cost_with_profile(
+    async def test_get_cost_rejects_below_minimum(
+        self, authenticated_client: AsyncClient
+    ):
+        """Test that items_to_analyze below 10 returns validation error."""
+        response = await authenticated_client.get(
+            "/api/v1/profile/recommendations/cost?items_to_analyze=5"
+        )
+        assert response.status_code == 422
+
+    @pytest.mark.asyncio
+    async def test_get_cost_rejects_above_maximum(
+        self, authenticated_client: AsyncClient
+    ):
+        """Test that items_to_analyze above 200 returns validation error."""
+        response = await authenticated_client.get(
+            "/api/v1/profile/recommendations/cost?items_to_analyze=500"
+        )
+        assert response.status_code == 422
+
+    @pytest.mark.asyncio
+    async def test_get_cost_with_profile(
         self,
         authenticated_client: AsyncClient,
         test_system_profile: UserSystemProfile,
     ):
         """Test getting cost when user has a profile."""
         response = await authenticated_client.get(
-            "/api/v1/profile/spring-cleaning/cost"
+            "/api/v1/profile/recommendations/cost"
         )
         assert response.status_code == 200
         data = response.json()
         assert data["has_profile"] is True
 
     @pytest.mark.asyncio
-    async def test_run_audit_no_items(
-        self,
-        authenticated_client: AsyncClient,
-        test_system_profile: UserSystemProfile,
-    ):
-        """Test running audit when user has no items."""
-        response = await authenticated_client.post(
-            "/api/v1/profile/spring-cleaning/audit",
-            json={"max_recommendations": 10},
-        )
-        assert response.status_code == 400
-        assert "no items" in response.json()["detail"].lower()
-
-    @pytest.mark.asyncio
-    async def test_run_audit_no_profile(
-        self,
-        authenticated_client: AsyncClient,
-        test_item,
-    ):
-        """Test running audit without a profile."""
-        response = await authenticated_client.post(
-            "/api/v1/profile/spring-cleaning/audit",
-            json={"max_recommendations": 10},
-        )
-        assert response.status_code == 400
-        assert "profile" in response.json()["detail"].lower()
-
-    @pytest.mark.asyncio
-    async def test_run_audit_insufficient_credits(
+    async def test_generate_with_items_to_analyze_insufficient_credits(
         self,
         authenticated_client: AsyncClient,
         async_session: AsyncSession,
         test_user: User,
         test_system_profile: UserSystemProfile,
-        test_item,
     ):
-        """Test running audit when user has insufficient credits."""
-        # Set user credits to 0
+        """Test generating recommendations when user has insufficient credits."""
+        # Set user credits to 1 (need 2 for 100 items)
         test_user.credit_balance = 0
-        test_user.free_credits_remaining = 0
+        test_user.free_credits_remaining = 1
         await async_session.commit()
 
         response = await authenticated_client.post(
-            "/api/v1/profile/spring-cleaning/audit",
-            json={"max_recommendations": 10},
+            "/api/v1/profile/recommendations/generate",
+            json={"max_recommendations": 5, "items_to_analyze": 100},
         )
         assert response.status_code == 402
         assert "insufficient credits" in response.json()["detail"].lower()
@@ -384,22 +372,22 @@ class TestAuthenticationRequired:
         assert response.status_code == 401
 
     @pytest.mark.asyncio
-    async def test_spring_cleaning_cost_requires_auth(
+    async def test_recommendations_cost_requires_auth(
         self, unauthenticated_client: AsyncClient
     ):
-        """Test that spring cleaning cost endpoint requires authentication."""
+        """Test that recommendations cost endpoint requires authentication."""
         response = await unauthenticated_client.get(
-            "/api/v1/profile/spring-cleaning/cost"
+            "/api/v1/profile/recommendations/cost"
         )
         assert response.status_code == 401
 
     @pytest.mark.asyncio
-    async def test_spring_cleaning_audit_requires_auth(
+    async def test_recommendations_generate_requires_auth(
         self, unauthenticated_client: AsyncClient
     ):
-        """Test that spring cleaning audit endpoint requires authentication."""
+        """Test that recommendations generate endpoint requires authentication."""
         response = await unauthenticated_client.post(
-            "/api/v1/profile/spring-cleaning/audit",
+            "/api/v1/profile/recommendations/generate",
             json={"max_recommendations": 10},
         )
         assert response.status_code == 401

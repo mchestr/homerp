@@ -152,13 +152,19 @@ class PurgeRecommendationWithItem(PurgeRecommendationResponse):
 
 
 class GenerateRecommendationsRequest(BaseModel):
-    """Request to generate purge recommendations."""
+    """Request to generate declutter recommendations."""
 
     max_recommendations: int = Field(
         default=10,
         ge=1,
         le=50,
         description="Maximum number of recommendations to return",
+    )
+    items_to_analyze: int = Field(
+        default=50,
+        ge=10,
+        le=200,
+        description="Number of items to analyze (affects credit cost)",
     )
 
 
@@ -211,16 +217,17 @@ class HobbyTypesResponse(BaseModel):
 
 
 # ============================================
-# Spring Cleaning Audit Schemas
+# Declutter Cost Estimation
 # ============================================
 
 
-class SpringCleaningCostResponse(BaseModel):
-    """Response with the cost estimate for a spring cleaning audit."""
+class DeclutterCostResponse(BaseModel):
+    """Response with cost estimate for declutter suggestions."""
 
     total_items: int = Field(description="Total number of items in inventory")
+    items_to_analyze: int = Field(description="Number of items that will be analyzed")
     credits_required: int = Field(
-        description="Number of credits required for the audit"
+        description="Number of credits required for the analysis"
     )
     items_per_credit: int = Field(
         default=50, description="Number of items analyzed per credit"
@@ -229,15 +236,4 @@ class SpringCleaningCostResponse(BaseModel):
     user_credit_balance: int = Field(description="User's current credit balance")
     has_profile: bool = Field(
         description="Whether user has configured their system profile"
-    )
-
-
-class SpringCleaningAuditRequest(BaseModel):
-    """Request to run a spring cleaning audit."""
-
-    max_recommendations: int = Field(
-        default=50,
-        ge=1,
-        le=100,
-        description="Maximum number of recommendations to return",
     )

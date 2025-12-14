@@ -82,15 +82,15 @@ class PurgeRecommendationService:
         self.client = AsyncOpenAI(api_key=self.settings.openai_api_key)
 
     async def _get_items_with_usage(
-        self, user_id: UUID, _profile: UserSystemProfile
+        self, user_id: UUID, _profile: UserSystemProfile, limit: int = 200
     ) -> list[dict]:
         """Get items with their usage data for analysis."""
-        # Get all items for the user
+        # Get items for the user, limited to prevent token overflow
         result = await self.session.execute(
             select(Item)
             .where(Item.user_id == user_id)
             .order_by(Item.updated_at.desc())
-            .limit(200)  # Limit to prevent token overflow
+            .limit(limit)
         )
         items = result.scalars().all()
 
@@ -159,10 +159,13 @@ class PurgeRecommendationService:
         user_id: UUID,
         profile: UserSystemProfile,
         max_recommendations: int = 10,
+        items_to_analyze: int = 50,
     ) -> list[PurgeRecommendationCreate]:
         """Generate purge recommendations using AI."""
-        # Get items with usage data
-        items_data = await self._get_items_with_usage(user_id, profile)
+        # Get items with usage data, limited to items_to_analyze
+        items_data = await self._get_items_with_usage(
+            user_id, profile, items_to_analyze
+        )
 
         if not items_data:
             return []

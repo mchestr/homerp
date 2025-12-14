@@ -16,8 +16,6 @@ import {
   Sparkles,
   CreditCard,
   MessageSquare,
-  Trash2,
-  Flower2,
   Bot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -84,14 +82,9 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           icon: Sparkles,
         },
         {
-          title: t("sidebar.springCleaning"),
-          href: "/spring-cleaning",
-          icon: Flower2,
-        },
-        {
-          title: t("sidebar.purgeRecommendations"),
-          href: "/purge-recommendations",
-          icon: Trash2,
+          title: t("sidebar.declutterSuggestions"),
+          href: "/declutter-suggestions",
+          icon: Sparkles,
         },
       ],
     },
