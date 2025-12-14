@@ -11,12 +11,27 @@ import type {
   AdjustUserCreditsApiV1AdminUsersUserIdCreditsPostData,
   AdjustUserCreditsApiV1AdminUsersUserIdCreditsPostErrors,
   AdjustUserCreditsApiV1AdminUsersUserIdCreditsPostResponses,
+  AnalyzeLocationImageApiV1LocationsAnalyzeImagePostData,
+  AnalyzeLocationImageApiV1LocationsAnalyzeImagePostErrors,
+  AnalyzeLocationImageApiV1LocationsAnalyzeImagePostResponses,
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostData,
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostErrors,
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostResponses,
+  BatchUpdateItemsApiV1ItemsBatchPatchData,
+  BatchUpdateItemsApiV1ItemsBatchPatchErrors,
+  BatchUpdateItemsApiV1ItemsBatchPatchResponses,
+  CheckInItemApiV1ItemsItemIdCheckInPostData,
+  CheckInItemApiV1ItemsItemIdCheckInPostErrors,
+  CheckInItemApiV1ItemsItemIdCheckInPostResponses,
+  CheckOutItemApiV1ItemsItemIdCheckOutPostData,
+  CheckOutItemApiV1ItemsItemIdCheckOutPostErrors,
+  CheckOutItemApiV1ItemsItemIdCheckOutPostResponses,
   ClassifyImageApiV1ImagesClassifyPostData,
   ClassifyImageApiV1ImagesClassifyPostErrors,
   ClassifyImageApiV1ImagesClassifyPostResponses,
+  CreateApiKeyApiV1AdminApikeysPostData,
+  CreateApiKeyApiV1AdminApikeysPostErrors,
+  CreateApiKeyApiV1AdminApikeysPostResponses,
   CreateCategoryApiV1CategoriesPostData,
   CreateCategoryApiV1CategoriesPostErrors,
   CreateCategoryApiV1CategoriesPostResponses,
@@ -26,20 +41,42 @@ import type {
   CreateCheckoutApiV1BillingCheckoutPostData,
   CreateCheckoutApiV1BillingCheckoutPostErrors,
   CreateCheckoutApiV1BillingCheckoutPostResponses,
+  CreateConfigApiV1WebhooksConfigsPostData,
+  CreateConfigApiV1WebhooksConfigsPostErrors,
+  CreateConfigApiV1WebhooksConfigsPostResponses,
+  CreateFeedbackApiV1FeedbackPostData,
+  CreateFeedbackApiV1FeedbackPostErrors,
+  CreateFeedbackApiV1FeedbackPostResponses,
   CreateItemApiV1ItemsPostData,
   CreateItemApiV1ItemsPostErrors,
   CreateItemApiV1ItemsPostResponses,
   CreateLocationApiV1LocationsPostData,
   CreateLocationApiV1LocationsPostErrors,
   CreateLocationApiV1LocationsPostResponses,
+  CreateLocationsBulkApiV1LocationsBulkPostData,
+  CreateLocationsBulkApiV1LocationsBulkPostErrors,
+  CreateLocationsBulkApiV1LocationsBulkPostResponses,
+  CreateMyProfileApiV1ProfileMePostData,
+  CreateMyProfileApiV1ProfileMePostErrors,
+  CreateMyProfileApiV1ProfileMePostResponses,
   CreatePackApiV1AdminPacksPostData,
   CreatePackApiV1AdminPacksPostErrors,
   CreatePackApiV1AdminPacksPostResponses,
   CreatePortalSessionApiV1BillingPortalPostData,
+  CreatePortalSessionApiV1BillingPortalPostErrors,
   CreatePortalSessionApiV1BillingPortalPostResponses,
+  DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteData,
+  DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteErrors,
+  DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteResponses,
   DeleteCategoryApiV1CategoriesCategoryIdDeleteData,
   DeleteCategoryApiV1CategoriesCategoryIdDeleteErrors,
   DeleteCategoryApiV1CategoriesCategoryIdDeleteResponses,
+  DeleteConfigApiV1WebhooksConfigsConfigIdDeleteData,
+  DeleteConfigApiV1WebhooksConfigsConfigIdDeleteErrors,
+  DeleteConfigApiV1WebhooksConfigsConfigIdDeleteResponses,
+  DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteData,
+  DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteErrors,
+  DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteResponses,
   DeleteImageApiV1ImagesImageIdDeleteData,
   DeleteImageApiV1ImagesImageIdDeleteErrors,
   DeleteImageApiV1ImagesImageIdDeleteResponses,
@@ -52,10 +89,23 @@ import type {
   DeletePackApiV1AdminPacksPackIdDeleteData,
   DeletePackApiV1AdminPacksPackIdDeleteErrors,
   DeletePackApiV1AdminPacksPackIdDeleteResponses,
+  DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteData,
+  DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteErrors,
+  DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteResponses,
+  FindSimilarItemsApiV1ItemsFindSimilarPostData,
+  FindSimilarItemsApiV1ItemsFindSimilarPostErrors,
+  FindSimilarItemsApiV1ItemsFindSimilarPostResponses,
+  GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostData,
+  GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostErrors,
+  GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostResponses,
   GetAllTagsApiV1ItemsTagsGetData,
   GetAllTagsApiV1ItemsTagsGetErrors,
   GetAllTagsApiV1ItemsTagsGetResponses,
+  GetApiKeyApiV1AdminApikeysApiKeyIdGetData,
+  GetApiKeyApiV1AdminApikeysApiKeyIdGetErrors,
+  GetApiKeyApiV1AdminApikeysApiKeyIdGetResponses,
   GetBalanceApiV1BillingBalanceGetData,
+  GetBalanceApiV1BillingBalanceGetErrors,
   GetBalanceApiV1BillingBalanceGetResponses,
   GetCategoryApiV1CategoriesCategoryIdGetData,
   GetCategoryApiV1CategoriesCategoryIdGetErrors,
@@ -67,12 +117,22 @@ import type {
   GetCategoryTemplateApiV1CategoriesCategoryIdTemplateGetErrors,
   GetCategoryTemplateApiV1CategoriesCategoryIdTemplateGetResponses,
   GetCategoryTreeApiV1CategoriesTreeGetData,
+  GetCategoryTreeApiV1CategoriesTreeGetErrors,
   GetCategoryTreeApiV1CategoriesTreeGetResponses,
+  GetConfigApiV1WebhooksConfigsConfigIdGetData,
+  GetConfigApiV1WebhooksConfigsConfigIdGetErrors,
+  GetConfigApiV1WebhooksConfigsConfigIdGetResponses,
   GetCurrentUserInfoApiV1AuthMeGetData,
+  GetCurrentUserInfoApiV1AuthMeGetErrors,
   GetCurrentUserInfoApiV1AuthMeGetResponses,
   GetDashboardStatsApiV1ItemsStatsDashboardGetData,
   GetDashboardStatsApiV1ItemsStatsDashboardGetErrors,
   GetDashboardStatsApiV1ItemsStatsDashboardGetResponses,
+  GetFeedbackApiV1FeedbackAdminFeedbackIdGetData,
+  GetFeedbackApiV1FeedbackAdminFeedbackIdGetErrors,
+  GetFeedbackApiV1FeedbackAdminFeedbackIdGetResponses,
+  GetHobbyTypesApiV1ProfileHobbyTypesGetData,
+  GetHobbyTypesApiV1ProfileHobbyTypesGetResponses,
   GetImageApiV1ImagesImageIdGetData,
   GetImageApiV1ImagesImageIdGetErrors,
   GetImageApiV1ImagesImageIdGetResponses,
@@ -82,24 +142,56 @@ import type {
   GetImageSignedUrlApiV1ImagesImageIdSignedUrlGetData,
   GetImageSignedUrlApiV1ImagesImageIdSignedUrlGetErrors,
   GetImageSignedUrlApiV1ImagesImageIdSignedUrlGetResponses,
+  GetImageThumbnailApiV1ImagesImageIdThumbnailGetData,
+  GetImageThumbnailApiV1ImagesImageIdThumbnailGetErrors,
+  GetImageThumbnailApiV1ImagesImageIdThumbnailGetResponses,
   GetItemApiV1ItemsItemIdGetData,
   GetItemApiV1ItemsItemIdGetErrors,
   GetItemApiV1ItemsItemIdGetResponses,
   GetItemFacetsApiV1ItemsFacetsGetData,
   GetItemFacetsApiV1ItemsFacetsGetErrors,
   GetItemFacetsApiV1ItemsFacetsGetResponses,
+  GetItemHistoryApiV1ItemsItemIdHistoryGetData,
+  GetItemHistoryApiV1ItemsItemIdHistoryGetErrors,
+  GetItemHistoryApiV1ItemsItemIdHistoryGetResponses,
+  GetItemQrCodeApiV1ItemsItemIdQrGetData,
+  GetItemQrCodeApiV1ItemsItemIdQrGetErrors,
+  GetItemQrCodeApiV1ItemsItemIdQrGetResponses,
+  GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetData,
+  GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetErrors,
+  GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetResponses,
   GetLocationApiV1LocationsLocationIdGetData,
   GetLocationApiV1LocationsLocationIdGetErrors,
   GetLocationApiV1LocationsLocationIdGetResponses,
   GetLocationDescendantsApiV1LocationsLocationIdDescendantsGetData,
   GetLocationDescendantsApiV1LocationsLocationIdDescendantsGetErrors,
   GetLocationDescendantsApiV1LocationsLocationIdDescendantsGetResponses,
+  GetLocationQrCodeApiV1LocationsLocationIdQrGetData,
+  GetLocationQrCodeApiV1LocationsLocationIdQrGetErrors,
+  GetLocationQrCodeApiV1LocationsLocationIdQrGetResponses,
   GetLocationTreeApiV1LocationsTreeGetData,
+  GetLocationTreeApiV1LocationsTreeGetErrors,
   GetLocationTreeApiV1LocationsTreeGetResponses,
+  GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetData,
+  GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetErrors,
+  GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetResponses,
+  GetMostUsedItemsApiV1ItemsStatsMostUsedGetData,
+  GetMostUsedItemsApiV1ItemsStatsMostUsedGetErrors,
+  GetMostUsedItemsApiV1ItemsStatsMostUsedGetResponses,
+  GetMyProfileApiV1ProfileMeGetData,
+  GetMyProfileApiV1ProfileMeGetErrors,
+  GetMyProfileApiV1ProfileMeGetResponses,
   GetPackApiV1AdminPacksPackIdGetData,
   GetPackApiV1AdminPacksPackIdGetErrors,
   GetPackApiV1AdminPacksPackIdGetResponses,
+  GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetData,
+  GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetErrors,
+  GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetResponses,
+  GetRecommendationsApiV1ProfileRecommendationsGetData,
+  GetRecommendationsApiV1ProfileRecommendationsGetErrors,
+  GetRecommendationsApiV1ProfileRecommendationsGetResponses,
   GetStatsApiV1AdminStatsGetData,
+  GetStatsApiV1AdminStatsGetErrors,
   GetStatsApiV1AdminStatsGetResponses,
   GetUserApiV1AdminUsersUserIdGetData,
   GetUserApiV1AdminUsersUserIdGetErrors,
@@ -115,19 +207,41 @@ import type {
   HandleWebhookApiV1BillingWebhookPostResponses,
   HealthCheckHealthGetData,
   HealthCheckHealthGetResponses,
+  ListAllFeedbackApiV1FeedbackAdminGetData,
+  ListAllFeedbackApiV1FeedbackAdminGetErrors,
+  ListAllFeedbackApiV1FeedbackAdminGetResponses,
+  ListApiKeysApiV1AdminApikeysGetData,
+  ListApiKeysApiV1AdminApikeysGetErrors,
+  ListApiKeysApiV1AdminApikeysGetResponses,
   ListCategoriesApiV1CategoriesGetData,
+  ListCategoriesApiV1CategoriesGetErrors,
   ListCategoriesApiV1CategoriesGetResponses,
   ListClassifiedImagesApiV1ImagesClassifiedGetData,
   ListClassifiedImagesApiV1ImagesClassifiedGetErrors,
   ListClassifiedImagesApiV1ImagesClassifiedGetResponses,
+  ListConfigsApiV1WebhooksConfigsGetData,
+  ListConfigsApiV1WebhooksConfigsGetErrors,
+  ListConfigsApiV1WebhooksConfigsGetResponses,
+  ListEventTypesApiV1WebhooksEventTypesGetData,
+  ListEventTypesApiV1WebhooksEventTypesGetErrors,
+  ListEventTypesApiV1WebhooksEventTypesGetResponses,
+  ListExecutionsApiV1WebhooksExecutionsGetData,
+  ListExecutionsApiV1WebhooksExecutionsGetErrors,
+  ListExecutionsApiV1WebhooksExecutionsGetResponses,
   ListItemsApiV1ItemsGetData,
   ListItemsApiV1ItemsGetErrors,
   ListItemsApiV1ItemsGetResponses,
   ListLocationsApiV1LocationsGetData,
+  ListLocationsApiV1LocationsGetErrors,
   ListLocationsApiV1LocationsGetResponses,
   ListLowStockItemsApiV1ItemsLowStockGetData,
+  ListLowStockItemsApiV1ItemsLowStockGetErrors,
   ListLowStockItemsApiV1ItemsLowStockGetResponses,
+  ListMyFeedbackApiV1FeedbackGetData,
+  ListMyFeedbackApiV1FeedbackGetErrors,
+  ListMyFeedbackApiV1FeedbackGetResponses,
   ListPacksApiV1AdminPacksGetData,
+  ListPacksApiV1AdminPacksGetErrors,
   ListPacksApiV1AdminPacksGetResponses,
   ListPacksApiV1BillingPacksGetData,
   ListPacksApiV1BillingPacksGetResponses,
@@ -144,16 +258,38 @@ import type {
   MoveLocationApiV1LocationsLocationIdMovePatchErrors,
   MoveLocationApiV1LocationsLocationIdMovePatchResponses,
   RefreshTokenApiV1AuthRefreshPostData,
+  RefreshTokenApiV1AuthRefreshPostErrors,
   RefreshTokenApiV1AuthRefreshPostResponses,
   RequestRefundApiV1BillingRefundPostData,
   RequestRefundApiV1BillingRefundPostErrors,
   RequestRefundApiV1BillingRefundPostResponses,
+  ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutData,
+  ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutErrors,
+  ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutResponses,
+  RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostData,
+  RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostErrors,
+  RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostResponses,
   SearchItemsApiV1ItemsSearchGetData,
   SearchItemsApiV1ItemsSearchGetErrors,
   SearchItemsApiV1ItemsSearchGetResponses,
+  SuggestItemLocationApiV1ItemsSuggestLocationPostData,
+  SuggestItemLocationApiV1ItemsSuggestLocationPostErrors,
+  SuggestItemLocationApiV1ItemsSuggestLocationPostResponses,
+  TestConfigApiV1WebhooksConfigsConfigIdTestPostData,
+  TestConfigApiV1WebhooksConfigsConfigIdTestPostErrors,
+  TestConfigApiV1WebhooksConfigsConfigIdTestPostResponses,
+  UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchData,
+  UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchErrors,
+  UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponses,
   UpdateCategoryApiV1CategoriesCategoryIdPutData,
   UpdateCategoryApiV1CategoriesCategoryIdPutErrors,
   UpdateCategoryApiV1CategoriesCategoryIdPutResponses,
+  UpdateConfigApiV1WebhooksConfigsConfigIdPutData,
+  UpdateConfigApiV1WebhooksConfigsConfigIdPutErrors,
+  UpdateConfigApiV1WebhooksConfigsConfigIdPutResponses,
+  UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutData,
+  UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutErrors,
+  UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutResponses,
   UpdateItemApiV1ItemsItemIdPutData,
   UpdateItemApiV1ItemsItemIdPutErrors,
   UpdateItemApiV1ItemsItemIdPutResponses,
@@ -163,12 +299,21 @@ import type {
   UpdateLocationApiV1LocationsLocationIdPutData,
   UpdateLocationApiV1LocationsLocationIdPutErrors,
   UpdateLocationApiV1LocationsLocationIdPutResponses,
+  UpdateMyProfileApiV1ProfileMePatchData,
+  UpdateMyProfileApiV1ProfileMePatchErrors,
+  UpdateMyProfileApiV1ProfileMePatchResponses,
   UpdatePackApiV1AdminPacksPackIdPutData,
   UpdatePackApiV1AdminPacksPackIdPutErrors,
   UpdatePackApiV1AdminPacksPackIdPutResponses,
+  UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchData,
+  UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchErrors,
+  UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponses,
   UpdateUserApiV1AdminUsersUserIdPutData,
   UpdateUserApiV1AdminUsersUserIdPutErrors,
   UpdateUserApiV1AdminUsersUserIdPutResponses,
+  UpdateUserSettingsApiV1AuthSettingsPatchData,
+  UpdateUserSettingsApiV1AuthSettingsPatchErrors,
+  UpdateUserSettingsApiV1AuthSettingsPatchResponses,
   UploadImageApiV1ImagesUploadPostData,
   UploadImageApiV1ImagesUploadPostErrors,
   UploadImageApiV1ImagesUploadPostResponses,
@@ -215,7 +360,7 @@ export const listPacksApiV1AdminPacksGet = <
 ) =>
   (options?.client ?? client).get<
     ListPacksApiV1AdminPacksGetResponses,
-    unknown,
+    ListPacksApiV1AdminPacksGetErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
@@ -414,12 +559,126 @@ export const getStatsApiV1AdminStatsGet = <
 ) =>
   (options?.client ?? client).get<
     GetStatsApiV1AdminStatsGetResponses,
-    unknown,
+    GetStatsApiV1AdminStatsGetErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/stats",
     ...options,
+  });
+
+/**
+ * List Api Keys
+ *
+ * List all API keys for the current admin (paginated).
+ */
+export const listApiKeysApiV1AdminApikeysGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<ListApiKeysApiV1AdminApikeysGetData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    ListApiKeysApiV1AdminApikeysGetResponses,
+    ListApiKeysApiV1AdminApikeysGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/apikeys",
+    ...options,
+  });
+
+/**
+ * Create Api Key
+ *
+ * Create a new API key (admin only).
+ *
+ * The full API key is only returned once in this response.
+ * Store it securely as it cannot be retrieved again.
+ */
+export const createApiKeyApiV1AdminApikeysPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CreateApiKeyApiV1AdminApikeysPostData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    CreateApiKeyApiV1AdminApikeysPostResponses,
+    CreateApiKeyApiV1AdminApikeysPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/apikeys",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete Api Key
+ *
+ * Delete (revoke) an API key.
+ */
+export const deleteApiKeyApiV1AdminApikeysApiKeyIdDelete = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).delete<
+    DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteResponses,
+    DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/apikeys/{api_key_id}",
+    ...options,
+  });
+
+/**
+ * Get Api Key
+ *
+ * Get details of a specific API key.
+ */
+export const getApiKeyApiV1AdminApikeysApiKeyIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetApiKeyApiV1AdminApikeysApiKeyIdGetData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    GetApiKeyApiV1AdminApikeysApiKeyIdGetResponses,
+    GetApiKeyApiV1AdminApikeysApiKeyIdGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/apikeys/{api_key_id}",
+    ...options,
+  });
+
+/**
+ * Update Api Key
+ *
+ * Update an API key (name, scopes, or active status).
+ */
+export const updateApiKeyApiV1AdminApikeysApiKeyIdPatch = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchData, ThrowOnError>
+) =>
+  (options.client ?? client).patch<
+    UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponses,
+    UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/apikeys/{api_key_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**
@@ -470,7 +729,7 @@ export const getCurrentUserInfoApiV1AuthMeGet = <
 ) =>
   (options?.client ?? client).get<
     GetCurrentUserInfoApiV1AuthMeGetResponses,
-    unknown,
+    GetCurrentUserInfoApiV1AuthMeGetErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
@@ -490,12 +749,36 @@ export const refreshTokenApiV1AuthRefreshPost = <
 ) =>
   (options?.client ?? client).post<
     RefreshTokenApiV1AuthRefreshPostResponses,
-    unknown,
+    RefreshTokenApiV1AuthRefreshPostErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/auth/refresh",
     ...options,
+  });
+
+/**
+ * Update User Settings
+ *
+ * Update the current user's settings.
+ */
+export const updateUserSettingsApiV1AuthSettingsPatch = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UpdateUserSettingsApiV1AuthSettingsPatchData, ThrowOnError>
+) =>
+  (options.client ?? client).patch<
+    UpdateUserSettingsApiV1AuthSettingsPatchResponses,
+    UpdateUserSettingsApiV1AuthSettingsPatchErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/auth/settings",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**
@@ -510,7 +793,7 @@ export const getBalanceApiV1BillingBalanceGet = <
 ) =>
   (options?.client ?? client).get<
     GetBalanceApiV1BillingBalanceGetResponses,
-    unknown,
+    GetBalanceApiV1BillingBalanceGetErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
@@ -593,7 +876,7 @@ export const createPortalSessionApiV1BillingPortalPost = <
 ) =>
   (options?.client ?? client).post<
     CreatePortalSessionApiV1BillingPortalPostResponses,
-    unknown,
+    CreatePortalSessionApiV1BillingPortalPostErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
@@ -642,12 +925,197 @@ export const handleWebhookApiV1BillingWebhookPost = <
   >({ url: "/api/v1/billing/webhook", ...options });
 
 /**
+ * List My Feedback
+ *
+ * List feedback submitted by the current user.
+ */
+export const listMyFeedbackApiV1FeedbackGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<ListMyFeedbackApiV1FeedbackGetData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    ListMyFeedbackApiV1FeedbackGetResponses,
+    ListMyFeedbackApiV1FeedbackGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/feedback",
+    ...options,
+  });
+
+/**
+ * Create Feedback
+ *
+ * Submit feedback.
+ */
+export const createFeedbackApiV1FeedbackPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CreateFeedbackApiV1FeedbackPostData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    CreateFeedbackApiV1FeedbackPostResponses,
+    CreateFeedbackApiV1FeedbackPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/feedback",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List All Feedback
+ *
+ * List all feedback (admin only).
+ */
+export const listAllFeedbackApiV1FeedbackAdminGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<ListAllFeedbackApiV1FeedbackAdminGetData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    ListAllFeedbackApiV1FeedbackAdminGetResponses,
+    ListAllFeedbackApiV1FeedbackAdminGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/feedback/admin",
+    ...options,
+  });
+
+/**
+ * Delete Feedback
+ *
+ * Delete feedback (admin only).
+ */
+export const deleteFeedbackApiV1FeedbackAdminFeedbackIdDelete = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).delete<
+    DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteResponses,
+    DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/feedback/admin/{feedback_id}",
+    ...options,
+  });
+
+/**
+ * Get Feedback
+ *
+ * Get specific feedback (admin only).
+ */
+export const getFeedbackApiV1FeedbackAdminFeedbackIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetFeedbackApiV1FeedbackAdminFeedbackIdGetData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    GetFeedbackApiV1FeedbackAdminFeedbackIdGetResponses,
+    GetFeedbackApiV1FeedbackAdminFeedbackIdGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/feedback/admin/{feedback_id}",
+    ...options,
+  });
+
+/**
+ * Update Feedback
+ *
+ * Update feedback status/notes (admin only).
+ */
+export const updateFeedbackApiV1FeedbackAdminFeedbackIdPut = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).put<
+    UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutResponses,
+    UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/feedback/admin/{feedback_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Resolve Feedback
+ *
+ * Mark feedback as resolved.
+ *
+ * This endpoint accepts both Bearer token (admin) and API key authentication.
+ * For API key auth, the key must have the 'feedback:write' scope.
+ */
+export const resolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePut = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).put<
+    ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutResponses,
+    ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/feedback/admin/{feedback_id}/resolve",
+    ...options,
+  });
+
+/**
+ * Retrigger Feedback Webhook
+ *
+ * Re-trigger the feedback.created webhook for a specific feedback item (admin only).
+ */
+export const retriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPost =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostData,
+      ThrowOnError
+    >
+  ) =>
+    (options.client ?? client).post<
+      RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostResponses,
+      RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostErrors,
+      ThrowOnError
+    >({
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/feedback/admin/{feedback_id}/retrigger-webhook",
+      ...options,
+    });
+
+/**
  * List Items
  *
  * List items with filtering and pagination.
  *
  * When filtering by category or location, child categories/locations are included by default.
  * Set include_subcategories=false or include_sublocations=false to filter by exact match only.
+ *
+ * Use no_category=true to filter items without any category assigned.
+ * Use no_location=true to filter items without any location assigned.
  *
  * Filter by tags using ?tags=tag1&tags=tag2 (items must have ALL specified tags).
  * Filter by attributes using ?attr=key1:value1&attr=key2:value2.
@@ -688,6 +1156,34 @@ export const createItemApiV1ItemsPost = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * Batch Update Items
+ *
+ * Batch update multiple items with the same category and/or location.
+ *
+ * Use this endpoint to assign a category or location to multiple items at once.
+ * You can also use clear_category=true or clear_location=true to remove
+ * the category or location from the selected items.
+ */
+export const batchUpdateItemsApiV1ItemsBatchPatch = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<BatchUpdateItemsApiV1ItemsBatchPatchData, ThrowOnError>
+) =>
+  (options.client ?? client).patch<
+    BatchUpdateItemsApiV1ItemsBatchPatchResponses,
+    BatchUpdateItemsApiV1ItemsBatchPatchErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/items/batch",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Get Dashboard Stats
  *
  * Get dashboard statistics including time series data.
@@ -707,6 +1203,52 @@ export const getDashboardStatsApiV1ItemsStatsDashboardGet = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/items/stats/dashboard",
+    ...options,
+  });
+
+/**
+ * Get Most Used Items
+ *
+ * Get items with most check-outs for dashboard.
+ */
+export const getMostUsedItemsApiV1ItemsStatsMostUsedGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    GetMostUsedItemsApiV1ItemsStatsMostUsedGetData,
+    ThrowOnError
+  >
+) =>
+  (options?.client ?? client).get<
+    GetMostUsedItemsApiV1ItemsStatsMostUsedGetResponses,
+    GetMostUsedItemsApiV1ItemsStatsMostUsedGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/items/stats/most-used",
+    ...options,
+  });
+
+/**
+ * Get Recently Used Items
+ *
+ * Get items with most recent check-in/out activity.
+ */
+export const getRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetData,
+    ThrowOnError
+  >
+) =>
+  (options?.client ?? client).get<
+    GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetResponses,
+    GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/items/stats/recently-used",
     ...options,
   });
 
@@ -731,6 +1273,65 @@ export const searchItemsApiV1ItemsSearchGet = <
   });
 
 /**
+ * Find Similar Items
+ *
+ * Find items similar to a classification result.
+ *
+ * Use this endpoint after AI classification to check for potential duplicates
+ * before creating a new item. Returns items sorted by similarity score.
+ */
+export const findSimilarItemsApiV1ItemsFindSimilarPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<FindSimilarItemsApiV1ItemsFindSimilarPostData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    FindSimilarItemsApiV1ItemsFindSimilarPostResponses,
+    FindSimilarItemsApiV1ItemsFindSimilarPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/items/find-similar",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Suggest Item Location
+ *
+ * Suggest optimal storage locations for an item using AI.
+ *
+ * Analyzes the item's characteristics and the user's existing locations
+ * with their stored items to recommend suitable storage places.
+ *
+ * Consumes 1 credit on successful suggestion.
+ */
+export const suggestItemLocationApiV1ItemsSuggestLocationPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    SuggestItemLocationApiV1ItemsSuggestLocationPostData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).post<
+    SuggestItemLocationApiV1ItemsSuggestLocationPostResponses,
+    SuggestItemLocationApiV1ItemsSuggestLocationPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/items/suggest-location",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * List Low Stock Items
  *
  * List items that are below their minimum quantity threshold.
@@ -742,7 +1343,7 @@ export const listLowStockItemsApiV1ItemsLowStockGet = <
 ) =>
   (options?.client ?? client).get<
     ListLowStockItemsApiV1ItemsLowStockGetResponses,
-    unknown,
+    ListLowStockItemsApiV1ItemsLowStockGetErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
@@ -858,6 +1459,32 @@ export const updateItemApiV1ItemsItemIdPut = <
   });
 
 /**
+ * Get Item Qr Code
+ *
+ * Generate a QR code PNG for an item.
+ *
+ * The QR code contains the item's URL for scanning.
+ */
+export const getItemQrCodeApiV1ItemsItemIdQrGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetItemQrCodeApiV1ItemsItemIdQrGetData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    GetItemQrCodeApiV1ItemsItemIdQrGetResponses,
+    GetItemQrCodeApiV1ItemsItemIdQrGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/items/{item_id}/qr",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Update Item Quantity
  *
  * Quick update for item quantity.
@@ -885,6 +1512,100 @@ export const updateItemQuantityApiV1ItemsItemIdQuantityPatch = <
   });
 
 /**
+ * Check Out Item
+ *
+ * Record a check-out event for an item.
+ */
+export const checkOutItemApiV1ItemsItemIdCheckOutPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CheckOutItemApiV1ItemsItemIdCheckOutPostData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    CheckOutItemApiV1ItemsItemIdCheckOutPostResponses,
+    CheckOutItemApiV1ItemsItemIdCheckOutPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/items/{item_id}/check-out",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Check In Item
+ *
+ * Record a check-in event for an item.
+ *
+ * Uses row-level locking to prevent race conditions where concurrent
+ * check-ins could result in negative 'currently out' counts.
+ */
+export const checkInItemApiV1ItemsItemIdCheckInPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CheckInItemApiV1ItemsItemIdCheckInPostData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    CheckInItemApiV1ItemsItemIdCheckInPostResponses,
+    CheckInItemApiV1ItemsItemIdCheckInPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/items/{item_id}/check-in",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get Item History
+ *
+ * Get check-in/out history for an item.
+ */
+export const getItemHistoryApiV1ItemsItemIdHistoryGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetItemHistoryApiV1ItemsItemIdHistoryGetData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    GetItemHistoryApiV1ItemsItemIdHistoryGetResponses,
+    GetItemHistoryApiV1ItemsItemIdHistoryGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/items/{item_id}/history",
+    ...options,
+  });
+
+/**
+ * Get Item Usage Stats
+ *
+ * Get usage statistics for an item.
+ */
+export const getItemUsageStatsApiV1ItemsItemIdUsageStatsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).get<
+    GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetResponses,
+    GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/items/{item_id}/usage-stats",
+    ...options,
+  });
+
+/**
  * List Categories
  *
  * List all categories for the current user, ordered by hierarchy path.
@@ -896,7 +1617,7 @@ export const listCategoriesApiV1CategoriesGet = <
 ) =>
   (options?.client ?? client).get<
     ListCategoriesApiV1CategoriesGetResponses,
-    unknown,
+    ListCategoriesApiV1CategoriesGetErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
@@ -940,7 +1661,7 @@ export const getCategoryTreeApiV1CategoriesTreeGet = <
 ) =>
   (options?.client ?? client).get<
     GetCategoryTreeApiV1CategoriesTreeGetResponses,
-    unknown,
+    GetCategoryTreeApiV1CategoriesTreeGetErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
@@ -1133,7 +1854,7 @@ export const listLocationsApiV1LocationsGet = <
 ) =>
   (options?.client ?? client).get<
     ListLocationsApiV1LocationsGetResponses,
-    unknown,
+    ListLocationsApiV1LocationsGetErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
@@ -1177,12 +1898,65 @@ export const getLocationTreeApiV1LocationsTreeGet = <
 ) =>
   (options?.client ?? client).get<
     GetLocationTreeApiV1LocationsTreeGetResponses,
-    unknown,
+    GetLocationTreeApiV1LocationsTreeGetErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/locations/tree",
     ...options,
+  });
+
+/**
+ * Analyze Location Image
+ *
+ * Analyze an image to suggest location structure using AI.
+ *
+ * Consumes 1 credit on successful analysis.
+ */
+export const analyzeLocationImageApiV1LocationsAnalyzeImagePost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AnalyzeLocationImageApiV1LocationsAnalyzeImagePostData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).post<
+    AnalyzeLocationImageApiV1LocationsAnalyzeImagePostResponses,
+    AnalyzeLocationImageApiV1LocationsAnalyzeImagePostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/locations/analyze-image",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Create Locations Bulk
+ *
+ * Create a parent location with multiple children in a single operation.
+ */
+export const createLocationsBulkApiV1LocationsBulkPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CreateLocationsBulkApiV1LocationsBulkPostData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    CreateLocationsBulkApiV1LocationsBulkPostResponses,
+    CreateLocationsBulkApiV1LocationsBulkPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/locations/bulk",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**
@@ -1303,6 +2077,57 @@ export const moveLocationApiV1LocationsLocationIdMovePatch = <
   });
 
 /**
+ * Get Location With Ancestors
+ *
+ * Get a location with its full ancestor path for breadcrumb navigation.
+ */
+export const getLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGet =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetData,
+      ThrowOnError
+    >
+  ) =>
+    (options.client ?? client).get<
+      GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetResponses,
+      GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetErrors,
+      ThrowOnError
+    >({
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/locations/{location_id}/with-ancestors",
+      ...options,
+    });
+
+/**
+ * Get Location Qr Code
+ *
+ * Generate a QR code PNG for a location.
+ *
+ * The QR code contains the location's URL for scanning.
+ */
+export const getLocationQrCodeApiV1LocationsLocationIdQrGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetLocationQrCodeApiV1LocationsLocationIdQrGetData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).get<
+    GetLocationQrCodeApiV1LocationsLocationIdQrGetResponses,
+    GetLocationQrCodeApiV1LocationsLocationIdQrGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/locations/{location_id}/qr",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Upload Image
  *
  * Upload an image file.
@@ -1358,6 +2183,8 @@ export const classifyImageApiV1ImagesClassifyPost = <
  * List Classified Images
  *
  * List all images that have been classified by AI.
+ *
+ * Supports optional search by the identified item name (case-insensitive partial match).
  */
 export const listClassifiedImagesApiV1ImagesClassifiedGet = <
   ThrowOnError extends boolean = false,
@@ -1424,6 +2251,8 @@ export const getImageApiV1ImagesImageIdGet = <
  *
  * This generates a short-lived token that can be used in browser <img> tags
  * where Authorization headers cannot be sent.
+ *
+ * Set thumbnail=true to get a URL for the thumbnail version.
  */
 export const getImageSignedUrlApiV1ImagesImageIdSignedUrlGet = <
   ThrowOnError extends boolean = false,
@@ -1463,6 +2292,29 @@ export const getImageFileApiV1ImagesImageIdFileGet = <
   >({ url: "/api/v1/images/{image_id}/file", ...options });
 
 /**
+ * Get Image Thumbnail
+ *
+ * Get the thumbnail image file.
+ *
+ * Requires a valid signed token query parameter for authentication.
+ * Use GET /{image_id}/signed-url?thumbnail=true to obtain a token.
+ * Falls back to the original image if no thumbnail exists.
+ */
+export const getImageThumbnailApiV1ImagesImageIdThumbnailGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetImageThumbnailApiV1ImagesImageIdThumbnailGetData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).get<
+    GetImageThumbnailApiV1ImagesImageIdThumbnailGetResponses,
+    GetImageThumbnailApiV1ImagesImageIdThumbnailGetErrors,
+    ThrowOnError
+  >({ url: "/api/v1/images/{image_id}/thumbnail", ...options });
+
+/**
  * Attach Image To Item
  *
  * Attach an image to an item.
@@ -1482,5 +2334,370 @@ export const attachImageToItemApiV1ImagesImageIdAttachItemIdPost = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/images/{image_id}/attach/{item_id}",
+    ...options,
+  });
+
+/**
+ * Get Hobby Types
+ *
+ * Get list of available hobby types.
+ */
+export const getHobbyTypesApiV1ProfileHobbyTypesGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<GetHobbyTypesApiV1ProfileHobbyTypesGetData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetHobbyTypesApiV1ProfileHobbyTypesGetResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/profile/hobby-types", ...options });
+
+/**
+ * Get My Profile
+ *
+ * Get the current user's system profile.
+ */
+export const getMyProfileApiV1ProfileMeGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<GetMyProfileApiV1ProfileMeGetData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetMyProfileApiV1ProfileMeGetResponses,
+    GetMyProfileApiV1ProfileMeGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/profile/me",
+    ...options,
+  });
+
+/**
+ * Update My Profile
+ *
+ * Update the current user's system profile.
+ */
+export const updateMyProfileApiV1ProfileMePatch = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UpdateMyProfileApiV1ProfileMePatchData, ThrowOnError>
+) =>
+  (options.client ?? client).patch<
+    UpdateMyProfileApiV1ProfileMePatchResponses,
+    UpdateMyProfileApiV1ProfileMePatchErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/profile/me",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Create My Profile
+ *
+ * Create or update the current user's system profile.
+ */
+export const createMyProfileApiV1ProfileMePost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CreateMyProfileApiV1ProfileMePostData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    CreateMyProfileApiV1ProfileMePostResponses,
+    CreateMyProfileApiV1ProfileMePostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/profile/me",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get Recommendations
+ *
+ * Get pending purge recommendations for the current user.
+ */
+export const getRecommendationsApiV1ProfileRecommendationsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    GetRecommendationsApiV1ProfileRecommendationsGetData,
+    ThrowOnError
+  >
+) =>
+  (options?.client ?? client).get<
+    GetRecommendationsApiV1ProfileRecommendationsGetResponses,
+    GetRecommendationsApiV1ProfileRecommendationsGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/profile/recommendations",
+    ...options,
+  });
+
+/**
+ * Generate Recommendations
+ *
+ * Generate new purge recommendations using AI.
+ *
+ * This endpoint requires 1 credit to generate recommendations.
+ */
+export const generateRecommendationsApiV1ProfileRecommendationsGeneratePost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).post<
+    GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostResponses,
+    GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/profile/recommendations/generate",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Dismiss Recommendation
+ *
+ * Dismiss a purge recommendation (shortcut for updating status to 'dismissed').
+ */
+export const dismissRecommendationApiV1ProfileRecommendationsRecommendationIdDelete =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteData,
+      ThrowOnError
+    >
+  ) =>
+    (options.client ?? client).delete<
+      DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteResponses,
+      DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteErrors,
+      ThrowOnError
+    >({
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/profile/recommendations/{recommendation_id}",
+      ...options,
+    });
+
+/**
+ * Update Recommendation
+ *
+ * Accept or dismiss a purge recommendation.
+ */
+export const updateRecommendationApiV1ProfileRecommendationsRecommendationIdPatch =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchData,
+      ThrowOnError
+    >
+  ) =>
+    (options.client ?? client).patch<
+      UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponses,
+      UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchErrors,
+      ThrowOnError
+    >({
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/profile/recommendations/{recommendation_id}",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
+
+/**
+ * List Event Types
+ *
+ * List available event types for webhooks.
+ */
+export const listEventTypesApiV1WebhooksEventTypesGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<ListEventTypesApiV1WebhooksEventTypesGetData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    ListEventTypesApiV1WebhooksEventTypesGetResponses,
+    ListEventTypesApiV1WebhooksEventTypesGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/webhooks/event-types",
+    ...options,
+  });
+
+/**
+ * List Configs
+ *
+ * List all webhook configurations.
+ */
+export const listConfigsApiV1WebhooksConfigsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<ListConfigsApiV1WebhooksConfigsGetData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    ListConfigsApiV1WebhooksConfigsGetResponses,
+    ListConfigsApiV1WebhooksConfigsGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/webhooks/configs",
+    ...options,
+  });
+
+/**
+ * Create Config
+ *
+ * Create a new webhook configuration.
+ */
+export const createConfigApiV1WebhooksConfigsPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CreateConfigApiV1WebhooksConfigsPostData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    CreateConfigApiV1WebhooksConfigsPostResponses,
+    CreateConfigApiV1WebhooksConfigsPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/webhooks/configs",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete Config
+ *
+ * Delete a webhook configuration.
+ */
+export const deleteConfigApiV1WebhooksConfigsConfigIdDelete = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    DeleteConfigApiV1WebhooksConfigsConfigIdDeleteData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).delete<
+    DeleteConfigApiV1WebhooksConfigsConfigIdDeleteResponses,
+    DeleteConfigApiV1WebhooksConfigsConfigIdDeleteErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/webhooks/configs/{config_id}",
+    ...options,
+  });
+
+/**
+ * Get Config
+ *
+ * Get a specific webhook configuration.
+ */
+export const getConfigApiV1WebhooksConfigsConfigIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetConfigApiV1WebhooksConfigsConfigIdGetData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    GetConfigApiV1WebhooksConfigsConfigIdGetResponses,
+    GetConfigApiV1WebhooksConfigsConfigIdGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/webhooks/configs/{config_id}",
+    ...options,
+  });
+
+/**
+ * Update Config
+ *
+ * Update a webhook configuration.
+ */
+export const updateConfigApiV1WebhooksConfigsConfigIdPut = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    UpdateConfigApiV1WebhooksConfigsConfigIdPutData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).put<
+    UpdateConfigApiV1WebhooksConfigsConfigIdPutResponses,
+    UpdateConfigApiV1WebhooksConfigsConfigIdPutErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/webhooks/configs/{config_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Test Config
+ *
+ * Test a webhook configuration with sample data.
+ */
+export const testConfigApiV1WebhooksConfigsConfigIdTestPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    TestConfigApiV1WebhooksConfigsConfigIdTestPostData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).post<
+    TestConfigApiV1WebhooksConfigsConfigIdTestPostResponses,
+    TestConfigApiV1WebhooksConfigsConfigIdTestPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/webhooks/configs/{config_id}/test",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List Executions
+ *
+ * List webhook execution logs.
+ */
+export const listExecutionsApiV1WebhooksExecutionsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<ListExecutionsApiV1WebhooksExecutionsGetData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    ListExecutionsApiV1WebhooksExecutionsGetResponses,
+    ListExecutionsApiV1WebhooksExecutionsGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/webhooks/executions",
     ...options,
   });

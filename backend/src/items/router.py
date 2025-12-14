@@ -4,7 +4,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import Response
 
+from src.ai.service import AIClassificationService, get_ai_service
 from src.auth.dependencies import CurrentUserIdDep
+from src.billing.router import CreditServiceDep
 from src.common.schemas import PaginatedResponse
 from src.database import AsyncSessionDep
 from src.items.repository import ItemRepository
@@ -29,6 +31,11 @@ from src.items.schemas import (
     SimilarItemMatch,
 )
 from src.locations.qr import QRCodeService, get_qr_service
+from src.locations.schemas import (
+    ItemLocationSuggestionRequest,
+    ItemLocationSuggestionResponse,
+)
+from src.locations.service import LocationService
 
 router = APIRouter()
 
@@ -316,6 +323,98 @@ async def find_similar_items(
         similar_items=similar_items,
         total_searched=total_searched,
     )
+
+
+@router.post("/suggest-location")
+async def suggest_item_location(
+    data: ItemLocationSuggestionRequest,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+    ai_service: Annotated[AIClassificationService, Depends(get_ai_service)],
+    credit_service: CreditServiceDep,
+) -> ItemLocationSuggestionResponse:
+    """Suggest optimal storage locations for an item using AI.
+
+    Analyzes the item's characteristics and the user's existing locations
+    with their stored items to recommend suitable storage places.
+
+    Consumes 1 credit on successful suggestion.
+    """
+    # Check if user has credits
+    if not await credit_service.has_credits(user_id):
+        raise HTTPException(
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            detail="Insufficient credits. Please purchase more credits to use AI suggestions.",
+        )
+
+    # Get user's locations with sample items
+    location_service = LocationService(session, user_id)
+    locations = await location_service.get_locations_with_sample_items()
+
+    if not locations:
+        return ItemLocationSuggestionResponse(
+            success=True,
+            suggestions=[],
+            error="No locations found. Create some locations first.",
+        )
+
+    # Find similar items to help with suggestion
+    repo = ItemRepository(session, user_id)
+    similar_items_data = None
+
+    try:
+        matches, _ = await repo.find_similar(
+            identified_name=data.item_name,
+            category_path=data.item_category,
+            specifications=data.item_specifications,
+            limit=5,
+        )
+
+        if matches:
+            similar_items_data = []
+            for item, _, _ in matches:
+                location_name = None
+                if item.location:
+                    location_name = await location_service.get_path_display(
+                        item.location
+                    )
+                similar_items_data.append(
+                    {
+                        "name": item.name,
+                        "location": location_name,
+                    }
+                )
+    except Exception:
+        # If finding similar items fails, continue without them
+        pass
+
+    try:
+        # Get AI suggestions
+        result = await ai_service.suggest_item_location(
+            item_name=data.item_name,
+            item_category=data.item_category,
+            item_description=data.item_description,
+            item_specifications=data.item_specifications,
+            locations=locations,
+            similar_items=similar_items_data,
+        )
+
+        # Deduct credit after successful suggestion
+        await credit_service.deduct_credit(
+            user_id,
+            f"Location suggestion: {data.item_name}",
+        )
+
+        return ItemLocationSuggestionResponse(
+            success=True,
+            suggestions=result.suggestions,
+        )
+
+    except Exception as e:
+        return ItemLocationSuggestionResponse(
+            success=False,
+            error=str(e),
+        )
 
 
 @router.get("/low-stock")

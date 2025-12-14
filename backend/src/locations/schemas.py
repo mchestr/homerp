@@ -139,3 +139,38 @@ class LocationBulkCreateResponse(BaseModel):
 
     parent: LocationResponse
     children: list[LocationResponse]
+
+
+# Location Suggestion Schemas (for item storage recommendations)
+
+
+class LocationSuggestionItem(BaseModel):
+    """Schema for a single location suggestion."""
+
+    location_id: UUID
+    location_name: str
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    reasoning: str = Field(..., description="Why this location is suitable")
+
+
+class ItemLocationSuggestionResult(BaseModel):
+    """Schema for AI location suggestion result for item storage."""
+
+    suggestions: list[LocationSuggestionItem] = Field(default_factory=list)
+
+
+class ItemLocationSuggestionRequest(BaseModel):
+    """Schema for requesting location suggestions for an item."""
+
+    item_name: str = Field(..., min_length=1, max_length=255)
+    item_category: str | None = Field(None, max_length=255)
+    item_description: str | None = Field(None, max_length=2000)
+    item_specifications: dict[str, Any] | None = None
+
+
+class ItemLocationSuggestionResponse(BaseModel):
+    """Schema for location suggestion response."""
+
+    success: bool
+    suggestions: list[LocationSuggestionItem] = Field(default_factory=list)
+    error: str | None = None

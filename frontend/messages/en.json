@@ -594,6 +594,20 @@
     "checkInDisabled": "No items checked out",
     "exceedsCheckedOut": "Cannot check in more than {count} items"
   },
+  "locationSuggestion": {
+    "title": "AI Location Suggestions",
+    "description": "Based on similar items and your storage patterns",
+    "recommended": "Best match",
+    "confidence": "confidence",
+    "useThis": "Use this",
+    "selected": "Selected",
+    "whyRecommended": "Why this location?",
+    "selectOrManual": "Select a suggested location or choose manually from the form below.",
+    "suggestLocation": "Suggest Location",
+    "suggesting": "Finding best location...",
+    "noSuggestionsFound": "No suitable locations found",
+    "createLocationsFirst": "Create some locations first to get suggestions"
+  },
   "labels": {
     "printLabel": "Print Label",
     "printLabels": "Print Labels",

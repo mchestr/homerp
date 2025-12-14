@@ -8,7 +8,12 @@ from openai import AsyncOpenAI
 from src.ai.prompt_templates import PromptTemplateManager, get_prompt_template_manager
 from src.config import Settings, get_settings
 from src.images.schemas import ClassificationResult
-from src.locations.schemas import LocationAnalysisResult, LocationSuggestion
+from src.locations.schemas import (
+    ItemLocationSuggestionResult,
+    LocationAnalysisResult,
+    LocationSuggestion,
+    LocationSuggestionItem,
+)
 
 # Unit aliases for normalization
 UNIT_ALIASES: dict[str, str] = {
@@ -130,6 +135,7 @@ def parse_quantity_estimate(estimate: str | None) -> dict[str, Any]:
 # Template category names
 TEMPLATE_ITEM_CLASSIFICATION = "item_classification"
 TEMPLATE_LOCATION_ANALYSIS = "location_analysis"
+TEMPLATE_LOCATION_SUGGESTION = "location_suggestion"
 
 
 class AIClassificationService:
@@ -350,6 +356,104 @@ class AIClassificationService:
             confidence=float(data.get("confidence", 0.0)),
             reasoning=data.get("reasoning", ""),
         )
+
+    async def suggest_item_location(
+        self,
+        item_name: str,
+        item_category: str | None,
+        item_description: str | None,
+        item_specifications: dict[str, Any] | None,
+        locations: list[dict[str, Any]],
+        similar_items: list[dict[str, Any]] | None = None,
+    ) -> ItemLocationSuggestionResult:
+        """
+        Suggest optimal storage locations for an item based on its characteristics
+        and the user's existing location structure.
+
+        Args:
+            item_name: Name of the item to store
+            item_category: Category path of the item (e.g., "Hardware > Fasteners")
+            item_description: Description of the item
+            item_specifications: Technical specifications of the item
+            locations: List of available locations with structure:
+                [{"id": uuid, "name": str, "type": str, "item_count": int,
+                  "sample_items": list[str]}]
+            similar_items: Optional list of similar items with their locations:
+                [{"name": str, "location": str}]
+
+        Returns:
+            ItemLocationSuggestionResult with ranked location suggestions
+        """
+        # Get prompts from templates
+        system_prompt = self._template_manager.get_system_prompt(
+            TEMPLATE_LOCATION_SUGGESTION
+        )
+
+        # Prepare template context for user prompt
+        context = {
+            "item_name": item_name,
+            "item_category": item_category,
+            "item_description": item_description,
+            "item_specifications": item_specifications,
+            "locations": locations,
+            "similar_items": similar_items,
+        }
+
+        user_prompt = self._template_manager.get_user_prompt(
+            TEMPLATE_LOCATION_SUGGESTION, context
+        )
+
+        # Call OpenAI API
+        response = await self.client.chat.completions.create(
+            model=self.settings.openai_model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            max_tokens=1000,
+        )
+
+        # Parse response
+        content = response.choices[0].message.content or "{}"
+
+        # Try to extract JSON from the response
+        try:
+            # Handle case where response might have markdown code blocks
+            if "```json" in content:
+                content = content.split("```json")[1].split("```")[0].strip()
+            elif "```" in content:
+                content = content.split("```")[1].split("```")[0].strip()
+
+            data = json.loads(content)
+        except json.JSONDecodeError:
+            # Fallback if parsing fails
+            return ItemLocationSuggestionResult(suggestions=[])
+
+        # Parse suggestions
+        suggestions = []
+        for suggestion_data in data.get("suggestions", []):
+            try:
+                location_id = suggestion_data.get("location_id")
+                if location_id:
+                    from uuid import UUID
+
+                    suggestions.append(
+                        LocationSuggestionItem(
+                            location_id=UUID(location_id),
+                            location_name=suggestion_data.get(
+                                "location_name", "Unknown"
+                            ),
+                            confidence=float(suggestion_data.get("confidence", 0.0)),
+                            reasoning=suggestion_data.get(
+                                "reasoning", "No reasoning provided"
+                            ),
+                        )
+                    )
+            except (ValueError, TypeError):
+                # Skip invalid suggestion entries
+                continue
+
+        return ItemLocationSuggestionResult(suggestions=suggestions)
 
 
 def get_ai_service() -> AIClassificationService:

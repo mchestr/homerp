@@ -34,6 +34,138 @@ export type AdminStatsResponse = {
    * Total Credits Used
    */
   total_credits_used: number;
+  /**
+   * Recent Signups 7D
+   */
+  recent_signups_7d: number;
+  /**
+   * Pending Feedback Count
+   */
+  pending_feedback_count: number;
+  /**
+   * Recent Activity
+   */
+  recent_activity: Array<RecentActivityItem>;
+};
+
+/**
+ * ApiKeyCreate
+ *
+ * Schema for creating an API key.
+ */
+export type ApiKeyCreate = {
+  /**
+   * Name
+   */
+  name: string;
+  /**
+   * Scopes
+   */
+  scopes?: Array<string>;
+  /**
+   * Expires At
+   */
+  expires_at?: string | null;
+};
+
+/**
+ * ApiKeyCreatedResponse
+ *
+ * Schema for API key creation response (includes the full key, shown only once).
+ */
+export type ApiKeyCreatedResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Name
+   */
+  name: string;
+  /**
+   * Key
+   */
+  key: string;
+  /**
+   * Key Prefix
+   */
+  key_prefix: string;
+  /**
+   * Scopes
+   */
+  scopes: Array<string>;
+  /**
+   * Is Active
+   */
+  is_active: boolean;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Expires At
+   */
+  expires_at: string | null;
+};
+
+/**
+ * ApiKeyResponse
+ *
+ * Schema for API key response (without the actual key).
+ */
+export type ApiKeyResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Name
+   */
+  name: string;
+  /**
+   * Key Prefix
+   */
+  key_prefix: string;
+  /**
+   * Scopes
+   */
+  scopes: Array<string>;
+  /**
+   * Is Active
+   */
+  is_active: boolean;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Last Used At
+   */
+  last_used_at: string | null;
+  /**
+   * Expires At
+   */
+  expires_at: string | null;
+};
+
+/**
+ * ApiKeyUpdate
+ *
+ * Schema for updating an API key.
+ */
+export type ApiKeyUpdate = {
+  /**
+   * Name
+   */
+  name?: string | null;
+  /**
+   * Scopes
+   */
+  scopes?: Array<string> | null;
+  /**
+   * Is Active
+   */
+  is_active?: boolean | null;
 };
 
 /**
@@ -106,6 +238,54 @@ export type AttributeTemplate = {
 export type AuthResponse = {
   token: TokenResponse;
   user: UserResponse;
+};
+
+/**
+ * BatchUpdateRequest
+ *
+ * Schema for batch updating multiple items.
+ */
+export type BatchUpdateRequest = {
+  /**
+   * Item Ids
+   */
+  item_ids: Array<string>;
+  /**
+   * Category Id
+   */
+  category_id?: string | null;
+  /**
+   * Location Id
+   */
+  location_id?: string | null;
+  /**
+   * Clear Category
+   *
+   * Set to true to remove category from items
+   */
+  clear_category?: boolean;
+  /**
+   * Clear Location
+   *
+   * Set to true to remove location from items
+   */
+  clear_location?: boolean;
+};
+
+/**
+ * BatchUpdateResponse
+ *
+ * Response for batch update operation.
+ */
+export type BatchUpdateResponse = {
+  /**
+   * Updated Count
+   */
+  updated_count: number;
+  /**
+   * Item Ids
+   */
+  item_ids: Array<string>;
 };
 
 /**
@@ -308,6 +488,62 @@ export type CategoryUpdate = {
    * Template for item attributes
    */
   attribute_template?: AttributeTemplate | null;
+};
+
+/**
+ * CheckInOutCreate
+ *
+ * Schema for creating a check-in/out event.
+ */
+export type CheckInOutCreate = {
+  /**
+   * Quantity
+   */
+  quantity?: number;
+  /**
+   * Notes
+   */
+  notes?: string | null;
+  /**
+   * Occurred At
+   */
+  occurred_at?: string | null;
+};
+
+/**
+ * CheckInOutResponse
+ *
+ * Schema for check-in/out event response.
+ */
+export type CheckInOutResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Item Id
+   */
+  item_id: string;
+  /**
+   * Action Type
+   */
+  action_type: string;
+  /**
+   * Quantity
+   */
+  quantity: number;
+  /**
+   * Notes
+   */
+  notes: string | null;
+  /**
+   * Occurred At
+   */
+  occurred_at: string;
+  /**
+   * Created At
+   */
+  created_at: string;
 };
 
 /**
@@ -676,6 +912,26 @@ export type DashboardStatsResponse = {
 };
 
 /**
+ * EventTypeInfo
+ *
+ * Information about an event type.
+ */
+export type EventTypeInfo = {
+  /**
+   * Value
+   */
+  value: string;
+  /**
+   * Label
+   */
+  label: string;
+  /**
+   * Variables
+   */
+  variables: Array<string>;
+};
+
+/**
  * Facet
  *
  * A facet (attribute) with its available values.
@@ -728,6 +984,202 @@ export type FacetedSearchResponse = {
 };
 
 /**
+ * FeedbackAdminResponse
+ *
+ * Admin response schema for feedback.
+ */
+export type FeedbackAdminResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * User Id
+   */
+  user_id: string;
+  /**
+   * User Email
+   */
+  user_email: string;
+  /**
+   * User Name
+   */
+  user_name: string | null;
+  /**
+   * Subject
+   */
+  subject: string;
+  /**
+   * Message
+   */
+  message: string;
+  /**
+   * Feedback Type
+   */
+  feedback_type: string;
+  /**
+   * Status
+   */
+  status: string;
+  /**
+   * Admin Notes
+   */
+  admin_notes: string | null;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Updated At
+   */
+  updated_at: string;
+};
+
+/**
+ * FeedbackAdminUpdate
+ *
+ * Schema for admin updating feedback.
+ */
+export type FeedbackAdminUpdate = {
+  /**
+   * Status
+   */
+  status?: string | null;
+  /**
+   * Admin Notes
+   */
+  admin_notes?: string | null;
+};
+
+/**
+ * FeedbackCreate
+ *
+ * Schema for creating feedback.
+ */
+export type FeedbackCreate = {
+  /**
+   * Subject
+   */
+  subject: string;
+  /**
+   * Message
+   */
+  message: string;
+  /**
+   * Feedback Type
+   */
+  feedback_type?: string;
+};
+
+/**
+ * FeedbackResponse
+ *
+ * Schema for feedback response.
+ */
+export type FeedbackResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Subject
+   */
+  subject: string;
+  /**
+   * Message
+   */
+  message: string;
+  /**
+   * Feedback Type
+   */
+  feedback_type: string;
+  /**
+   * Status
+   */
+  status: string;
+  /**
+   * Created At
+   */
+  created_at: string;
+};
+
+/**
+ * FindSimilarRequest
+ *
+ * Request schema for finding similar items based on classification.
+ */
+export type FindSimilarRequest = {
+  /**
+   * Identified Name
+   */
+  identified_name: string;
+  /**
+   * Category Path
+   */
+  category_path?: string | null;
+  /**
+   * Specifications
+   */
+  specifications?: {
+    [key: string]: unknown;
+  } | null;
+  /**
+   * Limit
+   */
+  limit?: number;
+};
+
+/**
+ * FindSimilarResponse
+ *
+ * Response containing similar items found.
+ */
+export type FindSimilarResponse = {
+  /**
+   * Similar Items
+   */
+  similar_items: Array<SimilarItemMatch>;
+  /**
+   * Total Searched
+   */
+  total_searched: number;
+};
+
+/**
+ * GenerateRecommendationsRequest
+ *
+ * Request to generate purge recommendations.
+ */
+export type GenerateRecommendationsRequest = {
+  /**
+   * Max Recommendations
+   *
+   * Maximum number of recommendations to return
+   */
+  max_recommendations?: number;
+};
+
+/**
+ * GenerateRecommendationsResponse
+ *
+ * Response containing generated purge recommendations.
+ */
+export type GenerateRecommendationsResponse = {
+  /**
+   * Recommendations
+   */
+  recommendations: Array<PurgeRecommendationWithItem>;
+  /**
+   * Total Generated
+   */
+  total_generated: number;
+  /**
+   * Credits Used
+   */
+  credits_used: number;
+};
+
+/**
  * HTTPValidationError
  */
 export type HttpValidationError = {
@@ -735,6 +1187,18 @@ export type HttpValidationError = {
    * Detail
    */
   detail?: Array<ValidationError>;
+};
+
+/**
+ * HobbyTypesResponse
+ *
+ * Response containing available hobby types.
+ */
+export type HobbyTypesResponse = {
+  /**
+   * Hobby Types
+   */
+  hobby_types?: Array<string>;
 };
 
 /**
@@ -1026,6 +1490,52 @@ export type ItemListResponse = {
 };
 
 /**
+ * ItemLocationSuggestionRequest
+ *
+ * Schema for requesting location suggestions for an item.
+ */
+export type ItemLocationSuggestionRequest = {
+  /**
+   * Item Name
+   */
+  item_name: string;
+  /**
+   * Item Category
+   */
+  item_category?: string | null;
+  /**
+   * Item Description
+   */
+  item_description?: string | null;
+  /**
+   * Item Specifications
+   */
+  item_specifications?: {
+    [key: string]: unknown;
+  } | null;
+};
+
+/**
+ * ItemLocationSuggestionResponse
+ *
+ * Schema for location suggestion response.
+ */
+export type ItemLocationSuggestionResponse = {
+  /**
+   * Success
+   */
+  success: boolean;
+  /**
+   * Suggestions
+   */
+  suggestions?: Array<LocationSuggestionItem>;
+  /**
+   * Error
+   */
+  error?: string | null;
+};
+
+/**
  * ItemUpdate
  *
  * Schema for updating an item.
@@ -1073,6 +1583,120 @@ export type ItemUpdate = {
    * Tags
    */
   tags?: Array<string> | null;
+};
+
+/**
+ * ItemUsageStatsResponse
+ *
+ * Aggregated usage statistics for an item.
+ */
+export type ItemUsageStatsResponse = {
+  /**
+   * Total Check Outs
+   */
+  total_check_outs: number;
+  /**
+   * Total Check Ins
+   */
+  total_check_ins: number;
+  /**
+   * Total Quantity Out
+   */
+  total_quantity_out: number;
+  /**
+   * Total Quantity In
+   */
+  total_quantity_in: number;
+  /**
+   * Last Check Out
+   */
+  last_check_out: string | null;
+  /**
+   * Last Check In
+   */
+  last_check_in: string | null;
+  /**
+   * Currently Checked Out
+   */
+  currently_checked_out: number;
+};
+
+/**
+ * LocationAnalysisRequest
+ *
+ * Schema for location analysis request.
+ */
+export type LocationAnalysisRequest = {
+  /**
+   * Image Id
+   */
+  image_id: string;
+};
+
+/**
+ * LocationAnalysisResponse
+ *
+ * Schema for location analysis response.
+ */
+export type LocationAnalysisResponse = {
+  /**
+   * Success
+   */
+  success: boolean;
+  result?: LocationAnalysisResult | null;
+  /**
+   * Error
+   */
+  error?: string | null;
+};
+
+/**
+ * LocationAnalysisResult
+ *
+ * Schema for AI location analysis result.
+ */
+export type LocationAnalysisResult = {
+  parent: LocationSuggestion;
+  /**
+   * Children
+   */
+  children?: Array<LocationSuggestion>;
+  /**
+   * Confidence
+   */
+  confidence: number;
+  /**
+   * Reasoning
+   *
+   * AI's reasoning for the suggestions
+   */
+  reasoning: string;
+};
+
+/**
+ * LocationBulkCreate
+ *
+ * Schema for bulk location creation with parent and children.
+ */
+export type LocationBulkCreate = {
+  parent: LocationCreate;
+  /**
+   * Children
+   */
+  children?: Array<LocationCreate>;
+};
+
+/**
+ * LocationBulkCreateResponse
+ *
+ * Schema for bulk creation response.
+ */
+export type LocationBulkCreateResponse = {
+  parent: LocationResponse;
+  /**
+   * Children
+   */
+  children: Array<LocationResponse>;
 };
 
 /**
@@ -1168,6 +1792,54 @@ export type LocationResponse = {
 };
 
 /**
+ * LocationSuggestion
+ *
+ * Schema for a suggested location from AI analysis.
+ */
+export type LocationSuggestion = {
+  /**
+   * Name
+   */
+  name: string;
+  /**
+   * Location Type
+   *
+   * Type: room, shelf, bin, drawer, box, cabinet
+   */
+  location_type: string;
+  /**
+   * Description
+   */
+  description?: string | null;
+};
+
+/**
+ * LocationSuggestionItem
+ *
+ * Schema for a single location suggestion.
+ */
+export type LocationSuggestionItem = {
+  /**
+   * Location Id
+   */
+  location_id: string;
+  /**
+   * Location Name
+   */
+  location_name: string;
+  /**
+   * Confidence
+   */
+  confidence: number;
+  /**
+   * Reasoning
+   *
+   * Why this location is suitable
+   */
+  reasoning: string;
+};
+
+/**
  * LocationTreeNode
  *
  * Schema for nested location tree representation.
@@ -1234,6 +1906,48 @@ export type LocationUpdate = {
 };
 
 /**
+ * LocationWithAncestors
+ *
+ * Location response with full ancestor path.
+ */
+export type LocationWithAncestors = {
+  /**
+   * Name
+   */
+  name: string;
+  /**
+   * Description
+   */
+  description?: string | null;
+  /**
+   * Location Type
+   */
+  location_type?: string | null;
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Parent Id
+   */
+  parent_id?: string | null;
+  /**
+   * Path
+   */
+  path?: string;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Ancestors
+   *
+   * List of ancestor locations from root to parent
+   */
+  ancestors?: Array<LocationResponse>;
+};
+
+/**
  * MergedAttributeTemplate
  *
  * Schema for merged attribute template from category hierarchy.
@@ -1252,6 +1966,114 @@ export type MergedAttributeTemplate = {
 };
 
 /**
+ * MostUsedItemResponse
+ *
+ * Item with usage count for most-used list.
+ */
+export type MostUsedItemResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Name
+   */
+  name: string;
+  /**
+   * Total Check Outs
+   */
+  total_check_outs: number;
+  /**
+   * Primary Image Url
+   */
+  primary_image_url?: string | null;
+};
+
+/**
+ * PaginatedApiKeyResponse
+ *
+ * Paginated response for API keys.
+ */
+export type PaginatedApiKeyResponse = {
+  /**
+   * Items
+   */
+  items: Array<ApiKeyResponse>;
+  /**
+   * Total
+   */
+  total: number;
+  /**
+   * Page
+   */
+  page: number;
+  /**
+   * Limit
+   */
+  limit: number;
+  /**
+   * Total Pages
+   */
+  total_pages: number;
+};
+
+/**
+ * PaginatedExecutionsResponse
+ *
+ * Paginated webhook executions.
+ */
+export type PaginatedExecutionsResponse = {
+  /**
+   * Items
+   */
+  items: Array<WebhookExecutionResponse>;
+  /**
+   * Total
+   */
+  total: number;
+  /**
+   * Page
+   */
+  page: number;
+  /**
+   * Limit
+   */
+  limit: number;
+  /**
+   * Total Pages
+   */
+  total_pages: number;
+};
+
+/**
+ * PaginatedFeedbackResponse
+ *
+ * Paginated response for feedback.
+ */
+export type PaginatedFeedbackResponse = {
+  /**
+   * Items
+   */
+  items: Array<FeedbackAdminResponse>;
+  /**
+   * Total
+   */
+  total: number;
+  /**
+   * Page
+   */
+  page: number;
+  /**
+   * Limit
+   */
+  limit: number;
+  /**
+   * Total Pages
+   */
+  total_pages: number;
+};
+
+/**
  * PaginatedImagesResponse
  *
  * Schema for paginated images response.
@@ -1261,6 +2083,32 @@ export type PaginatedImagesResponse = {
    * Items
    */
   items: Array<ImageResponse>;
+  /**
+   * Total
+   */
+  total: number;
+  /**
+   * Page
+   */
+  page: number;
+  /**
+   * Limit
+   */
+  limit: number;
+  /**
+   * Total Pages
+   */
+  total_pages: number;
+};
+
+/**
+ * PaginatedResponse[CheckInOutResponse]
+ */
+export type PaginatedResponseCheckInOutResponse = {
+  /**
+   * Items
+   */
+  items: Array<CheckInOutResponse>;
   /**
    * Total
    */
@@ -1376,6 +2224,162 @@ export type PortalResponse = {
 };
 
 /**
+ * PurgeRecommendationResponse
+ *
+ * Schema for purge recommendation responses.
+ */
+export type PurgeRecommendationResponse = {
+  /**
+   * Reason
+   *
+   * Explanation for the recommendation
+   */
+  reason: string;
+  /**
+   * Confidence
+   *
+   * AI confidence score (0.0 to 1.0)
+   */
+  confidence: string;
+  /**
+   * Factors
+   *
+   * Factors that influenced the recommendation
+   */
+  factors?: {
+    [key: string]: unknown;
+  };
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * User Id
+   */
+  user_id: string;
+  /**
+   * Item Id
+   */
+  item_id: string;
+  /**
+   * Status
+   */
+  status: string;
+  /**
+   * User Feedback
+   */
+  user_feedback: string | null;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Resolved At
+   */
+  resolved_at: string | null;
+};
+
+/**
+ * PurgeRecommendationUpdate
+ *
+ * Schema for updating a purge recommendation status.
+ */
+export type PurgeRecommendationUpdate = {
+  /**
+   * Status
+   */
+  status: string;
+  /**
+   * User Feedback
+   */
+  user_feedback?: string | null;
+};
+
+/**
+ * PurgeRecommendationWithItem
+ *
+ * Schema for purge recommendation with item details.
+ */
+export type PurgeRecommendationWithItem = {
+  /**
+   * Reason
+   *
+   * Explanation for the recommendation
+   */
+  reason: string;
+  /**
+   * Confidence
+   *
+   * AI confidence score (0.0 to 1.0)
+   */
+  confidence: string;
+  /**
+   * Factors
+   *
+   * Factors that influenced the recommendation
+   */
+  factors?: {
+    [key: string]: unknown;
+  };
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * User Id
+   */
+  user_id: string;
+  /**
+   * Item Id
+   */
+  item_id: string;
+  /**
+   * Status
+   */
+  status: string;
+  /**
+   * User Feedback
+   */
+  user_feedback: string | null;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Resolved At
+   */
+  resolved_at: string | null;
+  /**
+   * Item Name
+   */
+  item_name: string;
+  /**
+   * Item Quantity
+   */
+  item_quantity: number;
+  /**
+   * Item Quantity Unit
+   */
+  item_quantity_unit: string;
+  /**
+   * Item Price
+   */
+  item_price: string | null;
+  /**
+   * Item Category Name
+   */
+  item_category_name: string | null;
+  /**
+   * Item Location Name
+   */
+  item_location_name: string | null;
+  /**
+   * Last Used At
+   */
+  last_used_at: string | null;
+};
+
+/**
  * QuantityUpdate
  *
  * Schema for updating item quantity.
@@ -1385,6 +2389,76 @@ export type QuantityUpdate = {
    * Quantity
    */
   quantity: number;
+};
+
+/**
+ * RecentActivityItem
+ *
+ * A single activity item for the activity feed.
+ */
+export type RecentActivityItem = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Type
+   */
+  type: string;
+  /**
+   * Title
+   */
+  title: string;
+  /**
+   * Description
+   */
+  description: string | null;
+  /**
+   * User Email
+   */
+  user_email: string | null;
+  /**
+   * User Name
+   */
+  user_name: string | null;
+  /**
+   * Timestamp
+   */
+  timestamp: string;
+  /**
+   * Metadata
+   */
+  metadata?: {
+    [key: string]: unknown;
+  } | null;
+};
+
+/**
+ * RecentlyUsedItemResponse
+ *
+ * Item with last used date for recently-used list.
+ */
+export type RecentlyUsedItemResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Name
+   */
+  name: string;
+  /**
+   * Last Used
+   */
+  last_used: string;
+  /**
+   * Action Type
+   */
+  action_type: string;
+  /**
+   * Primary Image Url
+   */
+  primary_image_url?: string | null;
 };
 
 /**
@@ -1419,6 +2493,136 @@ export type RefundResponse = {
    * Refunded Credits
    */
   refunded_credits?: number;
+};
+
+/**
+ * Settings
+ *
+ * Application settings loaded from environment variables.
+ */
+export type Settings = {
+  /**
+   * App Name
+   */
+  app_name?: string;
+  /**
+   * Debug
+   */
+  debug?: boolean;
+  /**
+   * Database Url
+   */
+  database_url?: string;
+  /**
+   * Google Client Id
+   */
+  google_client_id?: string;
+  /**
+   * Google Client Secret
+   */
+  google_client_secret?: string;
+  /**
+   * Jwt Secret
+   */
+  jwt_secret?: string;
+  /**
+   * Jwt Algorithm
+   */
+  jwt_algorithm?: string;
+  /**
+   * Jwt Expiration Hours
+   */
+  jwt_expiration_hours?: number;
+  /**
+   * Openai Api Key
+   */
+  openai_api_key?: string;
+  /**
+   * Openai Model
+   */
+  openai_model?: string;
+  /**
+   * Ai Templates Dir
+   */
+  ai_templates_dir?: string | null;
+  /**
+   * Upload Dir
+   */
+  upload_dir?: string;
+  /**
+   * Max Upload Size Mb
+   */
+  max_upload_size_mb?: number;
+  /**
+   * Frontend Url
+   */
+  frontend_url?: string;
+  /**
+   * Api Base Url
+   */
+  api_base_url?: string;
+  /**
+   * Stripe Secret Key
+   */
+  stripe_secret_key?: string;
+  /**
+   * Stripe Publishable Key
+   */
+  stripe_publishable_key?: string;
+  /**
+   * Stripe Webhook Secret
+   */
+  stripe_webhook_secret?: string;
+  /**
+   * Free Monthly Credits
+   */
+  free_monthly_credits?: number;
+  /**
+   * Admin Email
+   */
+  admin_email?: string;
+};
+
+/**
+ * SimilarItemMatch
+ *
+ * A potential duplicate/similar item match.
+ */
+export type SimilarItemMatch = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Name
+   */
+  name: string;
+  /**
+   * Description
+   */
+  description: string | null;
+  /**
+   * Quantity
+   */
+  quantity: number;
+  /**
+   * Quantity Unit
+   */
+  quantity_unit: string;
+  /**
+   * Similarity Score
+   */
+  similarity_score: number;
+  /**
+   * Match Reasons
+   */
+  match_reasons: Array<string>;
+  category?: CategoryResponse | null;
+  location?: LocationResponse | null;
+  /**
+   * Primary Image Url
+   */
+  primary_image_url?: string | null;
 };
 
 /**
@@ -1569,6 +2773,14 @@ export type UserResponse = {
    */
   is_admin?: boolean;
   /**
+   * Currency
+   */
+  currency?: string;
+  /**
+   * Language
+   */
+  language?: string;
+  /**
    * Created At
    */
   created_at: string;
@@ -1576,6 +2788,174 @@ export type UserResponse = {
    * Updated At
    */
   updated_at: string;
+};
+
+/**
+ * UserSettingsUpdate
+ *
+ * Schema for updating user settings.
+ */
+export type UserSettingsUpdate = {
+  /**
+   * Currency
+   */
+  currency?: string | null;
+  /**
+   * Language
+   */
+  language?: string | null;
+};
+
+/**
+ * UserSystemProfileCreate
+ *
+ * Schema for creating a user system profile.
+ */
+export type UserSystemProfileCreate = {
+  /**
+   * Hobby Types
+   *
+   * Types of hobbies/interests (e.g., electronics, woodworking)
+   */
+  hobby_types?: Array<string>;
+  /**
+   * Interest Category Ids
+   *
+   * Category IDs the user is most interested in
+   */
+  interest_category_ids?: Array<string>;
+  /**
+   * Retention Months
+   *
+   * Months of non-use before considering item for purge
+   */
+  retention_months?: number;
+  /**
+   * Min Quantity Threshold
+   *
+   * Quantity threshold above which to consider purging
+   */
+  min_quantity_threshold?: number;
+  /**
+   * Min Value Keep
+   *
+   * Minimum value to keep items regardless of usage
+   */
+  min_value_keep?: number | string | null;
+  /**
+   * Profile Description
+   *
+   * Free text description to help AI understand user context
+   */
+  profile_description?: string | null;
+  /**
+   * Purge Aggressiveness
+   *
+   * How aggressively to suggest purging items
+   */
+  purge_aggressiveness?: string;
+};
+
+/**
+ * UserSystemProfileResponse
+ *
+ * Schema for user system profile responses.
+ */
+export type UserSystemProfileResponse = {
+  /**
+   * Hobby Types
+   *
+   * Types of hobbies/interests (e.g., electronics, woodworking)
+   */
+  hobby_types?: Array<string>;
+  /**
+   * Interest Category Ids
+   *
+   * Category IDs the user is most interested in
+   */
+  interest_category_ids?: Array<string>;
+  /**
+   * Retention Months
+   *
+   * Months of non-use before considering item for purge
+   */
+  retention_months?: number;
+  /**
+   * Min Quantity Threshold
+   *
+   * Quantity threshold above which to consider purging
+   */
+  min_quantity_threshold?: number;
+  /**
+   * Min Value Keep
+   *
+   * Minimum value to keep items regardless of usage
+   */
+  min_value_keep?: string | null;
+  /**
+   * Profile Description
+   *
+   * Free text description to help AI understand user context
+   */
+  profile_description?: string | null;
+  /**
+   * Purge Aggressiveness
+   *
+   * How aggressively to suggest purging items
+   */
+  purge_aggressiveness?: string;
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * User Id
+   */
+  user_id: string;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Updated At
+   */
+  updated_at: string;
+};
+
+/**
+ * UserSystemProfileUpdate
+ *
+ * Schema for updating a user system profile.
+ */
+export type UserSystemProfileUpdate = {
+  /**
+   * Hobby Types
+   */
+  hobby_types?: Array<string> | null;
+  /**
+   * Interest Category Ids
+   */
+  interest_category_ids?: Array<string> | null;
+  /**
+   * Retention Months
+   */
+  retention_months?: number | null;
+  /**
+   * Min Quantity Threshold
+   */
+  min_quantity_threshold?: number | null;
+  /**
+   * Min Value Keep
+   */
+  min_value_keep?: number | string | null;
+  /**
+   * Profile Description
+   */
+  profile_description?: string | null;
+  /**
+   * Purge Aggressiveness
+   */
+  purge_aggressiveness?: string | null;
 };
 
 /**
@@ -1596,6 +2976,246 @@ export type ValidationError = {
   type: string;
 };
 
+/**
+ * WebhookConfigCreate
+ *
+ * Schema for creating webhook config.
+ */
+export type WebhookConfigCreate = {
+  /**
+   * Event Type
+   */
+  event_type: string;
+  /**
+   * Url
+   */
+  url: string;
+  /**
+   * Http Method
+   */
+  http_method?: string;
+  /**
+   * Headers
+   */
+  headers?: {
+    [key: string]: string;
+  };
+  /**
+   * Body Template
+   */
+  body_template?: string | null;
+  /**
+   * Is Active
+   */
+  is_active?: boolean;
+  /**
+   * Retry Count
+   */
+  retry_count?: number;
+  /**
+   * Timeout Seconds
+   */
+  timeout_seconds?: number;
+};
+
+/**
+ * WebhookConfigResponse
+ *
+ * Schema for webhook config response.
+ */
+export type WebhookConfigResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Event Type
+   */
+  event_type: string;
+  /**
+   * Url
+   */
+  url: string;
+  /**
+   * Http Method
+   */
+  http_method: string;
+  /**
+   * Headers
+   */
+  headers: {
+    [key: string]: string;
+  };
+  /**
+   * Body Template
+   */
+  body_template: string | null;
+  /**
+   * Is Active
+   */
+  is_active: boolean;
+  /**
+   * Retry Count
+   */
+  retry_count: number;
+  /**
+   * Timeout Seconds
+   */
+  timeout_seconds: number;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Updated At
+   */
+  updated_at: string;
+};
+
+/**
+ * WebhookConfigUpdate
+ *
+ * Schema for updating webhook config.
+ */
+export type WebhookConfigUpdate = {
+  /**
+   * Url
+   */
+  url?: string | null;
+  /**
+   * Http Method
+   */
+  http_method?: string | null;
+  /**
+   * Headers
+   */
+  headers?: {
+    [key: string]: string;
+  } | null;
+  /**
+   * Body Template
+   */
+  body_template?: string | null;
+  /**
+   * Is Active
+   */
+  is_active?: boolean | null;
+  /**
+   * Retry Count
+   */
+  retry_count?: number | null;
+  /**
+   * Timeout Seconds
+   */
+  timeout_seconds?: number | null;
+};
+
+/**
+ * WebhookExecutionResponse
+ *
+ * Schema for webhook execution log.
+ */
+export type WebhookExecutionResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Webhook Config Id
+   */
+  webhook_config_id: string;
+  /**
+   * Event Type
+   */
+  event_type: string;
+  /**
+   * Event Payload
+   */
+  event_payload: {
+    [key: string]: unknown;
+  };
+  /**
+   * Request Url
+   */
+  request_url: string;
+  /**
+   * Request Headers
+   */
+  request_headers: {
+    [key: string]: unknown;
+  };
+  /**
+   * Request Body
+   */
+  request_body: string;
+  /**
+   * Response Status
+   */
+  response_status: number | null;
+  /**
+   * Response Body
+   */
+  response_body: string | null;
+  /**
+   * Status
+   */
+  status: string;
+  /**
+   * Attempt Number
+   */
+  attempt_number: number;
+  /**
+   * Error Message
+   */
+  error_message: string | null;
+  /**
+   * Executed At
+   */
+  executed_at: string;
+  /**
+   * Completed At
+   */
+  completed_at: string | null;
+};
+
+/**
+ * WebhookTestRequest
+ *
+ * Request to test a webhook.
+ */
+export type WebhookTestRequest = {
+  /**
+   * Test Payload
+   */
+  test_payload?: {
+    [key: string]: unknown;
+  };
+};
+
+/**
+ * WebhookTestResponse
+ *
+ * Response from webhook test.
+ */
+export type WebhookTestResponse = {
+  /**
+   * Success
+   */
+  success: boolean;
+  /**
+   * Status Code
+   */
+  status_code: number | null;
+  /**
+   * Response Body
+   */
+  response_body: string | null;
+  /**
+   * Error
+   */
+  error: string | null;
+};
+
 export type HealthCheckHealthGetData = {
   body?: never;
   path?: never;
@@ -1612,10 +3232,26 @@ export type HealthCheckHealthGetResponses = {
 
 export type ListPacksApiV1AdminPacksGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/admin/packs";
 };
+
+export type ListPacksApiV1AdminPacksGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListPacksApiV1AdminPacksGetError =
+  ListPacksApiV1AdminPacksGetErrors[keyof ListPacksApiV1AdminPacksGetErrors];
 
 export type ListPacksApiV1AdminPacksGetResponses = {
   /**
@@ -1631,6 +3267,12 @@ export type ListPacksApiV1AdminPacksGetResponse =
 
 export type CreatePackApiV1AdminPacksPostData = {
   body: CreditPackCreate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/admin/packs";
@@ -1658,6 +3300,12 @@ export type CreatePackApiV1AdminPacksPostResponse =
 
 export type DeletePackApiV1AdminPacksPackIdDeleteData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Pack Id
@@ -1690,6 +3338,12 @@ export type DeletePackApiV1AdminPacksPackIdDeleteResponse =
 
 export type GetPackApiV1AdminPacksPackIdGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Pack Id
@@ -1722,6 +3376,12 @@ export type GetPackApiV1AdminPacksPackIdGetResponse =
 
 export type UpdatePackApiV1AdminPacksPackIdPutData = {
   body: CreditPackUpdate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Pack Id
@@ -1754,6 +3414,12 @@ export type UpdatePackApiV1AdminPacksPackIdPutResponse =
 
 export type ListUsersApiV1AdminUsersGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: {
     /**
@@ -1796,6 +3462,12 @@ export type ListUsersApiV1AdminUsersGetResponse =
 
 export type GetUserApiV1AdminUsersUserIdGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * User Id
@@ -1828,6 +3500,12 @@ export type GetUserApiV1AdminUsersUserIdGetResponse =
 
 export type UpdateUserApiV1AdminUsersUserIdPutData = {
   body: UserAdminUpdate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * User Id
@@ -1860,6 +3538,12 @@ export type UpdateUserApiV1AdminUsersUserIdPutResponse =
 
 export type AdjustUserCreditsApiV1AdminUsersUserIdCreditsPostData = {
   body: CreditAdjustmentRequest;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * User Id
@@ -1892,10 +3576,26 @@ export type AdjustUserCreditsApiV1AdminUsersUserIdCreditsPostResponse =
 
 export type GetStatsApiV1AdminStatsGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/admin/stats";
 };
+
+export type GetStatsApiV1AdminStatsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetStatsApiV1AdminStatsGetError =
+  GetStatsApiV1AdminStatsGetErrors[keyof GetStatsApiV1AdminStatsGetErrors];
 
 export type GetStatsApiV1AdminStatsGetResponses = {
   /**
@@ -1906,6 +3606,195 @@ export type GetStatsApiV1AdminStatsGetResponses = {
 
 export type GetStatsApiV1AdminStatsGetResponse =
   GetStatsApiV1AdminStatsGetResponses[keyof GetStatsApiV1AdminStatsGetResponses];
+
+export type ListApiKeysApiV1AdminApikeysGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Page
+     */
+    page?: number;
+    /**
+     * Limit
+     */
+    limit?: number;
+  };
+  url: "/api/v1/admin/apikeys";
+};
+
+export type ListApiKeysApiV1AdminApikeysGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListApiKeysApiV1AdminApikeysGetError =
+  ListApiKeysApiV1AdminApikeysGetErrors[keyof ListApiKeysApiV1AdminApikeysGetErrors];
+
+export type ListApiKeysApiV1AdminApikeysGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: PaginatedApiKeyResponse;
+};
+
+export type ListApiKeysApiV1AdminApikeysGetResponse =
+  ListApiKeysApiV1AdminApikeysGetResponses[keyof ListApiKeysApiV1AdminApikeysGetResponses];
+
+export type CreateApiKeyApiV1AdminApikeysPostData = {
+  body: ApiKeyCreate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/apikeys";
+};
+
+export type CreateApiKeyApiV1AdminApikeysPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CreateApiKeyApiV1AdminApikeysPostError =
+  CreateApiKeyApiV1AdminApikeysPostErrors[keyof CreateApiKeyApiV1AdminApikeysPostErrors];
+
+export type CreateApiKeyApiV1AdminApikeysPostResponses = {
+  /**
+   * Successful Response
+   */
+  201: ApiKeyCreatedResponse;
+};
+
+export type CreateApiKeyApiV1AdminApikeysPostResponse =
+  CreateApiKeyApiV1AdminApikeysPostResponses[keyof CreateApiKeyApiV1AdminApikeysPostResponses];
+
+export type DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Api Key Id
+     */
+    api_key_id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/apikeys/{api_key_id}";
+};
+
+export type DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteError =
+  DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteErrors[keyof DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteErrors];
+
+export type DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteResponses = {
+  /**
+   * Successful Response
+   */
+  204: void;
+};
+
+export type DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteResponse =
+  DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteResponses[keyof DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteResponses];
+
+export type GetApiKeyApiV1AdminApikeysApiKeyIdGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Api Key Id
+     */
+    api_key_id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/apikeys/{api_key_id}";
+};
+
+export type GetApiKeyApiV1AdminApikeysApiKeyIdGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetApiKeyApiV1AdminApikeysApiKeyIdGetError =
+  GetApiKeyApiV1AdminApikeysApiKeyIdGetErrors[keyof GetApiKeyApiV1AdminApikeysApiKeyIdGetErrors];
+
+export type GetApiKeyApiV1AdminApikeysApiKeyIdGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: ApiKeyResponse;
+};
+
+export type GetApiKeyApiV1AdminApikeysApiKeyIdGetResponse =
+  GetApiKeyApiV1AdminApikeysApiKeyIdGetResponses[keyof GetApiKeyApiV1AdminApikeysApiKeyIdGetResponses];
+
+export type UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchData = {
+  body: ApiKeyUpdate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Api Key Id
+     */
+    api_key_id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/apikeys/{api_key_id}";
+};
+
+export type UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchError =
+  UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchErrors[keyof UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchErrors];
+
+export type UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponses = {
+  /**
+   * Successful Response
+   */
+  200: ApiKeyResponse;
+};
+
+export type UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponse =
+  UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponses[keyof UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponses];
 
 export type GoogleAuthApiV1AuthGoogleGetData = {
   body?: never;
@@ -1983,10 +3872,26 @@ export type GoogleCallbackApiV1AuthCallbackGoogleGetResponse =
 
 export type GetCurrentUserInfoApiV1AuthMeGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/auth/me";
 };
+
+export type GetCurrentUserInfoApiV1AuthMeGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetCurrentUserInfoApiV1AuthMeGetError =
+  GetCurrentUserInfoApiV1AuthMeGetErrors[keyof GetCurrentUserInfoApiV1AuthMeGetErrors];
 
 export type GetCurrentUserInfoApiV1AuthMeGetResponses = {
   /**
@@ -2000,10 +3905,26 @@ export type GetCurrentUserInfoApiV1AuthMeGetResponse =
 
 export type RefreshTokenApiV1AuthRefreshPostData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/auth/refresh";
 };
+
+export type RefreshTokenApiV1AuthRefreshPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type RefreshTokenApiV1AuthRefreshPostError =
+  RefreshTokenApiV1AuthRefreshPostErrors[keyof RefreshTokenApiV1AuthRefreshPostErrors];
 
 export type RefreshTokenApiV1AuthRefreshPostResponses = {
   /**
@@ -2015,12 +3936,61 @@ export type RefreshTokenApiV1AuthRefreshPostResponses = {
 export type RefreshTokenApiV1AuthRefreshPostResponse =
   RefreshTokenApiV1AuthRefreshPostResponses[keyof RefreshTokenApiV1AuthRefreshPostResponses];
 
+export type UpdateUserSettingsApiV1AuthSettingsPatchData = {
+  body: UserSettingsUpdate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/auth/settings";
+};
+
+export type UpdateUserSettingsApiV1AuthSettingsPatchErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type UpdateUserSettingsApiV1AuthSettingsPatchError =
+  UpdateUserSettingsApiV1AuthSettingsPatchErrors[keyof UpdateUserSettingsApiV1AuthSettingsPatchErrors];
+
+export type UpdateUserSettingsApiV1AuthSettingsPatchResponses = {
+  /**
+   * Successful Response
+   */
+  200: UserResponse;
+};
+
+export type UpdateUserSettingsApiV1AuthSettingsPatchResponse =
+  UpdateUserSettingsApiV1AuthSettingsPatchResponses[keyof UpdateUserSettingsApiV1AuthSettingsPatchResponses];
+
 export type GetBalanceApiV1BillingBalanceGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/billing/balance";
 };
+
+export type GetBalanceApiV1BillingBalanceGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetBalanceApiV1BillingBalanceGetError =
+  GetBalanceApiV1BillingBalanceGetErrors[keyof GetBalanceApiV1BillingBalanceGetErrors];
 
 export type GetBalanceApiV1BillingBalanceGetResponses = {
   /**
@@ -2053,6 +4023,12 @@ export type ListPacksApiV1BillingPacksGetResponse =
 
 export type CreateCheckoutApiV1BillingCheckoutPostData = {
   body: CheckoutRequest;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/billing/checkout";
@@ -2080,6 +4056,12 @@ export type CreateCheckoutApiV1BillingCheckoutPostResponse =
 
 export type ListTransactionsApiV1BillingTransactionsGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: {
     /**
@@ -2116,10 +4098,26 @@ export type ListTransactionsApiV1BillingTransactionsGetResponse =
 
 export type CreatePortalSessionApiV1BillingPortalPostData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/billing/portal";
 };
+
+export type CreatePortalSessionApiV1BillingPortalPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CreatePortalSessionApiV1BillingPortalPostError =
+  CreatePortalSessionApiV1BillingPortalPostErrors[keyof CreatePortalSessionApiV1BillingPortalPostErrors];
 
 export type CreatePortalSessionApiV1BillingPortalPostResponses = {
   /**
@@ -2133,6 +4131,12 @@ export type CreatePortalSessionApiV1BillingPortalPostResponse =
 
 export type RequestRefundApiV1BillingRefundPostData = {
   body: RefundRequest;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/billing/refund";
@@ -2195,8 +4199,338 @@ export type HandleWebhookApiV1BillingWebhookPostResponses = {
 export type HandleWebhookApiV1BillingWebhookPostResponse =
   HandleWebhookApiV1BillingWebhookPostResponses[keyof HandleWebhookApiV1BillingWebhookPostResponses];
 
+export type ListMyFeedbackApiV1FeedbackGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Page
+     */
+    page?: number;
+    /**
+     * Limit
+     */
+    limit?: number;
+  };
+  url: "/api/v1/feedback";
+};
+
+export type ListMyFeedbackApiV1FeedbackGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListMyFeedbackApiV1FeedbackGetError =
+  ListMyFeedbackApiV1FeedbackGetErrors[keyof ListMyFeedbackApiV1FeedbackGetErrors];
+
+export type ListMyFeedbackApiV1FeedbackGetResponses = {
+  /**
+   * Response List My Feedback Api V1 Feedback Get
+   *
+   * Successful Response
+   */
+  200: Array<FeedbackResponse>;
+};
+
+export type ListMyFeedbackApiV1FeedbackGetResponse =
+  ListMyFeedbackApiV1FeedbackGetResponses[keyof ListMyFeedbackApiV1FeedbackGetResponses];
+
+export type CreateFeedbackApiV1FeedbackPostData = {
+  body: FeedbackCreate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/feedback";
+};
+
+export type CreateFeedbackApiV1FeedbackPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CreateFeedbackApiV1FeedbackPostError =
+  CreateFeedbackApiV1FeedbackPostErrors[keyof CreateFeedbackApiV1FeedbackPostErrors];
+
+export type CreateFeedbackApiV1FeedbackPostResponses = {
+  /**
+   * Successful Response
+   */
+  201: FeedbackResponse;
+};
+
+export type CreateFeedbackApiV1FeedbackPostResponse =
+  CreateFeedbackApiV1FeedbackPostResponses[keyof CreateFeedbackApiV1FeedbackPostResponses];
+
+export type ListAllFeedbackApiV1FeedbackAdminGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Page
+     */
+    page?: number;
+    /**
+     * Limit
+     */
+    limit?: number;
+    /**
+     * Status
+     */
+    status?: string | null;
+    /**
+     * Feedback Type
+     */
+    feedback_type?: string | null;
+  };
+  url: "/api/v1/feedback/admin";
+};
+
+export type ListAllFeedbackApiV1FeedbackAdminGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListAllFeedbackApiV1FeedbackAdminGetError =
+  ListAllFeedbackApiV1FeedbackAdminGetErrors[keyof ListAllFeedbackApiV1FeedbackAdminGetErrors];
+
+export type ListAllFeedbackApiV1FeedbackAdminGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: PaginatedFeedbackResponse;
+};
+
+export type ListAllFeedbackApiV1FeedbackAdminGetResponse =
+  ListAllFeedbackApiV1FeedbackAdminGetResponses[keyof ListAllFeedbackApiV1FeedbackAdminGetResponses];
+
+export type DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Feedback Id
+     */
+    feedback_id: string;
+  };
+  query?: never;
+  url: "/api/v1/feedback/admin/{feedback_id}";
+};
+
+export type DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteError =
+  DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteErrors[keyof DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteErrors];
+
+export type DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteResponses = {
+  /**
+   * Successful Response
+   */
+  204: void;
+};
+
+export type DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteResponse =
+  DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteResponses[keyof DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteResponses];
+
+export type GetFeedbackApiV1FeedbackAdminFeedbackIdGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Feedback Id
+     */
+    feedback_id: string;
+  };
+  query?: never;
+  url: "/api/v1/feedback/admin/{feedback_id}";
+};
+
+export type GetFeedbackApiV1FeedbackAdminFeedbackIdGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetFeedbackApiV1FeedbackAdminFeedbackIdGetError =
+  GetFeedbackApiV1FeedbackAdminFeedbackIdGetErrors[keyof GetFeedbackApiV1FeedbackAdminFeedbackIdGetErrors];
+
+export type GetFeedbackApiV1FeedbackAdminFeedbackIdGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: FeedbackAdminResponse;
+};
+
+export type GetFeedbackApiV1FeedbackAdminFeedbackIdGetResponse =
+  GetFeedbackApiV1FeedbackAdminFeedbackIdGetResponses[keyof GetFeedbackApiV1FeedbackAdminFeedbackIdGetResponses];
+
+export type UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutData = {
+  body: FeedbackAdminUpdate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Feedback Id
+     */
+    feedback_id: string;
+  };
+  query?: never;
+  url: "/api/v1/feedback/admin/{feedback_id}";
+};
+
+export type UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutError =
+  UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutErrors[keyof UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutErrors];
+
+export type UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutResponses = {
+  /**
+   * Successful Response
+   */
+  200: FeedbackAdminResponse;
+};
+
+export type UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutResponse =
+  UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutResponses[keyof UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutResponses];
+
+export type ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Feedback Id
+     */
+    feedback_id: string;
+  };
+  query?: never;
+  url: "/api/v1/feedback/admin/{feedback_id}/resolve";
+};
+
+export type ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutError =
+  ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutErrors[keyof ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutErrors];
+
+export type ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutResponses = {
+  /**
+   * Successful Response
+   */
+  200: FeedbackAdminResponse;
+};
+
+export type ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutResponse =
+  ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutResponses[keyof ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutResponses];
+
+export type RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostData =
+  {
+    body?: never;
+    headers?: {
+      /**
+       * X-Api-Key
+       */
+      "X-API-Key"?: string | null;
+    };
+    path: {
+      /**
+       * Feedback Id
+       */
+      feedback_id: string;
+    };
+    query?: never;
+    url: "/api/v1/feedback/admin/{feedback_id}/retrigger-webhook";
+  };
+
+export type RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostError =
+  RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostErrors[keyof RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostErrors];
+
+export type RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostResponses =
+  {
+    /**
+     * Response Retrigger Feedback Webhook Api V1 Feedback Admin  Feedback Id  Retrigger Webhook Post
+     *
+     * Successful Response
+     */
+    202: {
+      [key: string]: unknown;
+    };
+  };
+
+export type RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostResponse =
+  RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostResponses[keyof RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostResponses];
+
 export type ListItemsApiV1ItemsGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: {
     /**
@@ -2219,6 +4553,18 @@ export type ListItemsApiV1ItemsGetData = {
      * Include items from sublocations
      */
     include_sublocations?: boolean;
+    /**
+     * No Category
+     *
+     * Filter items without a category
+     */
+    no_category?: boolean;
+    /**
+     * No Location
+     *
+     * Filter items without a location
+     */
+    no_location?: boolean;
     /**
      * Search
      */
@@ -2273,6 +4619,12 @@ export type ListItemsApiV1ItemsGetResponse =
 
 export type CreateItemApiV1ItemsPostData = {
   body: ItemCreate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/items";
@@ -2298,8 +4650,47 @@ export type CreateItemApiV1ItemsPostResponses = {
 export type CreateItemApiV1ItemsPostResponse =
   CreateItemApiV1ItemsPostResponses[keyof CreateItemApiV1ItemsPostResponses];
 
+export type BatchUpdateItemsApiV1ItemsBatchPatchData = {
+  body: BatchUpdateRequest;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/items/batch";
+};
+
+export type BatchUpdateItemsApiV1ItemsBatchPatchErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type BatchUpdateItemsApiV1ItemsBatchPatchError =
+  BatchUpdateItemsApiV1ItemsBatchPatchErrors[keyof BatchUpdateItemsApiV1ItemsBatchPatchErrors];
+
+export type BatchUpdateItemsApiV1ItemsBatchPatchResponses = {
+  /**
+   * Successful Response
+   */
+  200: BatchUpdateResponse;
+};
+
+export type BatchUpdateItemsApiV1ItemsBatchPatchResponse =
+  BatchUpdateItemsApiV1ItemsBatchPatchResponses[keyof BatchUpdateItemsApiV1ItemsBatchPatchResponses];
+
 export type GetDashboardStatsApiV1ItemsStatsDashboardGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: {
     /**
@@ -2330,8 +4721,94 @@ export type GetDashboardStatsApiV1ItemsStatsDashboardGetResponses = {
 export type GetDashboardStatsApiV1ItemsStatsDashboardGetResponse =
   GetDashboardStatsApiV1ItemsStatsDashboardGetResponses[keyof GetDashboardStatsApiV1ItemsStatsDashboardGetResponses];
 
+export type GetMostUsedItemsApiV1ItemsStatsMostUsedGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Limit
+     */
+    limit?: number;
+  };
+  url: "/api/v1/items/stats/most-used";
+};
+
+export type GetMostUsedItemsApiV1ItemsStatsMostUsedGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetMostUsedItemsApiV1ItemsStatsMostUsedGetError =
+  GetMostUsedItemsApiV1ItemsStatsMostUsedGetErrors[keyof GetMostUsedItemsApiV1ItemsStatsMostUsedGetErrors];
+
+export type GetMostUsedItemsApiV1ItemsStatsMostUsedGetResponses = {
+  /**
+   * Response Get Most Used Items Api V1 Items Stats Most Used Get
+   *
+   * Successful Response
+   */
+  200: Array<MostUsedItemResponse>;
+};
+
+export type GetMostUsedItemsApiV1ItemsStatsMostUsedGetResponse =
+  GetMostUsedItemsApiV1ItemsStatsMostUsedGetResponses[keyof GetMostUsedItemsApiV1ItemsStatsMostUsedGetResponses];
+
+export type GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Limit
+     */
+    limit?: number;
+  };
+  url: "/api/v1/items/stats/recently-used";
+};
+
+export type GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetError =
+  GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetErrors[keyof GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetErrors];
+
+export type GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetResponses = {
+  /**
+   * Response Get Recently Used Items Api V1 Items Stats Recently Used Get
+   *
+   * Successful Response
+   */
+  200: Array<RecentlyUsedItemResponse>;
+};
+
+export type GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetResponse =
+  GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetResponses[keyof GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetResponses];
+
 export type SearchItemsApiV1ItemsSearchGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query: {
     /**
@@ -2368,12 +4845,94 @@ export type SearchItemsApiV1ItemsSearchGetResponses = {
 export type SearchItemsApiV1ItemsSearchGetResponse =
   SearchItemsApiV1ItemsSearchGetResponses[keyof SearchItemsApiV1ItemsSearchGetResponses];
 
+export type FindSimilarItemsApiV1ItemsFindSimilarPostData = {
+  body: FindSimilarRequest;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/items/find-similar";
+};
+
+export type FindSimilarItemsApiV1ItemsFindSimilarPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type FindSimilarItemsApiV1ItemsFindSimilarPostError =
+  FindSimilarItemsApiV1ItemsFindSimilarPostErrors[keyof FindSimilarItemsApiV1ItemsFindSimilarPostErrors];
+
+export type FindSimilarItemsApiV1ItemsFindSimilarPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: FindSimilarResponse;
+};
+
+export type FindSimilarItemsApiV1ItemsFindSimilarPostResponse =
+  FindSimilarItemsApiV1ItemsFindSimilarPostResponses[keyof FindSimilarItemsApiV1ItemsFindSimilarPostResponses];
+
+export type SuggestItemLocationApiV1ItemsSuggestLocationPostData = {
+  body: ItemLocationSuggestionRequest;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/items/suggest-location";
+};
+
+export type SuggestItemLocationApiV1ItemsSuggestLocationPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type SuggestItemLocationApiV1ItemsSuggestLocationPostError =
+  SuggestItemLocationApiV1ItemsSuggestLocationPostErrors[keyof SuggestItemLocationApiV1ItemsSuggestLocationPostErrors];
+
+export type SuggestItemLocationApiV1ItemsSuggestLocationPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: ItemLocationSuggestionResponse;
+};
+
+export type SuggestItemLocationApiV1ItemsSuggestLocationPostResponse =
+  SuggestItemLocationApiV1ItemsSuggestLocationPostResponses[keyof SuggestItemLocationApiV1ItemsSuggestLocationPostResponses];
+
 export type ListLowStockItemsApiV1ItemsLowStockGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/items/low-stock";
 };
+
+export type ListLowStockItemsApiV1ItemsLowStockGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListLowStockItemsApiV1ItemsLowStockGetError =
+  ListLowStockItemsApiV1ItemsLowStockGetErrors[keyof ListLowStockItemsApiV1ItemsLowStockGetErrors];
 
 export type ListLowStockItemsApiV1ItemsLowStockGetResponses = {
   /**
@@ -2389,6 +4948,12 @@ export type ListLowStockItemsApiV1ItemsLowStockGetResponse =
 
 export type GetItemFacetsApiV1ItemsFacetsGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: {
     /**
@@ -2441,6 +5006,12 @@ export type GetItemFacetsApiV1ItemsFacetsGetResponse =
 
 export type GetAllTagsApiV1ItemsTagsGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: {
     /**
@@ -2475,6 +5046,12 @@ export type GetAllTagsApiV1ItemsTagsGetResponse =
 
 export type DeleteItemApiV1ItemsItemIdDeleteData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Item Id
@@ -2507,6 +5084,12 @@ export type DeleteItemApiV1ItemsItemIdDeleteResponse =
 
 export type GetItemApiV1ItemsItemIdGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Item Id
@@ -2539,6 +5122,12 @@ export type GetItemApiV1ItemsItemIdGetResponse =
 
 export type UpdateItemApiV1ItemsItemIdPutData = {
   body: ItemUpdate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Item Id
@@ -2569,8 +5158,59 @@ export type UpdateItemApiV1ItemsItemIdPutResponses = {
 export type UpdateItemApiV1ItemsItemIdPutResponse =
   UpdateItemApiV1ItemsItemIdPutResponses[keyof UpdateItemApiV1ItemsItemIdPutResponses];
 
+export type GetItemQrCodeApiV1ItemsItemIdQrGetData = {
+  /**
+   * Settings
+   */
+  body?: Settings | null;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Item Id
+     */
+    item_id: string;
+  };
+  query?: {
+    /**
+     * Size
+     *
+     * Scale factor (1-40)
+     */
+    size?: number;
+  };
+  url: "/api/v1/items/{item_id}/qr";
+};
+
+export type GetItemQrCodeApiV1ItemsItemIdQrGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetItemQrCodeApiV1ItemsItemIdQrGetError =
+  GetItemQrCodeApiV1ItemsItemIdQrGetErrors[keyof GetItemQrCodeApiV1ItemsItemIdQrGetErrors];
+
+export type GetItemQrCodeApiV1ItemsItemIdQrGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
+
 export type UpdateItemQuantityApiV1ItemsItemIdQuantityPatchData = {
   body: QuantityUpdate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Item Id
@@ -2601,12 +5241,189 @@ export type UpdateItemQuantityApiV1ItemsItemIdQuantityPatchResponses = {
 export type UpdateItemQuantityApiV1ItemsItemIdQuantityPatchResponse =
   UpdateItemQuantityApiV1ItemsItemIdQuantityPatchResponses[keyof UpdateItemQuantityApiV1ItemsItemIdQuantityPatchResponses];
 
+export type CheckOutItemApiV1ItemsItemIdCheckOutPostData = {
+  body: CheckInOutCreate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Item Id
+     */
+    item_id: string;
+  };
+  query?: never;
+  url: "/api/v1/items/{item_id}/check-out";
+};
+
+export type CheckOutItemApiV1ItemsItemIdCheckOutPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CheckOutItemApiV1ItemsItemIdCheckOutPostError =
+  CheckOutItemApiV1ItemsItemIdCheckOutPostErrors[keyof CheckOutItemApiV1ItemsItemIdCheckOutPostErrors];
+
+export type CheckOutItemApiV1ItemsItemIdCheckOutPostResponses = {
+  /**
+   * Successful Response
+   */
+  201: CheckInOutResponse;
+};
+
+export type CheckOutItemApiV1ItemsItemIdCheckOutPostResponse =
+  CheckOutItemApiV1ItemsItemIdCheckOutPostResponses[keyof CheckOutItemApiV1ItemsItemIdCheckOutPostResponses];
+
+export type CheckInItemApiV1ItemsItemIdCheckInPostData = {
+  body: CheckInOutCreate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Item Id
+     */
+    item_id: string;
+  };
+  query?: never;
+  url: "/api/v1/items/{item_id}/check-in";
+};
+
+export type CheckInItemApiV1ItemsItemIdCheckInPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CheckInItemApiV1ItemsItemIdCheckInPostError =
+  CheckInItemApiV1ItemsItemIdCheckInPostErrors[keyof CheckInItemApiV1ItemsItemIdCheckInPostErrors];
+
+export type CheckInItemApiV1ItemsItemIdCheckInPostResponses = {
+  /**
+   * Successful Response
+   */
+  201: CheckInOutResponse;
+};
+
+export type CheckInItemApiV1ItemsItemIdCheckInPostResponse =
+  CheckInItemApiV1ItemsItemIdCheckInPostResponses[keyof CheckInItemApiV1ItemsItemIdCheckInPostResponses];
+
+export type GetItemHistoryApiV1ItemsItemIdHistoryGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Item Id
+     */
+    item_id: string;
+  };
+  query?: {
+    /**
+     * Page
+     */
+    page?: number;
+    /**
+     * Limit
+     */
+    limit?: number;
+  };
+  url: "/api/v1/items/{item_id}/history";
+};
+
+export type GetItemHistoryApiV1ItemsItemIdHistoryGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetItemHistoryApiV1ItemsItemIdHistoryGetError =
+  GetItemHistoryApiV1ItemsItemIdHistoryGetErrors[keyof GetItemHistoryApiV1ItemsItemIdHistoryGetErrors];
+
+export type GetItemHistoryApiV1ItemsItemIdHistoryGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: PaginatedResponseCheckInOutResponse;
+};
+
+export type GetItemHistoryApiV1ItemsItemIdHistoryGetResponse =
+  GetItemHistoryApiV1ItemsItemIdHistoryGetResponses[keyof GetItemHistoryApiV1ItemsItemIdHistoryGetResponses];
+
+export type GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Item Id
+     */
+    item_id: string;
+  };
+  query?: never;
+  url: "/api/v1/items/{item_id}/usage-stats";
+};
+
+export type GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetError =
+  GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetErrors[keyof GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetErrors];
+
+export type GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: ItemUsageStatsResponse;
+};
+
+export type GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetResponse =
+  GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetResponses[keyof GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetResponses];
+
 export type ListCategoriesApiV1CategoriesGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/categories";
 };
+
+export type ListCategoriesApiV1CategoriesGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListCategoriesApiV1CategoriesGetError =
+  ListCategoriesApiV1CategoriesGetErrors[keyof ListCategoriesApiV1CategoriesGetErrors];
 
 export type ListCategoriesApiV1CategoriesGetResponses = {
   /**
@@ -2622,6 +5439,12 @@ export type ListCategoriesApiV1CategoriesGetResponse =
 
 export type CreateCategoryApiV1CategoriesPostData = {
   body: CategoryCreate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/categories";
@@ -2649,10 +5472,26 @@ export type CreateCategoryApiV1CategoriesPostResponse =
 
 export type GetCategoryTreeApiV1CategoriesTreeGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/categories/tree";
 };
+
+export type GetCategoryTreeApiV1CategoriesTreeGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetCategoryTreeApiV1CategoriesTreeGetError =
+  GetCategoryTreeApiV1CategoriesTreeGetErrors[keyof GetCategoryTreeApiV1CategoriesTreeGetErrors];
 
 export type GetCategoryTreeApiV1CategoriesTreeGetResponses = {
   /**
@@ -2668,6 +5507,12 @@ export type GetCategoryTreeApiV1CategoriesTreeGetResponse =
 
 export type CreateCategoryFromPathApiV1CategoriesFromPathPostData = {
   body: CategoryCreateFromPath;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/categories/from-path";
@@ -2695,6 +5540,12 @@ export type CreateCategoryFromPathApiV1CategoriesFromPathPostResponse =
 
 export type DeleteCategoryApiV1CategoriesCategoryIdDeleteData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Category Id
@@ -2727,6 +5578,12 @@ export type DeleteCategoryApiV1CategoriesCategoryIdDeleteResponse =
 
 export type GetCategoryApiV1CategoriesCategoryIdGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Category Id
@@ -2759,6 +5616,12 @@ export type GetCategoryApiV1CategoriesCategoryIdGetResponse =
 
 export type UpdateCategoryApiV1CategoriesCategoryIdPutData = {
   body: CategoryUpdate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Category Id
@@ -2791,6 +5654,12 @@ export type UpdateCategoryApiV1CategoriesCategoryIdPutResponse =
 
 export type GetCategoryTemplateApiV1CategoriesCategoryIdTemplateGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Category Id
@@ -2824,6 +5693,12 @@ export type GetCategoryTemplateApiV1CategoriesCategoryIdTemplateGetResponse =
 export type GetCategoryDescendantsApiV1CategoriesCategoryIdDescendantsGetData =
   {
     body?: never;
+    headers?: {
+      /**
+       * X-Api-Key
+       */
+      "X-API-Key"?: string | null;
+    };
     path: {
       /**
        * Category Id
@@ -2860,6 +5735,12 @@ export type GetCategoryDescendantsApiV1CategoriesCategoryIdDescendantsGetRespons
 
 export type MoveCategoryApiV1CategoriesCategoryIdMovePatchData = {
   body: CategoryMoveRequest;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Category Id
@@ -2892,10 +5773,26 @@ export type MoveCategoryApiV1CategoriesCategoryIdMovePatchResponse =
 
 export type ListLocationsApiV1LocationsGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/locations";
 };
+
+export type ListLocationsApiV1LocationsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListLocationsApiV1LocationsGetError =
+  ListLocationsApiV1LocationsGetErrors[keyof ListLocationsApiV1LocationsGetErrors];
 
 export type ListLocationsApiV1LocationsGetResponses = {
   /**
@@ -2911,6 +5808,12 @@ export type ListLocationsApiV1LocationsGetResponse =
 
 export type CreateLocationApiV1LocationsPostData = {
   body: LocationCreate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/locations";
@@ -2938,10 +5841,26 @@ export type CreateLocationApiV1LocationsPostResponse =
 
 export type GetLocationTreeApiV1LocationsTreeGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/locations/tree";
 };
+
+export type GetLocationTreeApiV1LocationsTreeGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetLocationTreeApiV1LocationsTreeGetError =
+  GetLocationTreeApiV1LocationsTreeGetErrors[keyof GetLocationTreeApiV1LocationsTreeGetErrors];
 
 export type GetLocationTreeApiV1LocationsTreeGetResponses = {
   /**
@@ -2955,8 +5874,80 @@ export type GetLocationTreeApiV1LocationsTreeGetResponses = {
 export type GetLocationTreeApiV1LocationsTreeGetResponse =
   GetLocationTreeApiV1LocationsTreeGetResponses[keyof GetLocationTreeApiV1LocationsTreeGetResponses];
 
+export type AnalyzeLocationImageApiV1LocationsAnalyzeImagePostData = {
+  body: LocationAnalysisRequest;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/locations/analyze-image";
+};
+
+export type AnalyzeLocationImageApiV1LocationsAnalyzeImagePostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type AnalyzeLocationImageApiV1LocationsAnalyzeImagePostError =
+  AnalyzeLocationImageApiV1LocationsAnalyzeImagePostErrors[keyof AnalyzeLocationImageApiV1LocationsAnalyzeImagePostErrors];
+
+export type AnalyzeLocationImageApiV1LocationsAnalyzeImagePostResponses = {
+  /**
+   * Successful Response
+   */
+  200: LocationAnalysisResponse;
+};
+
+export type AnalyzeLocationImageApiV1LocationsAnalyzeImagePostResponse =
+  AnalyzeLocationImageApiV1LocationsAnalyzeImagePostResponses[keyof AnalyzeLocationImageApiV1LocationsAnalyzeImagePostResponses];
+
+export type CreateLocationsBulkApiV1LocationsBulkPostData = {
+  body: LocationBulkCreate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/locations/bulk";
+};
+
+export type CreateLocationsBulkApiV1LocationsBulkPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CreateLocationsBulkApiV1LocationsBulkPostError =
+  CreateLocationsBulkApiV1LocationsBulkPostErrors[keyof CreateLocationsBulkApiV1LocationsBulkPostErrors];
+
+export type CreateLocationsBulkApiV1LocationsBulkPostResponses = {
+  /**
+   * Successful Response
+   */
+  201: LocationBulkCreateResponse;
+};
+
+export type CreateLocationsBulkApiV1LocationsBulkPostResponse =
+  CreateLocationsBulkApiV1LocationsBulkPostResponses[keyof CreateLocationsBulkApiV1LocationsBulkPostResponses];
+
 export type DeleteLocationApiV1LocationsLocationIdDeleteData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Location Id
@@ -2989,6 +5980,12 @@ export type DeleteLocationApiV1LocationsLocationIdDeleteResponse =
 
 export type GetLocationApiV1LocationsLocationIdGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Location Id
@@ -3021,6 +6018,12 @@ export type GetLocationApiV1LocationsLocationIdGetResponse =
 
 export type UpdateLocationApiV1LocationsLocationIdPutData = {
   body: LocationUpdate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Location Id
@@ -3053,6 +6056,12 @@ export type UpdateLocationApiV1LocationsLocationIdPutResponse =
 
 export type GetLocationDescendantsApiV1LocationsLocationIdDescendantsGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Location Id
@@ -3089,6 +6098,12 @@ export type GetLocationDescendantsApiV1LocationsLocationIdDescendantsGetResponse
 
 export type MoveLocationApiV1LocationsLocationIdMovePatchData = {
   body: LocationMoveRequest;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Location Id
@@ -3119,8 +6134,100 @@ export type MoveLocationApiV1LocationsLocationIdMovePatchResponses = {
 export type MoveLocationApiV1LocationsLocationIdMovePatchResponse =
   MoveLocationApiV1LocationsLocationIdMovePatchResponses[keyof MoveLocationApiV1LocationsLocationIdMovePatchResponses];
 
+export type GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetData =
+  {
+    body?: never;
+    headers?: {
+      /**
+       * X-Api-Key
+       */
+      "X-API-Key"?: string | null;
+    };
+    path: {
+      /**
+       * Location Id
+       */
+      location_id: string;
+    };
+    query?: never;
+    url: "/api/v1/locations/{location_id}/with-ancestors";
+  };
+
+export type GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetError =
+  GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetErrors[keyof GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetErrors];
+
+export type GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: LocationWithAncestors;
+  };
+
+export type GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetResponse =
+  GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetResponses[keyof GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetResponses];
+
+export type GetLocationQrCodeApiV1LocationsLocationIdQrGetData = {
+  /**
+   * Settings
+   */
+  body?: Settings | null;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Location Id
+     */
+    location_id: string;
+  };
+  query?: {
+    /**
+     * Size
+     *
+     * Scale factor (1-40)
+     */
+    size?: number;
+  };
+  url: "/api/v1/locations/{location_id}/qr";
+};
+
+export type GetLocationQrCodeApiV1LocationsLocationIdQrGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetLocationQrCodeApiV1LocationsLocationIdQrGetError =
+  GetLocationQrCodeApiV1LocationsLocationIdQrGetErrors[keyof GetLocationQrCodeApiV1LocationsLocationIdQrGetErrors];
+
+export type GetLocationQrCodeApiV1LocationsLocationIdQrGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
+
 export type UploadImageApiV1ImagesUploadPostData = {
   body: BodyUploadImageApiV1ImagesUploadPost;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/images/upload";
@@ -3148,6 +6255,12 @@ export type UploadImageApiV1ImagesUploadPostResponse =
 
 export type ClassifyImageApiV1ImagesClassifyPostData = {
   body: ClassificationRequest;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: never;
   url: "/api/v1/images/classify";
@@ -3175,6 +6288,12 @@ export type ClassifyImageApiV1ImagesClassifyPostResponse =
 
 export type ListClassifiedImagesApiV1ImagesClassifiedGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path?: never;
   query?: {
     /**
@@ -3185,6 +6304,12 @@ export type ListClassifiedImagesApiV1ImagesClassifiedGetData = {
      * Limit
      */
     limit?: number;
+    /**
+     * Search
+     *
+     * Search by identified item name
+     */
+    search?: string | null;
   };
   url: "/api/v1/images/classified";
 };
@@ -3211,6 +6336,12 @@ export type ListClassifiedImagesApiV1ImagesClassifiedGetResponse =
 
 export type DeleteImageApiV1ImagesImageIdDeleteData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Image Id
@@ -3243,6 +6374,12 @@ export type DeleteImageApiV1ImagesImageIdDeleteResponse =
 
 export type GetImageApiV1ImagesImageIdGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Image Id
@@ -3275,13 +6412,24 @@ export type GetImageApiV1ImagesImageIdGetResponse =
 
 export type GetImageSignedUrlApiV1ImagesImageIdSignedUrlGetData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Image Id
      */
     image_id: string;
   };
-  query?: never;
+  query?: {
+    /**
+     * Thumbnail
+     */
+    thumbnail?: boolean;
+  };
   url: "/api/v1/images/{image_id}/signed-url";
 };
 
@@ -3339,8 +6487,48 @@ export type GetImageFileApiV1ImagesImageIdFileGetResponses = {
   200: unknown;
 };
 
+export type GetImageThumbnailApiV1ImagesImageIdThumbnailGetData = {
+  body?: never;
+  path: {
+    /**
+     * Image Id
+     */
+    image_id: string;
+  };
+  query?: {
+    /**
+     * Token
+     */
+    token?: string | null;
+  };
+  url: "/api/v1/images/{image_id}/thumbnail";
+};
+
+export type GetImageThumbnailApiV1ImagesImageIdThumbnailGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetImageThumbnailApiV1ImagesImageIdThumbnailGetError =
+  GetImageThumbnailApiV1ImagesImageIdThumbnailGetErrors[keyof GetImageThumbnailApiV1ImagesImageIdThumbnailGetErrors];
+
+export type GetImageThumbnailApiV1ImagesImageIdThumbnailGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
+
 export type AttachImageToItemApiV1ImagesImageIdAttachItemIdPostData = {
   body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
   path: {
     /**
      * Image Id
@@ -3379,3 +6567,588 @@ export type AttachImageToItemApiV1ImagesImageIdAttachItemIdPostResponses = {
 
 export type AttachImageToItemApiV1ImagesImageIdAttachItemIdPostResponse =
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostResponses[keyof AttachImageToItemApiV1ImagesImageIdAttachItemIdPostResponses];
+
+export type GetHobbyTypesApiV1ProfileHobbyTypesGetData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/profile/hobby-types";
+};
+
+export type GetHobbyTypesApiV1ProfileHobbyTypesGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: HobbyTypesResponse;
+};
+
+export type GetHobbyTypesApiV1ProfileHobbyTypesGetResponse =
+  GetHobbyTypesApiV1ProfileHobbyTypesGetResponses[keyof GetHobbyTypesApiV1ProfileHobbyTypesGetResponses];
+
+export type GetMyProfileApiV1ProfileMeGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/profile/me";
+};
+
+export type GetMyProfileApiV1ProfileMeGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetMyProfileApiV1ProfileMeGetError =
+  GetMyProfileApiV1ProfileMeGetErrors[keyof GetMyProfileApiV1ProfileMeGetErrors];
+
+export type GetMyProfileApiV1ProfileMeGetResponses = {
+  /**
+   * Response Get My Profile Api V1 Profile Me Get
+   *
+   * Successful Response
+   */
+  200: UserSystemProfileResponse | null;
+};
+
+export type GetMyProfileApiV1ProfileMeGetResponse =
+  GetMyProfileApiV1ProfileMeGetResponses[keyof GetMyProfileApiV1ProfileMeGetResponses];
+
+export type UpdateMyProfileApiV1ProfileMePatchData = {
+  body: UserSystemProfileUpdate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/profile/me";
+};
+
+export type UpdateMyProfileApiV1ProfileMePatchErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type UpdateMyProfileApiV1ProfileMePatchError =
+  UpdateMyProfileApiV1ProfileMePatchErrors[keyof UpdateMyProfileApiV1ProfileMePatchErrors];
+
+export type UpdateMyProfileApiV1ProfileMePatchResponses = {
+  /**
+   * Successful Response
+   */
+  200: UserSystemProfileResponse;
+};
+
+export type UpdateMyProfileApiV1ProfileMePatchResponse =
+  UpdateMyProfileApiV1ProfileMePatchResponses[keyof UpdateMyProfileApiV1ProfileMePatchResponses];
+
+export type CreateMyProfileApiV1ProfileMePostData = {
+  body: UserSystemProfileCreate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/profile/me";
+};
+
+export type CreateMyProfileApiV1ProfileMePostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CreateMyProfileApiV1ProfileMePostError =
+  CreateMyProfileApiV1ProfileMePostErrors[keyof CreateMyProfileApiV1ProfileMePostErrors];
+
+export type CreateMyProfileApiV1ProfileMePostResponses = {
+  /**
+   * Successful Response
+   */
+  200: UserSystemProfileResponse;
+};
+
+export type CreateMyProfileApiV1ProfileMePostResponse =
+  CreateMyProfileApiV1ProfileMePostResponses[keyof CreateMyProfileApiV1ProfileMePostResponses];
+
+export type GetRecommendationsApiV1ProfileRecommendationsGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Limit
+     */
+    limit?: number;
+  };
+  url: "/api/v1/profile/recommendations";
+};
+
+export type GetRecommendationsApiV1ProfileRecommendationsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetRecommendationsApiV1ProfileRecommendationsGetError =
+  GetRecommendationsApiV1ProfileRecommendationsGetErrors[keyof GetRecommendationsApiV1ProfileRecommendationsGetErrors];
+
+export type GetRecommendationsApiV1ProfileRecommendationsGetResponses = {
+  /**
+   * Response Get Recommendations Api V1 Profile Recommendations Get
+   *
+   * Successful Response
+   */
+  200: Array<PurgeRecommendationWithItem>;
+};
+
+export type GetRecommendationsApiV1ProfileRecommendationsGetResponse =
+  GetRecommendationsApiV1ProfileRecommendationsGetResponses[keyof GetRecommendationsApiV1ProfileRecommendationsGetResponses];
+
+export type GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostData =
+  {
+    body: GenerateRecommendationsRequest;
+    headers?: {
+      /**
+       * X-Api-Key
+       */
+      "X-API-Key"?: string | null;
+    };
+    path?: never;
+    query?: never;
+    url: "/api/v1/profile/recommendations/generate";
+  };
+
+export type GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostError =
+  GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostErrors[keyof GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostErrors];
+
+export type GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: GenerateRecommendationsResponse;
+  };
+
+export type GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostResponse =
+  GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostResponses[keyof GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostResponses];
+
+export type DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteData =
+  {
+    body?: never;
+    headers?: {
+      /**
+       * X-Api-Key
+       */
+      "X-API-Key"?: string | null;
+    };
+    path: {
+      /**
+       * Recommendation Id
+       */
+      recommendation_id: string;
+    };
+    query?: never;
+    url: "/api/v1/profile/recommendations/{recommendation_id}";
+  };
+
+export type DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteError =
+  DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteErrors[keyof DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteErrors];
+
+export type DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteResponses =
+  {
+    /**
+     * Successful Response
+     */
+    204: void;
+  };
+
+export type DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteResponse =
+  DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteResponses[keyof DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteResponses];
+
+export type UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchData =
+  {
+    body: PurgeRecommendationUpdate;
+    headers?: {
+      /**
+       * X-Api-Key
+       */
+      "X-API-Key"?: string | null;
+    };
+    path: {
+      /**
+       * Recommendation Id
+       */
+      recommendation_id: string;
+    };
+    query?: never;
+    url: "/api/v1/profile/recommendations/{recommendation_id}";
+  };
+
+export type UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchError =
+  UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchErrors[keyof UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchErrors];
+
+export type UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: PurgeRecommendationResponse;
+  };
+
+export type UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponse =
+  UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponses[keyof UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponses];
+
+export type ListEventTypesApiV1WebhooksEventTypesGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/webhooks/event-types";
+};
+
+export type ListEventTypesApiV1WebhooksEventTypesGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListEventTypesApiV1WebhooksEventTypesGetError =
+  ListEventTypesApiV1WebhooksEventTypesGetErrors[keyof ListEventTypesApiV1WebhooksEventTypesGetErrors];
+
+export type ListEventTypesApiV1WebhooksEventTypesGetResponses = {
+  /**
+   * Response List Event Types Api V1 Webhooks Event Types Get
+   *
+   * Successful Response
+   */
+  200: Array<EventTypeInfo>;
+};
+
+export type ListEventTypesApiV1WebhooksEventTypesGetResponse =
+  ListEventTypesApiV1WebhooksEventTypesGetResponses[keyof ListEventTypesApiV1WebhooksEventTypesGetResponses];
+
+export type ListConfigsApiV1WebhooksConfigsGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/webhooks/configs";
+};
+
+export type ListConfigsApiV1WebhooksConfigsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListConfigsApiV1WebhooksConfigsGetError =
+  ListConfigsApiV1WebhooksConfigsGetErrors[keyof ListConfigsApiV1WebhooksConfigsGetErrors];
+
+export type ListConfigsApiV1WebhooksConfigsGetResponses = {
+  /**
+   * Response List Configs Api V1 Webhooks Configs Get
+   *
+   * Successful Response
+   */
+  200: Array<WebhookConfigResponse>;
+};
+
+export type ListConfigsApiV1WebhooksConfigsGetResponse =
+  ListConfigsApiV1WebhooksConfigsGetResponses[keyof ListConfigsApiV1WebhooksConfigsGetResponses];
+
+export type CreateConfigApiV1WebhooksConfigsPostData = {
+  body: WebhookConfigCreate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/webhooks/configs";
+};
+
+export type CreateConfigApiV1WebhooksConfigsPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CreateConfigApiV1WebhooksConfigsPostError =
+  CreateConfigApiV1WebhooksConfigsPostErrors[keyof CreateConfigApiV1WebhooksConfigsPostErrors];
+
+export type CreateConfigApiV1WebhooksConfigsPostResponses = {
+  /**
+   * Successful Response
+   */
+  201: WebhookConfigResponse;
+};
+
+export type CreateConfigApiV1WebhooksConfigsPostResponse =
+  CreateConfigApiV1WebhooksConfigsPostResponses[keyof CreateConfigApiV1WebhooksConfigsPostResponses];
+
+export type DeleteConfigApiV1WebhooksConfigsConfigIdDeleteData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Config Id
+     */
+    config_id: string;
+  };
+  query?: never;
+  url: "/api/v1/webhooks/configs/{config_id}";
+};
+
+export type DeleteConfigApiV1WebhooksConfigsConfigIdDeleteErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type DeleteConfigApiV1WebhooksConfigsConfigIdDeleteError =
+  DeleteConfigApiV1WebhooksConfigsConfigIdDeleteErrors[keyof DeleteConfigApiV1WebhooksConfigsConfigIdDeleteErrors];
+
+export type DeleteConfigApiV1WebhooksConfigsConfigIdDeleteResponses = {
+  /**
+   * Successful Response
+   */
+  204: void;
+};
+
+export type DeleteConfigApiV1WebhooksConfigsConfigIdDeleteResponse =
+  DeleteConfigApiV1WebhooksConfigsConfigIdDeleteResponses[keyof DeleteConfigApiV1WebhooksConfigsConfigIdDeleteResponses];
+
+export type GetConfigApiV1WebhooksConfigsConfigIdGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Config Id
+     */
+    config_id: string;
+  };
+  query?: never;
+  url: "/api/v1/webhooks/configs/{config_id}";
+};
+
+export type GetConfigApiV1WebhooksConfigsConfigIdGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetConfigApiV1WebhooksConfigsConfigIdGetError =
+  GetConfigApiV1WebhooksConfigsConfigIdGetErrors[keyof GetConfigApiV1WebhooksConfigsConfigIdGetErrors];
+
+export type GetConfigApiV1WebhooksConfigsConfigIdGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: WebhookConfigResponse;
+};
+
+export type GetConfigApiV1WebhooksConfigsConfigIdGetResponse =
+  GetConfigApiV1WebhooksConfigsConfigIdGetResponses[keyof GetConfigApiV1WebhooksConfigsConfigIdGetResponses];
+
+export type UpdateConfigApiV1WebhooksConfigsConfigIdPutData = {
+  body: WebhookConfigUpdate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Config Id
+     */
+    config_id: string;
+  };
+  query?: never;
+  url: "/api/v1/webhooks/configs/{config_id}";
+};
+
+export type UpdateConfigApiV1WebhooksConfigsConfigIdPutErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type UpdateConfigApiV1WebhooksConfigsConfigIdPutError =
+  UpdateConfigApiV1WebhooksConfigsConfigIdPutErrors[keyof UpdateConfigApiV1WebhooksConfigsConfigIdPutErrors];
+
+export type UpdateConfigApiV1WebhooksConfigsConfigIdPutResponses = {
+  /**
+   * Successful Response
+   */
+  200: WebhookConfigResponse;
+};
+
+export type UpdateConfigApiV1WebhooksConfigsConfigIdPutResponse =
+  UpdateConfigApiV1WebhooksConfigsConfigIdPutResponses[keyof UpdateConfigApiV1WebhooksConfigsConfigIdPutResponses];
+
+export type TestConfigApiV1WebhooksConfigsConfigIdTestPostData = {
+  body: WebhookTestRequest;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Config Id
+     */
+    config_id: string;
+  };
+  query?: never;
+  url: "/api/v1/webhooks/configs/{config_id}/test";
+};
+
+export type TestConfigApiV1WebhooksConfigsConfigIdTestPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type TestConfigApiV1WebhooksConfigsConfigIdTestPostError =
+  TestConfigApiV1WebhooksConfigsConfigIdTestPostErrors[keyof TestConfigApiV1WebhooksConfigsConfigIdTestPostErrors];
+
+export type TestConfigApiV1WebhooksConfigsConfigIdTestPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: WebhookTestResponse;
+};
+
+export type TestConfigApiV1WebhooksConfigsConfigIdTestPostResponse =
+  TestConfigApiV1WebhooksConfigsConfigIdTestPostResponses[keyof TestConfigApiV1WebhooksConfigsConfigIdTestPostResponses];
+
+export type ListExecutionsApiV1WebhooksExecutionsGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Page
+     */
+    page?: number;
+    /**
+     * Limit
+     */
+    limit?: number;
+    /**
+     * Config Id
+     */
+    config_id?: string | null;
+    /**
+     * Event Type
+     */
+    event_type?: string | null;
+    /**
+     * Status
+     */
+    status?: string | null;
+  };
+  url: "/api/v1/webhooks/executions";
+};
+
+export type ListExecutionsApiV1WebhooksExecutionsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListExecutionsApiV1WebhooksExecutionsGetError =
+  ListExecutionsApiV1WebhooksExecutionsGetErrors[keyof ListExecutionsApiV1WebhooksExecutionsGetErrors];
+
+export type ListExecutionsApiV1WebhooksExecutionsGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: PaginatedExecutionsResponse;
+};
+
+export type ListExecutionsApiV1WebhooksExecutionsGetResponse =
+  ListExecutionsApiV1WebhooksExecutionsGetResponses[keyof ListExecutionsApiV1WebhooksExecutionsGetResponses];

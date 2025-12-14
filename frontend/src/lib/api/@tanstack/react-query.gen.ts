@@ -11,48 +11,83 @@ import {
 import { client } from "../client.gen";
 import {
   adjustUserCreditsApiV1AdminUsersUserIdCreditsPost,
+  analyzeLocationImageApiV1LocationsAnalyzeImagePost,
   attachImageToItemApiV1ImagesImageIdAttachItemIdPost,
+  batchUpdateItemsApiV1ItemsBatchPatch,
+  checkInItemApiV1ItemsItemIdCheckInPost,
+  checkOutItemApiV1ItemsItemIdCheckOutPost,
   classifyImageApiV1ImagesClassifyPost,
+  createApiKeyApiV1AdminApikeysPost,
   createCategoryApiV1CategoriesPost,
   createCategoryFromPathApiV1CategoriesFromPathPost,
   createCheckoutApiV1BillingCheckoutPost,
+  createConfigApiV1WebhooksConfigsPost,
+  createFeedbackApiV1FeedbackPost,
   createItemApiV1ItemsPost,
   createLocationApiV1LocationsPost,
+  createLocationsBulkApiV1LocationsBulkPost,
+  createMyProfileApiV1ProfileMePost,
   createPackApiV1AdminPacksPost,
   createPortalSessionApiV1BillingPortalPost,
+  deleteApiKeyApiV1AdminApikeysApiKeyIdDelete,
   deleteCategoryApiV1CategoriesCategoryIdDelete,
+  deleteConfigApiV1WebhooksConfigsConfigIdDelete,
+  deleteFeedbackApiV1FeedbackAdminFeedbackIdDelete,
   deleteImageApiV1ImagesImageIdDelete,
   deleteItemApiV1ItemsItemIdDelete,
   deleteLocationApiV1LocationsLocationIdDelete,
   deletePackApiV1AdminPacksPackIdDelete,
+  dismissRecommendationApiV1ProfileRecommendationsRecommendationIdDelete,
+  findSimilarItemsApiV1ItemsFindSimilarPost,
+  generateRecommendationsApiV1ProfileRecommendationsGeneratePost,
   getAllTagsApiV1ItemsTagsGet,
+  getApiKeyApiV1AdminApikeysApiKeyIdGet,
   getBalanceApiV1BillingBalanceGet,
   getCategoryApiV1CategoriesCategoryIdGet,
   getCategoryDescendantsApiV1CategoriesCategoryIdDescendantsGet,
   getCategoryTemplateApiV1CategoriesCategoryIdTemplateGet,
   getCategoryTreeApiV1CategoriesTreeGet,
+  getConfigApiV1WebhooksConfigsConfigIdGet,
   getCurrentUserInfoApiV1AuthMeGet,
   getDashboardStatsApiV1ItemsStatsDashboardGet,
+  getFeedbackApiV1FeedbackAdminFeedbackIdGet,
+  getHobbyTypesApiV1ProfileHobbyTypesGet,
   getImageApiV1ImagesImageIdGet,
   getImageFileApiV1ImagesImageIdFileGet,
   getImageSignedUrlApiV1ImagesImageIdSignedUrlGet,
+  getImageThumbnailApiV1ImagesImageIdThumbnailGet,
   getItemApiV1ItemsItemIdGet,
   getItemFacetsApiV1ItemsFacetsGet,
+  getItemHistoryApiV1ItemsItemIdHistoryGet,
+  getItemQrCodeApiV1ItemsItemIdQrGet,
+  getItemUsageStatsApiV1ItemsItemIdUsageStatsGet,
   getLocationApiV1LocationsLocationIdGet,
   getLocationDescendantsApiV1LocationsLocationIdDescendantsGet,
+  getLocationQrCodeApiV1LocationsLocationIdQrGet,
   getLocationTreeApiV1LocationsTreeGet,
+  getLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGet,
+  getMostUsedItemsApiV1ItemsStatsMostUsedGet,
+  getMyProfileApiV1ProfileMeGet,
   getPackApiV1AdminPacksPackIdGet,
+  getRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGet,
+  getRecommendationsApiV1ProfileRecommendationsGet,
   getStatsApiV1AdminStatsGet,
   getUserApiV1AdminUsersUserIdGet,
   googleAuthApiV1AuthGoogleGet,
   googleCallbackApiV1AuthCallbackGoogleGet,
   handleWebhookApiV1BillingWebhookPost,
   healthCheckHealthGet,
+  listAllFeedbackApiV1FeedbackAdminGet,
+  listApiKeysApiV1AdminApikeysGet,
   listCategoriesApiV1CategoriesGet,
   listClassifiedImagesApiV1ImagesClassifiedGet,
+  listConfigsApiV1WebhooksConfigsGet,
+  listEventTypesApiV1WebhooksEventTypesGet,
+  listExecutionsApiV1WebhooksExecutionsGet,
   listItemsApiV1ItemsGet,
   listLocationsApiV1LocationsGet,
   listLowStockItemsApiV1ItemsLowStockGet,
+  listMyFeedbackApiV1FeedbackGet,
   listPacksApiV1AdminPacksGet,
   listPacksApiV1BillingPacksGet,
   listTransactionsApiV1BillingTransactionsGet,
@@ -62,25 +97,50 @@ import {
   type Options,
   refreshTokenApiV1AuthRefreshPost,
   requestRefundApiV1BillingRefundPost,
+  resolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePut,
+  retriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPost,
   searchItemsApiV1ItemsSearchGet,
+  suggestItemLocationApiV1ItemsSuggestLocationPost,
+  testConfigApiV1WebhooksConfigsConfigIdTestPost,
+  updateApiKeyApiV1AdminApikeysApiKeyIdPatch,
   updateCategoryApiV1CategoriesCategoryIdPut,
+  updateConfigApiV1WebhooksConfigsConfigIdPut,
+  updateFeedbackApiV1FeedbackAdminFeedbackIdPut,
   updateItemApiV1ItemsItemIdPut,
   updateItemQuantityApiV1ItemsItemIdQuantityPatch,
   updateLocationApiV1LocationsLocationIdPut,
+  updateMyProfileApiV1ProfileMePatch,
   updatePackApiV1AdminPacksPackIdPut,
+  updateRecommendationApiV1ProfileRecommendationsRecommendationIdPatch,
   updateUserApiV1AdminUsersUserIdPut,
+  updateUserSettingsApiV1AuthSettingsPatch,
   uploadImageApiV1ImagesUploadPost,
 } from "../sdk.gen";
 import type {
   AdjustUserCreditsApiV1AdminUsersUserIdCreditsPostData,
   AdjustUserCreditsApiV1AdminUsersUserIdCreditsPostError,
   AdjustUserCreditsApiV1AdminUsersUserIdCreditsPostResponse,
+  AnalyzeLocationImageApiV1LocationsAnalyzeImagePostData,
+  AnalyzeLocationImageApiV1LocationsAnalyzeImagePostError,
+  AnalyzeLocationImageApiV1LocationsAnalyzeImagePostResponse,
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostData,
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostError,
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostResponse,
+  BatchUpdateItemsApiV1ItemsBatchPatchData,
+  BatchUpdateItemsApiV1ItemsBatchPatchError,
+  BatchUpdateItemsApiV1ItemsBatchPatchResponse,
+  CheckInItemApiV1ItemsItemIdCheckInPostData,
+  CheckInItemApiV1ItemsItemIdCheckInPostError,
+  CheckInItemApiV1ItemsItemIdCheckInPostResponse,
+  CheckOutItemApiV1ItemsItemIdCheckOutPostData,
+  CheckOutItemApiV1ItemsItemIdCheckOutPostError,
+  CheckOutItemApiV1ItemsItemIdCheckOutPostResponse,
   ClassifyImageApiV1ImagesClassifyPostData,
   ClassifyImageApiV1ImagesClassifyPostError,
   ClassifyImageApiV1ImagesClassifyPostResponse,
+  CreateApiKeyApiV1AdminApikeysPostData,
+  CreateApiKeyApiV1AdminApikeysPostError,
+  CreateApiKeyApiV1AdminApikeysPostResponse,
   CreateCategoryApiV1CategoriesPostData,
   CreateCategoryApiV1CategoriesPostError,
   CreateCategoryApiV1CategoriesPostResponse,
@@ -90,20 +150,42 @@ import type {
   CreateCheckoutApiV1BillingCheckoutPostData,
   CreateCheckoutApiV1BillingCheckoutPostError,
   CreateCheckoutApiV1BillingCheckoutPostResponse,
+  CreateConfigApiV1WebhooksConfigsPostData,
+  CreateConfigApiV1WebhooksConfigsPostError,
+  CreateConfigApiV1WebhooksConfigsPostResponse,
+  CreateFeedbackApiV1FeedbackPostData,
+  CreateFeedbackApiV1FeedbackPostError,
+  CreateFeedbackApiV1FeedbackPostResponse,
   CreateItemApiV1ItemsPostData,
   CreateItemApiV1ItemsPostError,
   CreateItemApiV1ItemsPostResponse,
   CreateLocationApiV1LocationsPostData,
   CreateLocationApiV1LocationsPostError,
   CreateLocationApiV1LocationsPostResponse,
+  CreateLocationsBulkApiV1LocationsBulkPostData,
+  CreateLocationsBulkApiV1LocationsBulkPostError,
+  CreateLocationsBulkApiV1LocationsBulkPostResponse,
+  CreateMyProfileApiV1ProfileMePostData,
+  CreateMyProfileApiV1ProfileMePostError,
+  CreateMyProfileApiV1ProfileMePostResponse,
   CreatePackApiV1AdminPacksPostData,
   CreatePackApiV1AdminPacksPostError,
   CreatePackApiV1AdminPacksPostResponse,
   CreatePortalSessionApiV1BillingPortalPostData,
+  CreatePortalSessionApiV1BillingPortalPostError,
   CreatePortalSessionApiV1BillingPortalPostResponse,
+  DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteData,
+  DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteError,
+  DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteResponse,
   DeleteCategoryApiV1CategoriesCategoryIdDeleteData,
   DeleteCategoryApiV1CategoriesCategoryIdDeleteError,
   DeleteCategoryApiV1CategoriesCategoryIdDeleteResponse,
+  DeleteConfigApiV1WebhooksConfigsConfigIdDeleteData,
+  DeleteConfigApiV1WebhooksConfigsConfigIdDeleteError,
+  DeleteConfigApiV1WebhooksConfigsConfigIdDeleteResponse,
+  DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteData,
+  DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteError,
+  DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteResponse,
   DeleteImageApiV1ImagesImageIdDeleteData,
   DeleteImageApiV1ImagesImageIdDeleteError,
   DeleteImageApiV1ImagesImageIdDeleteResponse,
@@ -116,10 +198,23 @@ import type {
   DeletePackApiV1AdminPacksPackIdDeleteData,
   DeletePackApiV1AdminPacksPackIdDeleteError,
   DeletePackApiV1AdminPacksPackIdDeleteResponse,
+  DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteData,
+  DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteError,
+  DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteResponse,
+  FindSimilarItemsApiV1ItemsFindSimilarPostData,
+  FindSimilarItemsApiV1ItemsFindSimilarPostError,
+  FindSimilarItemsApiV1ItemsFindSimilarPostResponse,
+  GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostData,
+  GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostError,
+  GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostResponse,
   GetAllTagsApiV1ItemsTagsGetData,
   GetAllTagsApiV1ItemsTagsGetError,
   GetAllTagsApiV1ItemsTagsGetResponse,
+  GetApiKeyApiV1AdminApikeysApiKeyIdGetData,
+  GetApiKeyApiV1AdminApikeysApiKeyIdGetError,
+  GetApiKeyApiV1AdminApikeysApiKeyIdGetResponse,
   GetBalanceApiV1BillingBalanceGetData,
+  GetBalanceApiV1BillingBalanceGetError,
   GetBalanceApiV1BillingBalanceGetResponse,
   GetCategoryApiV1CategoriesCategoryIdGetData,
   GetCategoryApiV1CategoriesCategoryIdGetError,
@@ -131,12 +226,22 @@ import type {
   GetCategoryTemplateApiV1CategoriesCategoryIdTemplateGetError,
   GetCategoryTemplateApiV1CategoriesCategoryIdTemplateGetResponse,
   GetCategoryTreeApiV1CategoriesTreeGetData,
+  GetCategoryTreeApiV1CategoriesTreeGetError,
   GetCategoryTreeApiV1CategoriesTreeGetResponse,
+  GetConfigApiV1WebhooksConfigsConfigIdGetData,
+  GetConfigApiV1WebhooksConfigsConfigIdGetError,
+  GetConfigApiV1WebhooksConfigsConfigIdGetResponse,
   GetCurrentUserInfoApiV1AuthMeGetData,
+  GetCurrentUserInfoApiV1AuthMeGetError,
   GetCurrentUserInfoApiV1AuthMeGetResponse,
   GetDashboardStatsApiV1ItemsStatsDashboardGetData,
   GetDashboardStatsApiV1ItemsStatsDashboardGetError,
   GetDashboardStatsApiV1ItemsStatsDashboardGetResponse,
+  GetFeedbackApiV1FeedbackAdminFeedbackIdGetData,
+  GetFeedbackApiV1FeedbackAdminFeedbackIdGetError,
+  GetFeedbackApiV1FeedbackAdminFeedbackIdGetResponse,
+  GetHobbyTypesApiV1ProfileHobbyTypesGetData,
+  GetHobbyTypesApiV1ProfileHobbyTypesGetResponse,
   GetImageApiV1ImagesImageIdGetData,
   GetImageApiV1ImagesImageIdGetError,
   GetImageApiV1ImagesImageIdGetResponse,
@@ -145,24 +250,53 @@ import type {
   GetImageSignedUrlApiV1ImagesImageIdSignedUrlGetData,
   GetImageSignedUrlApiV1ImagesImageIdSignedUrlGetError,
   GetImageSignedUrlApiV1ImagesImageIdSignedUrlGetResponse,
+  GetImageThumbnailApiV1ImagesImageIdThumbnailGetData,
+  GetImageThumbnailApiV1ImagesImageIdThumbnailGetError,
   GetItemApiV1ItemsItemIdGetData,
   GetItemApiV1ItemsItemIdGetError,
   GetItemApiV1ItemsItemIdGetResponse,
   GetItemFacetsApiV1ItemsFacetsGetData,
   GetItemFacetsApiV1ItemsFacetsGetError,
   GetItemFacetsApiV1ItemsFacetsGetResponse,
+  GetItemHistoryApiV1ItemsItemIdHistoryGetData,
+  GetItemHistoryApiV1ItemsItemIdHistoryGetError,
+  GetItemHistoryApiV1ItemsItemIdHistoryGetResponse,
+  GetItemQrCodeApiV1ItemsItemIdQrGetData,
+  GetItemQrCodeApiV1ItemsItemIdQrGetError,
+  GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetData,
+  GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetError,
+  GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetResponse,
   GetLocationApiV1LocationsLocationIdGetData,
   GetLocationApiV1LocationsLocationIdGetError,
   GetLocationApiV1LocationsLocationIdGetResponse,
   GetLocationDescendantsApiV1LocationsLocationIdDescendantsGetData,
   GetLocationDescendantsApiV1LocationsLocationIdDescendantsGetError,
   GetLocationDescendantsApiV1LocationsLocationIdDescendantsGetResponse,
+  GetLocationQrCodeApiV1LocationsLocationIdQrGetData,
+  GetLocationQrCodeApiV1LocationsLocationIdQrGetError,
   GetLocationTreeApiV1LocationsTreeGetData,
+  GetLocationTreeApiV1LocationsTreeGetError,
   GetLocationTreeApiV1LocationsTreeGetResponse,
+  GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetData,
+  GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetError,
+  GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetResponse,
+  GetMostUsedItemsApiV1ItemsStatsMostUsedGetData,
+  GetMostUsedItemsApiV1ItemsStatsMostUsedGetError,
+  GetMostUsedItemsApiV1ItemsStatsMostUsedGetResponse,
+  GetMyProfileApiV1ProfileMeGetData,
+  GetMyProfileApiV1ProfileMeGetError,
+  GetMyProfileApiV1ProfileMeGetResponse,
   GetPackApiV1AdminPacksPackIdGetData,
   GetPackApiV1AdminPacksPackIdGetError,
   GetPackApiV1AdminPacksPackIdGetResponse,
+  GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetData,
+  GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetError,
+  GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetResponse,
+  GetRecommendationsApiV1ProfileRecommendationsGetData,
+  GetRecommendationsApiV1ProfileRecommendationsGetError,
+  GetRecommendationsApiV1ProfileRecommendationsGetResponse,
   GetStatsApiV1AdminStatsGetData,
+  GetStatsApiV1AdminStatsGetError,
   GetStatsApiV1AdminStatsGetResponse,
   GetUserApiV1AdminUsersUserIdGetData,
   GetUserApiV1AdminUsersUserIdGetError,
@@ -177,19 +311,41 @@ import type {
   HandleWebhookApiV1BillingWebhookPostError,
   HandleWebhookApiV1BillingWebhookPostResponse,
   HealthCheckHealthGetData,
+  ListAllFeedbackApiV1FeedbackAdminGetData,
+  ListAllFeedbackApiV1FeedbackAdminGetError,
+  ListAllFeedbackApiV1FeedbackAdminGetResponse,
+  ListApiKeysApiV1AdminApikeysGetData,
+  ListApiKeysApiV1AdminApikeysGetError,
+  ListApiKeysApiV1AdminApikeysGetResponse,
   ListCategoriesApiV1CategoriesGetData,
+  ListCategoriesApiV1CategoriesGetError,
   ListCategoriesApiV1CategoriesGetResponse,
   ListClassifiedImagesApiV1ImagesClassifiedGetData,
   ListClassifiedImagesApiV1ImagesClassifiedGetError,
   ListClassifiedImagesApiV1ImagesClassifiedGetResponse,
+  ListConfigsApiV1WebhooksConfigsGetData,
+  ListConfigsApiV1WebhooksConfigsGetError,
+  ListConfigsApiV1WebhooksConfigsGetResponse,
+  ListEventTypesApiV1WebhooksEventTypesGetData,
+  ListEventTypesApiV1WebhooksEventTypesGetError,
+  ListEventTypesApiV1WebhooksEventTypesGetResponse,
+  ListExecutionsApiV1WebhooksExecutionsGetData,
+  ListExecutionsApiV1WebhooksExecutionsGetError,
+  ListExecutionsApiV1WebhooksExecutionsGetResponse,
   ListItemsApiV1ItemsGetData,
   ListItemsApiV1ItemsGetError,
   ListItemsApiV1ItemsGetResponse,
   ListLocationsApiV1LocationsGetData,
+  ListLocationsApiV1LocationsGetError,
   ListLocationsApiV1LocationsGetResponse,
   ListLowStockItemsApiV1ItemsLowStockGetData,
+  ListLowStockItemsApiV1ItemsLowStockGetError,
   ListLowStockItemsApiV1ItemsLowStockGetResponse,
+  ListMyFeedbackApiV1FeedbackGetData,
+  ListMyFeedbackApiV1FeedbackGetError,
+  ListMyFeedbackApiV1FeedbackGetResponse,
   ListPacksApiV1AdminPacksGetData,
+  ListPacksApiV1AdminPacksGetError,
   ListPacksApiV1AdminPacksGetResponse,
   ListPacksApiV1BillingPacksGetData,
   ListPacksApiV1BillingPacksGetResponse,
@@ -206,16 +362,38 @@ import type {
   MoveLocationApiV1LocationsLocationIdMovePatchError,
   MoveLocationApiV1LocationsLocationIdMovePatchResponse,
   RefreshTokenApiV1AuthRefreshPostData,
+  RefreshTokenApiV1AuthRefreshPostError,
   RefreshTokenApiV1AuthRefreshPostResponse,
   RequestRefundApiV1BillingRefundPostData,
   RequestRefundApiV1BillingRefundPostError,
   RequestRefundApiV1BillingRefundPostResponse,
+  ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutData,
+  ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutError,
+  ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutResponse,
+  RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostData,
+  RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostError,
+  RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostResponse,
   SearchItemsApiV1ItemsSearchGetData,
   SearchItemsApiV1ItemsSearchGetError,
   SearchItemsApiV1ItemsSearchGetResponse,
+  SuggestItemLocationApiV1ItemsSuggestLocationPostData,
+  SuggestItemLocationApiV1ItemsSuggestLocationPostError,
+  SuggestItemLocationApiV1ItemsSuggestLocationPostResponse,
+  TestConfigApiV1WebhooksConfigsConfigIdTestPostData,
+  TestConfigApiV1WebhooksConfigsConfigIdTestPostError,
+  TestConfigApiV1WebhooksConfigsConfigIdTestPostResponse,
+  UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchData,
+  UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchError,
+  UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponse,
   UpdateCategoryApiV1CategoriesCategoryIdPutData,
   UpdateCategoryApiV1CategoriesCategoryIdPutError,
   UpdateCategoryApiV1CategoriesCategoryIdPutResponse,
+  UpdateConfigApiV1WebhooksConfigsConfigIdPutData,
+  UpdateConfigApiV1WebhooksConfigsConfigIdPutError,
+  UpdateConfigApiV1WebhooksConfigsConfigIdPutResponse,
+  UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutData,
+  UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutError,
+  UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutResponse,
   UpdateItemApiV1ItemsItemIdPutData,
   UpdateItemApiV1ItemsItemIdPutError,
   UpdateItemApiV1ItemsItemIdPutResponse,
@@ -225,12 +403,21 @@ import type {
   UpdateLocationApiV1LocationsLocationIdPutData,
   UpdateLocationApiV1LocationsLocationIdPutError,
   UpdateLocationApiV1LocationsLocationIdPutResponse,
+  UpdateMyProfileApiV1ProfileMePatchData,
+  UpdateMyProfileApiV1ProfileMePatchError,
+  UpdateMyProfileApiV1ProfileMePatchResponse,
   UpdatePackApiV1AdminPacksPackIdPutData,
   UpdatePackApiV1AdminPacksPackIdPutError,
   UpdatePackApiV1AdminPacksPackIdPutResponse,
+  UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchData,
+  UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchError,
+  UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponse,
   UpdateUserApiV1AdminUsersUserIdPutData,
   UpdateUserApiV1AdminUsersUserIdPutError,
   UpdateUserApiV1AdminUsersUserIdPutResponse,
+  UpdateUserSettingsApiV1AuthSettingsPatchData,
+  UpdateUserSettingsApiV1AuthSettingsPatchError,
+  UpdateUserSettingsApiV1AuthSettingsPatchResponse,
   UploadImageApiV1ImagesUploadPostData,
   UploadImageApiV1ImagesUploadPostError,
   UploadImageApiV1ImagesUploadPostResponse,
@@ -318,7 +505,7 @@ export const listPacksApiV1AdminPacksGetOptions = (
 ) =>
   queryOptions<
     ListPacksApiV1AdminPacksGetResponse,
-    DefaultError,
+    ListPacksApiV1AdminPacksGetError,
     ListPacksApiV1AdminPacksGetResponse,
     ReturnType<typeof listPacksApiV1AdminPacksGetQueryKey>
   >({
@@ -671,7 +858,7 @@ export const getStatsApiV1AdminStatsGetOptions = (
 ) =>
   queryOptions<
     GetStatsApiV1AdminStatsGetResponse,
-    DefaultError,
+    GetStatsApiV1AdminStatsGetError,
     GetStatsApiV1AdminStatsGetResponse,
     ReturnType<typeof getStatsApiV1AdminStatsGetQueryKey>
   >({
@@ -686,6 +873,208 @@ export const getStatsApiV1AdminStatsGetOptions = (
     },
     queryKey: getStatsApiV1AdminStatsGetQueryKey(options),
   });
+
+export const listApiKeysApiV1AdminApikeysGetQueryKey = (
+  options?: Options<ListApiKeysApiV1AdminApikeysGetData>
+) => createQueryKey("listApiKeysApiV1AdminApikeysGet", options);
+
+/**
+ * List Api Keys
+ *
+ * List all API keys for the current admin (paginated).
+ */
+export const listApiKeysApiV1AdminApikeysGetOptions = (
+  options?: Options<ListApiKeysApiV1AdminApikeysGetData>
+) =>
+  queryOptions<
+    ListApiKeysApiV1AdminApikeysGetResponse,
+    ListApiKeysApiV1AdminApikeysGetError,
+    ListApiKeysApiV1AdminApikeysGetResponse,
+    ReturnType<typeof listApiKeysApiV1AdminApikeysGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await listApiKeysApiV1AdminApikeysGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: listApiKeysApiV1AdminApikeysGetQueryKey(options),
+  });
+
+export const listApiKeysApiV1AdminApikeysGetInfiniteQueryKey = (
+  options?: Options<ListApiKeysApiV1AdminApikeysGetData>
+): QueryKey<Options<ListApiKeysApiV1AdminApikeysGetData>> =>
+  createQueryKey("listApiKeysApiV1AdminApikeysGet", options, true);
+
+/**
+ * List Api Keys
+ *
+ * List all API keys for the current admin (paginated).
+ */
+export const listApiKeysApiV1AdminApikeysGetInfiniteOptions = (
+  options?: Options<ListApiKeysApiV1AdminApikeysGetData>
+) =>
+  infiniteQueryOptions<
+    ListApiKeysApiV1AdminApikeysGetResponse,
+    ListApiKeysApiV1AdminApikeysGetError,
+    InfiniteData<ListApiKeysApiV1AdminApikeysGetResponse>,
+    QueryKey<Options<ListApiKeysApiV1AdminApikeysGetData>>,
+    | number
+    | Pick<
+        QueryKey<Options<ListApiKeysApiV1AdminApikeysGetData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListApiKeysApiV1AdminApikeysGetData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              };
+        const params = createInfiniteParams(queryKey, page);
+        const { data } = await listApiKeysApiV1AdminApikeysGet({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        });
+        return data;
+      },
+      queryKey: listApiKeysApiV1AdminApikeysGetInfiniteQueryKey(options),
+    }
+  );
+
+/**
+ * Create Api Key
+ *
+ * Create a new API key (admin only).
+ *
+ * The full API key is only returned once in this response.
+ * Store it securely as it cannot be retrieved again.
+ */
+export const createApiKeyApiV1AdminApikeysPostMutation = (
+  options?: Partial<Options<CreateApiKeyApiV1AdminApikeysPostData>>
+): UseMutationOptions<
+  CreateApiKeyApiV1AdminApikeysPostResponse,
+  CreateApiKeyApiV1AdminApikeysPostError,
+  Options<CreateApiKeyApiV1AdminApikeysPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateApiKeyApiV1AdminApikeysPostResponse,
+    CreateApiKeyApiV1AdminApikeysPostError,
+    Options<CreateApiKeyApiV1AdminApikeysPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await createApiKeyApiV1AdminApikeysPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Delete Api Key
+ *
+ * Delete (revoke) an API key.
+ */
+export const deleteApiKeyApiV1AdminApikeysApiKeyIdDeleteMutation = (
+  options?: Partial<Options<DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteData>>
+): UseMutationOptions<
+  DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteResponse,
+  DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteError,
+  Options<DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteResponse,
+    DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteError,
+    Options<DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await deleteApiKeyApiV1AdminApikeysApiKeyIdDelete({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const getApiKeyApiV1AdminApikeysApiKeyIdGetQueryKey = (
+  options: Options<GetApiKeyApiV1AdminApikeysApiKeyIdGetData>
+) => createQueryKey("getApiKeyApiV1AdminApikeysApiKeyIdGet", options);
+
+/**
+ * Get Api Key
+ *
+ * Get details of a specific API key.
+ */
+export const getApiKeyApiV1AdminApikeysApiKeyIdGetOptions = (
+  options: Options<GetApiKeyApiV1AdminApikeysApiKeyIdGetData>
+) =>
+  queryOptions<
+    GetApiKeyApiV1AdminApikeysApiKeyIdGetResponse,
+    GetApiKeyApiV1AdminApikeysApiKeyIdGetError,
+    GetApiKeyApiV1AdminApikeysApiKeyIdGetResponse,
+    ReturnType<typeof getApiKeyApiV1AdminApikeysApiKeyIdGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getApiKeyApiV1AdminApikeysApiKeyIdGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getApiKeyApiV1AdminApikeysApiKeyIdGetQueryKey(options),
+  });
+
+/**
+ * Update Api Key
+ *
+ * Update an API key (name, scopes, or active status).
+ */
+export const updateApiKeyApiV1AdminApikeysApiKeyIdPatchMutation = (
+  options?: Partial<Options<UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchData>>
+): UseMutationOptions<
+  UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponse,
+  UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchError,
+  Options<UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponse,
+    UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchError,
+    Options<UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await updateApiKeyApiV1AdminApikeysApiKeyIdPatch({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
 
 export const googleAuthApiV1AuthGoogleGetQueryKey = (
   options: Options<GoogleAuthApiV1AuthGoogleGetData>
@@ -765,7 +1154,7 @@ export const getCurrentUserInfoApiV1AuthMeGetOptions = (
 ) =>
   queryOptions<
     GetCurrentUserInfoApiV1AuthMeGetResponse,
-    DefaultError,
+    GetCurrentUserInfoApiV1AuthMeGetError,
     GetCurrentUserInfoApiV1AuthMeGetResponse,
     ReturnType<typeof getCurrentUserInfoApiV1AuthMeGetQueryKey>
   >({
@@ -790,16 +1179,45 @@ export const refreshTokenApiV1AuthRefreshPostMutation = (
   options?: Partial<Options<RefreshTokenApiV1AuthRefreshPostData>>
 ): UseMutationOptions<
   RefreshTokenApiV1AuthRefreshPostResponse,
-  DefaultError,
+  RefreshTokenApiV1AuthRefreshPostError,
   Options<RefreshTokenApiV1AuthRefreshPostData>
 > => {
   const mutationOptions: UseMutationOptions<
     RefreshTokenApiV1AuthRefreshPostResponse,
-    DefaultError,
+    RefreshTokenApiV1AuthRefreshPostError,
     Options<RefreshTokenApiV1AuthRefreshPostData>
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await refreshTokenApiV1AuthRefreshPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Update User Settings
+ *
+ * Update the current user's settings.
+ */
+export const updateUserSettingsApiV1AuthSettingsPatchMutation = (
+  options?: Partial<Options<UpdateUserSettingsApiV1AuthSettingsPatchData>>
+): UseMutationOptions<
+  UpdateUserSettingsApiV1AuthSettingsPatchResponse,
+  UpdateUserSettingsApiV1AuthSettingsPatchError,
+  Options<UpdateUserSettingsApiV1AuthSettingsPatchData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateUserSettingsApiV1AuthSettingsPatchResponse,
+    UpdateUserSettingsApiV1AuthSettingsPatchError,
+    Options<UpdateUserSettingsApiV1AuthSettingsPatchData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await updateUserSettingsApiV1AuthSettingsPatch({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -824,7 +1242,7 @@ export const getBalanceApiV1BillingBalanceGetOptions = (
 ) =>
   queryOptions<
     GetBalanceApiV1BillingBalanceGetResponse,
-    DefaultError,
+    GetBalanceApiV1BillingBalanceGetError,
     GetBalanceApiV1BillingBalanceGetResponse,
     ReturnType<typeof getBalanceApiV1BillingBalanceGetQueryKey>
   >({
@@ -991,12 +1409,12 @@ export const createPortalSessionApiV1BillingPortalPostMutation = (
   options?: Partial<Options<CreatePortalSessionApiV1BillingPortalPostData>>
 ): UseMutationOptions<
   CreatePortalSessionApiV1BillingPortalPostResponse,
-  DefaultError,
+  CreatePortalSessionApiV1BillingPortalPostError,
   Options<CreatePortalSessionApiV1BillingPortalPostData>
 > => {
   const mutationOptions: UseMutationOptions<
     CreatePortalSessionApiV1BillingPortalPostResponse,
-    DefaultError,
+    CreatePortalSessionApiV1BillingPortalPostError,
     Options<CreatePortalSessionApiV1BillingPortalPostData>
   > = {
     mutationFn: async (fnOptions) => {
@@ -1069,6 +1487,359 @@ export const handleWebhookApiV1BillingWebhookPostMutation = (
   return mutationOptions;
 };
 
+export const listMyFeedbackApiV1FeedbackGetQueryKey = (
+  options?: Options<ListMyFeedbackApiV1FeedbackGetData>
+) => createQueryKey("listMyFeedbackApiV1FeedbackGet", options);
+
+/**
+ * List My Feedback
+ *
+ * List feedback submitted by the current user.
+ */
+export const listMyFeedbackApiV1FeedbackGetOptions = (
+  options?: Options<ListMyFeedbackApiV1FeedbackGetData>
+) =>
+  queryOptions<
+    ListMyFeedbackApiV1FeedbackGetResponse,
+    ListMyFeedbackApiV1FeedbackGetError,
+    ListMyFeedbackApiV1FeedbackGetResponse,
+    ReturnType<typeof listMyFeedbackApiV1FeedbackGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await listMyFeedbackApiV1FeedbackGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: listMyFeedbackApiV1FeedbackGetQueryKey(options),
+  });
+
+export const listMyFeedbackApiV1FeedbackGetInfiniteQueryKey = (
+  options?: Options<ListMyFeedbackApiV1FeedbackGetData>
+): QueryKey<Options<ListMyFeedbackApiV1FeedbackGetData>> =>
+  createQueryKey("listMyFeedbackApiV1FeedbackGet", options, true);
+
+/**
+ * List My Feedback
+ *
+ * List feedback submitted by the current user.
+ */
+export const listMyFeedbackApiV1FeedbackGetInfiniteOptions = (
+  options?: Options<ListMyFeedbackApiV1FeedbackGetData>
+) =>
+  infiniteQueryOptions<
+    ListMyFeedbackApiV1FeedbackGetResponse,
+    ListMyFeedbackApiV1FeedbackGetError,
+    InfiniteData<ListMyFeedbackApiV1FeedbackGetResponse>,
+    QueryKey<Options<ListMyFeedbackApiV1FeedbackGetData>>,
+    | number
+    | Pick<
+        QueryKey<Options<ListMyFeedbackApiV1FeedbackGetData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListMyFeedbackApiV1FeedbackGetData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              };
+        const params = createInfiniteParams(queryKey, page);
+        const { data } = await listMyFeedbackApiV1FeedbackGet({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        });
+        return data;
+      },
+      queryKey: listMyFeedbackApiV1FeedbackGetInfiniteQueryKey(options),
+    }
+  );
+
+/**
+ * Create Feedback
+ *
+ * Submit feedback.
+ */
+export const createFeedbackApiV1FeedbackPostMutation = (
+  options?: Partial<Options<CreateFeedbackApiV1FeedbackPostData>>
+): UseMutationOptions<
+  CreateFeedbackApiV1FeedbackPostResponse,
+  CreateFeedbackApiV1FeedbackPostError,
+  Options<CreateFeedbackApiV1FeedbackPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateFeedbackApiV1FeedbackPostResponse,
+    CreateFeedbackApiV1FeedbackPostError,
+    Options<CreateFeedbackApiV1FeedbackPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await createFeedbackApiV1FeedbackPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const listAllFeedbackApiV1FeedbackAdminGetQueryKey = (
+  options?: Options<ListAllFeedbackApiV1FeedbackAdminGetData>
+) => createQueryKey("listAllFeedbackApiV1FeedbackAdminGet", options);
+
+/**
+ * List All Feedback
+ *
+ * List all feedback (admin only).
+ */
+export const listAllFeedbackApiV1FeedbackAdminGetOptions = (
+  options?: Options<ListAllFeedbackApiV1FeedbackAdminGetData>
+) =>
+  queryOptions<
+    ListAllFeedbackApiV1FeedbackAdminGetResponse,
+    ListAllFeedbackApiV1FeedbackAdminGetError,
+    ListAllFeedbackApiV1FeedbackAdminGetResponse,
+    ReturnType<typeof listAllFeedbackApiV1FeedbackAdminGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await listAllFeedbackApiV1FeedbackAdminGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: listAllFeedbackApiV1FeedbackAdminGetQueryKey(options),
+  });
+
+export const listAllFeedbackApiV1FeedbackAdminGetInfiniteQueryKey = (
+  options?: Options<ListAllFeedbackApiV1FeedbackAdminGetData>
+): QueryKey<Options<ListAllFeedbackApiV1FeedbackAdminGetData>> =>
+  createQueryKey("listAllFeedbackApiV1FeedbackAdminGet", options, true);
+
+/**
+ * List All Feedback
+ *
+ * List all feedback (admin only).
+ */
+export const listAllFeedbackApiV1FeedbackAdminGetInfiniteOptions = (
+  options?: Options<ListAllFeedbackApiV1FeedbackAdminGetData>
+) =>
+  infiniteQueryOptions<
+    ListAllFeedbackApiV1FeedbackAdminGetResponse,
+    ListAllFeedbackApiV1FeedbackAdminGetError,
+    InfiniteData<ListAllFeedbackApiV1FeedbackAdminGetResponse>,
+    QueryKey<Options<ListAllFeedbackApiV1FeedbackAdminGetData>>,
+    | number
+    | Pick<
+        QueryKey<Options<ListAllFeedbackApiV1FeedbackAdminGetData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListAllFeedbackApiV1FeedbackAdminGetData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              };
+        const params = createInfiniteParams(queryKey, page);
+        const { data } = await listAllFeedbackApiV1FeedbackAdminGet({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        });
+        return data;
+      },
+      queryKey: listAllFeedbackApiV1FeedbackAdminGetInfiniteQueryKey(options),
+    }
+  );
+
+/**
+ * Delete Feedback
+ *
+ * Delete feedback (admin only).
+ */
+export const deleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteMutation = (
+  options?: Partial<
+    Options<DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteData>
+  >
+): UseMutationOptions<
+  DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteResponse,
+  DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteError,
+  Options<DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteResponse,
+    DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteError,
+    Options<DeleteFeedbackApiV1FeedbackAdminFeedbackIdDeleteData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await deleteFeedbackApiV1FeedbackAdminFeedbackIdDelete({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const getFeedbackApiV1FeedbackAdminFeedbackIdGetQueryKey = (
+  options: Options<GetFeedbackApiV1FeedbackAdminFeedbackIdGetData>
+) => createQueryKey("getFeedbackApiV1FeedbackAdminFeedbackIdGet", options);
+
+/**
+ * Get Feedback
+ *
+ * Get specific feedback (admin only).
+ */
+export const getFeedbackApiV1FeedbackAdminFeedbackIdGetOptions = (
+  options: Options<GetFeedbackApiV1FeedbackAdminFeedbackIdGetData>
+) =>
+  queryOptions<
+    GetFeedbackApiV1FeedbackAdminFeedbackIdGetResponse,
+    GetFeedbackApiV1FeedbackAdminFeedbackIdGetError,
+    GetFeedbackApiV1FeedbackAdminFeedbackIdGetResponse,
+    ReturnType<typeof getFeedbackApiV1FeedbackAdminFeedbackIdGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getFeedbackApiV1FeedbackAdminFeedbackIdGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getFeedbackApiV1FeedbackAdminFeedbackIdGetQueryKey(options),
+  });
+
+/**
+ * Update Feedback
+ *
+ * Update feedback status/notes (admin only).
+ */
+export const updateFeedbackApiV1FeedbackAdminFeedbackIdPutMutation = (
+  options?: Partial<Options<UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutData>>
+): UseMutationOptions<
+  UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutResponse,
+  UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutError,
+  Options<UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutResponse,
+    UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutError,
+    Options<UpdateFeedbackApiV1FeedbackAdminFeedbackIdPutData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await updateFeedbackApiV1FeedbackAdminFeedbackIdPut({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Resolve Feedback
+ *
+ * Mark feedback as resolved.
+ *
+ * This endpoint accepts both Bearer token (admin) and API key authentication.
+ * For API key auth, the key must have the 'feedback:write' scope.
+ */
+export const resolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutMutation = (
+  options?: Partial<
+    Options<ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutData>
+  >
+): UseMutationOptions<
+  ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutResponse,
+  ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutError,
+  Options<ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutResponse,
+    ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutError,
+    Options<ResolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePutData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } =
+        await resolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePut({
+          ...options,
+          ...fnOptions,
+          throwOnError: true,
+        });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Retrigger Feedback Webhook
+ *
+ * Re-trigger the feedback.created webhook for a specific feedback item (admin only).
+ */
+export const retriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostMutation =
+  (
+    options?: Partial<
+      Options<RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostData>
+    >
+  ): UseMutationOptions<
+    RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostResponse,
+    RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostError,
+    Options<RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostResponse,
+      RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostError,
+      Options<RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostData>
+    > = {
+      mutationFn: async (fnOptions) => {
+        const { data } =
+          await retriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPost(
+            {
+              ...options,
+              ...fnOptions,
+              throwOnError: true,
+            }
+          );
+        return data;
+      },
+    };
+    return mutationOptions;
+  };
+
 export const listItemsApiV1ItemsGetQueryKey = (
   options?: Options<ListItemsApiV1ItemsGetData>
 ) => createQueryKey("listItemsApiV1ItemsGet", options);
@@ -1080,6 +1851,9 @@ export const listItemsApiV1ItemsGetQueryKey = (
  *
  * When filtering by category or location, child categories/locations are included by default.
  * Set include_subcategories=false or include_sublocations=false to filter by exact match only.
+ *
+ * Use no_category=true to filter items without any category assigned.
+ * Use no_location=true to filter items without any location assigned.
  *
  * Filter by tags using ?tags=tag1&tags=tag2 (items must have ALL specified tags).
  * Filter by attributes using ?attr=key1:value1&attr=key2:value2.
@@ -1117,6 +1891,9 @@ export const listItemsApiV1ItemsGetInfiniteQueryKey = (
  *
  * When filtering by category or location, child categories/locations are included by default.
  * Set include_subcategories=false or include_sublocations=false to filter by exact match only.
+ *
+ * Use no_category=true to filter items without any category assigned.
+ * Use no_location=true to filter items without any location assigned.
  *
  * Filter by tags using ?tags=tag1&tags=tag2 (items must have ALL specified tags).
  * Filter by attributes using ?attr=key1:value1&attr=key2:value2.
@@ -1192,6 +1969,39 @@ export const createItemApiV1ItemsPostMutation = (
   return mutationOptions;
 };
 
+/**
+ * Batch Update Items
+ *
+ * Batch update multiple items with the same category and/or location.
+ *
+ * Use this endpoint to assign a category or location to multiple items at once.
+ * You can also use clear_category=true or clear_location=true to remove
+ * the category or location from the selected items.
+ */
+export const batchUpdateItemsApiV1ItemsBatchPatchMutation = (
+  options?: Partial<Options<BatchUpdateItemsApiV1ItemsBatchPatchData>>
+): UseMutationOptions<
+  BatchUpdateItemsApiV1ItemsBatchPatchResponse,
+  BatchUpdateItemsApiV1ItemsBatchPatchError,
+  Options<BatchUpdateItemsApiV1ItemsBatchPatchData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    BatchUpdateItemsApiV1ItemsBatchPatchResponse,
+    BatchUpdateItemsApiV1ItemsBatchPatchError,
+    Options<BatchUpdateItemsApiV1ItemsBatchPatchData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await batchUpdateItemsApiV1ItemsBatchPatch({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
 export const getDashboardStatsApiV1ItemsStatsDashboardGetQueryKey = (
   options?: Options<GetDashboardStatsApiV1ItemsStatsDashboardGetData>
 ) => createQueryKey("getDashboardStatsApiV1ItemsStatsDashboardGet", options);
@@ -1220,6 +2030,72 @@ export const getDashboardStatsApiV1ItemsStatsDashboardGetOptions = (
       return data;
     },
     queryKey: getDashboardStatsApiV1ItemsStatsDashboardGetQueryKey(options),
+  });
+
+export const getMostUsedItemsApiV1ItemsStatsMostUsedGetQueryKey = (
+  options?: Options<GetMostUsedItemsApiV1ItemsStatsMostUsedGetData>
+) => createQueryKey("getMostUsedItemsApiV1ItemsStatsMostUsedGet", options);
+
+/**
+ * Get Most Used Items
+ *
+ * Get items with most check-outs for dashboard.
+ */
+export const getMostUsedItemsApiV1ItemsStatsMostUsedGetOptions = (
+  options?: Options<GetMostUsedItemsApiV1ItemsStatsMostUsedGetData>
+) =>
+  queryOptions<
+    GetMostUsedItemsApiV1ItemsStatsMostUsedGetResponse,
+    GetMostUsedItemsApiV1ItemsStatsMostUsedGetError,
+    GetMostUsedItemsApiV1ItemsStatsMostUsedGetResponse,
+    ReturnType<typeof getMostUsedItemsApiV1ItemsStatsMostUsedGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getMostUsedItemsApiV1ItemsStatsMostUsedGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getMostUsedItemsApiV1ItemsStatsMostUsedGetQueryKey(options),
+  });
+
+export const getRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetQueryKey = (
+  options?: Options<GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetData>
+) =>
+  createQueryKey("getRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGet", options);
+
+/**
+ * Get Recently Used Items
+ *
+ * Get items with most recent check-in/out activity.
+ */
+export const getRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetOptions = (
+  options?: Options<GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetData>
+) =>
+  queryOptions<
+    GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetResponse,
+    GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetError,
+    GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetResponse,
+    ReturnType<
+      typeof getRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetQueryKey
+    >
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGet(
+        {
+          ...options,
+          ...queryKey[0],
+          signal,
+          throwOnError: true,
+        }
+      );
+      return data;
+    },
+    queryKey:
+      getRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetQueryKey(options),
   });
 
 export const searchItemsApiV1ItemsSearchGetQueryKey = (
@@ -1252,6 +2128,74 @@ export const searchItemsApiV1ItemsSearchGetOptions = (
     queryKey: searchItemsApiV1ItemsSearchGetQueryKey(options),
   });
 
+/**
+ * Find Similar Items
+ *
+ * Find items similar to a classification result.
+ *
+ * Use this endpoint after AI classification to check for potential duplicates
+ * before creating a new item. Returns items sorted by similarity score.
+ */
+export const findSimilarItemsApiV1ItemsFindSimilarPostMutation = (
+  options?: Partial<Options<FindSimilarItemsApiV1ItemsFindSimilarPostData>>
+): UseMutationOptions<
+  FindSimilarItemsApiV1ItemsFindSimilarPostResponse,
+  FindSimilarItemsApiV1ItemsFindSimilarPostError,
+  Options<FindSimilarItemsApiV1ItemsFindSimilarPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    FindSimilarItemsApiV1ItemsFindSimilarPostResponse,
+    FindSimilarItemsApiV1ItemsFindSimilarPostError,
+    Options<FindSimilarItemsApiV1ItemsFindSimilarPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await findSimilarItemsApiV1ItemsFindSimilarPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Suggest Item Location
+ *
+ * Suggest optimal storage locations for an item using AI.
+ *
+ * Analyzes the item's characteristics and the user's existing locations
+ * with their stored items to recommend suitable storage places.
+ *
+ * Consumes 1 credit on successful suggestion.
+ */
+export const suggestItemLocationApiV1ItemsSuggestLocationPostMutation = (
+  options?: Partial<
+    Options<SuggestItemLocationApiV1ItemsSuggestLocationPostData>
+  >
+): UseMutationOptions<
+  SuggestItemLocationApiV1ItemsSuggestLocationPostResponse,
+  SuggestItemLocationApiV1ItemsSuggestLocationPostError,
+  Options<SuggestItemLocationApiV1ItemsSuggestLocationPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SuggestItemLocationApiV1ItemsSuggestLocationPostResponse,
+    SuggestItemLocationApiV1ItemsSuggestLocationPostError,
+    Options<SuggestItemLocationApiV1ItemsSuggestLocationPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await suggestItemLocationApiV1ItemsSuggestLocationPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
 export const listLowStockItemsApiV1ItemsLowStockGetQueryKey = (
   options?: Options<ListLowStockItemsApiV1ItemsLowStockGetData>
 ) => createQueryKey("listLowStockItemsApiV1ItemsLowStockGet", options);
@@ -1266,7 +2210,7 @@ export const listLowStockItemsApiV1ItemsLowStockGetOptions = (
 ) =>
   queryOptions<
     ListLowStockItemsApiV1ItemsLowStockGetResponse,
-    DefaultError,
+    ListLowStockItemsApiV1ItemsLowStockGetError,
     ListLowStockItemsApiV1ItemsLowStockGetResponse,
     ReturnType<typeof listLowStockItemsApiV1ItemsLowStockGetQueryKey>
   >({
@@ -1433,6 +2377,38 @@ export const updateItemApiV1ItemsItemIdPutMutation = (
   return mutationOptions;
 };
 
+export const getItemQrCodeApiV1ItemsItemIdQrGetQueryKey = (
+  options: Options<GetItemQrCodeApiV1ItemsItemIdQrGetData>
+) => createQueryKey("getItemQrCodeApiV1ItemsItemIdQrGet", options);
+
+/**
+ * Get Item Qr Code
+ *
+ * Generate a QR code PNG for an item.
+ *
+ * The QR code contains the item's URL for scanning.
+ */
+export const getItemQrCodeApiV1ItemsItemIdQrGetOptions = (
+  options: Options<GetItemQrCodeApiV1ItemsItemIdQrGetData>
+) =>
+  queryOptions<
+    unknown,
+    GetItemQrCodeApiV1ItemsItemIdQrGetError,
+    unknown,
+    ReturnType<typeof getItemQrCodeApiV1ItemsItemIdQrGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getItemQrCodeApiV1ItemsItemIdQrGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getItemQrCodeApiV1ItemsItemIdQrGetQueryKey(options),
+  });
+
 /**
  * Update Item Quantity
  *
@@ -1464,6 +2440,180 @@ export const updateItemQuantityApiV1ItemsItemIdQuantityPatchMutation = (
   return mutationOptions;
 };
 
+/**
+ * Check Out Item
+ *
+ * Record a check-out event for an item.
+ */
+export const checkOutItemApiV1ItemsItemIdCheckOutPostMutation = (
+  options?: Partial<Options<CheckOutItemApiV1ItemsItemIdCheckOutPostData>>
+): UseMutationOptions<
+  CheckOutItemApiV1ItemsItemIdCheckOutPostResponse,
+  CheckOutItemApiV1ItemsItemIdCheckOutPostError,
+  Options<CheckOutItemApiV1ItemsItemIdCheckOutPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CheckOutItemApiV1ItemsItemIdCheckOutPostResponse,
+    CheckOutItemApiV1ItemsItemIdCheckOutPostError,
+    Options<CheckOutItemApiV1ItemsItemIdCheckOutPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await checkOutItemApiV1ItemsItemIdCheckOutPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Check In Item
+ *
+ * Record a check-in event for an item.
+ *
+ * Uses row-level locking to prevent race conditions where concurrent
+ * check-ins could result in negative 'currently out' counts.
+ */
+export const checkInItemApiV1ItemsItemIdCheckInPostMutation = (
+  options?: Partial<Options<CheckInItemApiV1ItemsItemIdCheckInPostData>>
+): UseMutationOptions<
+  CheckInItemApiV1ItemsItemIdCheckInPostResponse,
+  CheckInItemApiV1ItemsItemIdCheckInPostError,
+  Options<CheckInItemApiV1ItemsItemIdCheckInPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CheckInItemApiV1ItemsItemIdCheckInPostResponse,
+    CheckInItemApiV1ItemsItemIdCheckInPostError,
+    Options<CheckInItemApiV1ItemsItemIdCheckInPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await checkInItemApiV1ItemsItemIdCheckInPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const getItemHistoryApiV1ItemsItemIdHistoryGetQueryKey = (
+  options: Options<GetItemHistoryApiV1ItemsItemIdHistoryGetData>
+) => createQueryKey("getItemHistoryApiV1ItemsItemIdHistoryGet", options);
+
+/**
+ * Get Item History
+ *
+ * Get check-in/out history for an item.
+ */
+export const getItemHistoryApiV1ItemsItemIdHistoryGetOptions = (
+  options: Options<GetItemHistoryApiV1ItemsItemIdHistoryGetData>
+) =>
+  queryOptions<
+    GetItemHistoryApiV1ItemsItemIdHistoryGetResponse,
+    GetItemHistoryApiV1ItemsItemIdHistoryGetError,
+    GetItemHistoryApiV1ItemsItemIdHistoryGetResponse,
+    ReturnType<typeof getItemHistoryApiV1ItemsItemIdHistoryGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getItemHistoryApiV1ItemsItemIdHistoryGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getItemHistoryApiV1ItemsItemIdHistoryGetQueryKey(options),
+  });
+
+export const getItemHistoryApiV1ItemsItemIdHistoryGetInfiniteQueryKey = (
+  options: Options<GetItemHistoryApiV1ItemsItemIdHistoryGetData>
+): QueryKey<Options<GetItemHistoryApiV1ItemsItemIdHistoryGetData>> =>
+  createQueryKey("getItemHistoryApiV1ItemsItemIdHistoryGet", options, true);
+
+/**
+ * Get Item History
+ *
+ * Get check-in/out history for an item.
+ */
+export const getItemHistoryApiV1ItemsItemIdHistoryGetInfiniteOptions = (
+  options: Options<GetItemHistoryApiV1ItemsItemIdHistoryGetData>
+) =>
+  infiniteQueryOptions<
+    GetItemHistoryApiV1ItemsItemIdHistoryGetResponse,
+    GetItemHistoryApiV1ItemsItemIdHistoryGetError,
+    InfiniteData<GetItemHistoryApiV1ItemsItemIdHistoryGetResponse>,
+    QueryKey<Options<GetItemHistoryApiV1ItemsItemIdHistoryGetData>>,
+    | number
+    | Pick<
+        QueryKey<Options<GetItemHistoryApiV1ItemsItemIdHistoryGetData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<GetItemHistoryApiV1ItemsItemIdHistoryGetData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              };
+        const params = createInfiniteParams(queryKey, page);
+        const { data } = await getItemHistoryApiV1ItemsItemIdHistoryGet({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        });
+        return data;
+      },
+      queryKey:
+        getItemHistoryApiV1ItemsItemIdHistoryGetInfiniteQueryKey(options),
+    }
+  );
+
+export const getItemUsageStatsApiV1ItemsItemIdUsageStatsGetQueryKey = (
+  options: Options<GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetData>
+) => createQueryKey("getItemUsageStatsApiV1ItemsItemIdUsageStatsGet", options);
+
+/**
+ * Get Item Usage Stats
+ *
+ * Get usage statistics for an item.
+ */
+export const getItemUsageStatsApiV1ItemsItemIdUsageStatsGetOptions = (
+  options: Options<GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetData>
+) =>
+  queryOptions<
+    GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetResponse,
+    GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetError,
+    GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetResponse,
+    ReturnType<typeof getItemUsageStatsApiV1ItemsItemIdUsageStatsGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getItemUsageStatsApiV1ItemsItemIdUsageStatsGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getItemUsageStatsApiV1ItemsItemIdUsageStatsGetQueryKey(options),
+  });
+
 export const listCategoriesApiV1CategoriesGetQueryKey = (
   options?: Options<ListCategoriesApiV1CategoriesGetData>
 ) => createQueryKey("listCategoriesApiV1CategoriesGet", options);
@@ -1478,7 +2628,7 @@ export const listCategoriesApiV1CategoriesGetOptions = (
 ) =>
   queryOptions<
     ListCategoriesApiV1CategoriesGetResponse,
-    DefaultError,
+    ListCategoriesApiV1CategoriesGetError,
     ListCategoriesApiV1CategoriesGetResponse,
     ReturnType<typeof listCategoriesApiV1CategoriesGetQueryKey>
   >({
@@ -1537,7 +2687,7 @@ export const getCategoryTreeApiV1CategoriesTreeGetOptions = (
 ) =>
   queryOptions<
     GetCategoryTreeApiV1CategoriesTreeGetResponse,
-    DefaultError,
+    GetCategoryTreeApiV1CategoriesTreeGetError,
     GetCategoryTreeApiV1CategoriesTreeGetResponse,
     ReturnType<typeof getCategoryTreeApiV1CategoriesTreeGetQueryKey>
   >({
@@ -1801,7 +2951,7 @@ export const listLocationsApiV1LocationsGetOptions = (
 ) =>
   queryOptions<
     ListLocationsApiV1LocationsGetResponse,
-    DefaultError,
+    ListLocationsApiV1LocationsGetError,
     ListLocationsApiV1LocationsGetResponse,
     ReturnType<typeof listLocationsApiV1LocationsGetQueryKey>
   >({
@@ -1860,7 +3010,7 @@ export const getLocationTreeApiV1LocationsTreeGetOptions = (
 ) =>
   queryOptions<
     GetLocationTreeApiV1LocationsTreeGetResponse,
-    DefaultError,
+    GetLocationTreeApiV1LocationsTreeGetError,
     GetLocationTreeApiV1LocationsTreeGetResponse,
     ReturnType<typeof getLocationTreeApiV1LocationsTreeGetQueryKey>
   >({
@@ -1875,6 +3025,70 @@ export const getLocationTreeApiV1LocationsTreeGetOptions = (
     },
     queryKey: getLocationTreeApiV1LocationsTreeGetQueryKey(options),
   });
+
+/**
+ * Analyze Location Image
+ *
+ * Analyze an image to suggest location structure using AI.
+ *
+ * Consumes 1 credit on successful analysis.
+ */
+export const analyzeLocationImageApiV1LocationsAnalyzeImagePostMutation = (
+  options?: Partial<
+    Options<AnalyzeLocationImageApiV1LocationsAnalyzeImagePostData>
+  >
+): UseMutationOptions<
+  AnalyzeLocationImageApiV1LocationsAnalyzeImagePostResponse,
+  AnalyzeLocationImageApiV1LocationsAnalyzeImagePostError,
+  Options<AnalyzeLocationImageApiV1LocationsAnalyzeImagePostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AnalyzeLocationImageApiV1LocationsAnalyzeImagePostResponse,
+    AnalyzeLocationImageApiV1LocationsAnalyzeImagePostError,
+    Options<AnalyzeLocationImageApiV1LocationsAnalyzeImagePostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await analyzeLocationImageApiV1LocationsAnalyzeImagePost(
+        {
+          ...options,
+          ...fnOptions,
+          throwOnError: true,
+        }
+      );
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Create Locations Bulk
+ *
+ * Create a parent location with multiple children in a single operation.
+ */
+export const createLocationsBulkApiV1LocationsBulkPostMutation = (
+  options?: Partial<Options<CreateLocationsBulkApiV1LocationsBulkPostData>>
+): UseMutationOptions<
+  CreateLocationsBulkApiV1LocationsBulkPostResponse,
+  CreateLocationsBulkApiV1LocationsBulkPostError,
+  Options<CreateLocationsBulkApiV1LocationsBulkPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateLocationsBulkApiV1LocationsBulkPostResponse,
+    CreateLocationsBulkApiV1LocationsBulkPostError,
+    Options<CreateLocationsBulkApiV1LocationsBulkPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await createLocationsBulkApiV1LocationsBulkPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
 
 /**
  * Delete Location
@@ -2035,6 +3249,82 @@ export const moveLocationApiV1LocationsLocationIdMovePatchMutation = (
   return mutationOptions;
 };
 
+export const getLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetQueryKey =
+  (
+    options: Options<GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetData>
+  ) =>
+    createQueryKey(
+      "getLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGet",
+      options
+    );
+
+/**
+ * Get Location With Ancestors
+ *
+ * Get a location with its full ancestor path for breadcrumb navigation.
+ */
+export const getLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetOptions =
+  (
+    options: Options<GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetData>
+  ) =>
+    queryOptions<
+      GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetResponse,
+      GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetError,
+      GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetResponse,
+      ReturnType<
+        typeof getLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetQueryKey
+      >
+    >({
+      queryFn: async ({ queryKey, signal }) => {
+        const { data } =
+          await getLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGet(
+            {
+              ...options,
+              ...queryKey[0],
+              signal,
+              throwOnError: true,
+            }
+          );
+        return data;
+      },
+      queryKey:
+        getLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetQueryKey(
+          options
+        ),
+    });
+
+export const getLocationQrCodeApiV1LocationsLocationIdQrGetQueryKey = (
+  options: Options<GetLocationQrCodeApiV1LocationsLocationIdQrGetData>
+) => createQueryKey("getLocationQrCodeApiV1LocationsLocationIdQrGet", options);
+
+/**
+ * Get Location Qr Code
+ *
+ * Generate a QR code PNG for a location.
+ *
+ * The QR code contains the location's URL for scanning.
+ */
+export const getLocationQrCodeApiV1LocationsLocationIdQrGetOptions = (
+  options: Options<GetLocationQrCodeApiV1LocationsLocationIdQrGetData>
+) =>
+  queryOptions<
+    unknown,
+    GetLocationQrCodeApiV1LocationsLocationIdQrGetError,
+    unknown,
+    ReturnType<typeof getLocationQrCodeApiV1LocationsLocationIdQrGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getLocationQrCodeApiV1LocationsLocationIdQrGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getLocationQrCodeApiV1LocationsLocationIdQrGetQueryKey(options),
+  });
+
 /**
  * Upload Image
  *
@@ -2104,6 +3394,8 @@ export const listClassifiedImagesApiV1ImagesClassifiedGetQueryKey = (
  * List Classified Images
  *
  * List all images that have been classified by AI.
+ *
+ * Supports optional search by the identified item name (case-insensitive partial match).
  */
 export const listClassifiedImagesApiV1ImagesClassifiedGetOptions = (
   options?: Options<ListClassifiedImagesApiV1ImagesClassifiedGetData>
@@ -2135,6 +3427,8 @@ export const listClassifiedImagesApiV1ImagesClassifiedGetInfiniteQueryKey = (
  * List Classified Images
  *
  * List all images that have been classified by AI.
+ *
+ * Supports optional search by the identified item name (case-insensitive partial match).
  */
 export const listClassifiedImagesApiV1ImagesClassifiedGetInfiniteOptions = (
   options?: Options<ListClassifiedImagesApiV1ImagesClassifiedGetData>
@@ -2251,6 +3545,8 @@ export const getImageSignedUrlApiV1ImagesImageIdSignedUrlGetQueryKey = (
  *
  * This generates a short-lived token that can be used in browser <img> tags
  * where Authorization headers cannot be sent.
+ *
+ * Set thumbnail=true to get a URL for the thumbnail version.
  */
 export const getImageSignedUrlApiV1ImagesImageIdSignedUrlGetOptions = (
   options: Options<GetImageSignedUrlApiV1ImagesImageIdSignedUrlGetData>
@@ -2306,6 +3602,40 @@ export const getImageFileApiV1ImagesImageIdFileGetOptions = (
     queryKey: getImageFileApiV1ImagesImageIdFileGetQueryKey(options),
   });
 
+export const getImageThumbnailApiV1ImagesImageIdThumbnailGetQueryKey = (
+  options: Options<GetImageThumbnailApiV1ImagesImageIdThumbnailGetData>
+) => createQueryKey("getImageThumbnailApiV1ImagesImageIdThumbnailGet", options);
+
+/**
+ * Get Image Thumbnail
+ *
+ * Get the thumbnail image file.
+ *
+ * Requires a valid signed token query parameter for authentication.
+ * Use GET /{image_id}/signed-url?thumbnail=true to obtain a token.
+ * Falls back to the original image if no thumbnail exists.
+ */
+export const getImageThumbnailApiV1ImagesImageIdThumbnailGetOptions = (
+  options: Options<GetImageThumbnailApiV1ImagesImageIdThumbnailGetData>
+) =>
+  queryOptions<
+    unknown,
+    GetImageThumbnailApiV1ImagesImageIdThumbnailGetError,
+    unknown,
+    ReturnType<typeof getImageThumbnailApiV1ImagesImageIdThumbnailGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getImageThumbnailApiV1ImagesImageIdThumbnailGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getImageThumbnailApiV1ImagesImageIdThumbnailGetQueryKey(options),
+  });
+
 /**
  * Attach Image To Item
  *
@@ -2337,3 +3667,546 @@ export const attachImageToItemApiV1ImagesImageIdAttachItemIdPostMutation = (
   };
   return mutationOptions;
 };
+
+export const getHobbyTypesApiV1ProfileHobbyTypesGetQueryKey = (
+  options?: Options<GetHobbyTypesApiV1ProfileHobbyTypesGetData>
+) => createQueryKey("getHobbyTypesApiV1ProfileHobbyTypesGet", options);
+
+/**
+ * Get Hobby Types
+ *
+ * Get list of available hobby types.
+ */
+export const getHobbyTypesApiV1ProfileHobbyTypesGetOptions = (
+  options?: Options<GetHobbyTypesApiV1ProfileHobbyTypesGetData>
+) =>
+  queryOptions<
+    GetHobbyTypesApiV1ProfileHobbyTypesGetResponse,
+    DefaultError,
+    GetHobbyTypesApiV1ProfileHobbyTypesGetResponse,
+    ReturnType<typeof getHobbyTypesApiV1ProfileHobbyTypesGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getHobbyTypesApiV1ProfileHobbyTypesGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getHobbyTypesApiV1ProfileHobbyTypesGetQueryKey(options),
+  });
+
+export const getMyProfileApiV1ProfileMeGetQueryKey = (
+  options?: Options<GetMyProfileApiV1ProfileMeGetData>
+) => createQueryKey("getMyProfileApiV1ProfileMeGet", options);
+
+/**
+ * Get My Profile
+ *
+ * Get the current user's system profile.
+ */
+export const getMyProfileApiV1ProfileMeGetOptions = (
+  options?: Options<GetMyProfileApiV1ProfileMeGetData>
+) =>
+  queryOptions<
+    GetMyProfileApiV1ProfileMeGetResponse,
+    GetMyProfileApiV1ProfileMeGetError,
+    GetMyProfileApiV1ProfileMeGetResponse,
+    ReturnType<typeof getMyProfileApiV1ProfileMeGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getMyProfileApiV1ProfileMeGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getMyProfileApiV1ProfileMeGetQueryKey(options),
+  });
+
+/**
+ * Update My Profile
+ *
+ * Update the current user's system profile.
+ */
+export const updateMyProfileApiV1ProfileMePatchMutation = (
+  options?: Partial<Options<UpdateMyProfileApiV1ProfileMePatchData>>
+): UseMutationOptions<
+  UpdateMyProfileApiV1ProfileMePatchResponse,
+  UpdateMyProfileApiV1ProfileMePatchError,
+  Options<UpdateMyProfileApiV1ProfileMePatchData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateMyProfileApiV1ProfileMePatchResponse,
+    UpdateMyProfileApiV1ProfileMePatchError,
+    Options<UpdateMyProfileApiV1ProfileMePatchData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await updateMyProfileApiV1ProfileMePatch({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Create My Profile
+ *
+ * Create or update the current user's system profile.
+ */
+export const createMyProfileApiV1ProfileMePostMutation = (
+  options?: Partial<Options<CreateMyProfileApiV1ProfileMePostData>>
+): UseMutationOptions<
+  CreateMyProfileApiV1ProfileMePostResponse,
+  CreateMyProfileApiV1ProfileMePostError,
+  Options<CreateMyProfileApiV1ProfileMePostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateMyProfileApiV1ProfileMePostResponse,
+    CreateMyProfileApiV1ProfileMePostError,
+    Options<CreateMyProfileApiV1ProfileMePostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await createMyProfileApiV1ProfileMePost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const getRecommendationsApiV1ProfileRecommendationsGetQueryKey = (
+  options?: Options<GetRecommendationsApiV1ProfileRecommendationsGetData>
+) =>
+  createQueryKey("getRecommendationsApiV1ProfileRecommendationsGet", options);
+
+/**
+ * Get Recommendations
+ *
+ * Get pending purge recommendations for the current user.
+ */
+export const getRecommendationsApiV1ProfileRecommendationsGetOptions = (
+  options?: Options<GetRecommendationsApiV1ProfileRecommendationsGetData>
+) =>
+  queryOptions<
+    GetRecommendationsApiV1ProfileRecommendationsGetResponse,
+    GetRecommendationsApiV1ProfileRecommendationsGetError,
+    GetRecommendationsApiV1ProfileRecommendationsGetResponse,
+    ReturnType<typeof getRecommendationsApiV1ProfileRecommendationsGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getRecommendationsApiV1ProfileRecommendationsGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getRecommendationsApiV1ProfileRecommendationsGetQueryKey(options),
+  });
+
+/**
+ * Generate Recommendations
+ *
+ * Generate new purge recommendations using AI.
+ *
+ * This endpoint requires 1 credit to generate recommendations.
+ */
+export const generateRecommendationsApiV1ProfileRecommendationsGeneratePostMutation =
+  (
+    options?: Partial<
+      Options<GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostData>
+    >
+  ): UseMutationOptions<
+    GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostResponse,
+    GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostError,
+    Options<GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostResponse,
+      GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostError,
+      Options<GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostData>
+    > = {
+      mutationFn: async (fnOptions) => {
+        const { data } =
+          await generateRecommendationsApiV1ProfileRecommendationsGeneratePost({
+            ...options,
+            ...fnOptions,
+            throwOnError: true,
+          });
+        return data;
+      },
+    };
+    return mutationOptions;
+  };
+
+/**
+ * Dismiss Recommendation
+ *
+ * Dismiss a purge recommendation (shortcut for updating status to 'dismissed').
+ */
+export const dismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteMutation =
+  (
+    options?: Partial<
+      Options<DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteData>
+    >
+  ): UseMutationOptions<
+    DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteResponse,
+    DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteError,
+    Options<DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteResponse,
+      DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteError,
+      Options<DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteData>
+    > = {
+      mutationFn: async (fnOptions) => {
+        const { data } =
+          await dismissRecommendationApiV1ProfileRecommendationsRecommendationIdDelete(
+            {
+              ...options,
+              ...fnOptions,
+              throwOnError: true,
+            }
+          );
+        return data;
+      },
+    };
+    return mutationOptions;
+  };
+
+/**
+ * Update Recommendation
+ *
+ * Accept or dismiss a purge recommendation.
+ */
+export const updateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchMutation =
+  (
+    options?: Partial<
+      Options<UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchData>
+    >
+  ): UseMutationOptions<
+    UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponse,
+    UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchError,
+    Options<UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponse,
+      UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchError,
+      Options<UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchData>
+    > = {
+      mutationFn: async (fnOptions) => {
+        const { data } =
+          await updateRecommendationApiV1ProfileRecommendationsRecommendationIdPatch(
+            {
+              ...options,
+              ...fnOptions,
+              throwOnError: true,
+            }
+          );
+        return data;
+      },
+    };
+    return mutationOptions;
+  };
+
+export const listEventTypesApiV1WebhooksEventTypesGetQueryKey = (
+  options?: Options<ListEventTypesApiV1WebhooksEventTypesGetData>
+) => createQueryKey("listEventTypesApiV1WebhooksEventTypesGet", options);
+
+/**
+ * List Event Types
+ *
+ * List available event types for webhooks.
+ */
+export const listEventTypesApiV1WebhooksEventTypesGetOptions = (
+  options?: Options<ListEventTypesApiV1WebhooksEventTypesGetData>
+) =>
+  queryOptions<
+    ListEventTypesApiV1WebhooksEventTypesGetResponse,
+    ListEventTypesApiV1WebhooksEventTypesGetError,
+    ListEventTypesApiV1WebhooksEventTypesGetResponse,
+    ReturnType<typeof listEventTypesApiV1WebhooksEventTypesGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await listEventTypesApiV1WebhooksEventTypesGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: listEventTypesApiV1WebhooksEventTypesGetQueryKey(options),
+  });
+
+export const listConfigsApiV1WebhooksConfigsGetQueryKey = (
+  options?: Options<ListConfigsApiV1WebhooksConfigsGetData>
+) => createQueryKey("listConfigsApiV1WebhooksConfigsGet", options);
+
+/**
+ * List Configs
+ *
+ * List all webhook configurations.
+ */
+export const listConfigsApiV1WebhooksConfigsGetOptions = (
+  options?: Options<ListConfigsApiV1WebhooksConfigsGetData>
+) =>
+  queryOptions<
+    ListConfigsApiV1WebhooksConfigsGetResponse,
+    ListConfigsApiV1WebhooksConfigsGetError,
+    ListConfigsApiV1WebhooksConfigsGetResponse,
+    ReturnType<typeof listConfigsApiV1WebhooksConfigsGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await listConfigsApiV1WebhooksConfigsGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: listConfigsApiV1WebhooksConfigsGetQueryKey(options),
+  });
+
+/**
+ * Create Config
+ *
+ * Create a new webhook configuration.
+ */
+export const createConfigApiV1WebhooksConfigsPostMutation = (
+  options?: Partial<Options<CreateConfigApiV1WebhooksConfigsPostData>>
+): UseMutationOptions<
+  CreateConfigApiV1WebhooksConfigsPostResponse,
+  CreateConfigApiV1WebhooksConfigsPostError,
+  Options<CreateConfigApiV1WebhooksConfigsPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateConfigApiV1WebhooksConfigsPostResponse,
+    CreateConfigApiV1WebhooksConfigsPostError,
+    Options<CreateConfigApiV1WebhooksConfigsPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await createConfigApiV1WebhooksConfigsPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Delete Config
+ *
+ * Delete a webhook configuration.
+ */
+export const deleteConfigApiV1WebhooksConfigsConfigIdDeleteMutation = (
+  options?: Partial<Options<DeleteConfigApiV1WebhooksConfigsConfigIdDeleteData>>
+): UseMutationOptions<
+  DeleteConfigApiV1WebhooksConfigsConfigIdDeleteResponse,
+  DeleteConfigApiV1WebhooksConfigsConfigIdDeleteError,
+  Options<DeleteConfigApiV1WebhooksConfigsConfigIdDeleteData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DeleteConfigApiV1WebhooksConfigsConfigIdDeleteResponse,
+    DeleteConfigApiV1WebhooksConfigsConfigIdDeleteError,
+    Options<DeleteConfigApiV1WebhooksConfigsConfigIdDeleteData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await deleteConfigApiV1WebhooksConfigsConfigIdDelete({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const getConfigApiV1WebhooksConfigsConfigIdGetQueryKey = (
+  options: Options<GetConfigApiV1WebhooksConfigsConfigIdGetData>
+) => createQueryKey("getConfigApiV1WebhooksConfigsConfigIdGet", options);
+
+/**
+ * Get Config
+ *
+ * Get a specific webhook configuration.
+ */
+export const getConfigApiV1WebhooksConfigsConfigIdGetOptions = (
+  options: Options<GetConfigApiV1WebhooksConfigsConfigIdGetData>
+) =>
+  queryOptions<
+    GetConfigApiV1WebhooksConfigsConfigIdGetResponse,
+    GetConfigApiV1WebhooksConfigsConfigIdGetError,
+    GetConfigApiV1WebhooksConfigsConfigIdGetResponse,
+    ReturnType<typeof getConfigApiV1WebhooksConfigsConfigIdGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getConfigApiV1WebhooksConfigsConfigIdGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getConfigApiV1WebhooksConfigsConfigIdGetQueryKey(options),
+  });
+
+/**
+ * Update Config
+ *
+ * Update a webhook configuration.
+ */
+export const updateConfigApiV1WebhooksConfigsConfigIdPutMutation = (
+  options?: Partial<Options<UpdateConfigApiV1WebhooksConfigsConfigIdPutData>>
+): UseMutationOptions<
+  UpdateConfigApiV1WebhooksConfigsConfigIdPutResponse,
+  UpdateConfigApiV1WebhooksConfigsConfigIdPutError,
+  Options<UpdateConfigApiV1WebhooksConfigsConfigIdPutData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateConfigApiV1WebhooksConfigsConfigIdPutResponse,
+    UpdateConfigApiV1WebhooksConfigsConfigIdPutError,
+    Options<UpdateConfigApiV1WebhooksConfigsConfigIdPutData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await updateConfigApiV1WebhooksConfigsConfigIdPut({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Test Config
+ *
+ * Test a webhook configuration with sample data.
+ */
+export const testConfigApiV1WebhooksConfigsConfigIdTestPostMutation = (
+  options?: Partial<Options<TestConfigApiV1WebhooksConfigsConfigIdTestPostData>>
+): UseMutationOptions<
+  TestConfigApiV1WebhooksConfigsConfigIdTestPostResponse,
+  TestConfigApiV1WebhooksConfigsConfigIdTestPostError,
+  Options<TestConfigApiV1WebhooksConfigsConfigIdTestPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    TestConfigApiV1WebhooksConfigsConfigIdTestPostResponse,
+    TestConfigApiV1WebhooksConfigsConfigIdTestPostError,
+    Options<TestConfigApiV1WebhooksConfigsConfigIdTestPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await testConfigApiV1WebhooksConfigsConfigIdTestPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const listExecutionsApiV1WebhooksExecutionsGetQueryKey = (
+  options?: Options<ListExecutionsApiV1WebhooksExecutionsGetData>
+) => createQueryKey("listExecutionsApiV1WebhooksExecutionsGet", options);
+
+/**
+ * List Executions
+ *
+ * List webhook execution logs.
+ */
+export const listExecutionsApiV1WebhooksExecutionsGetOptions = (
+  options?: Options<ListExecutionsApiV1WebhooksExecutionsGetData>
+) =>
+  queryOptions<
+    ListExecutionsApiV1WebhooksExecutionsGetResponse,
+    ListExecutionsApiV1WebhooksExecutionsGetError,
+    ListExecutionsApiV1WebhooksExecutionsGetResponse,
+    ReturnType<typeof listExecutionsApiV1WebhooksExecutionsGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await listExecutionsApiV1WebhooksExecutionsGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: listExecutionsApiV1WebhooksExecutionsGetQueryKey(options),
+  });
+
+export const listExecutionsApiV1WebhooksExecutionsGetInfiniteQueryKey = (
+  options?: Options<ListExecutionsApiV1WebhooksExecutionsGetData>
+): QueryKey<Options<ListExecutionsApiV1WebhooksExecutionsGetData>> =>
+  createQueryKey("listExecutionsApiV1WebhooksExecutionsGet", options, true);
+
+/**
+ * List Executions
+ *
+ * List webhook execution logs.
+ */
+export const listExecutionsApiV1WebhooksExecutionsGetInfiniteOptions = (
+  options?: Options<ListExecutionsApiV1WebhooksExecutionsGetData>
+) =>
+  infiniteQueryOptions<
+    ListExecutionsApiV1WebhooksExecutionsGetResponse,
+    ListExecutionsApiV1WebhooksExecutionsGetError,
+    InfiniteData<ListExecutionsApiV1WebhooksExecutionsGetResponse>,
+    QueryKey<Options<ListExecutionsApiV1WebhooksExecutionsGetData>>,
+    | number
+    | Pick<
+        QueryKey<Options<ListExecutionsApiV1WebhooksExecutionsGetData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListExecutionsApiV1WebhooksExecutionsGetData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              };
+        const params = createInfiniteParams(queryKey, page);
+        const { data } = await listExecutionsApiV1WebhooksExecutionsGet({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        });
+        return data;
+      },
+      queryKey:
+        listExecutionsApiV1WebhooksExecutionsGetInfiniteQueryKey(options),
+    }
+  );

@@ -1,0 +1,36 @@
+Suggest the best storage location for this item:
+
+Item Name: {{ item_name }}
+Item Category: {{ item_category | default("Uncategorized", true) }}
+Item Description: {{ item_description | default("No description", true) }}
+{% if item_specifications %}
+Specifications: {{ item_specifications | tojson }}
+{% endif %}
+
+Available Locations:
+{% for location in locations %}
+- {{ location.name }} ({{ location.type }}){% if location.item_count > 0 %} - {{ location.item_count }} items stored{% endif %}
+{% if location.sample_items %}  Sample items: {{ location.sample_items | join(", ") }}{% endif %}
+{% endfor %}
+
+{% if similar_items %}
+Similar items and their current locations:
+{% for item in similar_items %}
+- "{{ item.name }}" stored in: {{ item.location | default("No location", true) }}
+{% endfor %}
+{% endif %}
+
+Provide your response as a JSON object with this exact structure:
+{
+  "suggestions": [
+    {
+      "location_id": "uuid-of-suggested-location",
+      "location_name": "name of the location",
+      "confidence": 0.0 to 1.0,
+      "reasoning": "brief explanation of why this location is suitable"
+    }
+  ]
+}
+
+Provide up to 3 suggestions ranked by suitability. If no locations are suitable, return an empty suggestions array.
+Respond ONLY with the JSON object, no additional text.
