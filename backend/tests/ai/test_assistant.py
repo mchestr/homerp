@@ -166,85 +166,109 @@ class TestAIAssistantRouter:
         )
         assert response.status_code == 402
 
-    @patch("src.ai.router.get_ai_service")
     async def test_query_assistant_success(
         self,
-        mock_get_ai_service,
         authenticated_client: AsyncClient,
         test_user: User,
     ):
         """Test successful assistant query."""
-        # Mock the AI service
+        from src.ai.service import get_ai_service
+        from src.main import app
+
+        # Mock the AI service using dependency_overrides
         mock_service = MagicMock()
         mock_service.query_assistant = AsyncMock(
             return_value="Here is your planting schedule..."
         )
-        mock_get_ai_service.return_value = mock_service
 
-        response = await authenticated_client.post(
-            "/api/v1/ai/query",
-            json={
-                "prompt": "Create a planting schedule",
-                "include_inventory_context": False,
-            },
-        )
+        def get_mock_ai_service():
+            return mock_service
 
-        assert response.status_code == 200
-        data = response.json()
-        assert data["success"] is True
-        assert "planting schedule" in data["response"]
-        assert data["credits_used"] == 1
+        app.dependency_overrides[get_ai_service] = get_mock_ai_service
 
-    @patch("src.ai.router.get_ai_service")
+        try:
+            response = await authenticated_client.post(
+                "/api/v1/ai/query",
+                json={
+                    "prompt": "Create a planting schedule",
+                    "include_inventory_context": False,
+                },
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["success"] is True
+            assert "planting schedule" in data["response"]
+            assert data["credits_used"] == 1
+        finally:
+            app.dependency_overrides.pop(get_ai_service, None)
+
     async def test_query_assistant_with_context(
         self,
-        mock_get_ai_service,
         authenticated_client: AsyncClient,
         test_item,
     ):
         """Test assistant query includes inventory context."""
+        from src.ai.service import get_ai_service
+        from src.main import app
+
         mock_service = MagicMock()
         mock_service.query_assistant = AsyncMock(return_value="Based on your items...")
-        mock_get_ai_service.return_value = mock_service
 
-        response = await authenticated_client.post(
-            "/api/v1/ai/query",
-            json={
-                "prompt": "What projects can I do?",
-                "include_inventory_context": True,
-            },
-        )
+        def get_mock_ai_service():
+            return mock_service
 
-        assert response.status_code == 200
-        data = response.json()
-        assert data["success"] is True
-        assert data["context_used"] is True
-        assert data["items_in_context"] >= 1
+        app.dependency_overrides[get_ai_service] = get_mock_ai_service
 
-    @patch("src.ai.router.get_ai_service")
+        try:
+            response = await authenticated_client.post(
+                "/api/v1/ai/query",
+                json={
+                    "prompt": "What projects can I do?",
+                    "include_inventory_context": True,
+                },
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["success"] is True
+            assert data["context_used"] is True
+            assert data["items_in_context"] >= 1
+        finally:
+            app.dependency_overrides.pop(get_ai_service, None)
+
     async def test_query_assistant_deducts_credit(
         self,
-        mock_get_ai_service,
         authenticated_client: AsyncClient,
         async_session,
         test_user: User,
     ):
         """Test that successful query deducts one credit."""
+        from src.ai.service import get_ai_service
+        from src.main import app
+
         initial_credits = test_user.free_credits_remaining
 
         mock_service = MagicMock()
         mock_service.query_assistant = AsyncMock(return_value="Response")
-        mock_get_ai_service.return_value = mock_service
 
-        response = await authenticated_client.post(
-            "/api/v1/ai/query",
-            json={"prompt": "Test", "include_inventory_context": False},
-        )
+        def get_mock_ai_service():
+            return mock_service
 
-        assert response.status_code == 200
+        app.dependency_overrides[get_ai_service] = get_mock_ai_service
 
-        await async_session.refresh(test_user)
-        assert test_user.free_credits_remaining == initial_credits - 1
+        try:
+            response = await authenticated_client.post(
+                "/api/v1/ai/query",
+                json={"prompt": "Test", "include_inventory_context": False},
+            )
+
+            assert response.status_code == 200
+
+            await async_session.refresh(test_user)
+            assert test_user.free_credits_remaining == initial_credits - 1
+        finally:
+            app.dependency_overrides.pop(get_ai_service, None)
 
     async def test_query_assistant_validates_prompt(
         self, authenticated_client: AsyncClient
@@ -316,28 +340,36 @@ class TestAIAssistantRouter:
         finally:
             app.dependency_overrides.clear()
 
-    @patch("src.ai.router.get_ai_service")
     async def test_admin_bypasses_credit_check(
         self,
-        mock_get_ai_service,
         admin_client: AsyncClient,
         admin_user: User,
         async_session,
     ):
         """Test that admin users bypass credit check."""
+        from src.ai.service import get_ai_service
+        from src.main import app
+
         admin_user.free_credits_remaining = 0
         admin_user.credit_balance = 0
         await async_session.commit()
 
         mock_service = MagicMock()
         mock_service.query_assistant = AsyncMock(return_value="Admin response")
-        mock_get_ai_service.return_value = mock_service
 
-        response = await admin_client.post(
-            "/api/v1/ai/query",
-            json={"prompt": "Test", "include_inventory_context": False},
-        )
+        def get_mock_ai_service():
+            return mock_service
 
-        assert response.status_code == 200
-        data = response.json()
-        assert data["success"] is True
+        app.dependency_overrides[get_ai_service] = get_mock_ai_service
+
+        try:
+            response = await admin_client.post(
+                "/api/v1/ai/query",
+                json={"prompt": "Test", "include_inventory_context": False},
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["success"] is True
+        finally:
+            app.dependency_overrides.pop(get_ai_service, None)
