@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Globe,
   DollarSign,
+  Brain,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
@@ -181,6 +182,30 @@ export default function SettingsPage() {
           <ThemeToggle />
         </div>
       </div>
+
+      {/* AI System Profile */}
+      <Link
+        href="/settings/profile"
+        className="block"
+        data-testid="system-profile-link"
+      >
+        <div className="rounded-xl border bg-card p-6 transition-colors hover:border-primary/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-primary/10 p-2">
+                <Brain className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h2 className="font-semibold">AI System Profile</h2>
+                <p className="text-sm text-muted-foreground">
+                  Configure your profile for personalized AI recommendations
+                </p>
+              </div>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </div>
+        </div>
+      </Link>
 
       {/* Billing & Credits */}
       <Link

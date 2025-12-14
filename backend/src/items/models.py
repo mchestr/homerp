@@ -52,6 +52,9 @@ class Item(Base):
     check_in_outs: Mapped[list["ItemCheckInOut"]] = relationship(
         back_populates="item", cascade="all, delete-orphan"
     )
+    purge_recommendations: Mapped[list["PurgeRecommendation"]] = relationship(
+        back_populates="item", cascade="all, delete-orphan"
+    )
 
     @property
     def is_low_stock(self) -> bool:
@@ -94,4 +97,5 @@ class ItemCheckInOut(Base):
 from src.categories.models import Category  # noqa: E402, F811
 from src.images.models import Image  # noqa: E402, F811
 from src.locations.models import Location  # noqa: E402, F811
+from src.profile.models import PurgeRecommendation  # noqa: E402, F811
 from src.users.models import User  # noqa: E402, F811

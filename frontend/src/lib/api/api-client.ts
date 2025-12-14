@@ -1115,3 +1115,117 @@ export const webhooksApi = {
     );
   },
 };
+
+// Profile Types
+export type UserSystemProfile = {
+  id: string;
+  user_id: string;
+  hobby_types: string[];
+  interest_category_ids: string[];
+  retention_months: number;
+  min_quantity_threshold: number;
+  min_value_keep: number | null;
+  profile_description: string | null;
+  purge_aggressiveness: "conservative" | "moderate" | "aggressive";
+  created_at: string;
+  updated_at: string;
+};
+
+export type UserSystemProfileCreate = {
+  hobby_types?: string[];
+  interest_category_ids?: string[];
+  retention_months?: number;
+  min_quantity_threshold?: number;
+  min_value_keep?: number | null;
+  profile_description?: string | null;
+  purge_aggressiveness?: "conservative" | "moderate" | "aggressive";
+};
+
+export type UserSystemProfileUpdate = Partial<UserSystemProfileCreate>;
+
+export type HobbyTypesResponse = {
+  hobby_types: string[];
+};
+
+export type PurgeRecommendation = {
+  id: string;
+  user_id: string;
+  item_id: string;
+  reason: string;
+  confidence: number;
+  factors: Record<string, boolean>;
+  status: "pending" | "accepted" | "dismissed" | "expired";
+  user_feedback: string | null;
+  created_at: string;
+  resolved_at: string | null;
+};
+
+export type PurgeRecommendationWithItem = PurgeRecommendation & {
+  item_name: string;
+  item_quantity: number;
+  item_quantity_unit: string;
+  item_price: number | null;
+  item_category_name: string | null;
+  item_location_name: string | null;
+  last_used_at: string | null;
+};
+
+export type PurgeRecommendationUpdate = {
+  status: "accepted" | "dismissed";
+  user_feedback?: string;
+};
+
+export type GenerateRecommendationsRequest = {
+  max_recommendations?: number;
+};
+
+export type GenerateRecommendationsResponse = {
+  recommendations: PurgeRecommendationWithItem[];
+  total_generated: number;
+  credits_used: number;
+};
+
+// Profile API
+export const profileApi = {
+  getHobbyTypes: () =>
+    apiRequest<HobbyTypesResponse>("/api/v1/profile/hobby-types"),
+
+  getProfile: () => apiRequest<UserSystemProfile | null>("/api/v1/profile/me"),
+
+  createProfile: (data: UserSystemProfileCreate) =>
+    apiRequest<UserSystemProfile>("/api/v1/profile/me", {
+      method: "POST",
+      body: data,
+    }),
+
+  updateProfile: (data: UserSystemProfileUpdate) =>
+    apiRequest<UserSystemProfile>("/api/v1/profile/me", {
+      method: "PATCH",
+      body: data,
+    }),
+
+  getRecommendations: (limit = 50) =>
+    apiRequest<PurgeRecommendationWithItem[]>(
+      `/api/v1/profile/recommendations?limit=${limit}`
+    ),
+
+  generateRecommendations: (data?: GenerateRecommendationsRequest) =>
+    apiRequest<GenerateRecommendationsResponse>(
+      "/api/v1/profile/recommendations/generate",
+      {
+        method: "POST",
+        body: data || {},
+      }
+    ),
+
+  updateRecommendation: (id: string, data: PurgeRecommendationUpdate) =>
+    apiRequest<PurgeRecommendation>(`/api/v1/profile/recommendations/${id}`, {
+      method: "PATCH",
+      body: data,
+    }),
+
+  dismissRecommendation: (id: string) =>
+    apiRequest<void>(`/api/v1/profile/recommendations/${id}`, {
+      method: "DELETE",
+    }),
+};

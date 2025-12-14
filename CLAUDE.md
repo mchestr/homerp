@@ -259,8 +259,39 @@ cd frontend && pnpm lint && pnpm format:check && pnpm build
 |----------|------------------|-------------|
 | Backend Lint | `uv run ruff check .` | `uv run ruff check --fix .` |
 | Backend Format | `uv run ruff format --check .` | `uv run ruff format .` |
+| Backend Tests | `uv run pytest` | Fix failing tests |
 | Frontend Lint | `pnpm lint` | `pnpm lint:fix` |
 | Frontend Format | `pnpm format:check` | `pnpm format` |
+| Frontend Build | `pnpm build` | Fix build errors |
+
+## Testing Conventions
+
+### HTTP Status Codes for Authentication Tests
+When testing authentication requirements, use the correct HTTP status codes:
+- **401 Unauthorized**: Request lacks valid authentication credentials (no token, invalid token)
+- **403 Forbidden**: Request is authenticated but user lacks permission for the resource
+
+```python
+# Correct - unauthenticated requests return 401
+async def test_endpoint_requires_auth(self, unauthenticated_client: AsyncClient):
+    response = await unauthenticated_client.get("/api/v1/some-endpoint")
+    assert response.status_code == 401  # NOT 403
+
+# 403 is for authenticated users who lack permission
+async def test_non_admin_cannot_access_admin_endpoint(self, client: AsyncClient):
+    response = await client.get("/api/v1/admin/users")
+    assert response.status_code == 403  # User is authenticated but not admin
+```
+
+### Follow Existing Patterns
+Before writing new tests, check existing tests for patterns:
+```bash
+# Find how other tests handle unauthenticated requests
+grep -r "unauthenticated_client" backend/tests/ | grep "status_code"
+
+# Find test patterns for a specific module
+ls backend/tests/items/  # See what test files exist
+```
 
 ## Timezone Handling
 
