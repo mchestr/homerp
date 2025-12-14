@@ -139,6 +139,8 @@ export const itemsApi = {
     include_subcategories?: boolean;
     location_id?: string;
     include_sublocations?: boolean;
+    no_category?: boolean;
+    no_location?: boolean;
     search?: string;
     tags?: string[];
     attributes?: Record<string, string>;
@@ -155,6 +157,8 @@ export const itemsApi = {
       searchParams.set("location_id", params.location_id);
     if (params?.include_sublocations === false)
       searchParams.set("include_sublocations", "false");
+    if (params?.no_category) searchParams.set("no_category", "true");
+    if (params?.no_location) searchParams.set("no_location", "true");
     if (params?.search) searchParams.set("search", params.search);
     if (params?.tags) {
       params.tags.forEach((tag) => searchParams.append("tags", tag));
@@ -262,6 +266,12 @@ export const itemsApi = {
   findSimilar: (data: FindSimilarRequest) =>
     apiRequest<FindSimilarResponse>("/api/v1/items/find-similar", {
       method: "POST",
+      body: data,
+    }),
+
+  batchUpdate: (data: BatchUpdateRequest) =>
+    apiRequest<BatchUpdateResponse>("/api/v1/items/batch", {
+      method: "PATCH",
       body: data,
     }),
 };
@@ -566,6 +576,19 @@ export type ItemCreate = {
 };
 
 export type ItemUpdate = Partial<ItemCreate>;
+
+export type BatchUpdateRequest = {
+  item_ids: string[];
+  category_id?: string | null;
+  location_id?: string | null;
+  clear_category?: boolean;
+  clear_location?: boolean;
+};
+
+export type BatchUpdateResponse = {
+  updated_count: number;
+  item_ids: string[];
+};
 
 export type FacetValue = {
   value: string;

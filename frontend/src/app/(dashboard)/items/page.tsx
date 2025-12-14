@@ -17,6 +17,10 @@ import {
   Minus,
   LayoutGrid,
   LayoutList,
+  CheckSquare,
+  Square,
+  FolderX,
+  MapPinOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InlineFacetedFilter } from "@/components/items/faceted-filter";
@@ -45,6 +49,17 @@ export default function ItemsPage() {
   const categoryId = searchParams.get("category_id") || undefined;
   const locationId = searchParams.get("location_id") || undefined;
   const lowStock = searchParams.get("low_stock") === "true";
+  const noCategory = searchParams.get("no_category") === "true";
+  const noLocation = searchParams.get("no_location") === "true";
+
+  // Selection state for batch operations
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [showBatchPanel, setShowBatchPanel] = useState(false);
+  const [batchCategoryId, setBatchCategoryId] = useState<string>("");
+  const [batchLocationId, setBatchLocationId] = useState<string>("");
+  const [clearCategory, setClearCategory] = useState(false);
+  const [clearLocation, setClearLocation] = useState(false);
 
   // Parse tags from URL
   const tagsFromUrl = searchParams.getAll("tags");
@@ -73,6 +88,8 @@ export default function ItemsPage() {
         page,
         categoryId,
         locationId,
+        noCategory,
+        noLocation,
         search: searchQuery,
         lowStock,
         tags: tagsFromUrl,
@@ -85,6 +102,8 @@ export default function ItemsPage() {
         limit: 12,
         category_id: categoryId,
         location_id: locationId,
+        no_category: noCategory,
+        no_location: noLocation,
         search: searchQuery || undefined,
         tags: tagsFromUrl.length > 0 ? tagsFromUrl : undefined,
         attributes:
@@ -124,6 +143,21 @@ export default function ItemsPage() {
       itemsApi.updateQuantity(id, quantity),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["items"] });
+    },
+  });
+
+  const batchUpdateMutation = useMutation({
+    mutationFn: itemsApi.batchUpdate,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      // Reset selection state
+      setSelectedItems(new Set());
+      setIsSelectionMode(false);
+      setShowBatchPanel(false);
+      setBatchCategoryId("");
+      setBatchLocationId("");
+      setClearCategory(false);
+      setClearLocation(false);
     },
   });
 
@@ -201,9 +235,72 @@ export default function ItemsPage() {
     });
   };
 
+  // Selection handlers for batch operations
+  const toggleItemSelection = (e: React.MouseEvent, itemId: string) => {
+    if (!isSelectionMode) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedItems((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId);
+      } else {
+        newSet.add(itemId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (!itemsData?.items) return;
+    const allIds = itemsData.items.map((item) => item.id);
+    const allSelected = allIds.every((id) => selectedItems.has(id));
+    if (allSelected) {
+      setSelectedItems(new Set());
+    } else {
+      setSelectedItems(new Set(allIds));
+    }
+  };
+
+  const handleBatchUpdate = () => {
+    if (selectedItems.size === 0) return;
+
+    const request: {
+      item_ids: string[];
+      category_id?: string;
+      location_id?: string;
+      clear_category?: boolean;
+      clear_location?: boolean;
+    } = {
+      item_ids: Array.from(selectedItems),
+    };
+
+    if (clearCategory) {
+      request.clear_category = true;
+    } else if (batchCategoryId) {
+      request.category_id = batchCategoryId;
+    }
+
+    if (clearLocation) {
+      request.clear_location = true;
+    } else if (batchLocationId) {
+      request.location_id = batchLocationId;
+    }
+
+    batchUpdateMutation.mutate(request);
+  };
+
+  const exitSelectionMode = () => {
+    setIsSelectionMode(false);
+    setSelectedItems(new Set());
+    setShowBatchPanel(false);
+  };
+
   const hasActiveFilters =
     categoryId ||
     locationId ||
+    noCategory ||
+    noLocation ||
     lowStock ||
     searchQuery ||
     tagsFromUrl.length > 0 ||
@@ -220,13 +317,154 @@ export default function ItemsPage() {
             {t("itemCount", { count: itemsData?.total ?? 0 })}
           </p>
         </div>
-        <Link href="/items/new" data-testid="add-item-button">
-          <Button className="w-full sm:w-auto">
-            <Plus className="mr-2 h-4 w-4" />
-            {t("addItem")}
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          {isSelectionMode ? (
+            <>
+              <Button
+                variant="outline"
+                onClick={exitSelectionMode}
+                className="gap-2"
+              >
+                <X className="h-4 w-4" />
+                {tCommon("cancel")}
+              </Button>
+              <Button
+                variant="default"
+                onClick={() => setShowBatchPanel(true)}
+                disabled={selectedItems.size === 0}
+                className="gap-2"
+                data-testid="batch-update-button"
+              >
+                <CheckSquare className="h-4 w-4" />
+                {t("selectedCount", { count: selectedItems.size })}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => setIsSelectionMode(true)}
+                className="gap-2"
+                data-testid="enter-selection-mode"
+              >
+                <Square className="h-4 w-4" />
+                {t("selectItems")}
+              </Button>
+              <Link href="/items/new" data-testid="add-item-button">
+                <Button className="w-full sm:w-auto">
+                  <Plus className="mr-2 h-4 w-4" />
+                  {t("addItem")}
+                </Button>
+              </Link>
+            </>
+          )}
+        </div>
       </div>
+
+      {/* Batch Update Panel */}
+      {showBatchPanel && selectedItems.size > 0 && (
+        <div className="rounded-lg border bg-card p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold">{t("batchUpdateTitle")}</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowBatchPanel(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t("selectedCount", { count: selectedItems.size })}
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">{t("setCategory")}</label>
+              <select
+                value={batchCategoryId}
+                onChange={(e) => {
+                  setBatchCategoryId(e.target.value);
+                  if (e.target.value) setClearCategory(false);
+                }}
+                disabled={clearCategory}
+                className="h-9 w-full rounded-lg border bg-background px-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
+                data-testid="batch-category-select"
+              >
+                <option value="">-- {t("setCategory")} --</option>
+                {categories?.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.icon} {cat.name}
+                  </option>
+                ))}
+              </select>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={clearCategory}
+                  onChange={(e) => {
+                    setClearCategory(e.target.checked);
+                    if (e.target.checked) setBatchCategoryId("");
+                  }}
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                {t("clearCategory")}
+              </label>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">{t("setLocation")}</label>
+              <select
+                value={batchLocationId}
+                onChange={(e) => {
+                  setBatchLocationId(e.target.value);
+                  if (e.target.value) setClearLocation(false);
+                }}
+                disabled={clearLocation}
+                className="h-9 w-full rounded-lg border bg-background px-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
+                data-testid="batch-location-select"
+              >
+                <option value="">-- {t("setLocation")} --</option>
+                {locations?.map((loc) => (
+                  <option key={loc.id} value={loc.id}>
+                    {loc.name}
+                  </option>
+                ))}
+              </select>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={clearLocation}
+                  onChange={(e) => {
+                    setClearLocation(e.target.checked);
+                    if (e.target.checked) setBatchLocationId("");
+                  }}
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                {t("clearLocation")}
+              </label>
+            </div>
+          </div>
+          <div className="mt-4 flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setShowBatchPanel(false)}>
+              {tCommon("cancel")}
+            </Button>
+            <Button
+              onClick={handleBatchUpdate}
+              disabled={
+                batchUpdateMutation.isPending ||
+                (!batchCategoryId &&
+                  !batchLocationId &&
+                  !clearCategory &&
+                  !clearLocation)
+              }
+              data-testid="apply-batch-changes"
+            >
+              {batchUpdateMutation.isPending
+                ? tCommon("loading")
+                : t("applyChanges")}
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -262,6 +500,8 @@ export default function ItemsPage() {
                   [
                     categoryId,
                     locationId,
+                    noCategory,
+                    noLocation,
                     lowStock,
                     searchQuery,
                     tagsFromUrl.length > 0,
@@ -340,6 +580,52 @@ export default function ItemsPage() {
                   </option>
                 ))}
               </select>
+
+              <label
+                className={cn(
+                  "flex cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm transition-colors hover:bg-muted",
+                  noCategory && "border-primary bg-primary/5"
+                )}
+                data-testid="filter-no-category"
+              >
+                <input
+                  type="checkbox"
+                  checked={noCategory}
+                  onChange={(e) =>
+                    updateFilters({
+                      no_category: e.target.checked ? "true" : undefined,
+                      category_id: e.target.checked ? undefined : categoryId,
+                    })
+                  }
+                  disabled={!!categoryId}
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary disabled:opacity-50"
+                />
+                <FolderX className="h-4 w-4 text-muted-foreground" />
+                {t("uncategorizedOnly")}
+              </label>
+
+              <label
+                className={cn(
+                  "flex cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm transition-colors hover:bg-muted",
+                  noLocation && "border-primary bg-primary/5"
+                )}
+                data-testid="filter-no-location"
+              >
+                <input
+                  type="checkbox"
+                  checked={noLocation}
+                  onChange={(e) =>
+                    updateFilters({
+                      no_location: e.target.checked ? "true" : undefined,
+                      location_id: e.target.checked ? undefined : locationId,
+                    })
+                  }
+                  disabled={!!locationId}
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary disabled:opacity-50"
+                />
+                <MapPinOff className="h-4 w-4 text-muted-foreground" />
+                {t("noLocationOnly")}
+              </label>
 
               <label className="flex cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm transition-colors hover:bg-muted">
                 <input
@@ -449,43 +735,132 @@ export default function ItemsPage() {
         </div>
       ) : (
         <>
+          {/* Select All toggle in selection mode */}
+          {isSelectionMode && itemsData && itemsData.items.length > 0 && (
+            <div className="flex items-center gap-2 rounded-lg border bg-muted/50 px-4 py-2">
+              <button
+                type="button"
+                onClick={toggleSelectAll}
+                className="flex items-center gap-2 text-sm font-medium"
+                data-testid="select-all-toggle"
+              >
+                {itemsData.items.every((item) => selectedItems.has(item.id)) ? (
+                  <>
+                    <CheckSquare className="h-4 w-4 text-primary" />
+                    {t("deselectAll")}
+                  </>
+                ) : (
+                  <>
+                    <Square className="h-4 w-4" />
+                    {t("selectAll")}
+                  </>
+                )}
+              </button>
+              <span className="text-sm text-muted-foreground">
+                ({t("selectedCount", { count: selectedItems.size })})
+              </span>
+            </div>
+          )}
+
           {viewMode === "grid" ? (
             <div
               className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
               data-testid="items-grid-view"
             >
               {itemsData?.items.map((item) => (
-                <Link
+                <div
                   key={item.id}
-                  href={`/items/${item.id}`}
-                  className="group overflow-hidden rounded-xl border bg-card transition-all hover:border-primary/50 hover:shadow-lg"
+                  className={cn(
+                    "group relative overflow-hidden rounded-xl border bg-card transition-all",
+                    isSelectionMode
+                      ? selectedItems.has(item.id)
+                        ? "border-primary ring-2 ring-primary/20"
+                        : "cursor-pointer hover:border-primary/50"
+                      : "hover:border-primary/50 hover:shadow-lg"
+                  )}
+                  onClick={(e) =>
+                    isSelectionMode
+                      ? toggleItemSelection(e, item.id)
+                      : undefined
+                  }
                   data-testid={`item-card-${item.id}`}
                 >
-                  <div className="relative aspect-square bg-muted">
-                    {item.primary_image_url ? (
-                      <AuthenticatedImage
-                        imageId={item.primary_image_url.split("/").at(-2)!}
-                        alt={item.name}
-                        thumbnail
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        fallback={
+                  {/* Selection checkbox overlay */}
+                  {isSelectionMode && (
+                    <div className="absolute left-2 top-2 z-10">
+                      <div
+                        className={cn(
+                          "flex h-6 w-6 items-center justify-center rounded-md border-2 bg-background/80 backdrop-blur-sm",
+                          selectedItems.has(item.id)
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-muted-foreground/50"
+                        )}
+                      >
+                        {selectedItems.has(item.id) && (
+                          <CheckSquare className="h-4 w-4" />
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Wrap content in Link only when not in selection mode */}
+                  {isSelectionMode ? (
+                    <div className="relative aspect-square bg-muted">
+                      {item.primary_image_url ? (
+                        <AuthenticatedImage
+                          imageId={item.primary_image_url.split("/").at(-2)!}
+                          alt={item.name}
+                          thumbnail
+                          className="h-full w-full object-cover"
+                          fallback={
+                            <div className="flex h-full items-center justify-center">
+                              <Package className="h-16 w-16 text-muted-foreground/50" />
+                            </div>
+                          }
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center">
+                          <Package className="h-16 w-16 text-muted-foreground/50" />
+                        </div>
+                      )}
+                      {item.is_low_stock && (
+                        <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-medium text-white shadow-sm">
+                          <AlertTriangle className="h-3 w-3" />
+                          {t("lowStock")}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <Link href={`/items/${item.id}`}>
+                      <div className="relative aspect-square bg-muted">
+                        {item.primary_image_url ? (
+                          <AuthenticatedImage
+                            imageId={item.primary_image_url.split("/").at(-2)!}
+                            alt={item.name}
+                            thumbnail
+                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            fallback={
+                              <div className="flex h-full items-center justify-center">
+                                <Package className="h-16 w-16 text-muted-foreground/50" />
+                              </div>
+                            }
+                          />
+                        ) : (
                           <div className="flex h-full items-center justify-center">
                             <Package className="h-16 w-16 text-muted-foreground/50" />
                           </div>
-                        }
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center">
-                        <Package className="h-16 w-16 text-muted-foreground/50" />
+                        )}
+                        {item.is_low_stock && (
+                          <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-medium text-white shadow-sm">
+                            <AlertTriangle className="h-3 w-3" />
+                            {t("lowStock")}
+                          </div>
+                        )}
                       </div>
-                    )}
-                    {item.is_low_stock && (
-                      <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-medium text-white shadow-sm">
-                        <AlertTriangle className="h-3 w-3" />
-                        {t("lowStock")}
-                      </div>
-                    )}
-                  </div>
+                    </Link>
+                  )}
+
+                  {/* Item details section */}
                   <div className="p-4">
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="truncate font-semibold transition-colors group-hover:text-primary">
@@ -553,7 +928,7 @@ export default function ItemsPage() {
                       </span>
                     </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           ) : (
@@ -564,6 +939,11 @@ export default function ItemsPage() {
               <table className="w-full">
                 <thead className="border-b bg-muted/50">
                   <tr>
+                    {isSelectionMode && (
+                      <th className="w-10 whitespace-nowrap px-2 py-3 text-center">
+                        <span className="sr-only">Select</span>
+                      </th>
+                    )}
                     <th className="whitespace-nowrap px-4 py-3 text-left text-sm font-medium">
                       {tCommon("name")}
                     </th>
@@ -585,47 +965,112 @@ export default function ItemsPage() {
                   {itemsData?.items.map((item) => (
                     <tr
                       key={item.id}
-                      className="group transition-colors hover:bg-muted/50"
+                      className={cn(
+                        "group transition-colors",
+                        isSelectionMode
+                          ? selectedItems.has(item.id)
+                            ? "bg-primary/5"
+                            : "cursor-pointer hover:bg-muted/50"
+                          : "hover:bg-muted/50"
+                      )}
+                      onClick={(e) =>
+                        isSelectionMode
+                          ? toggleItemSelection(e, item.id)
+                          : undefined
+                      }
                       data-testid={`item-row-${item.id}`}
                     >
+                      {isSelectionMode && (
+                        <td className="px-2 py-3 text-center">
+                          <div
+                            className={cn(
+                              "mx-auto flex h-5 w-5 items-center justify-center rounded border-2",
+                              selectedItems.has(item.id)
+                                ? "border-primary bg-primary text-primary-foreground"
+                                : "border-muted-foreground/50"
+                            )}
+                          >
+                            {selectedItems.has(item.id) && (
+                              <CheckSquare className="h-3 w-3" />
+                            )}
+                          </div>
+                        </td>
+                      )}
                       <td className="px-4 py-3">
-                        <Link
-                          href={`/items/${item.id}`}
-                          className="flex items-center gap-3"
-                        >
-                          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
-                            {item.primary_image_url ? (
-                              <AuthenticatedImage
-                                imageId={
-                                  item.primary_image_url.split("/").at(-2)!
-                                }
-                                alt={item.name}
-                                thumbnail
-                                className="h-full w-full object-cover"
-                                fallback={
-                                  <div className="flex h-full items-center justify-center">
-                                    <Package className="h-5 w-5 text-muted-foreground/50" />
-                                  </div>
-                                }
-                              />
-                            ) : (
-                              <div className="flex h-full items-center justify-center">
-                                <Package className="h-5 w-5 text-muted-foreground/50" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <span className="block truncate font-medium transition-colors group-hover:text-primary">
-                              {item.name}
-                            </span>
-                            {item.is_low_stock && (
-                              <span className="inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
-                                <AlertTriangle className="h-3 w-3" />
-                                {t("lowStock")}
+                        {isSelectionMode ? (
+                          <div className="flex items-center gap-3">
+                            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
+                              {item.primary_image_url ? (
+                                <AuthenticatedImage
+                                  imageId={
+                                    item.primary_image_url.split("/").at(-2)!
+                                  }
+                                  alt={item.name}
+                                  thumbnail
+                                  className="h-full w-full object-cover"
+                                  fallback={
+                                    <div className="flex h-full items-center justify-center">
+                                      <Package className="h-5 w-5 text-muted-foreground/50" />
+                                    </div>
+                                  }
+                                />
+                              ) : (
+                                <div className="flex h-full items-center justify-center">
+                                  <Package className="h-5 w-5 text-muted-foreground/50" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <span className="block truncate font-medium">
+                                {item.name}
                               </span>
-                            )}
+                              {item.is_low_stock && (
+                                <span className="inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+                                  <AlertTriangle className="h-3 w-3" />
+                                  {t("lowStock")}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        </Link>
+                        ) : (
+                          <Link
+                            href={`/items/${item.id}`}
+                            className="flex items-center gap-3"
+                          >
+                            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
+                              {item.primary_image_url ? (
+                                <AuthenticatedImage
+                                  imageId={
+                                    item.primary_image_url.split("/").at(-2)!
+                                  }
+                                  alt={item.name}
+                                  thumbnail
+                                  className="h-full w-full object-cover"
+                                  fallback={
+                                    <div className="flex h-full items-center justify-center">
+                                      <Package className="h-5 w-5 text-muted-foreground/50" />
+                                    </div>
+                                  }
+                                />
+                              ) : (
+                                <div className="flex h-full items-center justify-center">
+                                  <Package className="h-5 w-5 text-muted-foreground/50" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <span className="block truncate font-medium transition-colors group-hover:text-primary">
+                                {item.name}
+                              </span>
+                              {item.is_low_stock && (
+                                <span className="inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+                                  <AlertTriangle className="h-3 w-3" />
+                                  {t("lowStock")}
+                                </span>
+                              )}
+                            </div>
+                          </Link>
+                        )}
                       </td>
                       <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-muted-foreground sm:table-cell">
                         {item.category?.icon}{" "}

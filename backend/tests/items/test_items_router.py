@@ -831,3 +831,230 @@ class TestItemQRCodeEndpoint:
         assert response.status_code == 200
         assert "cache-control" in response.headers
         assert "max-age" in response.headers["cache-control"]
+
+
+class TestListItemsFilterByNoCategory:
+    """Tests for GET /api/v1/items with no_category filter."""
+
+    async def test_filter_items_without_category(
+        self, authenticated_client: AsyncClient, async_session, test_user
+    ):
+        """Test filtering items that have no category assigned."""
+        # Create an item without a category
+        uncategorized_item = Item(
+            name="Uncategorized Item",
+            quantity=1,
+            user_id=test_user.id,
+            category_id=None,
+        )
+        async_session.add(uncategorized_item)
+        await async_session.commit()
+
+        response = await authenticated_client.get(
+            "/api/v1/items", params={"no_category": "true"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["items"]) == 1
+        assert data["items"][0]["name"] == "Uncategorized Item"
+
+    async def test_filter_excludes_categorized_items(
+        self,
+        authenticated_client: AsyncClient,
+        test_item: Item,  # This has a category
+    ):
+        """Test that items with category are excluded when filtering for uncategorized."""
+        response = await authenticated_client.get(
+            "/api/v1/items", params={"no_category": "true"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["items"]) == 0
+
+
+class TestListItemsFilterByNoLocation:
+    """Tests for GET /api/v1/items with no_location filter."""
+
+    async def test_filter_items_without_location(
+        self, authenticated_client: AsyncClient, async_session, test_user
+    ):
+        """Test filtering items that have no location assigned."""
+        # Create an item without a location
+        no_location_item = Item(
+            name="No Location Item",
+            quantity=1,
+            user_id=test_user.id,
+            location_id=None,
+        )
+        async_session.add(no_location_item)
+        await async_session.commit()
+
+        response = await authenticated_client.get(
+            "/api/v1/items", params={"no_location": "true"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["items"]) == 1
+        assert data["items"][0]["name"] == "No Location Item"
+
+    async def test_filter_excludes_items_with_location(
+        self,
+        authenticated_client: AsyncClient,
+        test_item: Item,  # This has a location
+    ):
+        """Test that items with location are excluded when filtering for no location."""
+        response = await authenticated_client.get(
+            "/api/v1/items", params={"no_location": "true"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["items"]) == 0
+
+
+class TestBatchUpdateItemsEndpoint:
+    """Tests for PATCH /api/v1/items/batch."""
+
+    async def test_batch_update_category(
+        self,
+        authenticated_client: AsyncClient,
+        async_session,
+        test_user,
+        test_category: Category,
+    ):
+        """Test batch updating items with a new category."""
+        # Create items without category
+        item1 = Item(name="Item 1", quantity=1, user_id=test_user.id, category_id=None)
+        item2 = Item(name="Item 2", quantity=2, user_id=test_user.id, category_id=None)
+        async_session.add_all([item1, item2])
+        await async_session.commit()
+        await async_session.refresh(item1)
+        await async_session.refresh(item2)
+
+        response = await authenticated_client.patch(
+            "/api/v1/items/batch",
+            json={
+                "item_ids": [str(item1.id), str(item2.id)],
+                "category_id": str(test_category.id),
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["updated_count"] == 2
+        assert len(data["item_ids"]) == 2
+
+    async def test_batch_update_location(
+        self,
+        authenticated_client: AsyncClient,
+        async_session,
+        test_user,
+        test_location: Location,
+    ):
+        """Test batch updating items with a new location."""
+        # Create items without location
+        item1 = Item(name="Item 1", quantity=1, user_id=test_user.id, location_id=None)
+        item2 = Item(name="Item 2", quantity=2, user_id=test_user.id, location_id=None)
+        async_session.add_all([item1, item2])
+        await async_session.commit()
+        await async_session.refresh(item1)
+        await async_session.refresh(item2)
+
+        response = await authenticated_client.patch(
+            "/api/v1/items/batch",
+            json={
+                "item_ids": [str(item1.id), str(item2.id)],
+                "location_id": str(test_location.id),
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["updated_count"] == 2
+
+    async def test_batch_update_clear_category(
+        self,
+        authenticated_client: AsyncClient,
+        test_item: Item,  # Has a category
+    ):
+        """Test batch clearing category from items."""
+        response = await authenticated_client.patch(
+            "/api/v1/items/batch",
+            json={
+                "item_ids": [str(test_item.id)],
+                "clear_category": True,
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["updated_count"] == 1
+
+        # Verify the item now has no category
+        item_response = await authenticated_client.get(f"/api/v1/items/{test_item.id}")
+        assert item_response.json()["category"] is None
+
+    async def test_batch_update_clear_location(
+        self,
+        authenticated_client: AsyncClient,
+        test_item: Item,  # Has a location
+    ):
+        """Test batch clearing location from items."""
+        response = await authenticated_client.patch(
+            "/api/v1/items/batch",
+            json={
+                "item_ids": [str(test_item.id)],
+                "clear_location": True,
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["updated_count"] == 1
+
+        # Verify the item now has no location
+        item_response = await authenticated_client.get(f"/api/v1/items/{test_item.id}")
+        assert item_response.json()["location"] is None
+
+    async def test_batch_update_empty_item_ids(self, authenticated_client: AsyncClient):
+        """Test batch update with empty item_ids list returns validation error."""
+        response = await authenticated_client.patch(
+            "/api/v1/items/batch",
+            json={"item_ids": []},
+        )
+
+        assert response.status_code == 422
+
+    async def test_batch_update_nonexistent_items(
+        self, authenticated_client: AsyncClient, test_category: Category
+    ):
+        """Test batch update with non-existent item IDs returns empty result."""
+        response = await authenticated_client.patch(
+            "/api/v1/items/batch",
+            json={
+                "item_ids": [str(uuid.uuid4()), str(uuid.uuid4())],
+                "category_id": str(test_category.id),
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["updated_count"] == 0
+        assert len(data["item_ids"]) == 0
+
+    async def test_batch_update_unauthenticated(
+        self, unauthenticated_client: AsyncClient
+    ):
+        """Test that unauthenticated request returns 401."""
+        response = await unauthenticated_client.patch(
+            "/api/v1/items/batch",
+            json={
+                "item_ids": [str(uuid.uuid4())],
+                "category_id": str(uuid.uuid4()),
+            },
+        )
+
+        assert response.status_code == 401
