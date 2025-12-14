@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Package, AlertTriangle, ExternalLink, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AuthenticatedImage } from "@/components/ui/authenticated-image";
 import { SimilarItemMatch } from "@/lib/api/api-client";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -55,10 +56,12 @@ export function SimilarItemsDisplay({
             {/* Image placeholder or actual image */}
             <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/50">
               {item.primary_image_url ? (
-                <img
-                  src={item.primary_image_url}
+                <AuthenticatedImage
+                  imageId={item.primary_image_url.split("/").at(-2)!}
                   alt={item.name}
+                  thumbnail
                   className="h-full w-full rounded-lg object-cover"
+                  fallback={<Package className="h-8 w-8 text-amber-400" />}
                 />
               ) : (
                 <Package className="h-8 w-8 text-amber-400" />
