@@ -9,6 +9,8 @@ from src.common.schemas import PaginatedResponse
 from src.database import AsyncSessionDep
 from src.items.repository import ItemRepository
 from src.items.schemas import (
+    BatchUpdateRequest,
+    BatchUpdateResponse,
     CheckInOutCreate,
     CheckInOutResponse,
     DashboardStatsResponse,
@@ -53,6 +55,8 @@ async def list_items(
     include_sublocations: bool = Query(
         True, description="Include items from sublocations"
     ),
+    no_category: bool = Query(False, description="Filter items without a category"),
+    no_location: bool = Query(False, description="Filter items without a location"),
     search: str | None = Query(None),
     tags: Annotated[
         list[str] | None, Query(description="Filter by tags (AND logic)")
@@ -68,6 +72,9 @@ async def list_items(
 
     When filtering by category or location, child categories/locations are included by default.
     Set include_subcategories=false or include_sublocations=false to filter by exact match only.
+
+    Use no_category=true to filter items without any category assigned.
+    Use no_location=true to filter items without any location assigned.
 
     Filter by tags using ?tags=tag1&tags=tag2 (items must have ALL specified tags).
     Filter by attributes using ?attr=key1:value1&attr=key2:value2.
@@ -89,6 +96,8 @@ async def list_items(
         include_subcategories=include_subcategories,
         location_id=location_id,
         include_sublocations=include_sublocations,
+        no_category=no_category,
+        no_location=no_location,
         search=search,
         tags=tags,
         attribute_filters=attribute_filters,
@@ -102,6 +111,8 @@ async def list_items(
         include_subcategories=include_subcategories,
         location_id=location_id,
         include_sublocations=include_sublocations,
+        no_category=no_category,
+        no_location=no_location,
         search=search,
         tags=tags,
         attribute_filters=attribute_filters,
@@ -165,6 +176,39 @@ async def create_item(
         primary_image_url=_get_primary_image_url(item),
         created_at=item.created_at,
         updated_at=item.updated_at,
+    )
+
+
+@router.patch("/batch")
+async def batch_update_items(
+    data: BatchUpdateRequest,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+) -> BatchUpdateResponse:
+    """Batch update multiple items with the same category and/or location.
+
+    Use this endpoint to assign a category or location to multiple items at once.
+    You can also use clear_category=true or clear_location=true to remove
+    the category or location from the selected items.
+    """
+    repo = ItemRepository(session, user_id)
+    try:
+        updated_ids = await repo.batch_update(
+            data.item_ids,
+            category_id=data.category_id,
+            location_id=data.location_id,
+            clear_category=data.clear_category,
+            clear_location=data.clear_location,
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from None
+
+    return BatchUpdateResponse(
+        updated_count=len(updated_ids),
+        item_ids=updated_ids,
     )
 
 

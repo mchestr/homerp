@@ -101,6 +101,8 @@
     "allCategories": "All Categories",
     "allLocations": "All Locations",
     "lowStockOnly": "Low stock only",
+    "uncategorizedOnly": "Uncategorized",
+    "noLocationOnly": "No location",
     "filterByTags": "Filter by tags",
     "loadingItems": "Loading items...",
     "noItemsFound": "No items found",
@@ -131,7 +133,18 @@
     "images": "Images",
     "notes": "Notes",
     "price": "Price",
-    "quantityEstimateFromAi": "AI estimate: {estimate}"
+    "quantityEstimateFromAi": "AI estimate: {estimate}",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
+    "selectedCount": "{count} selected",
+    "batchUpdateTitle": "Update Selected Items",
+    "setCategory": "Set category",
+    "setLocation": "Set location",
+    "clearCategory": "Clear category",
+    "clearLocation": "Clear location",
+    "applyChanges": "Apply Changes",
+    "batchUpdateSuccess": "Successfully updated {count} items",
+    "selectItems": "Select items to batch update"
   },
   "categories": {
     "title": "Categories",

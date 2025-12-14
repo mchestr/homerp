@@ -132,6 +132,8 @@ class ItemRepository:
         include_subcategories: bool = True,
         location_id: UUID | None = None,
         include_sublocations: bool = True,
+        no_category: bool = False,
+        no_location: bool = False,
         search: str | None = None,
         tags: list[str] | None = None,
         attribute_filters: dict[str, str] | None = None,
@@ -142,14 +144,20 @@ class ItemRepository:
         """Get items with filtering and pagination."""
         query = self._base_query()
 
-        if category_id:
+        # Filter by no category (uncategorized items)
+        if no_category:
+            query = query.where(Item.category_id.is_(None))
+        elif category_id:
             if include_subcategories:
                 category_ids = await self._get_category_descendant_ids(category_id)
                 query = query.where(Item.category_id.in_(category_ids))
             else:
                 query = query.where(Item.category_id == category_id)
 
-        if location_id:
+        # Filter by no location (items without location)
+        if no_location:
+            query = query.where(Item.location_id.is_(None))
+        elif location_id:
             if include_sublocations:
                 location_ids = await self._get_location_descendant_ids(location_id)
                 query = query.where(Item.location_id.in_(location_ids))
@@ -200,6 +208,8 @@ class ItemRepository:
         include_subcategories: bool = True,
         location_id: UUID | None = None,
         include_sublocations: bool = True,
+        no_category: bool = False,
+        no_location: bool = False,
         search: str | None = None,
         tags: list[str] | None = None,
         attribute_filters: dict[str, str] | None = None,
@@ -208,14 +218,20 @@ class ItemRepository:
         """Count items with filtering."""
         query = select(func.count(Item.id)).where(Item.user_id == self.user_id)
 
-        if category_id:
+        # Filter by no category (uncategorized items)
+        if no_category:
+            query = query.where(Item.category_id.is_(None))
+        elif category_id:
             if include_subcategories:
                 category_ids = await self._get_category_descendant_ids(category_id)
                 query = query.where(Item.category_id.in_(category_ids))
             else:
                 query = query.where(Item.category_id == category_id)
 
-        if location_id:
+        # Filter by no location (items without location)
+        if no_location:
+            query = query.where(Item.location_id.is_(None))
+        elif location_id:
             if include_sublocations:
                 location_ids = await self._get_location_descendant_ids(location_id)
                 query = query.where(Item.location_id.in_(location_ids))
@@ -323,6 +339,62 @@ class ItemRepository:
         """Delete an item."""
         await self.session.delete(item)
         await self.session.commit()
+
+    async def batch_update(
+        self,
+        item_ids: list[UUID],
+        *,
+        category_id: UUID | None = None,
+        location_id: UUID | None = None,
+        clear_category: bool = False,
+        clear_location: bool = False,
+    ) -> list[UUID]:
+        """Batch update multiple items with the same category and/or location.
+
+        Args:
+            item_ids: List of item IDs to update
+            category_id: New category ID to set (if provided)
+            location_id: New location ID to set (if provided)
+            clear_category: If True, set category_id to None
+            clear_location: If True, set location_id to None
+
+        Returns:
+            List of actually updated item IDs
+        """
+        # Validate ownership of target category/location
+        if category_id:
+            await self._validate_category_ownership(category_id)
+        if location_id:
+            await self._validate_location_ownership(location_id)
+
+        # Get items belonging to current user
+        result = await self.session.execute(
+            select(Item).where(
+                Item.user_id == self.user_id,
+                Item.id.in_(item_ids),
+            )
+        )
+        items = list(result.scalars().all())
+
+        if not items:
+            return []
+
+        updated_ids = []
+        for item in items:
+            if clear_category:
+                item.category_id = None
+            elif category_id is not None:
+                item.category_id = category_id
+
+            if clear_location:
+                item.location_id = None
+            elif location_id is not None:
+                item.location_id = location_id
+
+            updated_ids.append(item.id)
+
+        await self.session.commit()
+        return updated_ids
 
     async def search(self, query: str, limit: int = 20) -> list[Item]:
         """Search items by name, description, or tags."""

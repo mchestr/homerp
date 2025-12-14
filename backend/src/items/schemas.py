@@ -233,3 +233,24 @@ class FindSimilarResponse(BaseModel):
 
     similar_items: list[SimilarItemMatch]
     total_searched: int
+
+
+class BatchUpdateRequest(BaseModel):
+    """Schema for batch updating multiple items."""
+
+    item_ids: list[UUID] = Field(..., min_length=1, max_length=100)
+    category_id: UUID | None = None
+    location_id: UUID | None = None
+    clear_category: bool = Field(
+        default=False, description="Set to true to remove category from items"
+    )
+    clear_location: bool = Field(
+        default=False, description="Set to true to remove location from items"
+    )
+
+
+class BatchUpdateResponse(BaseModel):
+    """Response for batch update operation."""
+
+    updated_count: int
+    item_ids: list[UUID]
