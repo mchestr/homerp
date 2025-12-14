@@ -690,7 +690,21 @@
     "autoLayout": "Auto-Arrange",
     "exportPdf": "Export PDF",
     "printLabels": "Print Labels",
-    "positionCode": "Position"
+    "positionCode": "Position",
+    "placementDialog": {
+      "title": "Select Bin Size",
+      "description": "Choose the bin size for \"{item}\"",
+      "recommended": "Recommended Size",
+      "binSize": "Bin Size (grid units)",
+      "width": "Width",
+      "depth": "Depth",
+      "preview": "{width}×{depth} grid units ({widthMm}×{depthMm}mm)",
+      "place": "Place Item"
+    },
+    "editPlacementDialog": {
+      "title": "Edit Bin Size",
+      "description": "Adjust the bin size for this placement"
+    }
   },
   "labels": {
     "printLabel": "Print Label",

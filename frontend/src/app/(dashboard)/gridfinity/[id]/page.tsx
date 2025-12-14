@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -23,9 +23,25 @@ import {
   GripVertical,
   X,
   AlertCircle,
+  Grid3X3,
+  Maximize2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   gridfinityApi,
   itemsApi,
@@ -33,6 +49,7 @@ import {
   GridfinityPlacementCreate,
   ItemListItem,
   AutoLayoutResult,
+  BinRecommendation,
 } from "@/lib/api/api-client";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -42,6 +59,34 @@ type DraggableItem = {
   item?: ItemListItem;
   placement?: GridfinityPlacement;
 };
+
+// Pending placement state for the placement dialog
+type PendingPlacement = {
+  item: ItemListItem;
+  gridX: number;
+  gridY: number;
+  widthUnits: number;
+  depthUnits: number;
+  recommendation?: BinRecommendation;
+};
+
+// Placement being edited
+type EditingPlacement = {
+  placement: GridfinityPlacement;
+  widthUnits: number;
+  depthUnits: number;
+};
+
+// Common bin size presets
+const BIN_SIZE_PRESETS = [
+  { width: 1, depth: 1, label: "1×1" },
+  { width: 1, depth: 2, label: "1×2" },
+  { width: 2, depth: 1, label: "2×1" },
+  { width: 2, depth: 2, label: "2×2" },
+  { width: 2, depth: 3, label: "2×3" },
+  { width: 3, depth: 2, label: "3×2" },
+  { width: 3, depth: 3, label: "3×3" },
+];
 
 export default function GridfinityEditorPage() {
   const params = useParams();
@@ -53,6 +98,10 @@ export default function GridfinityEditorPage() {
   const [itemSearch, setItemSearch] = useState("");
   const [activeItem, setActiveItem] = useState<DraggableItem | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [pendingPlacement, setPendingPlacement] =
+    useState<PendingPlacement | null>(null);
+  const [editingPlacement, setEditingPlacement] =
+    useState<EditingPlacement | null>(null);
 
   // Configure pointer sensor with a small activation constraint to distinguish click from drag
   const sensors = useSensors(
@@ -76,12 +125,39 @@ export default function GridfinityEditorPage() {
       itemsApi.list({ search: itemSearch || undefined, limit: 50 }),
   });
 
+  // Get available item IDs for bin recommendations
+  const availableItemIds = useMemo(() => {
+    const placedIds = new Set(unit?.placements?.map((p) => p.item_id) || []);
+    return (
+      itemsData?.items
+        ?.filter((item) => !placedIds.has(item.id))
+        .map((i) => i.id) || []
+    );
+  }, [itemsData?.items, unit?.placements]);
+
+  // Fetch bin recommendations for available items
+  const { data: binRecommendations } = useQuery({
+    queryKey: ["gridfinity", "recommendations", availableItemIds],
+    queryFn: () => gridfinityApi.recommendBins(availableItemIds),
+    enabled: availableItemIds.length > 0,
+  });
+
+  // Create a map of recommendations by item ID
+  const recommendationsMap = useMemo(() => {
+    const map = new Map<string, BinRecommendation>();
+    binRecommendations?.recommendations?.forEach((rec) => {
+      map.set(rec.item_id, rec);
+    });
+    return map;
+  }, [binRecommendations]);
+
   // Create placement mutation
   const createPlacementMutation = useMutation({
     mutationFn: (data: GridfinityPlacementCreate) =>
       gridfinityApi.createPlacement(unitId, data),
     onSuccess: () => {
       setErrorMessage(null);
+      setPendingPlacement(null);
       queryClient.invalidateQueries({
         queryKey: ["gridfinity", "units", unitId, "layout"],
       });
@@ -98,10 +174,16 @@ export default function GridfinityEditorPage() {
       data,
     }: {
       placementId: string;
-      data: { grid_x: number; grid_y: number };
+      data: {
+        grid_x?: number;
+        grid_y?: number;
+        width_units?: number;
+        depth_units?: number;
+      };
     }) => gridfinityApi.updatePlacement(placementId, data),
     onSuccess: () => {
       setErrorMessage(null);
+      setEditingPlacement(null);
       queryClient.invalidateQueries({
         queryKey: ["gridfinity", "units", unitId, "layout"],
       });
@@ -210,13 +292,15 @@ export default function GridfinityEditorPage() {
     const overData = over.data.current as { x: number; y: number };
 
     if (activeData.type === "item" && activeData.item) {
-      // Dropping a new item from the sidebar
-      createPlacementMutation.mutate({
-        item_id: activeData.item.id,
-        grid_x: overData.x,
-        grid_y: overData.y,
-        width_units: 1,
-        depth_units: 1,
+      // Show placement dialog with bin size recommendations
+      const recommendation = recommendationsMap.get(activeData.item.id);
+      setPendingPlacement({
+        item: activeData.item,
+        gridX: overData.x,
+        gridY: overData.y,
+        widthUnits: recommendation?.recommended_width_units || 1,
+        depthUnits: recommendation?.recommended_depth_units || 1,
+        recommendation,
       });
     } else if (activeData.type === "placement" && activeData.placement) {
       // Moving an existing placement
@@ -226,6 +310,39 @@ export default function GridfinityEditorPage() {
       });
     }
   };
+
+  // Handle confirm placement from dialog
+  const handleConfirmPlacement = useCallback(() => {
+    if (!pendingPlacement) return;
+    createPlacementMutation.mutate({
+      item_id: pendingPlacement.item.id,
+      grid_x: pendingPlacement.gridX,
+      grid_y: pendingPlacement.gridY,
+      width_units: pendingPlacement.widthUnits,
+      depth_units: pendingPlacement.depthUnits,
+    });
+  }, [pendingPlacement, createPlacementMutation]);
+
+  // Handle confirm edit placement
+  const handleConfirmEditPlacement = useCallback(() => {
+    if (!editingPlacement) return;
+    updatePlacementMutation.mutate({
+      placementId: editingPlacement.placement.id,
+      data: {
+        width_units: editingPlacement.widthUnits,
+        depth_units: editingPlacement.depthUnits,
+      },
+    });
+  }, [editingPlacement, updatePlacementMutation]);
+
+  // Handle opening edit dialog for a placement
+  const handleEditPlacement = useCallback((placement: GridfinityPlacement) => {
+    setEditingPlacement({
+      placement,
+      widthUnits: placement.width_units,
+      depthUnits: placement.depth_units,
+    });
+  }, []);
 
   const handleAutoLayout = () => {
     if (availableItems.length === 0) return;
@@ -356,6 +473,11 @@ export default function GridfinityEditorPage() {
                           ? () => deletePlacementMutation.mutate(placement.id)
                           : undefined
                       }
+                      onEdit={
+                        isOrigin
+                          ? () => handleEditPlacement(placement)
+                          : undefined
+                      }
                     />
                   );
                 })
@@ -391,7 +513,11 @@ export default function GridfinityEditorPage() {
                 </p>
               ) : (
                 availableItems.map((item) => (
-                  <DraggableItemCard key={item.id} item={item} />
+                  <DraggableItemCard
+                    key={item.id}
+                    item={item}
+                    recommendation={recommendationsMap.get(item.id)}
+                  />
                 ))
               )}
             </div>
@@ -416,6 +542,268 @@ export default function GridfinityEditorPage() {
           </div>
         )}
       </DragOverlay>
+
+      {/* Placement Dialog */}
+      <Dialog
+        open={!!pendingPlacement}
+        onOpenChange={(open) => !open && setPendingPlacement(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("placementDialog.title")}</DialogTitle>
+            <DialogDescription>
+              {t("placementDialog.description", {
+                item: pendingPlacement?.item.name ?? "",
+              })}
+            </DialogDescription>
+          </DialogHeader>
+          {pendingPlacement && (
+            <div className="space-y-4">
+              {/* Recommendation info */}
+              {pendingPlacement.recommendation && (
+                <div className="rounded-lg bg-muted p-3">
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <Grid3X3 className="h-4 w-4" />
+                    {t("placementDialog.recommended")}
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {pendingPlacement.recommendation.reasoning}
+                  </p>
+                </div>
+              )}
+
+              {/* Size selector */}
+              <div className="space-y-2">
+                <Label>{t("placementDialog.binSize")}</Label>
+                <div className="grid grid-cols-4 gap-2">
+                  {BIN_SIZE_PRESETS.filter(
+                    (preset) =>
+                      pendingPlacement.gridX + preset.width <=
+                        (unit?.grid_columns || 1) &&
+                      pendingPlacement.gridY + preset.depth <=
+                        (unit?.grid_rows || 1)
+                  ).map((preset) => {
+                    const isRecommended =
+                      preset.width ===
+                        pendingPlacement.recommendation
+                          ?.recommended_width_units &&
+                      preset.depth ===
+                        pendingPlacement.recommendation
+                          ?.recommended_depth_units;
+                    const isSelected =
+                      preset.width === pendingPlacement.widthUnits &&
+                      preset.depth === pendingPlacement.depthUnits;
+                    return (
+                      <Button
+                        key={preset.label}
+                        variant={isSelected ? "default" : "outline"}
+                        size="sm"
+                        className={cn(
+                          "relative",
+                          isRecommended && !isSelected && "border-primary"
+                        )}
+                        onClick={() =>
+                          setPendingPlacement({
+                            ...pendingPlacement,
+                            widthUnits: preset.width,
+                            depthUnits: preset.depth,
+                          })
+                        }
+                      >
+                        {preset.label}
+                        {isRecommended && (
+                          <span className="absolute -right-1 -top-1 flex h-3 w-3 items-center justify-center rounded-full bg-primary text-[8px] text-primary-foreground">
+                            ✓
+                          </span>
+                        )}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Custom size inputs */}
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <Label>{t("placementDialog.width")}</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={(unit?.grid_columns || 1) - pendingPlacement.gridX}
+                    value={pendingPlacement.widthUnits}
+                    onChange={(e) =>
+                      setPendingPlacement({
+                        ...pendingPlacement,
+                        widthUnits: Math.max(1, parseInt(e.target.value) || 1),
+                      })
+                    }
+                  />
+                </div>
+                <X className="mt-6 h-4 w-4 text-muted-foreground" />
+                <div className="flex-1">
+                  <Label>{t("placementDialog.depth")}</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={(unit?.grid_rows || 1) - pendingPlacement.gridY}
+                    value={pendingPlacement.depthUnits}
+                    onChange={(e) =>
+                      setPendingPlacement({
+                        ...pendingPlacement,
+                        depthUnits: Math.max(1, parseInt(e.target.value) || 1),
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Preview */}
+              <div className="rounded-lg border p-3">
+                <p className="text-sm text-muted-foreground">
+                  {t("placementDialog.preview", {
+                    width: pendingPlacement.widthUnits,
+                    depth: pendingPlacement.depthUnits,
+                    widthMm: pendingPlacement.widthUnits * 42,
+                    depthMm: pendingPlacement.depthUnits * 42,
+                  })}
+                </p>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPendingPlacement(null)}>
+              {tCommon("cancel")}
+            </Button>
+            <Button
+              onClick={handleConfirmPlacement}
+              disabled={createPlacementMutation.isPending}
+            >
+              {createPlacementMutation.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {t("placementDialog.place")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Placement Dialog */}
+      <Dialog
+        open={!!editingPlacement}
+        onOpenChange={(open) => !open && setEditingPlacement(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("editPlacementDialog.title")}</DialogTitle>
+            <DialogDescription>
+              {t("editPlacementDialog.description")}
+            </DialogDescription>
+          </DialogHeader>
+          {editingPlacement && (
+            <div className="space-y-4">
+              {/* Size selector */}
+              <div className="space-y-2">
+                <Label>{t("placementDialog.binSize")}</Label>
+                <div className="grid grid-cols-4 gap-2">
+                  {BIN_SIZE_PRESETS.filter(
+                    (preset) =>
+                      editingPlacement.placement.grid_x + preset.width <=
+                        (unit?.grid_columns || 1) &&
+                      editingPlacement.placement.grid_y + preset.depth <=
+                        (unit?.grid_rows || 1)
+                  ).map((preset) => {
+                    const isSelected =
+                      preset.width === editingPlacement.widthUnits &&
+                      preset.depth === editingPlacement.depthUnits;
+                    return (
+                      <Button
+                        key={preset.label}
+                        variant={isSelected ? "default" : "outline"}
+                        size="sm"
+                        onClick={() =>
+                          setEditingPlacement({
+                            ...editingPlacement,
+                            widthUnits: preset.width,
+                            depthUnits: preset.depth,
+                          })
+                        }
+                      >
+                        {preset.label}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Custom size inputs */}
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <Label>{t("placementDialog.width")}</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={
+                      (unit?.grid_columns || 1) -
+                      editingPlacement.placement.grid_x
+                    }
+                    value={editingPlacement.widthUnits}
+                    onChange={(e) =>
+                      setEditingPlacement({
+                        ...editingPlacement,
+                        widthUnits: Math.max(1, parseInt(e.target.value) || 1),
+                      })
+                    }
+                  />
+                </div>
+                <X className="mt-6 h-4 w-4 text-muted-foreground" />
+                <div className="flex-1">
+                  <Label>{t("placementDialog.depth")}</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={
+                      (unit?.grid_rows || 1) - editingPlacement.placement.grid_y
+                    }
+                    value={editingPlacement.depthUnits}
+                    onChange={(e) =>
+                      setEditingPlacement({
+                        ...editingPlacement,
+                        depthUnits: Math.max(1, parseInt(e.target.value) || 1),
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Preview */}
+              <div className="rounded-lg border p-3">
+                <p className="text-sm text-muted-foreground">
+                  {t("placementDialog.preview", {
+                    width: editingPlacement.widthUnits,
+                    depth: editingPlacement.depthUnits,
+                    widthMm: editingPlacement.widthUnits * 42,
+                    depthMm: editingPlacement.depthUnits * 42,
+                  })}
+                </p>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingPlacement(null)}>
+              {tCommon("cancel")}
+            </Button>
+            <Button
+              onClick={handleConfirmEditPlacement}
+              disabled={updatePlacementMutation.isPending}
+            >
+              {updatePlacementMutation.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {tCommon("save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DndContext>
   );
 }
@@ -428,6 +816,7 @@ function GridCell({
   isOccupied,
   itemName,
   onDelete,
+  onEdit,
 }: {
   x: number;
   y: number;
@@ -435,6 +824,7 @@ function GridCell({
   isOccupied: boolean;
   itemName?: string;
   onDelete?: () => void;
+  onEdit?: () => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({
     id: `cell-${x}-${y}`,
@@ -449,6 +839,7 @@ function GridCell({
         placement={placement}
         itemName={itemName}
         onDelete={onDelete}
+        onEdit={onEdit}
       />
     );
   }
@@ -473,10 +864,12 @@ function DraggablePlacement({
   placement,
   itemName,
   onDelete,
+  onEdit,
 }: {
   placement: GridfinityPlacement;
   itemName?: string;
   onDelete?: () => void;
+  onEdit?: () => void;
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `placement-${placement.id}`,
@@ -512,23 +905,45 @@ function DraggablePlacement({
           {itemName || placement.position_code}
         </span>
       </div>
-      {onDelete && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
-        >
-          <X className="h-3 w-3" />
-        </button>
-      )}
+      {/* Action buttons */}
+      <div className="absolute -right-1 -top-1 flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+        {onEdit && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+            className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground"
+            data-testid="placement-edit-button"
+          >
+            <Maximize2 className="h-3 w-3" />
+          </button>
+        )}
+        {onDelete && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground"
+            data-testid="placement-delete-button"
+          >
+            <X className="h-3 w-3" />
+          </button>
+        )}
+      </div>
     </div>
   );
 }
 
 // Draggable Item Card Component
-function DraggableItemCard({ item }: { item: ItemListItem }) {
+function DraggableItemCard({
+  item,
+  recommendation,
+}: {
+  item: ItemListItem;
+  recommendation?: BinRecommendation;
+}) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `item-${item.id}`,
     data: { type: "item", item } as DraggableItem,
@@ -543,15 +958,30 @@ function DraggableItemCard({ item }: { item: ItemListItem }) {
       )}
       {...attributes}
       {...listeners}
+      data-testid={`item-card-${item.id}`}
     >
       <GripVertical className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{item.name}</p>
-        {item.location && (
-          <p className="truncate text-xs text-muted-foreground">
-            {item.location.name}
-          </p>
-        )}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          {item.location && (
+            <span className="truncate">{item.location.name}</span>
+          )}
+          {recommendation && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex items-center gap-1 rounded bg-primary/10 px-1.5 py-0.5 text-primary">
+                  <Grid3X3 className="h-3 w-3" />
+                  {recommendation.recommended_width_units}×
+                  {recommendation.recommended_depth_units}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="left" className="max-w-[200px]">
+                <p className="text-xs">{recommendation.reasoning}</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
       </div>
     </div>
   );
