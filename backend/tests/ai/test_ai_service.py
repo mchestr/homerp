@@ -213,3 +213,80 @@ class TestAIClassificationService:
         image_content = messages[1]["content"][1]
         assert image_content["type"] == "image_url"
         assert image_content["image_url"]["url"].startswith("data:image/png;base64,")
+
+    async def test_suggest_item_location_calls_get_user_prompt_with_kwargs(
+        self, service, mock_template_manager
+    ):
+        """Test that suggest_item_location passes context as keyword arguments."""
+        # Mock the OpenAI response
+        mock_response = MagicMock()
+        mock_response.choices = [
+            MagicMock(message=MagicMock(content='{"suggestions": []}'))
+        ]
+        service.client.chat.completions.create = AsyncMock(return_value=mock_response)
+
+        # Call suggest_item_location
+        await service.suggest_item_location(
+            item_name="Test Screw",
+            item_category="Hardware > Fasteners",
+            item_description="A small screw",
+            item_specifications={"size": "M3"},
+            locations=[
+                {
+                    "id": "12345678-1234-1234-1234-123456789abc",
+                    "name": "Hardware Drawer",
+                    "type": "drawer",
+                    "item_count": 10,
+                    "sample_items": ["Nails", "Bolts"],
+                }
+            ],
+            similar_items=[{"name": "M4 Screw", "location": "Hardware Drawer"}],
+        )
+
+        # Verify get_user_prompt was called with keyword arguments
+        call_args = mock_template_manager.get_user_prompt.call_args
+        # The call should be (category, **context)
+        assert call_args[0][0] == "location_suggestion"
+        # Verify all expected context keys are passed as kwargs
+        assert "item_name" in call_args[1]
+        assert call_args[1]["item_name"] == "Test Screw"
+        assert "item_category" in call_args[1]
+        assert call_args[1]["item_category"] == "Hardware > Fasteners"
+        assert "item_description" in call_args[1]
+        assert "item_specifications" in call_args[1]
+        assert "locations" in call_args[1]
+        assert "similar_items" in call_args[1]
+
+    async def test_suggest_item_location_returns_suggestions(
+        self, service, mock_template_manager
+    ):
+        """Test that suggest_item_location correctly parses AI suggestions."""
+        # Mock the OpenAI response with valid suggestions
+        mock_response = MagicMock()
+        mock_response.choices = [
+            MagicMock(
+                message=MagicMock(
+                    content='{"suggestions": [{"location_id": '
+                    '"12345678-1234-1234-1234-123456789abc", '
+                    '"location_name": "Hardware Drawer", '
+                    '"confidence": 0.95, '
+                    '"reasoning": "Good match for fasteners"}]}'
+                )
+            )
+        ]
+        service.client.chat.completions.create = AsyncMock(return_value=mock_response)
+
+        # Call suggest_item_location
+        result = await service.suggest_item_location(
+            item_name="Test Screw",
+            item_category="Hardware > Fasteners",
+            item_description="A small screw",
+            item_specifications=None,
+            locations=[],
+        )
+
+        # Verify result
+        assert len(result.suggestions) == 1
+        assert result.suggestions[0].location_name == "Hardware Drawer"
+        assert result.suggestions[0].confidence == 0.95
+        assert result.suggestions[0].reasoning == "Good match for fasteners"
