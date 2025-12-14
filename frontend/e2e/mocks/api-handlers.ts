@@ -133,6 +133,13 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     const method = route.request().method();
     const url = route.request().url();
     const itemId = url.split("/").pop();
+
+    // Skip "find-similar" - it's handled by a more specific route registered after this
+    if (itemId === "find-similar") {
+      await route.fallback();
+      return;
+    }
+
     const item = items.find((i) => i.id === itemId);
 
     if (method === "GET") {
@@ -174,6 +181,15 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     } else {
       await route.continue();
     }
+  });
+
+  // Find similar items endpoint - registered LAST for items routes (LIFO priority)
+  await page.route("**/api/v1/items/find-similar", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(fixtures.testSimilarItems),
+    });
   });
 
   // Categories endpoints - use regex to match exact path

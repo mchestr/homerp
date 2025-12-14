@@ -339,4 +339,54 @@ test.describe("Items", () => {
       expect(scrollWidth).toBeGreaterThan(clientWidth);
     });
   });
+
+  test.describe("Similar Items Display", () => {
+    test("displays similar items with images using AuthenticatedImage", async ({
+      page,
+    }) => {
+      await authenticateUser(page);
+      await setupApiMocks(page);
+
+      // Track calls to the signed-url endpoint to verify AuthenticatedImage is used
+      const signedUrlCalls: string[] = [];
+      await page.route(
+        /\/api\/v1\/images\/[^/]+\/signed-url$/,
+        async (route) => {
+          const url = route.request().url();
+          const imageId = url.split("/").at(-2);
+          signedUrlCalls.push(imageId || "");
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              url: `http://localhost:8000/uploads/mock-signed-${imageId}.jpg?token=mock-token`,
+            }),
+          });
+        }
+      );
+
+      await page.goto("/items/new");
+
+      // Fill in a name that would trigger similar items check
+      await page.getByTestId("item-name-input").fill("Arduino");
+
+      // Wait for similar items section to appear (the mock returns similar items)
+      await expect(page.getByTestId("similar-items-section")).toBeVisible({
+        timeout: 10000,
+      });
+
+      // Verify both similar items are displayed
+      await expect(page.getByTestId("similar-item-similar-1")).toBeVisible();
+      await expect(page.getByTestId("similar-item-similar-2")).toBeVisible();
+
+      // Verify the similar item names are shown
+      await expect(page.getByText("Arduino Uno Clone")).toBeVisible();
+      await expect(page.getByText("Arduino Nano")).toBeVisible();
+
+      // Verify that signed-url endpoints were called (proving AuthenticatedImage is used)
+      // This is the key assertion - if direct <img> tags were used, this would be empty
+      expect(signedUrlCalls).toContain("img-similar-1");
+      expect(signedUrlCalls).toContain("img-similar-2");
+    });
+  });
 });
