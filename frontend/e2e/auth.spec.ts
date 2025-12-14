@@ -12,14 +12,23 @@ test.describe("Authentication", () => {
       });
     });
 
+    // Mock the providers endpoint to return Google
+    await page.route("**/api/v1/auth/providers", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([
+          { id: "google", name: "Google", icon: "google" },
+        ]),
+      });
+    });
+
     await page.goto("/login");
 
     await expect(
       page.getByRole("heading", { name: "Welcome back" })
     ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: /google|sign in/i })
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: /google/i })).toBeVisible();
   });
 
   test("protected routes redirect to login", async ({ page }) => {

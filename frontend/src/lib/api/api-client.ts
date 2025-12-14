@@ -100,8 +100,33 @@ export async function uploadFile(
   return response.json();
 }
 
+// OAuth Provider Types
+export type OAuthProvider = {
+  id: string;
+  name: string;
+  icon: string;
+};
+
 // Auth API
 export const authApi = {
+  // Get list of configured OAuth providers
+  getProviders: () => apiRequest<OAuthProvider[]>("/api/v1/auth/providers"),
+
+  // Generic OAuth methods that work with any provider
+  getAuthUrl: (provider: string, redirectUri: string) =>
+    apiRequest<{ authorization_url: string }>(
+      `/api/v1/auth/${provider}?redirect_uri=${encodeURIComponent(redirectUri)}`
+    ),
+
+  handleCallback: (provider: string, code: string, redirectUri: string) =>
+    apiRequest<{
+      token: { access_token: string; expires_in: number };
+      user: User;
+    }>(
+      `/api/v1/auth/callback/${provider}?code=${encodeURIComponent(code)}&redirect_uri=${encodeURIComponent(redirectUri)}`
+    ),
+
+  // Legacy methods for backwards compatibility
   getGoogleAuthUrl: (redirectUri: string) =>
     apiRequest<{ authorization_url: string }>(
       `/api/v1/auth/google?redirect_uri=${encodeURIComponent(redirectUri)}`

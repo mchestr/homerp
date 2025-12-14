@@ -20,9 +20,15 @@ class Settings(BaseSettings):
     # Database
     database_url: str = "postgresql+asyncpg://homerp:homerp@localhost:5432/homerp"
 
-    # Authentication
+    # Authentication - Google OAuth
     google_client_id: str = ""
     google_client_secret: str = ""
+
+    # Authentication - GitHub OAuth
+    github_client_id: str = ""
+    github_client_secret: str = ""
+
+    # JWT configuration
     jwt_secret: str = "dev-secret-change-in-production"
     jwt_algorithm: str = "HS256"
     jwt_expiration_hours: int = 24
