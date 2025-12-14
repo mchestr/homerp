@@ -273,7 +273,7 @@ class TestAuthenticationRequired:
     async def test_profile_requires_auth(self, unauthenticated_client: AsyncClient):
         """Test that profile endpoints require authentication."""
         response = await unauthenticated_client.get("/api/v1/profile/me")
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     @pytest.mark.asyncio
     async def test_recommendations_requires_auth(
@@ -281,4 +281,4 @@ class TestAuthenticationRequired:
     ):
         """Test that recommendations endpoints require authentication."""
         response = await unauthenticated_client.get("/api/v1/profile/recommendations")
-        assert response.status_code == 403
+        assert response.status_code == 401
