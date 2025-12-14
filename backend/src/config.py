@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     openai_model: str = "gpt-4o"
 
+    # AI Templates (optional custom directory for prompt templates)
+    ai_templates_dir: str | None = None
+
     # Storage
     upload_dir: str = "./uploads"
     max_upload_size_mb: int = 10

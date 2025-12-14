@@ -1,0 +1,18 @@
+Analyze this image and identify the item(s) shown.
+
+Provide your response as a JSON object with this exact structure:
+{
+  "identified_name": "specific item name",
+  "confidence": 0.0 to 1.0,
+  "category_path": "Top > Middle > Bottom",
+  "description": "brief description of the item and its common uses",
+  "specifications": {
+    "key": "value"
+  },
+  "alternative_suggestions": [
+    {"name": "alternative name", "confidence": 0.0 to 1.0}
+  ],
+  "quantity_estimate": "approximate count if multiple items visible"
+}
+
+Respond ONLY with the JSON object, no additional text.
