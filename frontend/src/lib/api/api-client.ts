@@ -580,6 +580,7 @@ export type ItemListItem = {
   price: number | null;
   is_low_stock: boolean;
   tags: string[];
+  attributes: Record<string, unknown>;
   category: Category | null;
   location: Location | null;
   primary_image_url: string | null;

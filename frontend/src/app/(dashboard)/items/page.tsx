@@ -25,6 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { InlineFacetedFilter } from "@/components/items/faceted-filter";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
+import { SpecificationTags } from "@/components/items/specification-tags";
 import { itemsApi, categoriesApi, locationsApi } from "@/lib/api/api-client";
 import { cn, formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
@@ -876,6 +877,12 @@ export default function ItemsPage() {
                       {item.category?.icon}{" "}
                       {item.category?.name ?? t("uncategorized")}
                     </p>
+                    {/* Specifications preview */}
+                    <SpecificationTags
+                      attributes={item.attributes}
+                      maxCount={3}
+                      className="mt-2"
+                    />
                     <div className="mt-3 flex items-center justify-between">
                       {/* Quick quantity buttons */}
                       <div className="flex items-center gap-1">
@@ -952,6 +959,9 @@ export default function ItemsPage() {
                     </th>
                     <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium md:table-cell">
                       {t("location")}
+                    </th>
+                    <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium lg:table-cell">
+                      {t("specifications")}
                     </th>
                     <th className="whitespace-nowrap px-4 py-3 text-center text-sm font-medium">
                       {t("quantity")}
@@ -1078,6 +1088,13 @@ export default function ItemsPage() {
                       </td>
                       <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-muted-foreground md:table-cell">
                         {item.location?.name ?? t("noLocation")}
+                      </td>
+                      <td className="hidden px-4 py-3 lg:table-cell">
+                        <SpecificationTags
+                          attributes={item.attributes}
+                          maxCount={2}
+                          emptyFallback="-"
+                        />
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-center gap-1">
