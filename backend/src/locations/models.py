@@ -49,6 +49,9 @@ class Location(Base):
         back_populates="parent",
         foreign_keys=[parent_id],
     )
+    gridfinity_units: Mapped[list["GridfinityUnit"]] = relationship(
+        back_populates="location"
+    )
 
     __table_args__ = (
         UniqueConstraint("user_id", "name", name="uq_location_user_name"),
@@ -56,5 +59,6 @@ class Location(Base):
 
 
 # Import at bottom to avoid circular imports
+from src.gridfinity.models import GridfinityUnit  # noqa: E402, F811
 from src.items.models import Item  # noqa: E402, F811
 from src.users.models import User  # noqa: E402, F811
