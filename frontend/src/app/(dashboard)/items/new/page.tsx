@@ -22,6 +22,7 @@ import { TagInput } from "@/components/ui/tag-input";
 import { ImageUpload } from "@/components/items/image-upload";
 import { DynamicAttributeForm } from "@/components/items/dynamic-attribute-form";
 import { SimilarItemsDisplay } from "@/components/items/similar-items-display";
+import { LocationSuggestionDisplay } from "@/components/items/location-suggestion-display";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,6 +42,7 @@ import {
   ItemCreate,
   LocationTreeNode,
   SimilarItemMatch,
+  LocationSuggestionItem,
 } from "@/lib/api/api-client";
 import { parseQuantityEstimate } from "@/lib/utils";
 
@@ -93,6 +95,14 @@ export default function NewItemPage() {
   const [totalSearched, setTotalSearched] = useState(0);
   const [isSearchingSimilar, setIsSearchingSimilar] = useState(false);
   const [similarSearchError, setSimilarSearchError] = useState(false);
+  const [locationSuggestions, setLocationSuggestions] = useState<
+    LocationSuggestionItem[]
+  >([]);
+  const [isLoadingLocationSuggestions, setIsLoadingLocationSuggestions] =
+    useState(false);
+  const [locationSuggestionError, setLocationSuggestionError] = useState<
+    string | null
+  >(null);
 
   const [formData, setFormData] = useState<ItemCreate>({
     name: "",
@@ -269,6 +279,37 @@ export default function NewItemPage() {
     } finally {
       setIsSearchingSimilar(false);
     }
+  };
+
+  const fetchLocationSuggestions = async (result: ClassificationResult) => {
+    setIsLoadingLocationSuggestions(true);
+    setLocationSuggestionError(null);
+    setLocationSuggestions([]);
+    try {
+      const response = await itemsApi.suggestLocation({
+        item_name: result.identified_name,
+        item_category: result.category_path,
+        item_description: result.description,
+        item_specifications: result.specifications,
+      });
+      if (response.success && response.suggestions) {
+        setLocationSuggestions(response.suggestions);
+      } else if (response.error) {
+        setLocationSuggestionError(response.error);
+      }
+    } catch (err) {
+      console.error("Failed to get location suggestions:", err);
+      setLocationSuggestionError("Failed to get location suggestions");
+    } finally {
+      setIsLoadingLocationSuggestions(false);
+    }
+  };
+
+  const handleSelectSuggestedLocation = (locationId: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      location_id: locationId,
+    }));
   };
 
   const handleClassificationComplete = (result: ClassificationResult) => {
@@ -516,6 +557,59 @@ export default function NewItemPage() {
           <AlertCircle className="h-5 w-5 shrink-0 text-yellow-600 dark:text-yellow-400" />
           <span className="text-sm text-yellow-700 dark:text-yellow-300">
             {t("similarItems.searchError")}
+          </span>
+        </div>
+      )}
+
+      {/* Location suggestions section */}
+      {classification &&
+        !isLoadingLocationSuggestions &&
+        locationSuggestions.length > 0 && (
+          <LocationSuggestionDisplay
+            suggestions={locationSuggestions}
+            onSelectLocation={handleSelectSuggestedLocation}
+            selectedLocationId={formData.location_id}
+          />
+        )}
+
+      {/* Loading state for location suggestions */}
+      {classification && isLoadingLocationSuggestions && (
+        <div className="flex items-center justify-center rounded-xl border border-violet-200 bg-violet-50 p-6 dark:border-violet-800 dark:bg-violet-950/30">
+          <Loader2 className="mr-2 h-5 w-5 animate-spin text-violet-600" />
+          <span className="text-violet-700 dark:text-violet-300">
+            {t("locationSuggestion.suggesting")}
+          </span>
+        </div>
+      )}
+
+      {/* Button to get location suggestions - shown after classification if no suggestions yet */}
+      {classification &&
+        !isLoadingLocationSuggestions &&
+        locationSuggestions.length === 0 &&
+        !locationSuggestionError && (
+          <div className="flex items-center justify-center rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-800 dark:bg-violet-950/30">
+            <Button
+              type="button"
+              variant="outline"
+              className="border-violet-300 text-violet-700 hover:bg-violet-100 dark:border-violet-700 dark:text-violet-300 dark:hover:bg-violet-900"
+              onClick={() => fetchLocationSuggestions(classification)}
+              data-testid="suggest-location-button"
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              {t("locationSuggestion.suggestLocation")}
+              <span className="ml-2 text-xs opacity-70">
+                ({t("billing.creditCost")})
+              </span>
+            </Button>
+          </div>
+        )}
+
+      {/* Error state for location suggestions */}
+      {classification && locationSuggestionError && (
+        <div className="flex items-center gap-3 rounded-xl border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-950/30">
+          <AlertCircle className="h-5 w-5 shrink-0 text-yellow-600 dark:text-yellow-400" />
+          <span className="text-sm text-yellow-700 dark:text-yellow-300">
+            {locationSuggestionError}
           </span>
         </div>
       )}

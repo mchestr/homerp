@@ -323,3 +323,53 @@ class LocationService:
         ancestors = await self.get_ancestors(location)
         names = [a.name for a in ancestors] + [location.name]
         return " > ".join(names)
+
+    async def get_locations_with_sample_items(
+        self, sample_limit: int = 5
+    ) -> list[dict]:
+        """Get all locations with item counts and sample item names.
+
+        Args:
+            sample_limit: Maximum number of sample items per location
+
+        Returns:
+            List of dicts with location info and sample items
+        """
+        from typing import Any
+
+        from src.items.models import Item
+
+        # Get all locations with item counts
+        result = await self.session.execute(
+            select(
+                Location,
+                func.count(Item.id).label("item_count"),
+            )
+            .outerjoin(Item, Location.id == Item.location_id)
+            .where(Location.user_id == self.user_id)
+            .group_by(Location.id)
+            .order_by(Location.path)
+        )
+        rows = result.all()
+
+        locations_data: list[dict[str, Any]] = []
+        for location, item_count in rows:
+            # Get sample items for this location
+            items_result = await self.session.execute(
+                select(Item.name)
+                .where(Item.location_id == location.id)
+                .limit(sample_limit)
+            )
+            sample_items = [row[0] for row in items_result.fetchall()]
+
+            locations_data.append(
+                {
+                    "id": str(location.id),
+                    "name": location.name,
+                    "type": location.location_type or "unknown",
+                    "item_count": item_count,
+                    "sample_items": sample_items,
+                }
+            )
+
+        return locations_data

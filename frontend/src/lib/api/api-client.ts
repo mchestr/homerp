@@ -274,6 +274,15 @@ export const itemsApi = {
       method: "PATCH",
       body: data,
     }),
+
+  suggestLocation: (data: ItemLocationSuggestionRequest) =>
+    apiRequest<ItemLocationSuggestionResponse>(
+      "/api/v1/items/suggest-location",
+      {
+        method: "POST",
+        body: data,
+      }
+    ),
 };
 
 // Categories API
@@ -697,6 +706,27 @@ export type SimilarItemMatch = {
 export type FindSimilarResponse = {
   similar_items: SimilarItemMatch[];
   total_searched: number;
+};
+
+// Location suggestion types
+export type ItemLocationSuggestionRequest = {
+  item_name: string;
+  item_category?: string;
+  item_description?: string;
+  item_specifications?: Record<string, unknown>;
+};
+
+export type LocationSuggestionItem = {
+  location_id: string;
+  location_name: string;
+  confidence: number;
+  reasoning: string;
+};
+
+export type ItemLocationSuggestionResponse = {
+  success: boolean;
+  suggestions?: LocationSuggestionItem[];
+  error?: string;
 };
 
 export type PaginatedResponse<T> = {

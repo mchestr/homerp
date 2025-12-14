@@ -1,12 +1,14 @@
 """HTTP integration tests for items router."""
 
 import uuid
+from unittest.mock import AsyncMock, patch
 
 from httpx import AsyncClient
 
 from src.categories.models import Category
 from src.items.models import Item
 from src.locations.models import Location
+from src.locations.schemas import ItemLocationSuggestionResult, LocationSuggestionItem
 
 
 class TestListItemsEndpoint:
@@ -1058,3 +1060,163 @@ class TestBatchUpdateItemsEndpoint:
         )
 
         assert response.status_code == 401
+
+
+class TestSuggestLocationEndpoint:
+    """Tests for POST /api/v1/items/suggest-location."""
+
+    async def test_suggest_location_no_credits(
+        self,
+        unauthenticated_client: AsyncClient,
+        async_session,
+        test_settings,
+        user_with_no_credits,
+    ):
+        """Test suggest location returns 402 when user has no credits."""
+        from src.auth.dependencies import get_current_user_id
+        from src.database import get_session
+        from src.main import app
+
+        async def override_session():
+            yield async_session
+
+        app.dependency_overrides[get_session] = override_session
+        app.dependency_overrides[get_current_user_id] = lambda: user_with_no_credits.id
+
+        from httpx import ASGITransport
+        from httpx import AsyncClient as HttpxAsyncClient
+
+        transport = ASGITransport(app=app)
+        async with HttpxAsyncClient(
+            transport=transport, base_url="http://test"
+        ) as client:
+            response = await client.post(
+                "/api/v1/items/suggest-location",
+                json={
+                    "item_name": "Test Item",
+                    "item_category": "Tools > Hardware",
+                },
+            )
+
+            assert response.status_code == 402
+            assert "Insufficient credits" in response.json()["detail"]
+
+        app.dependency_overrides.clear()
+
+    async def test_suggest_location_no_locations(
+        self, authenticated_client: AsyncClient
+    ):
+        """Test suggest location returns empty when no locations exist."""
+        response = await authenticated_client.post(
+            "/api/v1/items/suggest-location",
+            json={
+                "item_name": "Test Item",
+                "item_category": "Tools > Hardware",
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is True
+        assert data["suggestions"] == []
+        assert "No locations found" in (data.get("error") or "No locations found")
+
+    async def test_suggest_location_with_locations_mocked_ai(
+        self, authenticated_client: AsyncClient, test_location: Location
+    ):
+        """Test suggest location with locations (mocked AI service)."""
+        mock_result = ItemLocationSuggestionResult(
+            suggestions=[
+                LocationSuggestionItem(
+                    location_id=test_location.id,
+                    location_name=test_location.name,
+                    confidence=0.85,
+                    reasoning="This location is suitable for storing tools.",
+                )
+            ]
+        )
+
+        with patch(
+            "src.items.router.AIClassificationService.suggest_item_location",
+            new_callable=AsyncMock,
+            return_value=mock_result,
+        ):
+            response = await authenticated_client.post(
+                "/api/v1/items/suggest-location",
+                json={
+                    "item_name": "Screwdriver",
+                    "item_category": "Tools > Hand Tools",
+                    "item_description": "A Phillips head screwdriver",
+                },
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["success"] is True
+            assert len(data["suggestions"]) == 1
+            assert data["suggestions"][0]["location_name"] == test_location.name
+            assert data["suggestions"][0]["confidence"] == 0.85
+
+    async def test_suggest_location_validation_error(
+        self, authenticated_client: AsyncClient
+    ):
+        """Test suggest location with missing required field."""
+        response = await authenticated_client.post(
+            "/api/v1/items/suggest-location",
+            json={
+                "item_category": "Tools",  # Missing required item_name
+            },
+        )
+
+        assert response.status_code == 422
+
+    async def test_suggest_location_unauthenticated(
+        self, unauthenticated_client: AsyncClient
+    ):
+        """Test that unauthenticated request returns 401."""
+        response = await unauthenticated_client.post(
+            "/api/v1/items/suggest-location",
+            json={"item_name": "Test Item"},
+        )
+
+        assert response.status_code == 401
+
+    async def test_suggest_location_with_full_data(
+        self, authenticated_client: AsyncClient, test_location: Location
+    ):
+        """Test suggest location with all optional fields."""
+        mock_result = ItemLocationSuggestionResult(
+            suggestions=[
+                LocationSuggestionItem(
+                    location_id=test_location.id,
+                    location_name=test_location.name,
+                    confidence=0.92,
+                    reasoning="Similar items are stored here.",
+                )
+            ]
+        )
+
+        with patch(
+            "src.items.router.AIClassificationService.suggest_item_location",
+            new_callable=AsyncMock,
+            return_value=mock_result,
+        ):
+            response = await authenticated_client.post(
+                "/api/v1/items/suggest-location",
+                json={
+                    "item_name": "M3x10mm Screws",
+                    "item_category": "Hardware > Fasteners > Screws",
+                    "item_description": "Stainless steel screws for electronics",
+                    "item_specifications": {
+                        "material": "stainless steel",
+                        "size": "M3x10mm",
+                        "quantity": 100,
+                    },
+                },
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["success"] is True
+            assert len(data["suggestions"]) == 1
+            assert data["suggestions"][0]["confidence"] == 0.92
