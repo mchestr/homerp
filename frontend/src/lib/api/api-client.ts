@@ -580,6 +580,7 @@ export type ItemListItem = {
   price: number | null;
   is_low_stock: boolean;
   tags: string[];
+  attributes: Record<string, unknown>;
   category: Category | null;
   location: Location | null;
   primary_image_url: string | null;
@@ -1510,6 +1511,30 @@ export const gridfinityApi = {
     apiRequest<GridCalculation>(
       `/api/v1/gridfinity/calculate-grid?width_mm=${widthMm}&depth_mm=${depthMm}`
     ),
+};
+
+// AI Assistant Types
+export type AssistantQueryRequest = {
+  prompt: string;
+  include_inventory_context?: boolean;
+};
+
+export type AssistantQueryResponse = {
+  success: boolean;
+  response?: string;
+  error?: string;
+  context_used: boolean;
+  items_in_context: number;
+  credits_used: number;
+};
+
+// AI Assistant API
+export const aiApi = {
+  query: (data: AssistantQueryRequest) =>
+    apiRequest<AssistantQueryResponse>("/api/v1/ai/query", {
+      method: "POST",
+      body: data,
+    }),
 };
 
 // Profile API

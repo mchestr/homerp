@@ -18,6 +18,7 @@ import {
   MessageSquare,
   Trash2,
   Flower2,
+  Bot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -72,6 +73,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     {
       label: t("nav.aiTools"),
       items: [
+        {
+          title: t("sidebar.aiAssistant"),
+          href: "/ai-assistant",
+          icon: Bot,
+        },
         {
           title: t("sidebar.classifiedImages"),
           href: "/images/classified",

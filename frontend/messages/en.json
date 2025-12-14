@@ -51,6 +51,7 @@
     "categories": "Categories",
     "locations": "Locations",
     "storagePlanner": "Storage Planner",
+    "aiAssistant": "AI Assistant",
     "classifiedImages": "Classified Images",
     "purgeRecommendations": "Purge Suggestions",
     "springCleaning": "Spring Cleaning",
@@ -133,6 +134,8 @@
     "location": "Location",
     "tags": "Tags",
     "attributes": "Attributes",
+    "specifications": "Specifications",
+    "moreSpecifications": "{count} more",
     "images": "Images",
     "notes": "Notes",
     "price": "Price",
@@ -288,6 +291,23 @@
     }
   },
   "ai": {},
+  "aiAssistant": {
+    "title": "AI Assistant",
+    "subtitle": "Get personalized suggestions based on your inventory",
+    "emptyStateTitle": "How can I help you today?",
+    "emptyStateDescription": "Ask me anything about your inventory. I can help with planting schedules, craft project ideas, organization tips, and more.",
+    "includeInventory": "Include inventory context",
+    "placeholder": "Ask me anything about your inventory...",
+    "creditCost": "1 credit per query",
+    "errorPrefix": "Error:",
+    "itemsUsed": "Context: {count} items",
+    "examples": {
+      "plantingSchedule": "Create a planting schedule for my seeds",
+      "craftProjects": "Suggest craft projects using my supplies",
+      "organizationTips": "How can I organize my inventory better?",
+      "shoppingList": "What items am I running low on?"
+    }
+  },
   "billing": {
     "title": "Billing",
     "subtitle": "Manage your AI credits and billing",

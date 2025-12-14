@@ -241,6 +241,72 @@ export type AuthResponse = {
 };
 
 /**
+ * AutoLayoutPlacement
+ *
+ * A placement result from auto-layout.
+ */
+export type AutoLayoutPlacement = {
+  /**
+   * Item Id
+   */
+  item_id: string;
+  /**
+   * Grid X
+   */
+  grid_x: number;
+  /**
+   * Grid Y
+   */
+  grid_y: number;
+  /**
+   * Width Units
+   */
+  width_units: number;
+  /**
+   * Depth Units
+   */
+  depth_units: number;
+};
+
+/**
+ * AutoLayoutRequest
+ *
+ * Request for automatic item layout.
+ */
+export type AutoLayoutRequest = {
+  /**
+   * Item Ids
+   *
+   * Items to auto-layout in the unit (max 100)
+   */
+  item_ids: Array<string>;
+};
+
+/**
+ * AutoLayoutResult
+ *
+ * Result of auto-layout operation.
+ */
+export type AutoLayoutResult = {
+  /**
+   * Placed
+   */
+  placed: Array<AutoLayoutPlacement>;
+  /**
+   * Unplaced
+   *
+   * Items that couldn't fit
+   */
+  unplaced?: Array<string>;
+  /**
+   * Utilization Percent
+   *
+   * Grid utilization percentage
+   */
+  utilization_percent: number;
+};
+
+/**
  * BatchUpdateRequest
  *
  * Schema for batch updating multiple items.
@@ -286,6 +352,62 @@ export type BatchUpdateResponse = {
    * Item Ids
    */
   item_ids: Array<string>;
+};
+
+/**
+ * BinRecommendation
+ *
+ * Recommended bin size for an item.
+ */
+export type BinRecommendation = {
+  /**
+   * Item Id
+   */
+  item_id: string;
+  /**
+   * Item Name
+   */
+  item_name: string;
+  /**
+   * Recommended Width Units
+   */
+  recommended_width_units: number;
+  /**
+   * Recommended Depth Units
+   */
+  recommended_depth_units: number;
+  /**
+   * Recommended Height Units
+   */
+  recommended_height_units?: number | null;
+  /**
+   * Reasoning
+   */
+  reasoning: string;
+};
+
+/**
+ * BinRecommendationRequest
+ *
+ * Request for bin size recommendations.
+ */
+export type BinRecommendationRequest = {
+  /**
+   * Item Ids
+   */
+  item_ids: Array<string>;
+};
+
+/**
+ * BinRecommendationResponse
+ *
+ * Response with bin recommendations for items.
+ */
+export type BinRecommendationResponse = {
+  /**
+   * Recommendations
+   */
+  recommendations: Array<BinRecommendation>;
 };
 
 /**
@@ -584,6 +706,10 @@ export type ClassificationRequest = {
    * Image Id
    */
   image_id: string;
+  /**
+   * Custom Prompt
+   */
+  custom_prompt?: string | null;
 };
 
 /**
@@ -1180,6 +1306,372 @@ export type GenerateRecommendationsResponse = {
 };
 
 /**
+ * GridCalculation
+ *
+ * Result of grid size calculation.
+ */
+export type GridCalculation = {
+  /**
+   * Columns
+   */
+  columns: number;
+  /**
+   * Rows
+   */
+  rows: number;
+  /**
+   * Total Cells
+   */
+  total_cells: number;
+  /**
+   * Wasted Width Mm
+   */
+  wasted_width_mm: number;
+  /**
+   * Wasted Depth Mm
+   */
+  wasted_depth_mm: number;
+};
+
+/**
+ * GridfinityPlacementCreate
+ *
+ * Schema for creating a placement.
+ */
+export type GridfinityPlacementCreate = {
+  /**
+   * Grid X
+   *
+   * Grid column position (0-indexed)
+   */
+  grid_x: number;
+  /**
+   * Grid Y
+   *
+   * Grid row position (0-indexed)
+   */
+  grid_y: number;
+  /**
+   * Width Units
+   *
+   * Width in grid units
+   */
+  width_units?: number;
+  /**
+   * Depth Units
+   *
+   * Depth in grid units
+   */
+  depth_units?: number;
+  /**
+   * Bin Height Units
+   *
+   * Bin height in 7mm units
+   */
+  bin_height_units?: number | null;
+  /**
+   * Notes
+   */
+  notes?: string | null;
+  /**
+   * Item Id
+   */
+  item_id: string;
+};
+
+/**
+ * GridfinityPlacementResponse
+ *
+ * Schema for placement responses.
+ */
+export type GridfinityPlacementResponse = {
+  /**
+   * Grid X
+   *
+   * Grid column position (0-indexed)
+   */
+  grid_x: number;
+  /**
+   * Grid Y
+   *
+   * Grid row position (0-indexed)
+   */
+  grid_y: number;
+  /**
+   * Width Units
+   *
+   * Width in grid units
+   */
+  width_units?: number;
+  /**
+   * Depth Units
+   *
+   * Depth in grid units
+   */
+  depth_units?: number;
+  /**
+   * Bin Height Units
+   *
+   * Bin height in 7mm units
+   */
+  bin_height_units?: number | null;
+  /**
+   * Notes
+   */
+  notes?: string | null;
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Unit Id
+   */
+  unit_id: string;
+  /**
+   * Item Id
+   */
+  item_id: string;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Position Code
+   *
+   * Generate human-readable position code like 'A1'.
+   */
+  readonly position_code: string;
+};
+
+/**
+ * GridfinityPlacementUpdate
+ *
+ * Schema for updating a placement.
+ */
+export type GridfinityPlacementUpdate = {
+  /**
+   * Grid X
+   */
+  grid_x?: number | null;
+  /**
+   * Grid Y
+   */
+  grid_y?: number | null;
+  /**
+   * Width Units
+   */
+  width_units?: number | null;
+  /**
+   * Depth Units
+   */
+  depth_units?: number | null;
+  /**
+   * Bin Height Units
+   */
+  bin_height_units?: number | null;
+  /**
+   * Notes
+   */
+  notes?: string | null;
+};
+
+/**
+ * GridfinityUnitCreate
+ *
+ * Schema for creating a Gridfinity unit.
+ */
+export type GridfinityUnitCreate = {
+  /**
+   * Name
+   */
+  name: string;
+  /**
+   * Description
+   */
+  description?: string | null;
+  /**
+   * Location Id
+   *
+   * Optional parent location for this storage unit
+   */
+  location_id?: string | null;
+  /**
+   * Container Width Mm
+   *
+   * Container width in mm
+   */
+  container_width_mm: number;
+  /**
+   * Container Depth Mm
+   *
+   * Container depth in mm
+   */
+  container_depth_mm: number;
+  /**
+   * Container Height Mm
+   *
+   * Container height in mm
+   */
+  container_height_mm: number;
+};
+
+/**
+ * GridfinityUnitResponse
+ *
+ * Schema for Gridfinity unit responses.
+ */
+export type GridfinityUnitResponse = {
+  /**
+   * Name
+   */
+  name: string;
+  /**
+   * Description
+   */
+  description?: string | null;
+  /**
+   * Location Id
+   *
+   * Optional parent location for this storage unit
+   */
+  location_id?: string | null;
+  /**
+   * Container Width Mm
+   *
+   * Container width in mm
+   */
+  container_width_mm: number;
+  /**
+   * Container Depth Mm
+   *
+   * Container depth in mm
+   */
+  container_depth_mm: number;
+  /**
+   * Container Height Mm
+   *
+   * Container height in mm
+   */
+  container_height_mm: number;
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Grid Columns
+   */
+  grid_columns: number;
+  /**
+   * Grid Rows
+   */
+  grid_rows: number;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Updated At
+   */
+  updated_at: string;
+};
+
+/**
+ * GridfinityUnitUpdate
+ *
+ * Schema for updating a Gridfinity unit.
+ */
+export type GridfinityUnitUpdate = {
+  /**
+   * Name
+   */
+  name?: string | null;
+  /**
+   * Description
+   */
+  description?: string | null;
+  /**
+   * Location Id
+   */
+  location_id?: string | null;
+  /**
+   * Container Width Mm
+   */
+  container_width_mm?: number | null;
+  /**
+   * Container Depth Mm
+   */
+  container_depth_mm?: number | null;
+  /**
+   * Container Height Mm
+   */
+  container_height_mm?: number | null;
+};
+
+/**
+ * GridfinityUnitWithPlacementsResponse
+ *
+ * Schema for Gridfinity unit with all placements.
+ */
+export type GridfinityUnitWithPlacementsResponse = {
+  /**
+   * Name
+   */
+  name: string;
+  /**
+   * Description
+   */
+  description?: string | null;
+  /**
+   * Location Id
+   *
+   * Optional parent location for this storage unit
+   */
+  location_id?: string | null;
+  /**
+   * Container Width Mm
+   *
+   * Container width in mm
+   */
+  container_width_mm: number;
+  /**
+   * Container Depth Mm
+   *
+   * Container depth in mm
+   */
+  container_depth_mm: number;
+  /**
+   * Container Height Mm
+   *
+   * Container height in mm
+   */
+  container_height_mm: number;
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Grid Columns
+   */
+  grid_columns: number;
+  /**
+   * Grid Rows
+   */
+  grid_rows: number;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Updated At
+   */
+  updated_at: string;
+  /**
+   * Placements
+   */
+  placements?: Array<GridfinityPlacementResponse>;
+};
+
+/**
  * HTTPValidationError
  */
 export type HttpValidationError = {
@@ -1473,6 +1965,12 @@ export type ItemListResponse = {
    * Tags
    */
   tags?: Array<string>;
+  /**
+   * Attributes
+   */
+  attributes?: {
+    [key: string]: unknown;
+  };
   category?: CategoryResponse | null;
   location?: LocationResponse | null;
   /**
@@ -1987,6 +2485,24 @@ export type MostUsedItemResponse = {
    * Primary Image Url
    */
   primary_image_url?: string | null;
+};
+
+/**
+ * OAuthProviderInfo
+ */
+export type OAuthProviderInfo = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Name
+   */
+  name: string;
+  /**
+   * Icon
+   */
+  icon: string;
 };
 
 /**
@@ -2522,6 +3038,14 @@ export type Settings = {
    */
   google_client_secret?: string;
   /**
+   * Github Client Id
+   */
+  github_client_id?: string;
+  /**
+   * Github Client Secret
+   */
+  github_client_secret?: string;
+  /**
    * Jwt Secret
    */
   jwt_secret?: string;
@@ -2623,6 +3147,64 @@ export type SimilarItemMatch = {
    * Primary Image Url
    */
   primary_image_url?: string | null;
+};
+
+/**
+ * SpringCleaningAuditRequest
+ *
+ * Request to run a spring cleaning audit.
+ */
+export type SpringCleaningAuditRequest = {
+  /**
+   * Max Recommendations
+   *
+   * Maximum number of recommendations to return
+   */
+  max_recommendations?: number;
+};
+
+/**
+ * SpringCleaningCostResponse
+ *
+ * Response with the cost estimate for a spring cleaning audit.
+ */
+export type SpringCleaningCostResponse = {
+  /**
+   * Total Items
+   *
+   * Total number of items in inventory
+   */
+  total_items: number;
+  /**
+   * Credits Required
+   *
+   * Number of credits required for the audit
+   */
+  credits_required: number;
+  /**
+   * Items Per Credit
+   *
+   * Number of items analyzed per credit
+   */
+  items_per_credit?: number;
+  /**
+   * Has Sufficient Credits
+   *
+   * Whether user has enough credits
+   */
+  has_sufficient_credits: boolean;
+  /**
+   * User Credit Balance
+   *
+   * User's current credit balance
+   */
+  user_credit_balance: number;
+  /**
+   * Has Profile
+   *
+   * Whether user has configured their system profile
+   */
+  has_profile: boolean;
 };
 
 /**
@@ -3216,6 +3798,128 @@ export type WebhookTestResponse = {
   error: string | null;
 };
 
+/**
+ * GridfinityPlacementResponse
+ *
+ * Schema for placement responses.
+ */
+export type GridfinityPlacementResponseWritable = {
+  /**
+   * Grid X
+   *
+   * Grid column position (0-indexed)
+   */
+  grid_x: number;
+  /**
+   * Grid Y
+   *
+   * Grid row position (0-indexed)
+   */
+  grid_y: number;
+  /**
+   * Width Units
+   *
+   * Width in grid units
+   */
+  width_units?: number;
+  /**
+   * Depth Units
+   *
+   * Depth in grid units
+   */
+  depth_units?: number;
+  /**
+   * Bin Height Units
+   *
+   * Bin height in 7mm units
+   */
+  bin_height_units?: number | null;
+  /**
+   * Notes
+   */
+  notes?: string | null;
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Unit Id
+   */
+  unit_id: string;
+  /**
+   * Item Id
+   */
+  item_id: string;
+  /**
+   * Created At
+   */
+  created_at: string;
+};
+
+/**
+ * GridfinityUnitWithPlacementsResponse
+ *
+ * Schema for Gridfinity unit with all placements.
+ */
+export type GridfinityUnitWithPlacementsResponseWritable = {
+  /**
+   * Name
+   */
+  name: string;
+  /**
+   * Description
+   */
+  description?: string | null;
+  /**
+   * Location Id
+   *
+   * Optional parent location for this storage unit
+   */
+  location_id?: string | null;
+  /**
+   * Container Width Mm
+   *
+   * Container width in mm
+   */
+  container_width_mm: number;
+  /**
+   * Container Depth Mm
+   *
+   * Container depth in mm
+   */
+  container_depth_mm: number;
+  /**
+   * Container Height Mm
+   *
+   * Container height in mm
+   */
+  container_height_mm: number;
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Grid Columns
+   */
+  grid_columns: number;
+  /**
+   * Grid Rows
+   */
+  grid_rows: number;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Updated At
+   */
+  updated_at: string;
+  /**
+   * Placements
+   */
+  placements?: Array<GridfinityPlacementResponseWritable>;
+};
+
 export type HealthCheckHealthGetData = {
   body?: never;
   path?: never;
@@ -3796,79 +4500,24 @@ export type UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponses = {
 export type UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponse =
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponses[keyof UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponses];
 
-export type GoogleAuthApiV1AuthGoogleGetData = {
+export type ListProvidersApiV1AuthProvidersGetData = {
   body?: never;
   path?: never;
-  query: {
-    /**
-     * Redirect Uri
-     *
-     * The redirect URI for OAuth callback
-     */
-    redirect_uri: string;
-  };
-  url: "/api/v1/auth/google";
+  query?: never;
+  url: "/api/v1/auth/providers";
 };
 
-export type GoogleAuthApiV1AuthGoogleGetErrors = {
+export type ListProvidersApiV1AuthProvidersGetResponses = {
   /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type GoogleAuthApiV1AuthGoogleGetError =
-  GoogleAuthApiV1AuthGoogleGetErrors[keyof GoogleAuthApiV1AuthGoogleGetErrors];
-
-export type GoogleAuthApiV1AuthGoogleGetResponses = {
-  /**
-   * Response Google Auth Api V1 Auth Google Get
+   * Response List Providers Api V1 Auth Providers Get
    *
    * Successful Response
    */
-  200: {
-    [key: string]: string;
-  };
+  200: Array<OAuthProviderInfo>;
 };
 
-export type GoogleAuthApiV1AuthGoogleGetResponse =
-  GoogleAuthApiV1AuthGoogleGetResponses[keyof GoogleAuthApiV1AuthGoogleGetResponses];
-
-export type GoogleCallbackApiV1AuthCallbackGoogleGetData = {
-  body?: never;
-  path?: never;
-  query: {
-    /**
-     * Code
-     */
-    code: string;
-    /**
-     * Redirect Uri
-     */
-    redirect_uri: string;
-  };
-  url: "/api/v1/auth/callback/google";
-};
-
-export type GoogleCallbackApiV1AuthCallbackGoogleGetErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type GoogleCallbackApiV1AuthCallbackGoogleGetError =
-  GoogleCallbackApiV1AuthCallbackGoogleGetErrors[keyof GoogleCallbackApiV1AuthCallbackGoogleGetErrors];
-
-export type GoogleCallbackApiV1AuthCallbackGoogleGetResponses = {
-  /**
-   * Successful Response
-   */
-  200: AuthResponse;
-};
-
-export type GoogleCallbackApiV1AuthCallbackGoogleGetResponse =
-  GoogleCallbackApiV1AuthCallbackGoogleGetResponses[keyof GoogleCallbackApiV1AuthCallbackGoogleGetResponses];
+export type ListProvidersApiV1AuthProvidersGetResponse =
+  ListProvidersApiV1AuthProvidersGetResponses[keyof ListProvidersApiV1AuthProvidersGetResponses];
 
 export type GetCurrentUserInfoApiV1AuthMeGetData = {
   body?: never;
@@ -3968,6 +4617,94 @@ export type UpdateUserSettingsApiV1AuthSettingsPatchResponses = {
 
 export type UpdateUserSettingsApiV1AuthSettingsPatchResponse =
   UpdateUserSettingsApiV1AuthSettingsPatchResponses[keyof UpdateUserSettingsApiV1AuthSettingsPatchResponses];
+
+export type OauthCallbackApiV1AuthCallbackProviderGetData = {
+  body?: never;
+  path: {
+    /**
+     * Provider
+     *
+     * OAuth provider name (google, github)
+     */
+    provider: string;
+  };
+  query: {
+    /**
+     * Code
+     */
+    code: string;
+    /**
+     * Redirect Uri
+     */
+    redirect_uri: string;
+  };
+  url: "/api/v1/auth/callback/{provider}";
+};
+
+export type OauthCallbackApiV1AuthCallbackProviderGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type OauthCallbackApiV1AuthCallbackProviderGetError =
+  OauthCallbackApiV1AuthCallbackProviderGetErrors[keyof OauthCallbackApiV1AuthCallbackProviderGetErrors];
+
+export type OauthCallbackApiV1AuthCallbackProviderGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: AuthResponse;
+};
+
+export type OauthCallbackApiV1AuthCallbackProviderGetResponse =
+  OauthCallbackApiV1AuthCallbackProviderGetResponses[keyof OauthCallbackApiV1AuthCallbackProviderGetResponses];
+
+export type GetAuthUrlApiV1AuthProviderGetData = {
+  body?: never;
+  path: {
+    /**
+     * Provider
+     *
+     * OAuth provider name (google, github)
+     */
+    provider: string;
+  };
+  query: {
+    /**
+     * Redirect Uri
+     *
+     * The redirect URI for OAuth callback
+     */
+    redirect_uri: string;
+  };
+  url: "/api/v1/auth/{provider}";
+};
+
+export type GetAuthUrlApiV1AuthProviderGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetAuthUrlApiV1AuthProviderGetError =
+  GetAuthUrlApiV1AuthProviderGetErrors[keyof GetAuthUrlApiV1AuthProviderGetErrors];
+
+export type GetAuthUrlApiV1AuthProviderGetResponses = {
+  /**
+   * Response Get Auth Url Api V1 Auth  Provider  Get
+   *
+   * Successful Response
+   */
+  200: {
+    [key: string]: string;
+  };
+};
+
+export type GetAuthUrlApiV1AuthProviderGetResponse =
+  GetAuthUrlApiV1AuthProviderGetResponses[keyof GetAuthUrlApiV1AuthProviderGetResponses];
 
 export type GetBalanceApiV1BillingBalanceGetData = {
   body?: never;
@@ -6220,6 +6957,448 @@ export type GetLocationQrCodeApiV1LocationsLocationIdQrGetResponses = {
   200: unknown;
 };
 
+export type ListUnitsApiV1GridfinityUnitsGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/gridfinity/units";
+};
+
+export type ListUnitsApiV1GridfinityUnitsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListUnitsApiV1GridfinityUnitsGetError =
+  ListUnitsApiV1GridfinityUnitsGetErrors[keyof ListUnitsApiV1GridfinityUnitsGetErrors];
+
+export type ListUnitsApiV1GridfinityUnitsGetResponses = {
+  /**
+   * Response List Units Api V1 Gridfinity Units Get
+   *
+   * Successful Response
+   */
+  200: Array<GridfinityUnitResponse>;
+};
+
+export type ListUnitsApiV1GridfinityUnitsGetResponse =
+  ListUnitsApiV1GridfinityUnitsGetResponses[keyof ListUnitsApiV1GridfinityUnitsGetResponses];
+
+export type CreateUnitApiV1GridfinityUnitsPostData = {
+  body: GridfinityUnitCreate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/gridfinity/units";
+};
+
+export type CreateUnitApiV1GridfinityUnitsPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CreateUnitApiV1GridfinityUnitsPostError =
+  CreateUnitApiV1GridfinityUnitsPostErrors[keyof CreateUnitApiV1GridfinityUnitsPostErrors];
+
+export type CreateUnitApiV1GridfinityUnitsPostResponses = {
+  /**
+   * Successful Response
+   */
+  201: GridfinityUnitResponse;
+};
+
+export type CreateUnitApiV1GridfinityUnitsPostResponse =
+  CreateUnitApiV1GridfinityUnitsPostResponses[keyof CreateUnitApiV1GridfinityUnitsPostResponses];
+
+export type DeleteUnitApiV1GridfinityUnitsUnitIdDeleteData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Unit Id
+     */
+    unit_id: string;
+  };
+  query?: never;
+  url: "/api/v1/gridfinity/units/{unit_id}";
+};
+
+export type DeleteUnitApiV1GridfinityUnitsUnitIdDeleteErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type DeleteUnitApiV1GridfinityUnitsUnitIdDeleteError =
+  DeleteUnitApiV1GridfinityUnitsUnitIdDeleteErrors[keyof DeleteUnitApiV1GridfinityUnitsUnitIdDeleteErrors];
+
+export type DeleteUnitApiV1GridfinityUnitsUnitIdDeleteResponses = {
+  /**
+   * Successful Response
+   */
+  204: void;
+};
+
+export type DeleteUnitApiV1GridfinityUnitsUnitIdDeleteResponse =
+  DeleteUnitApiV1GridfinityUnitsUnitIdDeleteResponses[keyof DeleteUnitApiV1GridfinityUnitsUnitIdDeleteResponses];
+
+export type GetUnitApiV1GridfinityUnitsUnitIdGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Unit Id
+     */
+    unit_id: string;
+  };
+  query?: never;
+  url: "/api/v1/gridfinity/units/{unit_id}";
+};
+
+export type GetUnitApiV1GridfinityUnitsUnitIdGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetUnitApiV1GridfinityUnitsUnitIdGetError =
+  GetUnitApiV1GridfinityUnitsUnitIdGetErrors[keyof GetUnitApiV1GridfinityUnitsUnitIdGetErrors];
+
+export type GetUnitApiV1GridfinityUnitsUnitIdGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: GridfinityUnitResponse;
+};
+
+export type GetUnitApiV1GridfinityUnitsUnitIdGetResponse =
+  GetUnitApiV1GridfinityUnitsUnitIdGetResponses[keyof GetUnitApiV1GridfinityUnitsUnitIdGetResponses];
+
+export type UpdateUnitApiV1GridfinityUnitsUnitIdPutData = {
+  body: GridfinityUnitUpdate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Unit Id
+     */
+    unit_id: string;
+  };
+  query?: never;
+  url: "/api/v1/gridfinity/units/{unit_id}";
+};
+
+export type UpdateUnitApiV1GridfinityUnitsUnitIdPutErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type UpdateUnitApiV1GridfinityUnitsUnitIdPutError =
+  UpdateUnitApiV1GridfinityUnitsUnitIdPutErrors[keyof UpdateUnitApiV1GridfinityUnitsUnitIdPutErrors];
+
+export type UpdateUnitApiV1GridfinityUnitsUnitIdPutResponses = {
+  /**
+   * Successful Response
+   */
+  200: GridfinityUnitResponse;
+};
+
+export type UpdateUnitApiV1GridfinityUnitsUnitIdPutResponse =
+  UpdateUnitApiV1GridfinityUnitsUnitIdPutResponses[keyof UpdateUnitApiV1GridfinityUnitsUnitIdPutResponses];
+
+export type GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Unit Id
+     */
+    unit_id: string;
+  };
+  query?: never;
+  url: "/api/v1/gridfinity/units/{unit_id}/layout";
+};
+
+export type GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetError =
+  GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetErrors[keyof GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetErrors];
+
+export type GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: GridfinityUnitWithPlacementsResponse;
+};
+
+export type GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetResponse =
+  GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetResponses[keyof GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetResponses];
+
+export type CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostData = {
+  body: GridfinityPlacementCreate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Unit Id
+     */
+    unit_id: string;
+  };
+  query?: never;
+  url: "/api/v1/gridfinity/units/{unit_id}/placements";
+};
+
+export type CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostError =
+  CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostErrors[keyof CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostErrors];
+
+export type CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostResponses = {
+  /**
+   * Successful Response
+   */
+  201: GridfinityPlacementResponse;
+};
+
+export type CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostResponse =
+  CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostResponses[keyof CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostResponses];
+
+export type DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Placement Id
+     */
+    placement_id: string;
+  };
+  query?: never;
+  url: "/api/v1/gridfinity/placements/{placement_id}";
+};
+
+export type DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteError =
+  DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteErrors[keyof DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteErrors];
+
+export type DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteResponses =
+  {
+    /**
+     * Successful Response
+     */
+    204: void;
+  };
+
+export type DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteResponse =
+  DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteResponses[keyof DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteResponses];
+
+export type UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutData = {
+  body: GridfinityPlacementUpdate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Placement Id
+     */
+    placement_id: string;
+  };
+  query?: never;
+  url: "/api/v1/gridfinity/placements/{placement_id}";
+};
+
+export type UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutError =
+  UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutErrors[keyof UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutErrors];
+
+export type UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutResponses = {
+  /**
+   * Successful Response
+   */
+  200: GridfinityPlacementResponse;
+};
+
+export type UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutResponse =
+  UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutResponses[keyof UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutResponses];
+
+export type AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostData = {
+  body: AutoLayoutRequest;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Unit Id
+     */
+    unit_id: string;
+  };
+  query?: never;
+  url: "/api/v1/gridfinity/units/{unit_id}/auto-layout";
+};
+
+export type AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostError =
+  AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostErrors[keyof AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostErrors];
+
+export type AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: AutoLayoutResult;
+};
+
+export type AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostResponse =
+  AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostResponses[keyof AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostResponses];
+
+export type RecommendBinSizesApiV1GridfinityRecommendBinsPostData = {
+  body: BinRecommendationRequest;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/gridfinity/recommend-bins";
+};
+
+export type RecommendBinSizesApiV1GridfinityRecommendBinsPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type RecommendBinSizesApiV1GridfinityRecommendBinsPostError =
+  RecommendBinSizesApiV1GridfinityRecommendBinsPostErrors[keyof RecommendBinSizesApiV1GridfinityRecommendBinsPostErrors];
+
+export type RecommendBinSizesApiV1GridfinityRecommendBinsPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: BinRecommendationResponse;
+};
+
+export type RecommendBinSizesApiV1GridfinityRecommendBinsPostResponse =
+  RecommendBinSizesApiV1GridfinityRecommendBinsPostResponses[keyof RecommendBinSizesApiV1GridfinityRecommendBinsPostResponses];
+
+export type CalculateGridApiV1GridfinityCalculateGridGetData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * Width Mm
+     */
+    width_mm: number;
+    /**
+     * Depth Mm
+     */
+    depth_mm: number;
+  };
+  url: "/api/v1/gridfinity/calculate-grid";
+};
+
+export type CalculateGridApiV1GridfinityCalculateGridGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CalculateGridApiV1GridfinityCalculateGridGetError =
+  CalculateGridApiV1GridfinityCalculateGridGetErrors[keyof CalculateGridApiV1GridfinityCalculateGridGetErrors];
+
+export type CalculateGridApiV1GridfinityCalculateGridGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: GridCalculation;
+};
+
+export type CalculateGridApiV1GridfinityCalculateGridGetResponse =
+  CalculateGridApiV1GridfinityCalculateGridGetResponses[keyof CalculateGridApiV1GridfinityCalculateGridGetResponses];
+
 export type UploadImageApiV1ImagesUploadPostData = {
   body: BodyUploadImageApiV1ImagesUploadPost;
   headers?: {
@@ -6843,6 +8022,73 @@ export type UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatch
 
 export type UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponse =
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponses[keyof UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponses];
+
+export type GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/profile/spring-cleaning/cost";
+};
+
+export type GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetError =
+  GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetErrors[keyof GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetErrors];
+
+export type GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: SpringCleaningCostResponse;
+};
+
+export type GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetResponse =
+  GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetResponses[keyof GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetResponses];
+
+export type RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostData = {
+  body: SpringCleaningAuditRequest;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/profile/spring-cleaning/audit";
+};
+
+export type RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostError =
+  RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostErrors[keyof RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostErrors];
+
+export type RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: GenerateRecommendationsResponse;
+  };
+
+export type RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostResponse =
+  RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostResponses[keyof RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostResponses];
 
 export type ListEventTypesApiV1WebhooksEventTypesGetData = {
   body?: never;
