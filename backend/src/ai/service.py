@@ -5,6 +5,7 @@ from typing import Any
 
 from openai import AsyncOpenAI
 
+from src.ai.prompt_templates import PromptTemplateManager, get_prompt_template_manager
 from src.config import Settings, get_settings
 from src.images.schemas import ClassificationResult
 from src.locations.schemas import LocationAnalysisResult, LocationSuggestion
@@ -126,89 +127,29 @@ def parse_quantity_estimate(estimate: str | None) -> dict[str, Any]:
     return {"quantity": 1, "quantity_unit": "pcs"}
 
 
-SYSTEM_PROMPT = """You are an expert inventory classification assistant specializing in hobby, DIY, and electronics components. Your task is to analyze images and identify items with high precision.
-
-You will extract:
-1. Item name (specific and descriptive)
-2. Category path (hierarchical, e.g., "Hardware > Fasteners > Screws")
-3. Technical specifications (measurements, materials, ratings)
-4. Common use cases
-
-Be specific about measurements (M3 vs M4, 16mm vs 20mm) when visible.
-For electronics, identify voltage/amperage ratings if visible.
-For cables, identify connector types and lengths if discernible.
-
-Always provide confidence scores for your identification.
-If uncertain, provide alternative possibilities ranked by confidence."""
-
-USER_PROMPT = """Analyze this image and identify the item(s) shown.
-
-Provide your response as a JSON object with this exact structure:
-{
-  "identified_name": "specific item name",
-  "confidence": 0.0 to 1.0,
-  "category_path": "Top > Middle > Bottom",
-  "description": "brief description of the item and its common uses",
-  "specifications": {
-    "key": "value"
-  },
-  "alternative_suggestions": [
-    {"name": "alternative name", "confidence": 0.0 to 1.0}
-  ],
-  "quantity_estimate": "approximate count if multiple items visible"
-}
-
-Respond ONLY with the JSON object, no additional text."""
-
-LOCATION_ANALYSIS_SYSTEM_PROMPT = """You are an expert at analyzing images of storage spaces, furniture, and organizational systems. Your task is to identify storage containers and their compartments to help users organize their inventory.
-
-You will identify:
-1. The main container/storage unit (e.g., toolbox, shelf unit, cabinet, workbench)
-2. Individual compartments, drawers, bins, or sections within it
-3. Appropriate names and types for each location
-
-Be specific about physical characteristics that help distinguish locations.
-Use descriptive names that help identify each compartment (e.g., "Top Left Drawer", "Red Bin Section A", "Shelf 1 (Top)").
-Count compartments accurately - if you see 12 drawers, suggest 12 child locations.
-
-Valid location types are: room, shelf, bin, drawer, box, cabinet"""
-
-LOCATION_ANALYSIS_USER_PROMPT = """Analyze this image of a storage space and identify its structure.
-
-Provide your response as a JSON object with this exact structure:
-{
-  "parent": {
-    "name": "descriptive name for the main container",
-    "location_type": "one of: room, shelf, bin, drawer, box, cabinet",
-    "description": "brief description of the storage unit"
-  },
-  "children": [
-    {
-      "name": "descriptive name for compartment",
-      "location_type": "one of: room, shelf, bin, drawer, box, cabinet",
-      "description": "brief description"
-    }
-  ],
-  "confidence": 0.0 to 1.0,
-  "reasoning": "explanation of what you identified and why"
-}
-
-Guidelines:
-- For drawers, name them systematically (e.g., "Drawer 1", "Drawer 2" or "Top Left Drawer", "Top Right Drawer")
-- For shelves, number from top to bottom or use descriptive names
-- For bins/compartments, use grid naming if applicable (e.g., "A1", "A2", "B1", "B2")
-- Include ALL visible compartments in the children array
-- If no compartments are visible, return an empty children array
-
-Respond ONLY with the JSON object, no additional text."""
+# Template category names
+TEMPLATE_ITEM_CLASSIFICATION = "item_classification"
+TEMPLATE_LOCATION_ANALYSIS = "location_analysis"
 
 
 class AIClassificationService:
     """Service for AI-powered image classification using OpenAI."""
 
-    def __init__(self, settings: Settings | None = None):
+    def __init__(
+        self,
+        settings: Settings | None = None,
+        template_manager: PromptTemplateManager | None = None,
+    ):
         self.settings = settings or get_settings()
         self.client = AsyncOpenAI(api_key=self.settings.openai_api_key)
+        self._template_manager = template_manager or get_prompt_template_manager(
+            self.settings.ai_templates_dir
+        )
+
+    @property
+    def template_manager(self) -> PromptTemplateManager:
+        """Get the prompt template manager."""
+        return self._template_manager
 
     async def classify_image(
         self, image_data: bytes, mime_type: str = "image/jpeg"
@@ -223,6 +164,14 @@ class AIClassificationService:
         Returns:
             ClassificationResult with identified item details
         """
+        # Get prompts from templates
+        system_prompt = self._template_manager.get_system_prompt(
+            TEMPLATE_ITEM_CLASSIFICATION
+        )
+        user_prompt = self._template_manager.get_user_prompt(
+            TEMPLATE_ITEM_CLASSIFICATION
+        )
+
         # Encode image to base64
         base64_image = base64.b64encode(image_data).decode("utf-8")
 
@@ -230,11 +179,11 @@ class AIClassificationService:
         response = await self.client.chat.completions.create(
             model=self.settings.openai_model,
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": system_prompt},
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": USER_PROMPT},
+                        {"type": "text", "text": user_prompt},
                         {
                             "type": "image_url",
                             "image_url": {
@@ -320,6 +269,12 @@ class AIClassificationService:
         Returns:
             LocationAnalysisResult with suggested parent and children locations
         """
+        # Get prompts from templates
+        system_prompt = self._template_manager.get_system_prompt(
+            TEMPLATE_LOCATION_ANALYSIS
+        )
+        user_prompt = self._template_manager.get_user_prompt(TEMPLATE_LOCATION_ANALYSIS)
+
         # Encode image to base64
         base64_image = base64.b64encode(image_data).decode("utf-8")
 
@@ -327,11 +282,11 @@ class AIClassificationService:
         response = await self.client.chat.completions.create(
             model=self.settings.openai_model,
             messages=[
-                {"role": "system", "content": LOCATION_ANALYSIS_SYSTEM_PROMPT},
+                {"role": "system", "content": system_prompt},
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": LOCATION_ANALYSIS_USER_PROMPT},
+                        {"type": "text", "text": user_prompt},
                         {
                             "type": "image_url",
                             "image_url": {
