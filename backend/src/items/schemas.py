@@ -82,6 +82,7 @@ class ItemListResponse(BaseModel):
     price: Decimal | None = None
     is_low_stock: bool
     tags: list[str] = []
+    attributes: dict[str, Any] = {}
     category: CategoryResponse | None = None
     location: LocationResponse | None = None
     primary_image_url: str | None = None

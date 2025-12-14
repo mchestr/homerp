@@ -17,9 +17,15 @@ import type {
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostData,
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostErrors,
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostResponses,
+  AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostData,
+  AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostErrors,
+  AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostResponses,
   BatchUpdateItemsApiV1ItemsBatchPatchData,
   BatchUpdateItemsApiV1ItemsBatchPatchErrors,
   BatchUpdateItemsApiV1ItemsBatchPatchResponses,
+  CalculateGridApiV1GridfinityCalculateGridGetData,
+  CalculateGridApiV1GridfinityCalculateGridGetErrors,
+  CalculateGridApiV1GridfinityCalculateGridGetResponses,
   CheckInItemApiV1ItemsItemIdCheckInPostData,
   CheckInItemApiV1ItemsItemIdCheckInPostErrors,
   CheckInItemApiV1ItemsItemIdCheckInPostResponses,
@@ -62,9 +68,15 @@ import type {
   CreatePackApiV1AdminPacksPostData,
   CreatePackApiV1AdminPacksPostErrors,
   CreatePackApiV1AdminPacksPostResponses,
+  CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostData,
+  CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostErrors,
+  CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostResponses,
   CreatePortalSessionApiV1BillingPortalPostData,
   CreatePortalSessionApiV1BillingPortalPostErrors,
   CreatePortalSessionApiV1BillingPortalPostResponses,
+  CreateUnitApiV1GridfinityUnitsPostData,
+  CreateUnitApiV1GridfinityUnitsPostErrors,
+  CreateUnitApiV1GridfinityUnitsPostResponses,
   DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteData,
   DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteErrors,
   DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteResponses,
@@ -89,6 +101,12 @@ import type {
   DeletePackApiV1AdminPacksPackIdDeleteData,
   DeletePackApiV1AdminPacksPackIdDeleteErrors,
   DeletePackApiV1AdminPacksPackIdDeleteResponses,
+  DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteData,
+  DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteErrors,
+  DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteResponses,
+  DeleteUnitApiV1GridfinityUnitsUnitIdDeleteData,
+  DeleteUnitApiV1GridfinityUnitsUnitIdDeleteErrors,
+  DeleteUnitApiV1GridfinityUnitsUnitIdDeleteResponses,
   DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteData,
   DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteErrors,
   DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteResponses,
@@ -104,6 +122,9 @@ import type {
   GetApiKeyApiV1AdminApikeysApiKeyIdGetData,
   GetApiKeyApiV1AdminApikeysApiKeyIdGetErrors,
   GetApiKeyApiV1AdminApikeysApiKeyIdGetResponses,
+  GetAuthUrlApiV1AuthProviderGetData,
+  GetAuthUrlApiV1AuthProviderGetErrors,
+  GetAuthUrlApiV1AuthProviderGetResponses,
   GetBalanceApiV1BillingBalanceGetData,
   GetBalanceApiV1BillingBalanceGetErrors,
   GetBalanceApiV1BillingBalanceGetResponses,
@@ -190,18 +211,21 @@ import type {
   GetRecommendationsApiV1ProfileRecommendationsGetData,
   GetRecommendationsApiV1ProfileRecommendationsGetErrors,
   GetRecommendationsApiV1ProfileRecommendationsGetResponses,
+  GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetData,
+  GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetErrors,
+  GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetResponses,
   GetStatsApiV1AdminStatsGetData,
   GetStatsApiV1AdminStatsGetErrors,
   GetStatsApiV1AdminStatsGetResponses,
+  GetUnitApiV1GridfinityUnitsUnitIdGetData,
+  GetUnitApiV1GridfinityUnitsUnitIdGetErrors,
+  GetUnitApiV1GridfinityUnitsUnitIdGetResponses,
+  GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetData,
+  GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetErrors,
+  GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetResponses,
   GetUserApiV1AdminUsersUserIdGetData,
   GetUserApiV1AdminUsersUserIdGetErrors,
   GetUserApiV1AdminUsersUserIdGetResponses,
-  GoogleAuthApiV1AuthGoogleGetData,
-  GoogleAuthApiV1AuthGoogleGetErrors,
-  GoogleAuthApiV1AuthGoogleGetResponses,
-  GoogleCallbackApiV1AuthCallbackGoogleGetData,
-  GoogleCallbackApiV1AuthCallbackGoogleGetErrors,
-  GoogleCallbackApiV1AuthCallbackGoogleGetResponses,
   HandleWebhookApiV1BillingWebhookPostData,
   HandleWebhookApiV1BillingWebhookPostErrors,
   HandleWebhookApiV1BillingWebhookPostResponses,
@@ -245,9 +269,14 @@ import type {
   ListPacksApiV1AdminPacksGetResponses,
   ListPacksApiV1BillingPacksGetData,
   ListPacksApiV1BillingPacksGetResponses,
+  ListProvidersApiV1AuthProvidersGetData,
+  ListProvidersApiV1AuthProvidersGetResponses,
   ListTransactionsApiV1BillingTransactionsGetData,
   ListTransactionsApiV1BillingTransactionsGetErrors,
   ListTransactionsApiV1BillingTransactionsGetResponses,
+  ListUnitsApiV1GridfinityUnitsGetData,
+  ListUnitsApiV1GridfinityUnitsGetErrors,
+  ListUnitsApiV1GridfinityUnitsGetResponses,
   ListUsersApiV1AdminUsersGetData,
   ListUsersApiV1AdminUsersGetErrors,
   ListUsersApiV1AdminUsersGetResponses,
@@ -257,6 +286,12 @@ import type {
   MoveLocationApiV1LocationsLocationIdMovePatchData,
   MoveLocationApiV1LocationsLocationIdMovePatchErrors,
   MoveLocationApiV1LocationsLocationIdMovePatchResponses,
+  OauthCallbackApiV1AuthCallbackProviderGetData,
+  OauthCallbackApiV1AuthCallbackProviderGetErrors,
+  OauthCallbackApiV1AuthCallbackProviderGetResponses,
+  RecommendBinSizesApiV1GridfinityRecommendBinsPostData,
+  RecommendBinSizesApiV1GridfinityRecommendBinsPostErrors,
+  RecommendBinSizesApiV1GridfinityRecommendBinsPostResponses,
   RefreshTokenApiV1AuthRefreshPostData,
   RefreshTokenApiV1AuthRefreshPostErrors,
   RefreshTokenApiV1AuthRefreshPostResponses,
@@ -269,6 +304,9 @@ import type {
   RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostData,
   RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostErrors,
   RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostResponses,
+  RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostData,
+  RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostErrors,
+  RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostResponses,
   SearchItemsApiV1ItemsSearchGetData,
   SearchItemsApiV1ItemsSearchGetErrors,
   SearchItemsApiV1ItemsSearchGetResponses,
@@ -305,9 +343,15 @@ import type {
   UpdatePackApiV1AdminPacksPackIdPutData,
   UpdatePackApiV1AdminPacksPackIdPutErrors,
   UpdatePackApiV1AdminPacksPackIdPutResponses,
+  UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutData,
+  UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutErrors,
+  UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutResponses,
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchData,
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchErrors,
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponses,
+  UpdateUnitApiV1GridfinityUnitsUnitIdPutData,
+  UpdateUnitApiV1GridfinityUnitsUnitIdPutErrors,
+  UpdateUnitApiV1GridfinityUnitsUnitIdPutResponses,
   UpdateUserApiV1AdminUsersUserIdPutData,
   UpdateUserApiV1AdminUsersUserIdPutErrors,
   UpdateUserApiV1AdminUsersUserIdPutResponses,
@@ -682,40 +726,23 @@ export const updateApiKeyApiV1AdminApikeysApiKeyIdPatch = <
   });
 
 /**
- * Google Auth
+ * List Providers
  *
- * Get Google OAuth authorization URL.
+ * List all configured OAuth providers.
  *
- * The client should redirect to this URL to initiate OAuth flow.
+ * Returns providers that have valid credentials configured.
+ * The frontend uses this to dynamically show login buttons.
  */
-export const googleAuthApiV1AuthGoogleGet = <
+export const listProvidersApiV1AuthProvidersGet = <
   ThrowOnError extends boolean = false,
 >(
-  options: Options<GoogleAuthApiV1AuthGoogleGetData, ThrowOnError>
+  options?: Options<ListProvidersApiV1AuthProvidersGetData, ThrowOnError>
 ) =>
-  (options.client ?? client).get<
-    GoogleAuthApiV1AuthGoogleGetResponses,
-    GoogleAuthApiV1AuthGoogleGetErrors,
+  (options?.client ?? client).get<
+    ListProvidersApiV1AuthProvidersGetResponses,
+    unknown,
     ThrowOnError
-  >({ url: "/api/v1/auth/google", ...options });
-
-/**
- * Google Callback
- *
- * Handle Google OAuth callback.
- *
- * Exchange the authorization code for tokens and create/get user.
- */
-export const googleCallbackApiV1AuthCallbackGoogleGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<GoogleCallbackApiV1AuthCallbackGoogleGetData, ThrowOnError>
-) =>
-  (options.client ?? client).get<
-    GoogleCallbackApiV1AuthCallbackGoogleGetResponses,
-    GoogleCallbackApiV1AuthCallbackGoogleGetErrors,
-    ThrowOnError
-  >({ url: "/api/v1/auth/callback/google", ...options });
+  >({ url: "/api/v1/auth/providers", ...options });
 
 /**
  * Get Current User Info
@@ -780,6 +807,42 @@ export const updateUserSettingsApiV1AuthSettingsPatch = <
       ...options.headers,
     },
   });
+
+/**
+ * Oauth Callback
+ *
+ * Handle OAuth callback for any configured provider.
+ *
+ * Exchange the authorization code for tokens and create/get user.
+ */
+export const oauthCallbackApiV1AuthCallbackProviderGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OauthCallbackApiV1AuthCallbackProviderGetData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    OauthCallbackApiV1AuthCallbackProviderGetResponses,
+    OauthCallbackApiV1AuthCallbackProviderGetErrors,
+    ThrowOnError
+  >({ url: "/api/v1/auth/callback/{provider}", ...options });
+
+/**
+ * Get Auth Url
+ *
+ * Get OAuth authorization URL for any configured provider.
+ *
+ * The client should redirect to this URL to initiate OAuth flow.
+ */
+export const getAuthUrlApiV1AuthProviderGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetAuthUrlApiV1AuthProviderGetData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    GetAuthUrlApiV1AuthProviderGetResponses,
+    GetAuthUrlApiV1AuthProviderGetErrors,
+    ThrowOnError
+  >({ url: "/api/v1/auth/{provider}", ...options });
 
 /**
  * Get Balance
@@ -2128,6 +2191,289 @@ export const getLocationQrCodeApiV1LocationsLocationIdQrGet = <
   });
 
 /**
+ * List Units
+ *
+ * List all Gridfinity storage units for the current user.
+ */
+export const listUnitsApiV1GridfinityUnitsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<ListUnitsApiV1GridfinityUnitsGetData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    ListUnitsApiV1GridfinityUnitsGetResponses,
+    ListUnitsApiV1GridfinityUnitsGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/gridfinity/units",
+    ...options,
+  });
+
+/**
+ * Create Unit
+ *
+ * Create a new Gridfinity storage unit.
+ */
+export const createUnitApiV1GridfinityUnitsPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CreateUnitApiV1GridfinityUnitsPostData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    CreateUnitApiV1GridfinityUnitsPostResponses,
+    CreateUnitApiV1GridfinityUnitsPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/gridfinity/units",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete Unit
+ *
+ * Delete a Gridfinity unit and all its placements.
+ */
+export const deleteUnitApiV1GridfinityUnitsUnitIdDelete = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<DeleteUnitApiV1GridfinityUnitsUnitIdDeleteData, ThrowOnError>
+) =>
+  (options.client ?? client).delete<
+    DeleteUnitApiV1GridfinityUnitsUnitIdDeleteResponses,
+    DeleteUnitApiV1GridfinityUnitsUnitIdDeleteErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/gridfinity/units/{unit_id}",
+    ...options,
+  });
+
+/**
+ * Get Unit
+ *
+ * Get a Gridfinity unit by ID.
+ */
+export const getUnitApiV1GridfinityUnitsUnitIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetUnitApiV1GridfinityUnitsUnitIdGetData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    GetUnitApiV1GridfinityUnitsUnitIdGetResponses,
+    GetUnitApiV1GridfinityUnitsUnitIdGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/gridfinity/units/{unit_id}",
+    ...options,
+  });
+
+/**
+ * Update Unit
+ *
+ * Update a Gridfinity unit.
+ */
+export const updateUnitApiV1GridfinityUnitsUnitIdPut = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UpdateUnitApiV1GridfinityUnitsUnitIdPutData, ThrowOnError>
+) =>
+  (options.client ?? client).put<
+    UpdateUnitApiV1GridfinityUnitsUnitIdPutResponses,
+    UpdateUnitApiV1GridfinityUnitsUnitIdPutErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/gridfinity/units/{unit_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get Unit Layout
+ *
+ * Get a Gridfinity unit with all placements for rendering the layout.
+ */
+export const getUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).get<
+    GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetResponses,
+    GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/gridfinity/units/{unit_id}/layout",
+    ...options,
+  });
+
+/**
+ * Create Placement
+ *
+ * Add an item placement to a Gridfinity unit.
+ */
+export const createPlacementApiV1GridfinityUnitsUnitIdPlacementsPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).post<
+    CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostResponses,
+    CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/gridfinity/units/{unit_id}/placements",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete Placement
+ *
+ * Remove an item placement from a unit.
+ */
+export const deletePlacementApiV1GridfinityPlacementsPlacementIdDelete = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).delete<
+    DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteResponses,
+    DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/gridfinity/placements/{placement_id}",
+    ...options,
+  });
+
+/**
+ * Update Placement
+ *
+ * Update a placement (move or resize).
+ */
+export const updatePlacementApiV1GridfinityPlacementsPlacementIdPut = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).put<
+    UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutResponses,
+    UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/gridfinity/placements/{placement_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Auto Layout Items
+ *
+ * Automatically arrange items in a unit using bin-packing algorithm.
+ */
+export const autoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).post<
+    AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostResponses,
+    AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/gridfinity/units/{unit_id}/auto-layout",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Recommend Bin Sizes
+ *
+ * Get bin size recommendations for items based on their dimensions.
+ */
+export const recommendBinSizesApiV1GridfinityRecommendBinsPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    RecommendBinSizesApiV1GridfinityRecommendBinsPostData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).post<
+    RecommendBinSizesApiV1GridfinityRecommendBinsPostResponses,
+    RecommendBinSizesApiV1GridfinityRecommendBinsPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/gridfinity/recommend-bins",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Calculate Grid
+ *
+ * Calculate grid size from container dimensions.
+ *
+ * Returns the number of columns and rows that fit, plus wasted space.
+ */
+export const calculateGridApiV1GridfinityCalculateGridGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    CalculateGridApiV1GridfinityCalculateGridGetData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).get<
+    CalculateGridApiV1GridfinityCalculateGridGetResponses,
+    CalculateGridApiV1GridfinityCalculateGridGetErrors,
+    ThrowOnError
+  >({ url: "/api/v1/gridfinity/calculate-grid", ...options });
+
+/**
  * Upload Image
  *
  * Upload an image file.
@@ -2520,6 +2866,66 @@ export const updateRecommendationApiV1ProfileRecommendationsRecommendationIdPatc
         ...options.headers,
       },
     });
+
+/**
+ * Get Spring Cleaning Cost
+ *
+ * Get the cost estimate for a spring cleaning audit.
+ *
+ * Returns the number of credits required based on inventory size.
+ * Cost is 1 credit per 50 items, with a minimum of 1 credit.
+ */
+export const getSpringCleaningCostApiV1ProfileSpringCleaningCostGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetData,
+    ThrowOnError
+  >
+) =>
+  (options?.client ?? client).get<
+    GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetResponses,
+    GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/profile/spring-cleaning/cost",
+    ...options,
+  });
+
+/**
+ * Run Spring Cleaning Audit
+ *
+ * Run a comprehensive spring cleaning audit of the entire inventory.
+ *
+ * This is an enhanced version of generate_recommendations that:
+ * - Analyzes all items in the inventory
+ * - Charges credits based on inventory size (1 credit per 50 items)
+ * - Returns more comprehensive recommendations
+ *
+ * The credit cost is calculated as 1 credit per 50 items, minimum 1 credit.
+ */
+export const runSpringCleaningAuditApiV1ProfileSpringCleaningAuditPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).post<
+    RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostResponses,
+    RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/profile/spring-cleaning/audit",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
 
 /**
  * List Event Types

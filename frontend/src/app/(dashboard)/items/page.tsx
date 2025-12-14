@@ -876,6 +876,38 @@ export default function ItemsPage() {
                       {item.category?.icon}{" "}
                       {item.category?.name ?? t("uncategorized")}
                     </p>
+                    {/* Specifications preview */}
+                    {(() => {
+                      const attrs = item.attributes;
+                      if (!attrs || typeof attrs !== "object") return null;
+                      const specs = (attrs as Record<string, unknown>)[
+                        "specifications"
+                      ];
+                      if (!specs || typeof specs !== "object") return null;
+                      const entries = Object.entries(
+                        specs as Record<string, unknown>
+                      ).slice(0, 3);
+                      if (entries.length === 0) return null;
+                      return (
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {entries.map(([key, value]) => (
+                            <span
+                              key={key}
+                              className="inline-flex items-center rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground"
+                              title={`${key.replace(/_/g, " ")}: ${String(value)}`}
+                            >
+                              <span className="max-w-[60px] truncate capitalize">
+                                {key.replace(/_/g, " ")}
+                              </span>
+                              :{" "}
+                              <span className="ml-0.5 max-w-[50px] truncate font-medium">
+                                {String(value)}
+                              </span>
+                            </span>
+                          ))}
+                        </div>
+                      );
+                    })()}
                     <div className="mt-3 flex items-center justify-between">
                       {/* Quick quantity buttons */}
                       <div className="flex items-center gap-1">
@@ -952,6 +984,9 @@ export default function ItemsPage() {
                     </th>
                     <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium md:table-cell">
                       {t("location")}
+                    </th>
+                    <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium lg:table-cell">
+                      {t("specifications")}
                     </th>
                     <th className="whitespace-nowrap px-4 py-3 text-center text-sm font-medium">
                       {t("quantity")}
@@ -1078,6 +1113,39 @@ export default function ItemsPage() {
                       </td>
                       <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-muted-foreground md:table-cell">
                         {item.location?.name ?? t("noLocation")}
+                      </td>
+                      <td className="hidden px-4 py-3 lg:table-cell">
+                        {(() => {
+                          const attrs = item.attributes;
+                          if (!attrs || typeof attrs !== "object") return "-";
+                          const specs = (attrs as Record<string, unknown>)[
+                            "specifications"
+                          ];
+                          if (!specs || typeof specs !== "object") return "-";
+                          const entries = Object.entries(
+                            specs as Record<string, unknown>
+                          ).slice(0, 2);
+                          if (entries.length === 0) return "-";
+                          return (
+                            <div className="flex flex-wrap gap-1">
+                              {entries.map(([key, value]) => (
+                                <span
+                                  key={key}
+                                  className="inline-flex items-center rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground"
+                                  title={`${key.replace(/_/g, " ")}: ${String(value)}`}
+                                >
+                                  <span className="max-w-[50px] truncate capitalize">
+                                    {key.replace(/_/g, " ")}
+                                  </span>
+                                  :{" "}
+                                  <span className="ml-0.5 max-w-[40px] truncate font-medium">
+                                    {String(value)}
+                                  </span>
+                                </span>
+                              ))}
+                            </div>
+                          );
+                        })()}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-center gap-1">

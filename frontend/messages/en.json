@@ -133,6 +133,7 @@
     "location": "Location",
     "tags": "Tags",
     "attributes": "Attributes",
+    "specifications": "Specifications",
     "images": "Images",
     "notes": "Notes",
     "price": "Price",

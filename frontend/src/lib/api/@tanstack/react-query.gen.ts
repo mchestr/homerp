@@ -13,7 +13,9 @@ import {
   adjustUserCreditsApiV1AdminUsersUserIdCreditsPost,
   analyzeLocationImageApiV1LocationsAnalyzeImagePost,
   attachImageToItemApiV1ImagesImageIdAttachItemIdPost,
+  autoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPost,
   batchUpdateItemsApiV1ItemsBatchPatch,
+  calculateGridApiV1GridfinityCalculateGridGet,
   checkInItemApiV1ItemsItemIdCheckInPost,
   checkOutItemApiV1ItemsItemIdCheckOutPost,
   classifyImageApiV1ImagesClassifyPost,
@@ -28,7 +30,9 @@ import {
   createLocationsBulkApiV1LocationsBulkPost,
   createMyProfileApiV1ProfileMePost,
   createPackApiV1AdminPacksPost,
+  createPlacementApiV1GridfinityUnitsUnitIdPlacementsPost,
   createPortalSessionApiV1BillingPortalPost,
+  createUnitApiV1GridfinityUnitsPost,
   deleteApiKeyApiV1AdminApikeysApiKeyIdDelete,
   deleteCategoryApiV1CategoriesCategoryIdDelete,
   deleteConfigApiV1WebhooksConfigsConfigIdDelete,
@@ -37,11 +41,14 @@ import {
   deleteItemApiV1ItemsItemIdDelete,
   deleteLocationApiV1LocationsLocationIdDelete,
   deletePackApiV1AdminPacksPackIdDelete,
+  deletePlacementApiV1GridfinityPlacementsPlacementIdDelete,
+  deleteUnitApiV1GridfinityUnitsUnitIdDelete,
   dismissRecommendationApiV1ProfileRecommendationsRecommendationIdDelete,
   findSimilarItemsApiV1ItemsFindSimilarPost,
   generateRecommendationsApiV1ProfileRecommendationsGeneratePost,
   getAllTagsApiV1ItemsTagsGet,
   getApiKeyApiV1AdminApikeysApiKeyIdGet,
+  getAuthUrlApiV1AuthProviderGet,
   getBalanceApiV1BillingBalanceGet,
   getCategoryApiV1CategoriesCategoryIdGet,
   getCategoryDescendantsApiV1CategoriesCategoryIdDescendantsGet,
@@ -71,10 +78,11 @@ import {
   getPackApiV1AdminPacksPackIdGet,
   getRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGet,
   getRecommendationsApiV1ProfileRecommendationsGet,
+  getSpringCleaningCostApiV1ProfileSpringCleaningCostGet,
   getStatsApiV1AdminStatsGet,
+  getUnitApiV1GridfinityUnitsUnitIdGet,
+  getUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGet,
   getUserApiV1AdminUsersUserIdGet,
-  googleAuthApiV1AuthGoogleGet,
-  googleCallbackApiV1AuthCallbackGoogleGet,
   handleWebhookApiV1BillingWebhookPost,
   healthCheckHealthGet,
   listAllFeedbackApiV1FeedbackAdminGet,
@@ -90,15 +98,20 @@ import {
   listMyFeedbackApiV1FeedbackGet,
   listPacksApiV1AdminPacksGet,
   listPacksApiV1BillingPacksGet,
+  listProvidersApiV1AuthProvidersGet,
   listTransactionsApiV1BillingTransactionsGet,
+  listUnitsApiV1GridfinityUnitsGet,
   listUsersApiV1AdminUsersGet,
   moveCategoryApiV1CategoriesCategoryIdMovePatch,
   moveLocationApiV1LocationsLocationIdMovePatch,
+  oauthCallbackApiV1AuthCallbackProviderGet,
   type Options,
+  recommendBinSizesApiV1GridfinityRecommendBinsPost,
   refreshTokenApiV1AuthRefreshPost,
   requestRefundApiV1BillingRefundPost,
   resolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePut,
   retriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPost,
+  runSpringCleaningAuditApiV1ProfileSpringCleaningAuditPost,
   searchItemsApiV1ItemsSearchGet,
   suggestItemLocationApiV1ItemsSuggestLocationPost,
   testConfigApiV1WebhooksConfigsConfigIdTestPost,
@@ -111,7 +124,9 @@ import {
   updateLocationApiV1LocationsLocationIdPut,
   updateMyProfileApiV1ProfileMePatch,
   updatePackApiV1AdminPacksPackIdPut,
+  updatePlacementApiV1GridfinityPlacementsPlacementIdPut,
   updateRecommendationApiV1ProfileRecommendationsRecommendationIdPatch,
+  updateUnitApiV1GridfinityUnitsUnitIdPut,
   updateUserApiV1AdminUsersUserIdPut,
   updateUserSettingsApiV1AuthSettingsPatch,
   uploadImageApiV1ImagesUploadPost,
@@ -126,9 +141,15 @@ import type {
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostData,
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostError,
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostResponse,
+  AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostData,
+  AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostError,
+  AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostResponse,
   BatchUpdateItemsApiV1ItemsBatchPatchData,
   BatchUpdateItemsApiV1ItemsBatchPatchError,
   BatchUpdateItemsApiV1ItemsBatchPatchResponse,
+  CalculateGridApiV1GridfinityCalculateGridGetData,
+  CalculateGridApiV1GridfinityCalculateGridGetError,
+  CalculateGridApiV1GridfinityCalculateGridGetResponse,
   CheckInItemApiV1ItemsItemIdCheckInPostData,
   CheckInItemApiV1ItemsItemIdCheckInPostError,
   CheckInItemApiV1ItemsItemIdCheckInPostResponse,
@@ -171,9 +192,15 @@ import type {
   CreatePackApiV1AdminPacksPostData,
   CreatePackApiV1AdminPacksPostError,
   CreatePackApiV1AdminPacksPostResponse,
+  CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostData,
+  CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostError,
+  CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostResponse,
   CreatePortalSessionApiV1BillingPortalPostData,
   CreatePortalSessionApiV1BillingPortalPostError,
   CreatePortalSessionApiV1BillingPortalPostResponse,
+  CreateUnitApiV1GridfinityUnitsPostData,
+  CreateUnitApiV1GridfinityUnitsPostError,
+  CreateUnitApiV1GridfinityUnitsPostResponse,
   DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteData,
   DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteError,
   DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteResponse,
@@ -198,6 +225,12 @@ import type {
   DeletePackApiV1AdminPacksPackIdDeleteData,
   DeletePackApiV1AdminPacksPackIdDeleteError,
   DeletePackApiV1AdminPacksPackIdDeleteResponse,
+  DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteData,
+  DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteError,
+  DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteResponse,
+  DeleteUnitApiV1GridfinityUnitsUnitIdDeleteData,
+  DeleteUnitApiV1GridfinityUnitsUnitIdDeleteError,
+  DeleteUnitApiV1GridfinityUnitsUnitIdDeleteResponse,
   DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteData,
   DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteError,
   DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteResponse,
@@ -213,6 +246,9 @@ import type {
   GetApiKeyApiV1AdminApikeysApiKeyIdGetData,
   GetApiKeyApiV1AdminApikeysApiKeyIdGetError,
   GetApiKeyApiV1AdminApikeysApiKeyIdGetResponse,
+  GetAuthUrlApiV1AuthProviderGetData,
+  GetAuthUrlApiV1AuthProviderGetError,
+  GetAuthUrlApiV1AuthProviderGetResponse,
   GetBalanceApiV1BillingBalanceGetData,
   GetBalanceApiV1BillingBalanceGetError,
   GetBalanceApiV1BillingBalanceGetResponse,
@@ -295,18 +331,21 @@ import type {
   GetRecommendationsApiV1ProfileRecommendationsGetData,
   GetRecommendationsApiV1ProfileRecommendationsGetError,
   GetRecommendationsApiV1ProfileRecommendationsGetResponse,
+  GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetData,
+  GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetError,
+  GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetResponse,
   GetStatsApiV1AdminStatsGetData,
   GetStatsApiV1AdminStatsGetError,
   GetStatsApiV1AdminStatsGetResponse,
+  GetUnitApiV1GridfinityUnitsUnitIdGetData,
+  GetUnitApiV1GridfinityUnitsUnitIdGetError,
+  GetUnitApiV1GridfinityUnitsUnitIdGetResponse,
+  GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetData,
+  GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetError,
+  GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetResponse,
   GetUserApiV1AdminUsersUserIdGetData,
   GetUserApiV1AdminUsersUserIdGetError,
   GetUserApiV1AdminUsersUserIdGetResponse,
-  GoogleAuthApiV1AuthGoogleGetData,
-  GoogleAuthApiV1AuthGoogleGetError,
-  GoogleAuthApiV1AuthGoogleGetResponse,
-  GoogleCallbackApiV1AuthCallbackGoogleGetData,
-  GoogleCallbackApiV1AuthCallbackGoogleGetError,
-  GoogleCallbackApiV1AuthCallbackGoogleGetResponse,
   HandleWebhookApiV1BillingWebhookPostData,
   HandleWebhookApiV1BillingWebhookPostError,
   HandleWebhookApiV1BillingWebhookPostResponse,
@@ -349,9 +388,14 @@ import type {
   ListPacksApiV1AdminPacksGetResponse,
   ListPacksApiV1BillingPacksGetData,
   ListPacksApiV1BillingPacksGetResponse,
+  ListProvidersApiV1AuthProvidersGetData,
+  ListProvidersApiV1AuthProvidersGetResponse,
   ListTransactionsApiV1BillingTransactionsGetData,
   ListTransactionsApiV1BillingTransactionsGetError,
   ListTransactionsApiV1BillingTransactionsGetResponse,
+  ListUnitsApiV1GridfinityUnitsGetData,
+  ListUnitsApiV1GridfinityUnitsGetError,
+  ListUnitsApiV1GridfinityUnitsGetResponse,
   ListUsersApiV1AdminUsersGetData,
   ListUsersApiV1AdminUsersGetError,
   ListUsersApiV1AdminUsersGetResponse,
@@ -361,6 +405,12 @@ import type {
   MoveLocationApiV1LocationsLocationIdMovePatchData,
   MoveLocationApiV1LocationsLocationIdMovePatchError,
   MoveLocationApiV1LocationsLocationIdMovePatchResponse,
+  OauthCallbackApiV1AuthCallbackProviderGetData,
+  OauthCallbackApiV1AuthCallbackProviderGetError,
+  OauthCallbackApiV1AuthCallbackProviderGetResponse,
+  RecommendBinSizesApiV1GridfinityRecommendBinsPostData,
+  RecommendBinSizesApiV1GridfinityRecommendBinsPostError,
+  RecommendBinSizesApiV1GridfinityRecommendBinsPostResponse,
   RefreshTokenApiV1AuthRefreshPostData,
   RefreshTokenApiV1AuthRefreshPostError,
   RefreshTokenApiV1AuthRefreshPostResponse,
@@ -373,6 +423,9 @@ import type {
   RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostData,
   RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostError,
   RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostResponse,
+  RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostData,
+  RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostError,
+  RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostResponse,
   SearchItemsApiV1ItemsSearchGetData,
   SearchItemsApiV1ItemsSearchGetError,
   SearchItemsApiV1ItemsSearchGetResponse,
@@ -409,9 +462,15 @@ import type {
   UpdatePackApiV1AdminPacksPackIdPutData,
   UpdatePackApiV1AdminPacksPackIdPutError,
   UpdatePackApiV1AdminPacksPackIdPutResponse,
+  UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutData,
+  UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutError,
+  UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutResponse,
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchData,
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchError,
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponse,
+  UpdateUnitApiV1GridfinityUnitsUnitIdPutData,
+  UpdateUnitApiV1GridfinityUnitsUnitIdPutError,
+  UpdateUnitApiV1GridfinityUnitsUnitIdPutResponse,
   UpdateUserApiV1AdminUsersUserIdPutData,
   UpdateUserApiV1AdminUsersUserIdPutError,
   UpdateUserApiV1AdminUsersUserIdPutResponse,
@@ -1076,28 +1135,29 @@ export const updateApiKeyApiV1AdminApikeysApiKeyIdPatchMutation = (
   return mutationOptions;
 };
 
-export const googleAuthApiV1AuthGoogleGetQueryKey = (
-  options: Options<GoogleAuthApiV1AuthGoogleGetData>
-) => createQueryKey("googleAuthApiV1AuthGoogleGet", options);
+export const listProvidersApiV1AuthProvidersGetQueryKey = (
+  options?: Options<ListProvidersApiV1AuthProvidersGetData>
+) => createQueryKey("listProvidersApiV1AuthProvidersGet", options);
 
 /**
- * Google Auth
+ * List Providers
  *
- * Get Google OAuth authorization URL.
+ * List all configured OAuth providers.
  *
- * The client should redirect to this URL to initiate OAuth flow.
+ * Returns providers that have valid credentials configured.
+ * The frontend uses this to dynamically show login buttons.
  */
-export const googleAuthApiV1AuthGoogleGetOptions = (
-  options: Options<GoogleAuthApiV1AuthGoogleGetData>
+export const listProvidersApiV1AuthProvidersGetOptions = (
+  options?: Options<ListProvidersApiV1AuthProvidersGetData>
 ) =>
   queryOptions<
-    GoogleAuthApiV1AuthGoogleGetResponse,
-    GoogleAuthApiV1AuthGoogleGetError,
-    GoogleAuthApiV1AuthGoogleGetResponse,
-    ReturnType<typeof googleAuthApiV1AuthGoogleGetQueryKey>
+    ListProvidersApiV1AuthProvidersGetResponse,
+    DefaultError,
+    ListProvidersApiV1AuthProvidersGetResponse,
+    ReturnType<typeof listProvidersApiV1AuthProvidersGetQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await googleAuthApiV1AuthGoogleGet({
+      const { data } = await listProvidersApiV1AuthProvidersGet({
         ...options,
         ...queryKey[0],
         signal,
@@ -1105,39 +1165,7 @@ export const googleAuthApiV1AuthGoogleGetOptions = (
       });
       return data;
     },
-    queryKey: googleAuthApiV1AuthGoogleGetQueryKey(options),
-  });
-
-export const googleCallbackApiV1AuthCallbackGoogleGetQueryKey = (
-  options: Options<GoogleCallbackApiV1AuthCallbackGoogleGetData>
-) => createQueryKey("googleCallbackApiV1AuthCallbackGoogleGet", options);
-
-/**
- * Google Callback
- *
- * Handle Google OAuth callback.
- *
- * Exchange the authorization code for tokens and create/get user.
- */
-export const googleCallbackApiV1AuthCallbackGoogleGetOptions = (
-  options: Options<GoogleCallbackApiV1AuthCallbackGoogleGetData>
-) =>
-  queryOptions<
-    GoogleCallbackApiV1AuthCallbackGoogleGetResponse,
-    GoogleCallbackApiV1AuthCallbackGoogleGetError,
-    GoogleCallbackApiV1AuthCallbackGoogleGetResponse,
-    ReturnType<typeof googleCallbackApiV1AuthCallbackGoogleGetQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await googleCallbackApiV1AuthCallbackGoogleGet({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: googleCallbackApiV1AuthCallbackGoogleGetQueryKey(options),
+    queryKey: listProvidersApiV1AuthProvidersGetQueryKey(options),
   });
 
 export const getCurrentUserInfoApiV1AuthMeGetQueryKey = (
@@ -1227,6 +1255,70 @@ export const updateUserSettingsApiV1AuthSettingsPatchMutation = (
   };
   return mutationOptions;
 };
+
+export const oauthCallbackApiV1AuthCallbackProviderGetQueryKey = (
+  options: Options<OauthCallbackApiV1AuthCallbackProviderGetData>
+) => createQueryKey("oauthCallbackApiV1AuthCallbackProviderGet", options);
+
+/**
+ * Oauth Callback
+ *
+ * Handle OAuth callback for any configured provider.
+ *
+ * Exchange the authorization code for tokens and create/get user.
+ */
+export const oauthCallbackApiV1AuthCallbackProviderGetOptions = (
+  options: Options<OauthCallbackApiV1AuthCallbackProviderGetData>
+) =>
+  queryOptions<
+    OauthCallbackApiV1AuthCallbackProviderGetResponse,
+    OauthCallbackApiV1AuthCallbackProviderGetError,
+    OauthCallbackApiV1AuthCallbackProviderGetResponse,
+    ReturnType<typeof oauthCallbackApiV1AuthCallbackProviderGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await oauthCallbackApiV1AuthCallbackProviderGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: oauthCallbackApiV1AuthCallbackProviderGetQueryKey(options),
+  });
+
+export const getAuthUrlApiV1AuthProviderGetQueryKey = (
+  options: Options<GetAuthUrlApiV1AuthProviderGetData>
+) => createQueryKey("getAuthUrlApiV1AuthProviderGet", options);
+
+/**
+ * Get Auth Url
+ *
+ * Get OAuth authorization URL for any configured provider.
+ *
+ * The client should redirect to this URL to initiate OAuth flow.
+ */
+export const getAuthUrlApiV1AuthProviderGetOptions = (
+  options: Options<GetAuthUrlApiV1AuthProviderGetData>
+) =>
+  queryOptions<
+    GetAuthUrlApiV1AuthProviderGetResponse,
+    GetAuthUrlApiV1AuthProviderGetError,
+    GetAuthUrlApiV1AuthProviderGetResponse,
+    ReturnType<typeof getAuthUrlApiV1AuthProviderGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getAuthUrlApiV1AuthProviderGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getAuthUrlApiV1AuthProviderGetQueryKey(options),
+  });
 
 export const getBalanceApiV1BillingBalanceGetQueryKey = (
   options?: Options<GetBalanceApiV1BillingBalanceGetData>
@@ -3325,6 +3417,376 @@ export const getLocationQrCodeApiV1LocationsLocationIdQrGetOptions = (
     queryKey: getLocationQrCodeApiV1LocationsLocationIdQrGetQueryKey(options),
   });
 
+export const listUnitsApiV1GridfinityUnitsGetQueryKey = (
+  options?: Options<ListUnitsApiV1GridfinityUnitsGetData>
+) => createQueryKey("listUnitsApiV1GridfinityUnitsGet", options);
+
+/**
+ * List Units
+ *
+ * List all Gridfinity storage units for the current user.
+ */
+export const listUnitsApiV1GridfinityUnitsGetOptions = (
+  options?: Options<ListUnitsApiV1GridfinityUnitsGetData>
+) =>
+  queryOptions<
+    ListUnitsApiV1GridfinityUnitsGetResponse,
+    ListUnitsApiV1GridfinityUnitsGetError,
+    ListUnitsApiV1GridfinityUnitsGetResponse,
+    ReturnType<typeof listUnitsApiV1GridfinityUnitsGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await listUnitsApiV1GridfinityUnitsGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: listUnitsApiV1GridfinityUnitsGetQueryKey(options),
+  });
+
+/**
+ * Create Unit
+ *
+ * Create a new Gridfinity storage unit.
+ */
+export const createUnitApiV1GridfinityUnitsPostMutation = (
+  options?: Partial<Options<CreateUnitApiV1GridfinityUnitsPostData>>
+): UseMutationOptions<
+  CreateUnitApiV1GridfinityUnitsPostResponse,
+  CreateUnitApiV1GridfinityUnitsPostError,
+  Options<CreateUnitApiV1GridfinityUnitsPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateUnitApiV1GridfinityUnitsPostResponse,
+    CreateUnitApiV1GridfinityUnitsPostError,
+    Options<CreateUnitApiV1GridfinityUnitsPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await createUnitApiV1GridfinityUnitsPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Delete Unit
+ *
+ * Delete a Gridfinity unit and all its placements.
+ */
+export const deleteUnitApiV1GridfinityUnitsUnitIdDeleteMutation = (
+  options?: Partial<Options<DeleteUnitApiV1GridfinityUnitsUnitIdDeleteData>>
+): UseMutationOptions<
+  DeleteUnitApiV1GridfinityUnitsUnitIdDeleteResponse,
+  DeleteUnitApiV1GridfinityUnitsUnitIdDeleteError,
+  Options<DeleteUnitApiV1GridfinityUnitsUnitIdDeleteData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DeleteUnitApiV1GridfinityUnitsUnitIdDeleteResponse,
+    DeleteUnitApiV1GridfinityUnitsUnitIdDeleteError,
+    Options<DeleteUnitApiV1GridfinityUnitsUnitIdDeleteData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await deleteUnitApiV1GridfinityUnitsUnitIdDelete({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const getUnitApiV1GridfinityUnitsUnitIdGetQueryKey = (
+  options: Options<GetUnitApiV1GridfinityUnitsUnitIdGetData>
+) => createQueryKey("getUnitApiV1GridfinityUnitsUnitIdGet", options);
+
+/**
+ * Get Unit
+ *
+ * Get a Gridfinity unit by ID.
+ */
+export const getUnitApiV1GridfinityUnitsUnitIdGetOptions = (
+  options: Options<GetUnitApiV1GridfinityUnitsUnitIdGetData>
+) =>
+  queryOptions<
+    GetUnitApiV1GridfinityUnitsUnitIdGetResponse,
+    GetUnitApiV1GridfinityUnitsUnitIdGetError,
+    GetUnitApiV1GridfinityUnitsUnitIdGetResponse,
+    ReturnType<typeof getUnitApiV1GridfinityUnitsUnitIdGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getUnitApiV1GridfinityUnitsUnitIdGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getUnitApiV1GridfinityUnitsUnitIdGetQueryKey(options),
+  });
+
+/**
+ * Update Unit
+ *
+ * Update a Gridfinity unit.
+ */
+export const updateUnitApiV1GridfinityUnitsUnitIdPutMutation = (
+  options?: Partial<Options<UpdateUnitApiV1GridfinityUnitsUnitIdPutData>>
+): UseMutationOptions<
+  UpdateUnitApiV1GridfinityUnitsUnitIdPutResponse,
+  UpdateUnitApiV1GridfinityUnitsUnitIdPutError,
+  Options<UpdateUnitApiV1GridfinityUnitsUnitIdPutData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateUnitApiV1GridfinityUnitsUnitIdPutResponse,
+    UpdateUnitApiV1GridfinityUnitsUnitIdPutError,
+    Options<UpdateUnitApiV1GridfinityUnitsUnitIdPutData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await updateUnitApiV1GridfinityUnitsUnitIdPut({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const getUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetQueryKey = (
+  options: Options<GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetData>
+) =>
+  createQueryKey("getUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGet", options);
+
+/**
+ * Get Unit Layout
+ *
+ * Get a Gridfinity unit with all placements for rendering the layout.
+ */
+export const getUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetOptions = (
+  options: Options<GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetData>
+) =>
+  queryOptions<
+    GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetResponse,
+    GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetError,
+    GetUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetResponse,
+    ReturnType<typeof getUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGetQueryKey(options),
+  });
+
+/**
+ * Create Placement
+ *
+ * Add an item placement to a Gridfinity unit.
+ */
+export const createPlacementApiV1GridfinityUnitsUnitIdPlacementsPostMutation = (
+  options?: Partial<
+    Options<CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostData>
+  >
+): UseMutationOptions<
+  CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostResponse,
+  CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostError,
+  Options<CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostResponse,
+    CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostError,
+    Options<CreatePlacementApiV1GridfinityUnitsUnitIdPlacementsPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } =
+        await createPlacementApiV1GridfinityUnitsUnitIdPlacementsPost({
+          ...options,
+          ...fnOptions,
+          throwOnError: true,
+        });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Delete Placement
+ *
+ * Remove an item placement from a unit.
+ */
+export const deletePlacementApiV1GridfinityPlacementsPlacementIdDeleteMutation =
+  (
+    options?: Partial<
+      Options<DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteData>
+    >
+  ): UseMutationOptions<
+    DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteResponse,
+    DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteError,
+    Options<DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteResponse,
+      DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteError,
+      Options<DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteData>
+    > = {
+      mutationFn: async (fnOptions) => {
+        const { data } =
+          await deletePlacementApiV1GridfinityPlacementsPlacementIdDelete({
+            ...options,
+            ...fnOptions,
+            throwOnError: true,
+          });
+        return data;
+      },
+    };
+    return mutationOptions;
+  };
+
+/**
+ * Update Placement
+ *
+ * Update a placement (move or resize).
+ */
+export const updatePlacementApiV1GridfinityPlacementsPlacementIdPutMutation = (
+  options?: Partial<
+    Options<UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutData>
+  >
+): UseMutationOptions<
+  UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutResponse,
+  UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutError,
+  Options<UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutResponse,
+    UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutError,
+    Options<UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } =
+        await updatePlacementApiV1GridfinityPlacementsPlacementIdPut({
+          ...options,
+          ...fnOptions,
+          throwOnError: true,
+        });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Auto Layout Items
+ *
+ * Automatically arrange items in a unit using bin-packing algorithm.
+ */
+export const autoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostMutation = (
+  options?: Partial<
+    Options<AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostData>
+  >
+): UseMutationOptions<
+  AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostResponse,
+  AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostError,
+  Options<AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostResponse,
+    AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostError,
+    Options<AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } =
+        await autoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPost({
+          ...options,
+          ...fnOptions,
+          throwOnError: true,
+        });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Recommend Bin Sizes
+ *
+ * Get bin size recommendations for items based on their dimensions.
+ */
+export const recommendBinSizesApiV1GridfinityRecommendBinsPostMutation = (
+  options?: Partial<
+    Options<RecommendBinSizesApiV1GridfinityRecommendBinsPostData>
+  >
+): UseMutationOptions<
+  RecommendBinSizesApiV1GridfinityRecommendBinsPostResponse,
+  RecommendBinSizesApiV1GridfinityRecommendBinsPostError,
+  Options<RecommendBinSizesApiV1GridfinityRecommendBinsPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RecommendBinSizesApiV1GridfinityRecommendBinsPostResponse,
+    RecommendBinSizesApiV1GridfinityRecommendBinsPostError,
+    Options<RecommendBinSizesApiV1GridfinityRecommendBinsPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await recommendBinSizesApiV1GridfinityRecommendBinsPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const calculateGridApiV1GridfinityCalculateGridGetQueryKey = (
+  options: Options<CalculateGridApiV1GridfinityCalculateGridGetData>
+) => createQueryKey("calculateGridApiV1GridfinityCalculateGridGet", options);
+
+/**
+ * Calculate Grid
+ *
+ * Calculate grid size from container dimensions.
+ *
+ * Returns the number of columns and rows that fit, plus wasted space.
+ */
+export const calculateGridApiV1GridfinityCalculateGridGetOptions = (
+  options: Options<CalculateGridApiV1GridfinityCalculateGridGetData>
+) =>
+  queryOptions<
+    CalculateGridApiV1GridfinityCalculateGridGetResponse,
+    CalculateGridApiV1GridfinityCalculateGridGetError,
+    CalculateGridApiV1GridfinityCalculateGridGetResponse,
+    ReturnType<typeof calculateGridApiV1GridfinityCalculateGridGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await calculateGridApiV1GridfinityCalculateGridGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: calculateGridApiV1GridfinityCalculateGridGetQueryKey(options),
+  });
+
 /**
  * Upload Image
  *
@@ -3916,6 +4378,87 @@ export const updateRecommendationApiV1ProfileRecommendationsRecommendationIdPatc
               throwOnError: true,
             }
           );
+        return data;
+      },
+    };
+    return mutationOptions;
+  };
+
+export const getSpringCleaningCostApiV1ProfileSpringCleaningCostGetQueryKey = (
+  options?: Options<GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetData>
+) =>
+  createQueryKey(
+    "getSpringCleaningCostApiV1ProfileSpringCleaningCostGet",
+    options
+  );
+
+/**
+ * Get Spring Cleaning Cost
+ *
+ * Get the cost estimate for a spring cleaning audit.
+ *
+ * Returns the number of credits required based on inventory size.
+ * Cost is 1 credit per 50 items, with a minimum of 1 credit.
+ */
+export const getSpringCleaningCostApiV1ProfileSpringCleaningCostGetOptions = (
+  options?: Options<GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetData>
+) =>
+  queryOptions<
+    GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetResponse,
+    GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetError,
+    GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetResponse,
+    ReturnType<
+      typeof getSpringCleaningCostApiV1ProfileSpringCleaningCostGetQueryKey
+    >
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } =
+        await getSpringCleaningCostApiV1ProfileSpringCleaningCostGet({
+          ...options,
+          ...queryKey[0],
+          signal,
+          throwOnError: true,
+        });
+      return data;
+    },
+    queryKey:
+      getSpringCleaningCostApiV1ProfileSpringCleaningCostGetQueryKey(options),
+  });
+
+/**
+ * Run Spring Cleaning Audit
+ *
+ * Run a comprehensive spring cleaning audit of the entire inventory.
+ *
+ * This is an enhanced version of generate_recommendations that:
+ * - Analyzes all items in the inventory
+ * - Charges credits based on inventory size (1 credit per 50 items)
+ * - Returns more comprehensive recommendations
+ *
+ * The credit cost is calculated as 1 credit per 50 items, minimum 1 credit.
+ */
+export const runSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostMutation =
+  (
+    options?: Partial<
+      Options<RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostData>
+    >
+  ): UseMutationOptions<
+    RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostResponse,
+    RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostError,
+    Options<RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostResponse,
+      RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostError,
+      Options<RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostData>
+    > = {
+      mutationFn: async (fnOptions) => {
+        const { data } =
+          await runSpringCleaningAuditApiV1ProfileSpringCleaningAuditPost({
+            ...options,
+            ...fnOptions,
+            throwOnError: true,
+          });
         return data;
       },
     };
