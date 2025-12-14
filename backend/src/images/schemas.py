@@ -60,6 +60,7 @@ class ClassificationRequest(BaseModel):
     """Schema for image classification request."""
 
     image_id: UUID
+    custom_prompt: str | None = None
 
 
 class ClassificationResult(BaseModel):

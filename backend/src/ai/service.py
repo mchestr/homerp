@@ -152,7 +152,10 @@ class AIClassificationService:
         return self._template_manager
 
     async def classify_image(
-        self, image_data: bytes, mime_type: str = "image/jpeg"
+        self,
+        image_data: bytes,
+        mime_type: str = "image/jpeg",
+        custom_prompt: str | None = None,
     ) -> ClassificationResult:
         """
         Classify an image using GPT-4 Vision.
@@ -160,6 +163,7 @@ class AIClassificationService:
         Args:
             image_data: Raw image bytes
             mime_type: MIME type of the image
+            custom_prompt: Optional user-supplied prompt to augment the AI request
 
         Returns:
             ClassificationResult with identified item details
@@ -171,6 +175,12 @@ class AIClassificationService:
         user_prompt = self._template_manager.get_user_prompt(
             TEMPLATE_ITEM_CLASSIFICATION
         )
+
+        # Append custom prompt if provided
+        if custom_prompt:
+            user_prompt = (
+                f"{user_prompt}\n\nAdditional context from the user:\n{custom_prompt}"
+            )
 
         # Encode image to base64
         base64_image = base64.b64encode(image_data).decode("utf-8")
