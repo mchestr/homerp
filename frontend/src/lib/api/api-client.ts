@@ -370,10 +370,10 @@ export const imagesApi = {
   upload: (file: File) =>
     uploadFile("/api/v1/images/upload", file) as Promise<ImageUpload>,
 
-  classify: (imageId: string) =>
+  classify: (imageId: string, customPrompt?: string) =>
     apiRequest<ClassificationResponse>("/api/v1/images/classify", {
       method: "POST",
-      body: { image_id: imageId },
+      body: { image_id: imageId, custom_prompt: customPrompt || null },
     }),
 
   get: (id: string) => apiRequest<Image>(`/api/v1/images/${id}`),

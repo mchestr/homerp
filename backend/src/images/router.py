@@ -214,6 +214,7 @@ async def classify_image(
         classification = await ai_service.classify_image(
             image_data,
             mime_type=image.mime_type or "image/jpeg",
+            custom_prompt=data.custom_prompt,
         )
 
         # Deduct credit after successful classification

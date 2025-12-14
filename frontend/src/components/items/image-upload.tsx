@@ -9,8 +9,11 @@ import {
   ImagePlus,
   CheckCircle2,
   History,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { imagesApi, ClassificationResult } from "@/lib/api/api-client";
 import { cn } from "@/lib/utils";
 import { useInsufficientCreditsModal } from "@/components/billing/insufficient-credits-modal";
@@ -47,10 +50,13 @@ export function ImageUpload({
   );
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [customPrompt, setCustomPrompt] = useState("");
+  const [isPromptExpanded, setIsPromptExpanded] = useState(false);
   const { show: showInsufficientCredits, InsufficientCreditsModal } =
     useInsufficientCreditsModal();
   const { refreshCredits } = useAuth();
   const t = useTranslations("billing");
+  const tImages = useTranslations("images");
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,13 +112,19 @@ export function ImageUpload({
       setError(null);
 
       try {
-        const response = await imagesApi.classify(imageId);
+        const response = await imagesApi.classify(
+          imageId,
+          customPrompt.trim() || undefined
+        );
         if (response.success && response.classification) {
           onClassificationComplete(response.classification);
           // Mark this image as processed in the uploadedImages list
           setClassifiedImageIds((prev) => new Set([...prev, imageId]));
           // Refresh credits after successful classification
           refreshCredits();
+          // Clear custom prompt after successful classification
+          setCustomPrompt("");
+          setIsPromptExpanded(false);
         } else {
           setError(response.error || "Classification failed");
         }
@@ -134,7 +146,12 @@ export function ImageUpload({
         setClassifyingImageId(null);
       }
     },
-    [onClassificationComplete, showInsufficientCredits, refreshCredits]
+    [
+      onClassificationComplete,
+      showInsufficientCredits,
+      refreshCredits,
+      customPrompt,
+    ]
   );
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -225,7 +242,7 @@ export function ImageUpload({
           classifiedImageIds.has(currentImage.id) ? (
             <div className="absolute bottom-4 right-4 flex items-center gap-1.5 rounded-md bg-emerald-500 px-3 py-1.5 text-sm font-medium text-white shadow-lg">
               <CheckCircle2 className="h-4 w-4" />
-              Identified
+              {tImages("identified")}
             </div>
           ) : (
             <Button
@@ -234,6 +251,7 @@ export function ImageUpload({
               disabled={isClassifying}
               size="sm"
               className="absolute bottom-4 right-4 gap-2 shadow-lg"
+              data-testid="classify-button"
             >
               {isClassifying && classifyingImageId === currentImage.id ? (
                 <>
@@ -302,6 +320,41 @@ export function ImageUpload({
           </div>
         </label>
       )}
+
+      {/* Custom prompt section - only show when image is not yet classified */}
+      {currentImage &&
+        !currentImage.aiProcessed &&
+        !classifiedImageIds.has(currentImage.id) && (
+          <div className="rounded-lg border bg-card">
+            <button
+              type="button"
+              onClick={() => setIsPromptExpanded(!isPromptExpanded)}
+              className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium hover:bg-muted/50"
+              data-testid="custom-prompt-toggle"
+            >
+              <span>{tImages("customPrompt.title")}</span>
+              {isPromptExpanded ? (
+                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              )}
+            </button>
+            {isPromptExpanded && (
+              <div className="border-t px-4 pb-4 pt-3">
+                <p className="mb-2 text-xs text-muted-foreground">
+                  {tImages("customPrompt.description")}
+                </p>
+                <Textarea
+                  value={customPrompt}
+                  onChange={(e) => setCustomPrompt(e.target.value)}
+                  placeholder={tImages("customPrompt.placeholder")}
+                  className="min-h-[80px] resize-none text-sm"
+                  data-testid="custom-prompt-textarea"
+                />
+              </div>
+            )}
+          </div>
+        )}
 
       {error && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
