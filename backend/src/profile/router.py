@@ -209,10 +209,14 @@ ITEMS_PER_CREDIT = 50
 
 
 def calculate_audit_credits(item_count: int) -> int:
-    """Calculate credits required for spring cleaning audit."""
+    """Calculate credits required for spring cleaning audit.
+
+    Returns 0 for empty inventory, otherwise ceiling division of items/ITEMS_PER_CREDIT.
+    This naturally returns at least 1 for any non-zero item count.
+    """
     if item_count == 0:
         return 0
-    return max(1, (item_count + ITEMS_PER_CREDIT - 1) // ITEMS_PER_CREDIT)
+    return (item_count + ITEMS_PER_CREDIT - 1) // ITEMS_PER_CREDIT
 
 
 @router.get("/spring-cleaning/cost", response_model=SpringCleaningCostResponse)
@@ -314,8 +318,9 @@ async def run_spring_cleaning_audit(
     saved_recommendations = await rec_repo.create_many(user_id, recommendation_creates)
 
     # Deduct credits after successful generation
-    for i in range(credits_required):
-        description = f"Spring cleaning audit ({i + 1}/{credits_required})"
+    credit_label = "credit" if credits_required == 1 else "credits"
+    description = f"Spring cleaning audit ({credits_required} {credit_label})"
+    for _ in range(credits_required):
         await credit_service.deduct_credit(user_id, description)
 
     # Enrich with item details

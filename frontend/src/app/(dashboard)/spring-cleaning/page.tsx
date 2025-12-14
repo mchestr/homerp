@@ -95,7 +95,12 @@ export default function SpringCleaningPage() {
       });
       setRecommendations(response.recommendations);
       setHasRun(true);
+
+      // Refresh credits and cost info to get updated balance
       await refreshCredits();
+      const updatedCost = await profileApi.getSpringCleaningCost();
+      setCostInfo(updatedCost);
+
       toast({
         title: t("auditComplete"),
         description: t("auditCompleteDescription", {

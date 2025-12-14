@@ -343,6 +343,28 @@ class TestSpringCleaning:
         assert response.status_code == 400
         assert "profile" in response.json()["detail"].lower()
 
+    @pytest.mark.asyncio
+    async def test_run_audit_insufficient_credits(
+        self,
+        authenticated_client: AsyncClient,
+        async_session: AsyncSession,
+        test_user: User,
+        test_system_profile: UserSystemProfile,
+        test_item,
+    ):
+        """Test running audit when user has insufficient credits."""
+        # Set user credits to 0
+        test_user.credit_balance = 0
+        test_user.free_credits_remaining = 0
+        await async_session.commit()
+
+        response = await authenticated_client.post(
+            "/api/v1/profile/spring-cleaning/audit",
+            json={"max_recommendations": 10},
+        )
+        assert response.status_code == 402
+        assert "insufficient credits" in response.json()["detail"].lower()
+
 
 class TestAuthenticationRequired:
     """Tests for authentication requirements."""
