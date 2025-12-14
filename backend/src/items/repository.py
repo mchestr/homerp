@@ -259,6 +259,16 @@ class ItemRepository:
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
 
+    async def get_by_id_for_update(self, item_id: UUID) -> Item | None:
+        """Get an item by ID with a row-level lock for update.
+
+        Uses SELECT ... FOR UPDATE to prevent race conditions during
+        concurrent check-in/check-out operations.
+        """
+        query = self._base_query().where(Item.id == item_id).with_for_update()
+        result = await self.session.execute(query)
+        return result.scalar_one_or_none()
+
     async def create(self, data: ItemCreate) -> Item:
         """Create a new item.
 
