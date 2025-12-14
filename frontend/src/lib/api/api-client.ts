@@ -1208,6 +1208,20 @@ export type GenerateRecommendationsResponse = {
   credits_used: number;
 };
 
+// Spring Cleaning Audit Types
+export type SpringCleaningCostResponse = {
+  total_items: number;
+  credits_required: number;
+  items_per_credit: number;
+  has_sufficient_credits: boolean;
+  user_credit_balance: number;
+  has_profile: boolean;
+};
+
+export type SpringCleaningAuditRequest = {
+  max_recommendations?: number;
+};
+
 // API Key Types
 export type ApiKeyResponse = {
   id: string;
@@ -1312,4 +1326,19 @@ export const profileApi = {
     apiRequest<void>(`/api/v1/profile/recommendations/${id}`, {
       method: "DELETE",
     }),
+
+  // Spring Cleaning Audit
+  getSpringCleaningCost: () =>
+    apiRequest<SpringCleaningCostResponse>(
+      "/api/v1/profile/spring-cleaning/cost"
+    ),
+
+  runSpringCleaningAudit: (data?: SpringCleaningAuditRequest) =>
+    apiRequest<GenerateRecommendationsResponse>(
+      "/api/v1/profile/spring-cleaning/audit",
+      {
+        method: "POST",
+        body: data || {},
+      }
+    ),
 };

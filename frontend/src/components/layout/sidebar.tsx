@@ -16,6 +16,7 @@ import {
   CreditCard,
   MessageSquare,
   Trash2,
+  Flower2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -69,6 +70,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           title: t("sidebar.classifiedImages"),
           href: "/images/classified",
           icon: Sparkles,
+        },
+        {
+          title: t("sidebar.springCleaning"),
+          href: "/spring-cleaning",
+          icon: Flower2,
         },
         {
           title: t("sidebar.purgeRecommendations"),
