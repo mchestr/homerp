@@ -639,7 +639,9 @@
     "noUsageYet": "No usage history yet",
     "showingRecentHistory": "Showing 5 of {count} records",
     "checkInDisabled": "No items checked out",
-    "exceedsCheckedOut": "Cannot check in more than {count} items"
+    "exceedsCheckedOut": "Cannot check in more than {count} items",
+    "checkOutDisabled": "No items available for checkout",
+    "exceedsAvailable": "Cannot check out more than {count} available items"
   },
   "locationSuggestion": {
     "title": "AI Location Suggestions",

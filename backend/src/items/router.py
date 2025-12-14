@@ -655,14 +655,38 @@ async def check_out_item(
     session: AsyncSessionDep,
     inventory_owner_id: EditableInventoryContextDep,
 ) -> CheckInOutResponse:
-    """Record a check-out event for an item."""
+    """Record a check-out event for an item.
+
+    Uses row-level locking to prevent race conditions where concurrent
+    check-outs could exceed the available quantity.
+    """
     repo = ItemRepository(session, inventory_owner_id)
-    item = await repo.get_by_id(item_id)
+
+    # Acquire a row-level lock on the item to prevent race conditions
+    # This ensures no concurrent check-outs can exceed available quantity
+    item = await repo.get_by_id_for_update(item_id)
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Item not found",
         )
+
+    # Calculate available quantity: total stock minus currently checked out
+    usage_stats = await repo.get_usage_stats(item_id)
+    available_quantity = item.quantity - usage_stats.currently_checked_out
+
+    # Validate that check-out quantity doesn't exceed available stock
+    if data.quantity > available_quantity:
+        if available_quantity <= 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No items available for checkout",
+            )
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot check out {data.quantity} items. Only {available_quantity} available",
+        )
+
     record = await repo.create_check_in_out(item_id, "check_out", data)
     return CheckInOutResponse.model_validate(record)
 

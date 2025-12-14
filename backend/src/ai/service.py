@@ -411,7 +411,7 @@ class AIClassificationService:
         }
 
         user_prompt = self._template_manager.get_user_prompt(
-            TEMPLATE_LOCATION_SUGGESTION, context
+            TEMPLATE_LOCATION_SUGGESTION, **context
         )
 
         # Call OpenAI API
