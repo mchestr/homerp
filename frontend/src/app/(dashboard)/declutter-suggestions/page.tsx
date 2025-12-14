@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import {
@@ -48,6 +48,7 @@ export default function DeclutterSuggestionsPage() {
   >([]);
   const [feedbacks, setFeedbacks] = useState<Record<string, string>>({});
   const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const loadCostInfo = useCallback(
     async (items: number) => {
@@ -92,7 +93,14 @@ export default function DeclutterSuggestionsPage() {
   const handleSliderChange = (value: number[]) => {
     const newValue = value[0];
     setItemsToAnalyze(newValue);
-    loadCostInfo(newValue);
+
+    // Debounce the API call to avoid excessive requests while dragging
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    debounceRef.current = setTimeout(() => {
+      loadCostInfo(newValue);
+    }, 300);
   };
 
   const handleGenerate = async () => {
@@ -154,7 +162,6 @@ export default function DeclutterSuggestionsPage() {
       setRecommendations((prev) => prev.filter((r) => r.id !== id));
       toast({
         title: t("recommendationAccepted"),
-        description: "",
       });
     } catch {
       toast({
@@ -181,7 +188,6 @@ export default function DeclutterSuggestionsPage() {
       setRecommendations((prev) => prev.filter((r) => r.id !== id));
       toast({
         title: t("recommendationDismissed"),
-        description: "",
       });
     } catch {
       toast({

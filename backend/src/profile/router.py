@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Query, status
 
 from src.auth.dependencies import CurrentUserIdDep
 from src.billing.router import CreditServiceDep
@@ -119,7 +119,7 @@ async def get_recommendations_cost(
     session: AsyncSessionDep,
     user_id: CurrentUserIdDep,
     credit_service: CreditServiceDep,
-    items_to_analyze: int = 50,
+    items_to_analyze: int = Query(default=50, ge=10, le=200),
 ) -> DeclutterCostResponse:
     """
     Get the cost estimate for generating declutter suggestions.
@@ -127,8 +127,6 @@ async def get_recommendations_cost(
     Returns the number of credits required based on items to analyze.
     Cost is 1 credit per 50 items, with a minimum of 1 credit.
     """
-    # Clamp items_to_analyze to valid range
-    items_to_analyze = max(10, min(200, items_to_analyze))
 
     # Get total item count
     item_repo = ItemRepository(session, user_id)
@@ -197,7 +195,7 @@ async def generate_recommendations(
     # Generate recommendations
     service = PurgeRecommendationService(session)
     recommendation_creates = await service.generate_recommendations(
-        user_id, profile, request.max_recommendations
+        user_id, profile, request.max_recommendations, request.items_to_analyze
     )
 
     # Save recommendations to database

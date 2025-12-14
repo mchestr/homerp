@@ -299,26 +299,24 @@ class TestDeclutterCost:
         assert data["credits_required"] == 2  # 100 items = 2 credits
 
     @pytest.mark.asyncio
-    async def test_get_cost_clamps_minimum(self, authenticated_client: AsyncClient):
-        """Test that items_to_analyze is clamped to minimum 10."""
+    async def test_get_cost_rejects_below_minimum(
+        self, authenticated_client: AsyncClient
+    ):
+        """Test that items_to_analyze below 10 returns validation error."""
         response = await authenticated_client.get(
             "/api/v1/profile/recommendations/cost?items_to_analyze=5"
         )
-        assert response.status_code == 200
-        data = response.json()
-        assert data["items_to_analyze"] == 10  # Clamped to minimum
-        assert data["credits_required"] == 1
+        assert response.status_code == 422
 
     @pytest.mark.asyncio
-    async def test_get_cost_clamps_maximum(self, authenticated_client: AsyncClient):
-        """Test that items_to_analyze is clamped to maximum 200."""
+    async def test_get_cost_rejects_above_maximum(
+        self, authenticated_client: AsyncClient
+    ):
+        """Test that items_to_analyze above 200 returns validation error."""
         response = await authenticated_client.get(
             "/api/v1/profile/recommendations/cost?items_to_analyze=500"
         )
-        assert response.status_code == 200
-        data = response.json()
-        assert data["items_to_analyze"] == 200  # Clamped to maximum
-        assert data["credits_required"] == 4  # 200 items = 4 credits
+        assert response.status_code == 422
 
     @pytest.mark.asyncio
     async def test_get_cost_with_profile(
