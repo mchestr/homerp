@@ -208,3 +208,36 @@ class HobbyTypesResponse(BaseModel):
     """Response containing available hobby types."""
 
     hobby_types: list[str] = HOBBY_TYPES
+
+
+# ============================================
+# Spring Cleaning Audit Schemas
+# ============================================
+
+
+class SpringCleaningCostResponse(BaseModel):
+    """Response with the cost estimate for a spring cleaning audit."""
+
+    total_items: int = Field(description="Total number of items in inventory")
+    credits_required: int = Field(
+        description="Number of credits required for the audit"
+    )
+    items_per_credit: int = Field(
+        default=50, description="Number of items analyzed per credit"
+    )
+    has_sufficient_credits: bool = Field(description="Whether user has enough credits")
+    user_credit_balance: int = Field(description="User's current credit balance")
+    has_profile: bool = Field(
+        description="Whether user has configured their system profile"
+    )
+
+
+class SpringCleaningAuditRequest(BaseModel):
+    """Request to run a spring cleaning audit."""
+
+    max_recommendations: int = Field(
+        default=50,
+        ge=1,
+        le=100,
+        description="Maximum number of recommendations to return",
+    )
