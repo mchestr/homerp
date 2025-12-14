@@ -460,19 +460,56 @@ export default function ItemDetailPage() {
                 />
               </div>
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={handleCheckOut}
-                  disabled={
-                    checkOutMutation.isPending || checkInMutation.isPending
-                  }
-                  className="flex-1 gap-2"
-                >
-                  <LogOut className="h-4 w-4" />
-                  {checkOutMutation.isPending
-                    ? tCommon("loading")
-                    : t("checkOut")}
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="flex-1">
+                        <Button
+                          variant="outline"
+                          onClick={handleCheckOut}
+                          disabled={
+                            checkOutMutation.isPending ||
+                            checkInMutation.isPending ||
+                            !item ||
+                            !usageStats ||
+                            item.quantity - usageStats.currently_checked_out <=
+                              0 ||
+                            checkInOutQuantity >
+                              item.quantity - usageStats.currently_checked_out
+                          }
+                          className="w-full gap-2"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          {checkOutMutation.isPending
+                            ? tCommon("loading")
+                            : t("checkOut")}
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    {item &&
+                      usageStats &&
+                      item.quantity - usageStats.currently_checked_out <= 0 && (
+                        <TooltipContent>
+                          <p>{t("checkOutDisabled")}</p>
+                        </TooltipContent>
+                      )}
+                    {item &&
+                      usageStats &&
+                      item.quantity - usageStats.currently_checked_out > 0 &&
+                      checkInOutQuantity >
+                        item.quantity - usageStats.currently_checked_out && (
+                        <TooltipContent>
+                          <p>
+                            {t("exceedsAvailable", {
+                              count:
+                                item.quantity -
+                                usageStats.currently_checked_out,
+                            })}
+                          </p>
+                        </TooltipContent>
+                      )}
+                  </Tooltip>
+                </TooltipProvider>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
