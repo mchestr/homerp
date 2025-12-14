@@ -1,15 +1,18 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 import { authApi } from "@/lib/api/api-client";
 
-function GoogleCallbackContent() {
+function CallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const params = useParams();
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
+
+  const provider = params.provider as string;
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -21,9 +24,9 @@ function GoogleCallbackContent() {
       }
 
       try {
-        const redirectUri = `${window.location.origin}/callback/google`;
+        const redirectUri = `${window.location.origin}/callback/${provider}`;
         const response = await authApi.handleCallback(
-          "google",
+          provider,
           code,
           redirectUri
         );
@@ -42,7 +45,7 @@ function GoogleCallbackContent() {
     };
 
     handleCallback();
-  }, [searchParams, login, router]);
+  }, [searchParams, login, router, provider]);
 
   if (error) {
     return (
@@ -73,7 +76,7 @@ function GoogleCallbackContent() {
   );
 }
 
-export default function GoogleCallbackPage() {
+export default function OAuthCallbackPage() {
   return (
     <Suspense
       fallback={
@@ -85,7 +88,7 @@ export default function GoogleCallbackPage() {
         </div>
       }
     >
-      <GoogleCallbackContent />
+      <CallbackContent />
     </Suspense>
   );
 }
