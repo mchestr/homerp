@@ -125,6 +125,42 @@ class ItemRepository:
             return list(result.scalars().all())
         return [location_id]
 
+    def _checked_out_subquery(self):
+        """Build subquery to calculate currently checked out quantity per item."""
+        # Subquery to get total checked out quantity per item
+        checkout_sum = (
+            select(
+                ItemCheckInOut.item_id,
+                func.coalesce(func.sum(ItemCheckInOut.quantity), 0).label(
+                    "checkout_qty"
+                ),
+            )
+            .where(
+                ItemCheckInOut.user_id == self.user_id,
+                ItemCheckInOut.action_type == "check_out",
+            )
+            .group_by(ItemCheckInOut.item_id)
+            .subquery()
+        )
+
+        # Subquery to get total checked in quantity per item
+        checkin_sum = (
+            select(
+                ItemCheckInOut.item_id,
+                func.coalesce(func.sum(ItemCheckInOut.quantity), 0).label(
+                    "checkin_qty"
+                ),
+            )
+            .where(
+                ItemCheckInOut.user_id == self.user_id,
+                ItemCheckInOut.action_type == "check_in",
+            )
+            .group_by(ItemCheckInOut.item_id)
+            .subquery()
+        )
+
+        return checkout_sum, checkin_sum
+
     async def get_all(
         self,
         *,
@@ -138,6 +174,7 @@ class ItemRepository:
         tags: list[str] | None = None,
         attribute_filters: dict[str, str] | None = None,
         low_stock_only: bool = False,
+        checked_out: bool = False,
         offset: int = 0,
         limit: int = 20,
     ) -> list[Item]:
@@ -196,6 +233,21 @@ class ItemRepository:
                 Item.quantity < Item.min_quantity,
             )
 
+        # Filter by checked out status
+        if checked_out:
+            checkout_sum, checkin_sum = self._checked_out_subquery()
+            query = (
+                query.outerjoin(checkout_sum, Item.id == checkout_sum.c.item_id)
+                .outerjoin(checkin_sum, Item.id == checkin_sum.c.item_id)
+                .where(
+                    (
+                        func.coalesce(checkout_sum.c.checkout_qty, 0)
+                        - func.coalesce(checkin_sum.c.checkin_qty, 0)
+                    )
+                    > 0
+                )
+            )
+
         query = query.order_by(Item.updated_at.desc()).offset(offset).limit(limit)
 
         result = await self.session.execute(query)
@@ -214,6 +266,7 @@ class ItemRepository:
         tags: list[str] | None = None,
         attribute_filters: dict[str, str] | None = None,
         low_stock_only: bool = False,
+        checked_out: bool = False,
     ) -> int:
         """Count items with filtering."""
         query = select(func.count(Item.id)).where(Item.user_id == self.user_id)
@@ -264,6 +317,21 @@ class ItemRepository:
             query = query.where(
                 Item.min_quantity.isnot(None),
                 Item.quantity < Item.min_quantity,
+            )
+
+        # Filter by checked out status
+        if checked_out:
+            checkout_sum, checkin_sum = self._checked_out_subquery()
+            query = query.select_from(
+                Item.__table__.outerjoin(
+                    checkout_sum, Item.id == checkout_sum.c.item_id
+                ).outerjoin(checkin_sum, Item.id == checkin_sum.c.item_id)
+            ).where(
+                (
+                    func.coalesce(checkout_sum.c.checkout_qty, 0)
+                    - func.coalesce(checkin_sum.c.checkin_qty, 0)
+                )
+                > 0
             )
 
         result = await self.session.execute(query)

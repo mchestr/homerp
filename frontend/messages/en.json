@@ -48,6 +48,7 @@
   "sidebar": {
     "dashboard": "Dashboard",
     "items": "Items",
+    "checkedOutItems": "Checked Out",
     "categories": "Categories",
     "locations": "Locations",
     "storagePlanner": "Storage Planner",
@@ -642,6 +643,14 @@
     "exceedsCheckedOut": "Cannot check in more than {count} items",
     "checkOutDisabled": "No items available for checkout",
     "exceedsAvailable": "Cannot check out more than {count} available items"
+  },
+  "checkedOut": {
+    "title": "Checked Out Items",
+    "subtitle": "Items currently checked out from your inventory",
+    "itemCount": "{count} items currently checked out",
+    "noItemsCheckedOut": "No items checked out",
+    "noItemsDescription": "Items that you check out will appear here for easy tracking",
+    "searchPlaceholder": "Search checked out items..."
   },
   "locationSuggestion": {
     "title": "AI Location Suggestions",

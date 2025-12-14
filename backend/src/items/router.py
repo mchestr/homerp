@@ -76,6 +76,9 @@ async def list_items(
         list[str] | None, Query(description="Filter by attributes as key:value pairs")
     ] = None,
     low_stock: bool = Query(False),
+    checked_out: bool = Query(
+        False, description="Filter items that are currently checked out"
+    ),
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
 ) -> PaginatedResponse[ItemListResponse]:
@@ -86,6 +89,7 @@ async def list_items(
 
     Use no_category=true to filter items without any category assigned.
     Use no_location=true to filter items without any location assigned.
+    Use checked_out=true to filter items that are currently checked out.
 
     Filter by tags using ?tags=tag1&tags=tag2 (items must have ALL specified tags).
     Filter by attributes using ?attr=key1:value1&attr=key2:value2.
@@ -113,6 +117,7 @@ async def list_items(
         tags=tags,
         attribute_filters=attribute_filters,
         low_stock_only=low_stock,
+        checked_out=checked_out,
         offset=offset,
         limit=limit,
     )
@@ -128,6 +133,7 @@ async def list_items(
         tags=tags,
         attribute_filters=attribute_filters,
         low_stock_only=low_stock,
+        checked_out=checked_out,
     )
 
     item_responses = []

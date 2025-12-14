@@ -170,6 +170,7 @@ export const itemsApi = {
     tags?: string[];
     attributes?: Record<string, string>;
     low_stock?: boolean;
+    checked_out?: boolean;
   }) => {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set("page", params.page.toString());
@@ -194,6 +195,7 @@ export const itemsApi = {
       });
     }
     if (params?.low_stock) searchParams.set("low_stock", "true");
+    if (params?.checked_out) searchParams.set("checked_out", "true");
     const query = searchParams.toString();
     return apiRequest<PaginatedResponse<ItemListItem>>(
       `/api/v1/items${query ? `?${query}` : ""}`
