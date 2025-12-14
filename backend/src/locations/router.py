@@ -5,7 +5,11 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import Response
 
 from src.ai.service import AIClassificationService, get_ai_service
-from src.auth.dependencies import CurrentUserIdDep
+from src.auth.dependencies import (
+    CurrentUserIdDep,
+    EditableInventoryContextDep,
+    InventoryContextDep,
+)
 from src.billing.router import CreditServiceDep
 from src.database import AsyncSessionDep
 from src.images.repository import ImageRepository
@@ -31,10 +35,10 @@ router = APIRouter()
 @router.get("")
 async def list_locations(
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
 ) -> list[LocationResponse]:
-    """List all locations for the current user, ordered by hierarchy path."""
-    service = LocationService(session, user_id)
+    """List all locations for the inventory context, ordered by hierarchy path."""
+    service = LocationService(session, inventory_owner_id)
     locations = await service.get_all()
     return [LocationResponse.model_validate(loc) for loc in locations]
 
@@ -42,10 +46,10 @@ async def list_locations(
 @router.get("/tree")
 async def get_location_tree(
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
 ) -> list[LocationTreeNode]:
     """Get locations as a nested tree structure with item counts."""
-    service = LocationService(session, user_id)
+    service = LocationService(session, inventory_owner_id)
     return await service.get_tree()
 
 
@@ -54,6 +58,7 @@ async def analyze_location_image(
     data: LocationAnalysisRequest,
     session: AsyncSessionDep,
     user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
     storage: Annotated[LocalStorage, Depends(get_storage)],
     ai_service: Annotated[AIClassificationService, Depends(get_ai_service)],
     credit_service: CreditServiceDep,
@@ -62,15 +67,15 @@ async def analyze_location_image(
 
     Consumes 1 credit on successful analysis.
     """
-    # Check if user has credits
+    # Check if user has credits (use the actual user's credits)
     if not await credit_service.has_credits(user_id):
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
             detail="Insufficient credits. Please purchase more credits to use AI analysis.",
         )
 
-    # Get image record
-    repo = ImageRepository(session, user_id)
+    # Get image record from the inventory context
+    repo = ImageRepository(session, inventory_owner_id)
     image = await repo.get_by_id(data.image_id)
     if not image:
         raise HTTPException(
@@ -110,10 +115,10 @@ async def analyze_location_image(
 async def create_locations_bulk(
     data: LocationBulkCreate,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: EditableInventoryContextDep,
 ) -> LocationBulkCreateResponse:
     """Create a parent location with multiple children in a single operation."""
-    service = LocationService(session, user_id)
+    service = LocationService(session, inventory_owner_id)
 
     # Check for duplicate parent name
     existing = await service.get_by_name(data.parent.name)
@@ -169,10 +174,10 @@ async def create_locations_bulk(
 async def create_location(
     data: LocationCreate,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: EditableInventoryContextDep,
 ) -> LocationResponse:
     """Create a new location."""
-    service = LocationService(session, user_id)
+    service = LocationService(session, inventory_owner_id)
 
     # Check for duplicate name
     existing = await service.get_by_name(data.name)
@@ -199,10 +204,10 @@ async def create_location(
 async def get_location(
     location_id: UUID,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
 ) -> LocationResponse:
     """Get a location by ID."""
-    service = LocationService(session, user_id)
+    service = LocationService(session, inventory_owner_id)
     location = await service.get_by_id(location_id)
     if not location:
         raise HTTPException(
@@ -216,10 +221,10 @@ async def get_location(
 async def get_location_descendants(
     location_id: UUID,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
 ) -> list[LocationResponse]:
     """Get all descendant locations of a location."""
-    service = LocationService(session, user_id)
+    service = LocationService(session, inventory_owner_id)
     location = await service.get_by_id(location_id)
     if not location:
         raise HTTPException(
@@ -235,10 +240,10 @@ async def update_location(
     location_id: UUID,
     data: LocationUpdate,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: EditableInventoryContextDep,
 ) -> LocationResponse:
     """Update a location."""
-    service = LocationService(session, user_id)
+    service = LocationService(session, inventory_owner_id)
     location = await service.get_by_id(location_id)
     if not location:
         raise HTTPException(
@@ -280,10 +285,10 @@ async def move_location(
     location_id: UUID,
     data: LocationMoveRequest,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: EditableInventoryContextDep,
 ) -> LocationResponse:
     """Move a location to a new parent (or to root level if new_parent_id is null)."""
-    service = LocationService(session, user_id)
+    service = LocationService(session, inventory_owner_id)
     location = await service.get_by_id(location_id)
     if not location:
         raise HTTPException(
@@ -315,10 +320,10 @@ async def move_location(
 async def get_location_with_ancestors(
     location_id: UUID,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
 ) -> LocationWithAncestors:
     """Get a location with its full ancestor path for breadcrumb navigation."""
-    service = LocationService(session, user_id)
+    service = LocationService(session, inventory_owner_id)
     location = await service.get_by_id(location_id)
     if not location:
         raise HTTPException(
@@ -344,7 +349,7 @@ async def get_location_with_ancestors(
 async def get_location_qr_code(
     location_id: UUID,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
     qr_service: Annotated[QRCodeService, Depends(get_qr_service)],
     size: int = Query(10, ge=1, le=40, description="Scale factor (1-40)"),
 ) -> Response:
@@ -352,7 +357,7 @@ async def get_location_qr_code(
 
     The QR code contains the location's URL for scanning.
     """
-    service = LocationService(session, user_id)
+    service = LocationService(session, inventory_owner_id)
     location = await service.get_by_id(location_id)
     if not location:
         raise HTTPException(

@@ -112,6 +112,96 @@ async def get_api_key_from_header(
 ApiKeyDep = Annotated[ApiKey | None, Depends(get_api_key_from_header)]
 
 
+async def get_inventory_context(
+    session: AsyncSessionDep,
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
+    x_inventory_context: str | None = Header(None, alias="X-Inventory-Context"),
+) -> UUID:
+    """
+    Get the inventory context (which user's inventory to operate on).
+
+    If X-Inventory-Context header is provided, validates the user has access
+    to that inventory. Otherwise, defaults to the user's own inventory.
+    """
+    # Default to user's own inventory
+    if x_inventory_context is None:
+        return user_id
+
+    # Parse the requested inventory owner ID
+    try:
+        owner_id = UUID(x_inventory_context)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid X-Inventory-Context header. Must be a valid UUID.",
+        ) from None
+
+    # If requesting own inventory, allow
+    if owner_id == user_id:
+        return user_id
+
+    # Check if user has access to the requested inventory
+    from src.collaboration.repository import CollaborationRepository
+
+    collab_repo = CollaborationRepository(session, user_id)
+    can_access = await collab_repo.can_access_inventory(owner_id)
+
+    if not can_access:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have access to this inventory",
+        )
+
+    return owner_id
+
+
+async def get_editable_inventory_context(
+    session: AsyncSessionDep,
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
+    x_inventory_context: str | None = Header(None, alias="X-Inventory-Context"),
+) -> UUID:
+    """
+    Get the inventory context for write operations.
+
+    Similar to get_inventory_context but requires edit permissions.
+    """
+    # Default to user's own inventory
+    if x_inventory_context is None:
+        return user_id
+
+    # Parse the requested inventory owner ID
+    try:
+        owner_id = UUID(x_inventory_context)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid X-Inventory-Context header. Must be a valid UUID.",
+        ) from None
+
+    # If requesting own inventory, allow
+    if owner_id == user_id:
+        return user_id
+
+    # Check if user has edit access to the requested inventory
+    from src.collaboration.repository import CollaborationRepository
+
+    collab_repo = CollaborationRepository(session, user_id)
+    can_edit = await collab_repo.can_edit_inventory(owner_id)
+
+    if not can_edit:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have edit access to this inventory",
+        )
+
+    return owner_id
+
+
+# Type aliases for inventory context
+InventoryContextDep = Annotated[UUID, Depends(get_inventory_context)]
+EditableInventoryContextDep = Annotated[UUID, Depends(get_editable_inventory_context)]
+
+
 def require_scope(scope: str):
     """
     Dependency factory to require a specific scope for API key authentication.

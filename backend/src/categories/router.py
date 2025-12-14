@@ -2,7 +2,11 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status
 
-from src.auth.dependencies import CurrentUserIdDep
+from src.auth.dependencies import (
+    CurrentUserIdDep,
+    EditableInventoryContextDep,
+    InventoryContextDep,
+)
 from src.categories.schemas import (
     CategoryCreate,
     CategoryCreateFromPath,
@@ -21,10 +25,10 @@ router = APIRouter()
 @router.get("")
 async def list_categories(
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
 ) -> list[CategoryResponse]:
-    """List all categories for the current user, ordered by hierarchy path."""
-    service = CategoryService(session, user_id)
+    """List all categories for the inventory context, ordered by hierarchy path."""
+    service = CategoryService(session, inventory_owner_id)
     categories = await service.get_all()
     return [CategoryResponse.model_validate(c) for c in categories]
 
@@ -32,10 +36,10 @@ async def list_categories(
 @router.get("/tree")
 async def get_category_tree(
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
 ) -> list[CategoryTreeNode]:
     """Get categories as a nested tree structure with item counts."""
-    service = CategoryService(session, user_id)
+    service = CategoryService(session, inventory_owner_id)
     return await service.get_tree()
 
 
@@ -43,10 +47,10 @@ async def get_category_tree(
 async def create_category(
     data: CategoryCreate,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: EditableInventoryContextDep,
 ) -> CategoryResponse:
     """Create a new category."""
-    service = CategoryService(session, user_id)
+    service = CategoryService(session, inventory_owner_id)
 
     # Check for duplicate name
     existing = await service.get_by_name(data.name)
@@ -73,7 +77,7 @@ async def create_category(
 async def create_category_from_path(
     data: CategoryCreateFromPath,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: EditableInventoryContextDep,
 ) -> CategoryResponse:
     """
     Create categories from an AI-suggested path.
@@ -81,7 +85,7 @@ async def create_category_from_path(
     Parses a path like 'Hardware > Fasteners > Screws' and creates any
     missing categories in the hierarchy. Returns the leaf category.
     """
-    service = CategoryService(session, user_id)
+    service = CategoryService(session, inventory_owner_id)
 
     try:
         category = await service.create_from_path(data.path)
@@ -98,10 +102,10 @@ async def create_category_from_path(
 async def get_category(
     category_id: UUID,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
 ) -> CategoryResponse:
     """Get a category by ID."""
-    service = CategoryService(session, user_id)
+    service = CategoryService(session, inventory_owner_id)
     category = await service.get_by_id(category_id)
     if not category:
         raise HTTPException(
@@ -115,7 +119,7 @@ async def get_category(
 async def get_category_template(
     category_id: UUID,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
 ) -> MergedAttributeTemplate:
     """
     Get merged attribute template for a category.
@@ -123,7 +127,7 @@ async def get_category_template(
     Returns fields from this category and all ancestors, with child fields
     overriding parent fields of the same name.
     """
-    service = CategoryService(session, user_id)
+    service = CategoryService(session, inventory_owner_id)
     category = await service.get_by_id(category_id)
     if not category:
         raise HTTPException(
@@ -137,10 +141,10 @@ async def get_category_template(
 async def get_category_descendants(
     category_id: UUID,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
 ) -> list[CategoryResponse]:
     """Get all descendant categories of a category."""
-    service = CategoryService(session, user_id)
+    service = CategoryService(session, inventory_owner_id)
     category = await service.get_by_id(category_id)
     if not category:
         raise HTTPException(
@@ -156,10 +160,10 @@ async def update_category(
     category_id: UUID,
     data: CategoryUpdate,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: EditableInventoryContextDep,
 ) -> CategoryResponse:
     """Update a category."""
-    service = CategoryService(session, user_id)
+    service = CategoryService(session, inventory_owner_id)
     category = await service.get_by_id(category_id)
     if not category:
         raise HTTPException(
@@ -201,10 +205,10 @@ async def move_category(
     category_id: UUID,
     data: CategoryMoveRequest,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: EditableInventoryContextDep,
 ) -> CategoryResponse:
     """Move a category to a new parent (or to root level if new_parent_id is null)."""
-    service = CategoryService(session, user_id)
+    service = CategoryService(session, inventory_owner_id)
     category = await service.get_by_id(category_id)
     if not category:
         raise HTTPException(

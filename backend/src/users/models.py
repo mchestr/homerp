@@ -82,6 +82,19 @@ class User(Base):
     gridfinity_units: Mapped[list["GridfinityUnit"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    # Collaboration relationships
+    owned_collaborations: Mapped[list["InventoryCollaborator"]] = relationship(
+        "InventoryCollaborator",
+        foreign_keys="InventoryCollaborator.owner_id",
+        back_populates="owner",
+        cascade="all, delete-orphan",
+    )
+    shared_inventories: Mapped[list["InventoryCollaborator"]] = relationship(
+        "InventoryCollaborator",
+        foreign_keys="InventoryCollaborator.collaborator_id",
+        back_populates="collaborator",
+        cascade="all, delete-orphan",
+    )
 
     __table_args__ = (
         # Unique constraint on oauth_provider + oauth_id
@@ -93,6 +106,7 @@ class User(Base):
 from src.apikeys.models import ApiKey  # noqa: E402
 from src.billing.models import CreditTransaction  # noqa: E402
 from src.categories.models import Category  # noqa: E402
+from src.collaboration.models import InventoryCollaborator  # noqa: E402
 from src.feedback.models import Feedback  # noqa: E402
 from src.gridfinity.models import GridfinityUnit  # noqa: E402
 from src.images.models import Image  # noqa: E402

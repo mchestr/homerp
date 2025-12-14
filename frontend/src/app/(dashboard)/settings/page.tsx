@@ -12,6 +12,7 @@ import {
   Globe,
   DollarSign,
   Brain,
+  Users,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
@@ -199,6 +200,30 @@ export default function SettingsPage() {
                 <h2 className="font-semibold">AI System Profile</h2>
                 <p className="text-sm text-muted-foreground">
                   Configure your profile for personalized AI recommendations
+                </p>
+              </div>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </div>
+        </div>
+      </Link>
+
+      {/* Collaboration */}
+      <Link
+        href="/settings/collaboration"
+        className="block"
+        data-testid="collaboration-link"
+      >
+        <div className="rounded-xl border bg-card p-6 transition-colors hover:border-primary/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-primary/10 p-2">
+                <Users className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h2 className="font-semibold">Collaboration</h2>
+                <p className="text-sm text-muted-foreground">
+                  Share your inventory with family or team members
                 </p>
               </div>
             </div>
