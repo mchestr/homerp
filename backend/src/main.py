@@ -43,6 +43,7 @@ def create_app() -> FastAPI:
 
     # Include routers
     from src.admin.router import router as admin_router
+    from src.apikeys.router import router as apikeys_router
     from src.auth.router import router as auth_router
     from src.billing.router import router as billing_router
     from src.categories.router import router as categories_router
@@ -54,6 +55,7 @@ def create_app() -> FastAPI:
     from src.webhooks.router import router as webhooks_router
 
     app.include_router(admin_router, prefix="/api/v1/admin", tags=["admin"])
+    app.include_router(apikeys_router, prefix="/api/v1/admin/apikeys", tags=["apikeys"])
     app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
     app.include_router(billing_router, prefix="/api/v1/billing", tags=["billing"])
     app.include_router(feedback_router, prefix="/api/v1/feedback", tags=["feedback"])

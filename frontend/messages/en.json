@@ -420,6 +420,41 @@
       "creditsPurchased": "Credits Purchased",
       "pendingFeedback": "Pending Feedback",
       "active": "active"
+    },
+    "apiKeys": {
+      "title": "API Keys",
+      "description": "Manage API keys for external integrations and automation",
+      "createApiKey": "Create API Key",
+      "editApiKey": "Edit API Key",
+      "deleteApiKey": "Delete API Key",
+      "deleteConfirm": "Are you sure you want to delete this API key? Any systems using this key will lose access immediately.",
+      "name": "Name",
+      "namePlaceholder": "e.g., GitHub Actions",
+      "key": "API Key",
+      "keyPrefix": "Key Prefix",
+      "scopes": "Scopes",
+      "scopesHelp": "Select which permissions this API key should have",
+      "isActive": "Active",
+      "expiresAt": "Expires At",
+      "expiresAtHelp": "Leave empty for no expiration",
+      "lastUsed": "Last Used",
+      "createdAt": "Created At",
+      "never": "Never",
+      "noExpiration": "No expiration",
+      "noApiKeys": "No API keys created yet",
+      "noApiKeysDescription": "Create an API key to enable external integrations",
+      "keyCreated": "API Key Created",
+      "keyCreatedWarning": "This is the only time you will see this key. Copy it now and store it securely.",
+      "copyKey": "Copy Key",
+      "keyCopied": "API key copied to clipboard",
+      "apiKeyCreated": "API key created successfully",
+      "apiKeyUpdated": "API key updated successfully",
+      "apiKeyDeleted": "API key deleted successfully",
+      "availableScopes": {
+        "feedback:read": "Read feedback status",
+        "feedback:write": "Update feedback status (resolve)",
+        "admin:*": "Full admin access"
+      }
     }
   },
   "webhooks": {

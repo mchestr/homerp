@@ -23,6 +23,7 @@ import {
   Clock,
   AlertCircle,
   ShoppingCart,
+  Key,
 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -327,6 +328,13 @@ export default function AdminPage() {
                   icon={Webhook}
                   href="/admin/webhooks"
                   testId="quick-action-webhooks"
+                />
+                <QuickActionCard
+                  title={t("admin.apiKeys.title")}
+                  description={t("admin.apiKeys.description")}
+                  icon={Key}
+                  href="/admin/api-keys"
+                  testId="quick-action-api-keys"
                 />
               </div>
             </div>

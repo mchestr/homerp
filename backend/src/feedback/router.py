@@ -204,6 +204,44 @@ async def delete_feedback(
     await repo.delete(feedback)
 
 
+@router.put("/admin/{feedback_id}/resolve")
+async def resolve_feedback(
+    feedback_id: UUID,
+    session: AsyncSessionDep,
+    _user_id: CurrentUserIdDep,
+) -> FeedbackAdminResponse:
+    """
+    Mark feedback as resolved.
+
+    This endpoint accepts both Bearer token (admin) and API key authentication.
+    For API key auth, the key must have the 'feedback:write' scope.
+    """
+    repo = FeedbackRepository(session)
+    feedback = await repo.get_by_id(feedback_id)
+    if not feedback:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Feedback not found",
+        )
+
+    # Update status to resolved
+    feedback = await repo.update(feedback, FeedbackAdminUpdate(status="resolved"))
+
+    return FeedbackAdminResponse(
+        id=feedback.id,
+        user_id=feedback.user_id,
+        user_email=feedback.user.email,
+        user_name=feedback.user.name,
+        subject=feedback.subject,
+        message=feedback.message,
+        feedback_type=feedback.feedback_type,
+        status=feedback.status,
+        admin_notes=feedback.admin_notes,
+        created_at=feedback.created_at,
+        updated_at=feedback.updated_at,
+    )
+
+
 @router.post(
     "/admin/{feedback_id}/retrigger-webhook", status_code=status.HTTP_202_ACCEPTED
 )
