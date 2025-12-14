@@ -1,0 +1,114 @@
+name: Sync Feedback Status
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  resolve-feedback:
+    name: Resolve Feedback
+    runs-on: ubuntu-latest
+    # Only run if the issue was closed (not deleted)
+    if: github.event.issue.state == 'closed'
+    steps:
+      - name: Extract feedback IDs from issue
+        id: extract-master
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const feedbackIds = [];
+
+            // Extract Feedback ID from the closed issue body
+            const regex = /Feedback ID:\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/gi;
+            let match;
+            while ((match = regex.exec(issue.body || '')) !== null) {
+              feedbackIds.push(match[1]);
+            }
+
+            console.log(`Found ${feedbackIds.length} feedback ID(s) in issue #${issue.number}`);
+            return feedbackIds;
+
+      - name: Find duplicate issues
+        id: find-duplicates
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const duplicateFeedbackIds = [];
+
+            // Search for issues that were closed as duplicates of this one
+            // GitHub doesn't have a direct API for this, so we search for:
+            // 1. Issues that have a comment like "Duplicate of #123"
+            // 2. Issues closed around the same time that reference this issue
+
+            // Get all closed issues that mention this issue number
+            const searchQuery = `repo:${context.repo.owner}/${context.repo.repo} is:issue is:closed "#${issue.number}" in:body`;
+
+            try {
+              const { data: searchResults } = await github.rest.search.issuesAndPullRequests({
+                q: searchQuery,
+                per_page: 100
+              });
+
+              const regex = /Feedback ID:\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/gi;
+
+              for (const dup of searchResults.items) {
+                // Skip the master issue itself
+                if (dup.number === issue.number) continue;
+
+                let match;
+                while ((match = regex.exec(dup.body || '')) !== null) {
+                  duplicateFeedbackIds.push(match[1]);
+                }
+              }
+            } catch (error) {
+              console.log('Error searching for duplicates:', error.message);
+            }
+
+            console.log(`Found ${duplicateFeedbackIds.length} feedback ID(s) in duplicate issues`);
+            return duplicateFeedbackIds;
+
+      - name: Resolve feedback items
+        env:
+          HOMERP_API_URL: ${{ secrets.HOMERP_API_URL }}
+          HOMERP_API_KEY: ${{ secrets.HOMERP_API_KEY }}
+        run: |
+          # Combine all feedback IDs from master and duplicates
+          MASTER_IDS='${{ steps.extract-master.outputs.result }}'
+          DUPLICATE_IDS='${{ steps.find-duplicates.outputs.result }}'
+
+          # Parse JSON arrays and combine unique IDs
+          ALL_IDS=$(echo "$MASTER_IDS $DUPLICATE_IDS" | jq -s 'add | unique | .[]' -r 2>/dev/null || echo "")
+
+          if [ -z "$ALL_IDS" ]; then
+            echo "No feedback IDs found to resolve"
+            exit 0
+          fi
+
+          if [ -z "$HOMERP_API_URL" ] || [ -z "$HOMERP_API_KEY" ]; then
+            echo "HOMERP_API_URL or HOMERP_API_KEY not configured"
+            exit 0
+          fi
+
+          echo "Resolving feedback items..."
+
+          for ID in $ALL_IDS; do
+            echo "Resolving feedback: $ID"
+            RESPONSE=$(curl -s -w "\n%{http_code}" -X PUT \
+              "${HOMERP_API_URL}/api/v1/feedback/admin/${ID}/resolve" \
+              -H "X-API-Key: ${HOMERP_API_KEY}" \
+              -H "Content-Type: application/json")
+
+            HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+            BODY=$(echo "$RESPONSE" | sed '$d')
+
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "  ✓ Feedback $ID resolved successfully"
+            elif [ "$HTTP_CODE" = "404" ]; then
+              echo "  ⚠ Feedback $ID not found (may have been deleted)"
+            else
+              echo "  ✗ Failed to resolve feedback $ID (HTTP $HTTP_CODE)"
+              echo "    Response: $BODY"
+            fi
+          done

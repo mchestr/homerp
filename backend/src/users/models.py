@@ -76,6 +76,9 @@ class User(Base):
     purge_recommendations: Mapped[list["PurgeRecommendation"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    api_keys: Mapped[list["ApiKey"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
 
     __table_args__ = (
         # Unique constraint on oauth_provider + oauth_id
@@ -84,6 +87,7 @@ class User(Base):
 
 
 # Import at bottom to avoid circular imports
+from src.apikeys.models import ApiKey  # noqa: E402
 from src.billing.models import CreditTransaction  # noqa: E402
 from src.categories.models import Category  # noqa: E402
 from src.feedback.models import Feedback  # noqa: E402

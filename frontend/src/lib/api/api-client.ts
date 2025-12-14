@@ -1185,6 +1185,67 @@ export type GenerateRecommendationsResponse = {
   credits_used: number;
 };
 
+// API Key Types
+export type ApiKeyResponse = {
+  id: string;
+  name: string;
+  key_prefix: string;
+  scopes: string[];
+  is_active: boolean;
+  created_at: string;
+  last_used_at: string | null;
+  expires_at: string | null;
+};
+
+export type ApiKeyCreatedResponse = {
+  id: string;
+  name: string;
+  key: string;
+  key_prefix: string;
+  scopes: string[];
+  is_active: boolean;
+  created_at: string;
+  expires_at: string | null;
+};
+
+export type ApiKeyCreate = {
+  name: string;
+  scopes: string[];
+  expires_at?: string | null;
+};
+
+export type ApiKeyUpdate = {
+  name?: string;
+  scopes?: string[];
+  is_active?: boolean;
+};
+
+// API Keys API
+export const apiKeysApi = {
+  list: (page = 1, limit = 20) =>
+    apiRequest<PaginatedResponse<ApiKeyResponse>>(
+      `/api/v1/admin/apikeys?page=${page}&limit=${limit}`
+    ),
+
+  get: (id: string) =>
+    apiRequest<ApiKeyResponse>(`/api/v1/admin/apikeys/${id}`),
+
+  create: (data: ApiKeyCreate) =>
+    apiRequest<ApiKeyCreatedResponse>("/api/v1/admin/apikeys", {
+      method: "POST",
+      body: data,
+    }),
+
+  update: (id: string, data: ApiKeyUpdate) =>
+    apiRequest<ApiKeyResponse>(`/api/v1/admin/apikeys/${id}`, {
+      method: "PATCH",
+      body: data,
+    }),
+
+  delete: (id: string) =>
+    apiRequest<void>(`/api/v1/admin/apikeys/${id}`, { method: "DELETE" }),
+};
+
 // Profile API
 export const profileApi = {
   getHobbyTypes: () =>
