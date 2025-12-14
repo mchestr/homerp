@@ -55,6 +55,9 @@ class Item(Base):
     purge_recommendations: Mapped[list["PurgeRecommendation"]] = relationship(
         back_populates="item", cascade="all, delete-orphan"
     )
+    gridfinity_placements: Mapped[list["GridfinityPlacement"]] = relationship(
+        back_populates="item", cascade="all, delete-orphan"
+    )
 
     @property
     def is_low_stock(self) -> bool:
@@ -95,6 +98,7 @@ class ItemCheckInOut(Base):
 
 # Import at bottom to avoid circular imports
 from src.categories.models import Category  # noqa: E402, F811
+from src.gridfinity.models import GridfinityPlacement  # noqa: E402, F811
 from src.images.models import Image  # noqa: E402, F811
 from src.locations.models import Location  # noqa: E402, F811
 from src.profile.models import PurgeRecommendation  # noqa: E402, F811

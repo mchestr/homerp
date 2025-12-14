@@ -1338,6 +1338,180 @@ export const apiKeysApi = {
     apiRequest<void>(`/api/v1/admin/apikeys/${id}`, { method: "DELETE" }),
 };
 
+// Gridfinity Types
+export type GridfinityUnit = {
+  id: string;
+  name: string;
+  description: string | null;
+  location_id: string | null;
+  container_width_mm: number;
+  container_depth_mm: number;
+  container_height_mm: number;
+  grid_columns: number;
+  grid_rows: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type GridfinityUnitCreate = {
+  name: string;
+  description?: string;
+  location_id?: string | null;
+  container_width_mm: number;
+  container_depth_mm: number;
+  container_height_mm: number;
+};
+
+export type GridfinityUnitUpdate = Partial<GridfinityUnitCreate>;
+
+export type GridfinityPlacement = {
+  id: string;
+  unit_id: string;
+  item_id: string;
+  grid_x: number;
+  grid_y: number;
+  width_units: number;
+  depth_units: number;
+  bin_height_units: number | null;
+  notes: string | null;
+  position_code: string;
+  created_at: string;
+};
+
+export type GridfinityPlacementCreate = {
+  item_id: string;
+  grid_x: number;
+  grid_y: number;
+  width_units?: number;
+  depth_units?: number;
+  bin_height_units?: number | null;
+  notes?: string | null;
+};
+
+export type GridfinityPlacementUpdate = {
+  grid_x?: number;
+  grid_y?: number;
+  width_units?: number;
+  depth_units?: number;
+  bin_height_units?: number | null;
+  notes?: string | null;
+};
+
+export type GridfinityUnitWithPlacements = GridfinityUnit & {
+  placements: GridfinityPlacement[];
+};
+
+export type GridCalculation = {
+  columns: number;
+  rows: number;
+  total_cells: number;
+  wasted_width_mm: number;
+  wasted_depth_mm: number;
+};
+
+export type AutoLayoutPlacement = {
+  item_id: string;
+  grid_x: number;
+  grid_y: number;
+  width_units: number;
+  depth_units: number;
+};
+
+export type AutoLayoutResult = {
+  placed: AutoLayoutPlacement[];
+  unplaced: string[];
+  utilization_percent: number;
+};
+
+export type BinRecommendation = {
+  item_id: string;
+  item_name: string;
+  recommended_width_units: number;
+  recommended_depth_units: number;
+  recommended_height_units: number | null;
+  reasoning: string;
+};
+
+export type BinRecommendationResponse = {
+  recommendations: BinRecommendation[];
+};
+
+// Gridfinity API
+export const gridfinityApi = {
+  // Units
+  listUnits: () => apiRequest<GridfinityUnit[]>("/api/v1/gridfinity/units"),
+
+  getUnit: (id: string) =>
+    apiRequest<GridfinityUnit>(`/api/v1/gridfinity/units/${id}`),
+
+  getUnitLayout: (id: string) =>
+    apiRequest<GridfinityUnitWithPlacements>(
+      `/api/v1/gridfinity/units/${id}/layout`
+    ),
+
+  createUnit: (data: GridfinityUnitCreate) =>
+    apiRequest<GridfinityUnit>("/api/v1/gridfinity/units", {
+      method: "POST",
+      body: data,
+    }),
+
+  updateUnit: (id: string, data: GridfinityUnitUpdate) =>
+    apiRequest<GridfinityUnit>(`/api/v1/gridfinity/units/${id}`, {
+      method: "PUT",
+      body: data,
+    }),
+
+  deleteUnit: (id: string) =>
+    apiRequest<void>(`/api/v1/gridfinity/units/${id}`, { method: "DELETE" }),
+
+  // Placements
+  createPlacement: (unitId: string, data: GridfinityPlacementCreate) =>
+    apiRequest<GridfinityPlacement>(
+      `/api/v1/gridfinity/units/${unitId}/placements`,
+      {
+        method: "POST",
+        body: data,
+      }
+    ),
+
+  updatePlacement: (placementId: string, data: GridfinityPlacementUpdate) =>
+    apiRequest<GridfinityPlacement>(
+      `/api/v1/gridfinity/placements/${placementId}`,
+      {
+        method: "PUT",
+        body: data,
+      }
+    ),
+
+  deletePlacement: (placementId: string) =>
+    apiRequest<void>(`/api/v1/gridfinity/placements/${placementId}`, {
+      method: "DELETE",
+    }),
+
+  // Auto-layout
+  autoLayout: (unitId: string, itemIds: string[]) =>
+    apiRequest<AutoLayoutResult>(
+      `/api/v1/gridfinity/units/${unitId}/auto-layout`,
+      {
+        method: "POST",
+        body: { item_ids: itemIds },
+      }
+    ),
+
+  // Bin recommendations
+  recommendBins: (itemIds: string[]) =>
+    apiRequest<BinRecommendationResponse>("/api/v1/gridfinity/recommend-bins", {
+      method: "POST",
+      body: { item_ids: itemIds },
+    }),
+
+  // Grid calculation
+  calculateGrid: (widthMm: number, depthMm: number) =>
+    apiRequest<GridCalculation>(
+      `/api/v1/gridfinity/calculate-grid?width_mm=${widthMm}&depth_mm=${depthMm}`
+    ),
+};
+
 // Profile API
 export const profileApi = {
   getHobbyTypes: () =>

@@ -48,6 +48,7 @@ def create_app() -> FastAPI:
     from src.billing.router import router as billing_router
     from src.categories.router import router as categories_router
     from src.feedback.router import router as feedback_router
+    from src.gridfinity.router import router as gridfinity_router
     from src.images.router import router as images_router
     from src.items.router import router as items_router
     from src.locations.router import router as locations_router
@@ -64,6 +65,9 @@ def create_app() -> FastAPI:
         categories_router, prefix="/api/v1/categories", tags=["categories"]
     )
     app.include_router(locations_router, prefix="/api/v1/locations", tags=["locations"])
+    app.include_router(
+        gridfinity_router, prefix="/api/v1/gridfinity", tags=["gridfinity"]
+    )
     app.include_router(images_router, prefix="/api/v1/images", tags=["images"])
     app.include_router(profile_router, prefix="/api/v1/profile", tags=["profile"])
     app.include_router(webhooks_router, prefix="/api/v1/webhooks", tags=["webhooks"])
