@@ -34,8 +34,8 @@ function LoginContent() {
         setProviders(providersData);
       } catch (err) {
         console.error("Failed to load OAuth providers:", err);
-        // Fall back to showing Google only if providers endpoint fails
-        setProviders([{ id: "google", name: "Google", icon: "google" }]);
+        setError("Failed to load login providers. Please try again later.");
+        setProviders([]);
       } finally {
         setLoadingProviders(false);
       }

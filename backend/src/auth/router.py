@@ -1,32 +1,23 @@
+import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 
 from src.auth.dependencies import CurrentUserDep
 from src.auth.oauth import (
+    OAuthProviderInfo,
     get_configured_providers,
     get_oauth_provider,
 )
-from src.auth.schemas import AuthResponse, OAuthProviderInfo, TokenResponse
+from src.auth.schemas import AuthResponse, TokenResponse
 from src.auth.service import AuthService, get_auth_service
 from src.database import AsyncSessionDep
 from src.users.repository import UserRepository
 from src.users.schemas import UserResponse, UserSettingsUpdate
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
-
-
-# Provider metadata for frontend display
-PROVIDER_DISPLAY_INFO: dict[str, dict[str, str]] = {
-    "google": {
-        "name": "Google",
-        "icon": "google",
-    },
-    "github": {
-        "name": "GitHub",
-        "icon": "github",
-    },
-}
 
 
 @router.get("/providers")
@@ -37,15 +28,7 @@ async def list_providers() -> list[OAuthProviderInfo]:
     Returns providers that have valid credentials configured.
     The frontend uses this to dynamically show login buttons.
     """
-    configured = get_configured_providers()
-    return [
-        OAuthProviderInfo(
-            id=provider_id,
-            name=PROVIDER_DISPLAY_INFO.get(provider_id, {}).get("name", provider_id),
-            icon=PROVIDER_DISPLAY_INFO.get(provider_id, {}).get("icon", provider_id),
-        )
-        for provider_id in configured
-    ]
+    return get_configured_providers()
 
 
 # Static routes must be defined before dynamic routes in FastAPI
@@ -141,9 +124,10 @@ async def oauth_callback(
         )
 
     except Exception as e:
+        logger.error(f"OAuth callback failed for {provider}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"OAuth authentication failed: {e!s}",
+            detail="OAuth authentication failed. Please try again.",
         ) from e
 
 

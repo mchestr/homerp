@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, patch
 
 from httpx import AsyncClient
 
-from src.auth.oauth import OAuthUserInfo
+from src.auth.oauth import OAuthProviderInfo, OAuthUserInfo
 from src.users.models import User
 
 
@@ -15,9 +15,13 @@ class TestListProvidersEndpoint:
         self, authenticated_client: AsyncClient
     ):
         """Test that only configured providers are returned."""
+        mock_providers = [
+            OAuthProviderInfo(id="google", name="Google", icon="google"),
+            OAuthProviderInfo(id="github", name="GitHub", icon="github"),
+        ]
         with patch(
             "src.auth.router.get_configured_providers",
-            return_value=["google", "github"],
+            return_value=mock_providers,
         ):
             response = await authenticated_client.get("/api/v1/auth/providers")
 
@@ -35,9 +39,12 @@ class TestListProvidersEndpoint:
         self, unauthenticated_client: AsyncClient
     ):
         """Test that the providers endpoint doesn't require authentication."""
+        mock_providers = [
+            OAuthProviderInfo(id="google", name="Google", icon="google"),
+        ]
         with patch(
             "src.auth.router.get_configured_providers",
-            return_value=["google"],
+            return_value=mock_providers,
         ):
             response = await unauthenticated_client.get("/api/v1/auth/providers")
 
@@ -49,15 +56,22 @@ class TestGetAuthUrlEndpoint:
 
     async def test_get_google_oauth_url(self, authenticated_client: AsyncClient):
         """Test getting Google OAuth authorization URL."""
-        response = await authenticated_client.get(
-            "/api/v1/auth/google",
-            params={"redirect_uri": "http://localhost:3000/callback/google"},
-        )
+        with (
+            patch("src.auth.oauth.GoogleOAuth.is_configured", True),
+            patch(
+                "src.auth.oauth.GoogleOAuth.client_id",
+                new_callable=lambda: property(lambda _: "test-client-id"),
+            ),
+        ):
+            response = await authenticated_client.get(
+                "/api/v1/auth/google",
+                params={"redirect_uri": "http://localhost:3000/callback/google"},
+            )
 
-        assert response.status_code == 200
-        data = response.json()
-        assert "authorization_url" in data
-        assert "accounts.google.com" in data["authorization_url"]
+            assert response.status_code == 200
+            data = response.json()
+            assert "authorization_url" in data
+            assert "accounts.google.com" in data["authorization_url"]
 
     async def test_get_github_oauth_url_when_configured(
         self, authenticated_client: AsyncClient
@@ -96,9 +110,10 @@ class TestGetAuthUrlEndpoint:
         self, authenticated_client: AsyncClient
     ):
         """Test that missing redirect_uri returns 422."""
-        response = await authenticated_client.get("/api/v1/auth/google")
+        with patch("src.auth.oauth.GoogleOAuth.is_configured", True):
+            response = await authenticated_client.get("/api/v1/auth/google")
 
-        assert response.status_code == 422
+            assert response.status_code == 422
 
     async def test_get_oauth_url_unconfigured_provider(
         self, authenticated_client: AsyncClient

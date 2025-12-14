@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from urllib.parse import urlencode
@@ -5,6 +6,8 @@ from urllib.parse import urlencode
 import httpx
 
 from src.config import Settings, get_settings
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -18,11 +21,22 @@ class OAuthUserInfo:
     avatar_url: str | None
 
 
+@dataclass
+class OAuthProviderInfo:
+    """Display information for an OAuth provider."""
+
+    id: str
+    name: str
+    icon: str
+
+
 class OAuthProvider(ABC):
     """Base class for OAuth providers."""
 
     # Subclasses must define these
     PROVIDER_NAME: str
+    DISPLAY_NAME: str  # Human-readable name (e.g., "Google", "GitHub")
+    ICON_NAME: str  # Icon identifier for frontend (e.g., "google", "github")
     AUTHORIZE_URL: str
     TOKEN_URL: str
     USERINFO_URL: str
@@ -88,6 +102,8 @@ class GoogleOAuth(OAuthProvider):
     """Google OAuth provider."""
 
     PROVIDER_NAME = "google"
+    DISPLAY_NAME = "Google"
+    ICON_NAME = "google"
     AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/v2/auth"
     TOKEN_URL = "https://oauth2.googleapis.com/token"
     USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
@@ -137,6 +153,8 @@ class GitHubOAuth(OAuthProvider):
     """GitHub OAuth provider."""
 
     PROVIDER_NAME = "github"
+    DISPLAY_NAME = "GitHub"
+    ICON_NAME = "github"
     AUTHORIZE_URL = "https://github.com/login/oauth/authorize"
     TOKEN_URL = "https://github.com/login/oauth/access_token"
     USERINFO_URL = "https://api.github.com/user"
@@ -216,9 +234,25 @@ def get_oauth_provider(provider_name: str) -> OAuthProvider:
     return provider_class()
 
 
-def get_configured_providers() -> list[str]:
-    """Get list of providers that have credentials configured."""
-    return [name for name, cls in _PROVIDER_CLASSES.items() if cls().is_configured]
+def get_configured_providers() -> list[OAuthProviderInfo]:
+    """
+    Get list of providers that have credentials configured.
+
+    Returns provider info with display metadata for each configured provider.
+    Called by the login page to show available login options.
+    """
+    configured = []
+    for cls in _PROVIDER_CLASSES.values():
+        provider = cls()
+        if provider.is_configured:
+            configured.append(
+                OAuthProviderInfo(
+                    id=provider.PROVIDER_NAME,
+                    name=provider.DISPLAY_NAME,
+                    icon=provider.ICON_NAME,
+                )
+            )
+    return configured
 
 
 # Convenience functions for dependency injection

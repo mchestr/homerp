@@ -23,11 +23,3 @@ class OAuthCallbackParams(BaseModel):
 
     code: str
     state: str | None = None
-
-
-class OAuthProviderInfo(BaseModel):
-    """Schema for OAuth provider information."""
-
-    id: str
-    name: str
-    icon: str
