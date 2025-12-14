@@ -1512,6 +1512,30 @@ export const gridfinityApi = {
     ),
 };
 
+// AI Assistant Types
+export type AssistantQueryRequest = {
+  prompt: string;
+  include_inventory_context?: boolean;
+};
+
+export type AssistantQueryResponse = {
+  success: boolean;
+  response?: string;
+  error?: string;
+  context_used: boolean;
+  items_in_context: number;
+  credits_used: number;
+};
+
+// AI Assistant API
+export const aiApi = {
+  query: (data: AssistantQueryRequest) =>
+    apiRequest<AssistantQueryResponse>("/api/v1/ai/query", {
+      method: "POST",
+      body: data,
+    }),
+};
+
 // Profile API
 export const profileApi = {
   getHobbyTypes: () =>

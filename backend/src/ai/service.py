@@ -136,6 +136,7 @@ def parse_quantity_estimate(estimate: str | None) -> dict[str, Any]:
 TEMPLATE_ITEM_CLASSIFICATION = "item_classification"
 TEMPLATE_LOCATION_ANALYSIS = "location_analysis"
 TEMPLATE_LOCATION_SUGGESTION = "location_suggestion"
+TEMPLATE_ASSISTANT = "assistant"
 
 
 class AIClassificationService:
@@ -464,6 +465,43 @@ class AIClassificationService:
                 continue
 
         return ItemLocationSuggestionResult(suggestions=suggestions)
+
+    async def query_assistant(
+        self,
+        user_prompt: str,
+        inventory_context: dict[str, Any] | None = None,
+    ) -> str:
+        """
+        Query the AI assistant with a user prompt and optional inventory context.
+
+        Args:
+            user_prompt: The user's question or request
+            inventory_context: Optional dictionary with inventory data for context
+
+        Returns:
+            The AI assistant's response text
+        """
+        # Get prompts from templates
+        system_prompt = self._template_manager.get_system_prompt(TEMPLATE_ASSISTANT)
+
+        # Get user message from template with variables
+        user_message = self._template_manager.get_user_prompt(
+            TEMPLATE_ASSISTANT,
+            user_prompt=user_prompt,
+            inventory_context=inventory_context,
+        )
+
+        # Call OpenAI API
+        response = await self.client.chat.completions.create(
+            model=self.settings.openai_model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_message},
+            ],
+            max_tokens=2000,  # Higher limit for detailed responses
+        )
+
+        return response.choices[0].message.content or ""
 
 
 def get_ai_service() -> AIClassificationService:

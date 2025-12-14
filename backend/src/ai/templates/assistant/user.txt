@@ -1,0 +1,16 @@
+{% if inventory_context %}
+## Your Inventory Summary
+- Total items: {{ inventory_context.total_items }}
+- Categories: {{ inventory_context.total_categories }}
+- Locations: {{ inventory_context.total_locations }}
+
+### Items in Your Inventory:
+{% for item in inventory_context.items_summary %}
+- **{{ item.name }}**: {{ item.quantity }} {{ item.quantity_unit }}{% if item.category %} (Category: {{ item.category }}){% endif %}{% if item.location %} [Location: {{ item.location }}]{% endif %}
+{% endfor %}
+
+---
+{% endif %}
+
+## User Request:
+{{ user_prompt }}
