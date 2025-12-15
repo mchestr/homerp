@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, status
 from fastapi.responses import FileResponse
 
 from src.ai.service import AIClassificationService, get_ai_service
-from src.auth.dependencies import CurrentUserIdDep
+from src.auth.dependencies import CurrentUserIdDep, InventoryContextDep
 from src.auth.service import AuthService, get_auth_service
 from src.billing.router import CreditServiceDep
 from src.config import Settings, get_settings
@@ -281,7 +281,7 @@ async def get_image(
 async def get_image_signed_url(
     image_id: UUID,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: InventoryContextDep,
     settings: Annotated[Settings, Depends(get_settings)],
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
     thumbnail: Annotated[bool, Query()] = False,
@@ -292,8 +292,11 @@ async def get_image_signed_url(
     where Authorization headers cannot be sent.
 
     Set thumbnail=true to get a URL for the thumbnail version.
+
+    Supports collaboration: when viewing a shared inventory, the signed URL
+    will be generated for the inventory owner's images.
     """
-    repo = ImageRepository(session, user_id)
+    repo = ImageRepository(session, inventory_owner_id)
     image = await repo.get_by_id(image_id)
     if not image:
         raise HTTPException(
@@ -301,7 +304,7 @@ async def get_image_signed_url(
             detail="Image not found",
         )
 
-    token = auth_service.create_image_token(user_id, image_id)
+    token = auth_service.create_image_token(inventory_owner_id, image_id)
     base_url = settings.api_base_url or ""
 
     if thumbnail and image.thumbnail_path:
