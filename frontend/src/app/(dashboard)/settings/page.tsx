@@ -23,6 +23,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
+import { locales, localeNames, type Locale } from "@/i18n/config";
+import { setLocaleCookie } from "@/i18n/client";
 
 const CURRENCIES = [
   { code: "USD", label: "US Dollar ($)" },
@@ -39,14 +42,11 @@ const CURRENCIES = [
   { code: "KRW", label: "South Korean Won (₩)" },
 ];
 
-const LANGUAGES = [
-  { code: "en", label: "English" },
-  // Future languages can be added here
-];
-
 export default function SettingsPage() {
   const { user, creditBalance, updateSettings } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);
+  const t = useTranslations();
+  const currentLocale = useLocale();
 
   const handleCurrencyChange = async (currency: string) => {
     setIsUpdating(true);
@@ -60,7 +60,12 @@ export default function SettingsPage() {
   const handleLanguageChange = async (language: string) => {
     setIsUpdating(true);
     try {
+      // Update user settings in backend
       await updateSettings({ language });
+      // Set the locale cookie for next-intl
+      setLocaleCookie(language as Locale);
+      // Reload to apply the new locale
+      window.location.reload();
     } finally {
       setIsUpdating(false);
     }
@@ -142,24 +147,24 @@ export default function SettingsPage() {
                 <Globe className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <p className="font-medium">Language</p>
+                <p className="font-medium">{t("settings.language")}</p>
                 <p className="text-sm text-muted-foreground">
-                  Choose your preferred language
+                  {t("settings.languageDescription")}
                 </p>
               </div>
             </div>
             <Select
-              value={user?.language || "en"}
+              value={currentLocale}
               onValueChange={handleLanguageChange}
-              disabled={isUpdating || LANGUAGES.length === 1}
+              disabled={isUpdating}
             >
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select language" />
+                <SelectValue placeholder={t("settings.language")} />
               </SelectTrigger>
               <SelectContent>
-                {LANGUAGES.map((language) => (
-                  <SelectItem key={language.code} value={language.code}>
-                    {language.label}
+                {locales.map((locale) => (
+                  <SelectItem key={locale} value={locale}>
+                    {localeNames[locale]}
                   </SelectItem>
                 ))}
               </SelectContent>

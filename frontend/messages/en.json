@@ -361,7 +361,11 @@
     "theme": "Theme",
     "themeLight": "Light",
     "themeDark": "Dark",
-    "themeSystem": "System"
+    "themeSystem": "System",
+    "language": "Language",
+    "languageDescription": "Choose your preferred language",
+    "languageEnglish": "English",
+    "languageGerman": "Deutsch"
   },
   "systemProfile": {
     "title": "System Profile",
