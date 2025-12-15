@@ -5,6 +5,39 @@ export type ClientOptions = {
 };
 
 /**
+ * AcceptInvitationRequest
+ *
+ * Request to accept an invitation via token.
+ */
+export type AcceptInvitationRequest = {
+  /**
+   * Token
+   */
+  token: string;
+};
+
+/**
+ * AcceptInvitationResponse
+ *
+ * Response after accepting an invitation.
+ */
+export type AcceptInvitationResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Owner Id
+   */
+  owner_id: string;
+  /**
+   * Owner Name
+   */
+  owner_name: string | null;
+  role: CollaboratorRole;
+};
+
+/**
  * AdminStatsResponse
  *
  * Admin dashboard statistics.
@@ -166,6 +199,68 @@ export type ApiKeyUpdate = {
    * Is Active
    */
   is_active?: boolean | null;
+};
+
+/**
+ * AssistantQueryRequest
+ *
+ * Request schema for AI assistant query.
+ */
+export type AssistantQueryRequest = {
+  /**
+   * Prompt
+   *
+   * The user's question or request for the AI assistant
+   */
+  prompt: string;
+  /**
+   * Include Inventory Context
+   *
+   * Whether to include inventory summary as context for the AI
+   */
+  include_inventory_context?: boolean;
+};
+
+/**
+ * AssistantQueryResponse
+ *
+ * Response schema for AI assistant query.
+ */
+export type AssistantQueryResponse = {
+  /**
+   * Success
+   */
+  success: boolean;
+  /**
+   * Response
+   *
+   * The AI assistant's response to the query
+   */
+  response?: string | null;
+  /**
+   * Error
+   *
+   * Error message if the query failed
+   */
+  error?: string | null;
+  /**
+   * Context Used
+   *
+   * Whether inventory context was included
+   */
+  context_used?: boolean;
+  /**
+   * Items In Context
+   *
+   * Number of items included in context
+   */
+  items_in_context?: number;
+  /**
+   * Credits Used
+   *
+   * Number of credits consumed
+   */
+  credits_used?: number;
 };
 
 /**
@@ -776,6 +871,129 @@ export type ClassificationResult = {
 };
 
 /**
+ * CollaboratorInviteRequest
+ *
+ * Request to invite a collaborator.
+ */
+export type CollaboratorInviteRequest = {
+  /**
+   * Email
+   */
+  email: string;
+  role?: CollaboratorRole;
+};
+
+/**
+ * CollaboratorOwnerInfo
+ *
+ * Basic info about an inventory owner.
+ */
+export type CollaboratorOwnerInfo = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Name
+   */
+  name: string | null;
+  /**
+   * Email
+   */
+  email: string;
+  /**
+   * Avatar Url
+   */
+  avatar_url: string | null;
+};
+
+/**
+ * CollaboratorResponse
+ *
+ * Response for a single collaborator.
+ */
+export type CollaboratorResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Owner Id
+   */
+  owner_id: string;
+  /**
+   * Collaborator Id
+   */
+  collaborator_id: string | null;
+  /**
+   * Invited Email
+   */
+  invited_email: string;
+  role: CollaboratorRole;
+  status: CollaboratorStatus;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Updated At
+   */
+  updated_at: string;
+  /**
+   * Accepted At
+   */
+  accepted_at: string | null;
+  collaborator?: CollaboratorUserInfo | null;
+};
+
+/**
+ * CollaboratorRole
+ *
+ * Role levels for inventory collaborators.
+ */
+export type CollaboratorRole = "viewer" | "editor";
+
+/**
+ * CollaboratorStatus
+ *
+ * Status of a collaboration invitation.
+ */
+export type CollaboratorStatus = "pending" | "accepted" | "declined";
+
+/**
+ * CollaboratorUpdateRequest
+ *
+ * Request to update a collaborator's role.
+ */
+export type CollaboratorUpdateRequest = {
+  role: CollaboratorRole;
+};
+
+/**
+ * CollaboratorUserInfo
+ *
+ * Basic info about a collaborator user.
+ */
+export type CollaboratorUserInfo = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Name
+   */
+  name: string | null;
+  /**
+   * Email
+   */
+  email: string;
+  /**
+   * Avatar Url
+   */
+  avatar_url: string | null;
+};
+
+/**
  * CreditAdjustmentRequest
  *
  * Schema for admin credit adjustment.
@@ -1038,6 +1256,56 @@ export type DashboardStatsResponse = {
 };
 
 /**
+ * DeclutterCostResponse
+ *
+ * Response with cost estimate for declutter suggestions.
+ */
+export type DeclutterCostResponse = {
+  /**
+   * Total Items
+   *
+   * Total number of items in inventory
+   */
+  total_items: number;
+  /**
+   * Items To Analyze
+   *
+   * Number of items that will be analyzed
+   */
+  items_to_analyze: number;
+  /**
+   * Credits Required
+   *
+   * Number of credits required for the analysis
+   */
+  credits_required: number;
+  /**
+   * Items Per Credit
+   *
+   * Number of items analyzed per credit
+   */
+  items_per_credit?: number;
+  /**
+   * Has Sufficient Credits
+   *
+   * Whether user has enough credits
+   */
+  has_sufficient_credits: boolean;
+  /**
+   * User Credit Balance
+   *
+   * User's current credit balance
+   */
+  user_credit_balance: number;
+  /**
+   * Has Profile
+   *
+   * Whether user has configured their system profile
+   */
+  has_profile: boolean;
+};
+
+/**
  * EventTypeInfo
  *
  * Information about an event type.
@@ -1274,7 +1542,7 @@ export type FindSimilarResponse = {
 /**
  * GenerateRecommendationsRequest
  *
- * Request to generate purge recommendations.
+ * Request to generate declutter recommendations.
  */
 export type GenerateRecommendationsRequest = {
   /**
@@ -1283,6 +1551,12 @@ export type GenerateRecommendationsRequest = {
    * Maximum number of recommendations to return
    */
   max_recommendations?: number;
+  /**
+   * Items To Analyze
+   *
+   * Number of items to analyze (affects credit cost)
+   */
+  items_to_analyze?: number;
 };
 
 /**
@@ -1793,6 +2067,23 @@ export type ImageUploadResponse = {
    * Created At
    */
   created_at: string;
+};
+
+/**
+ * InventoryContextResponse
+ *
+ * Response with current inventory context info.
+ */
+export type InventoryContextResponse = {
+  own_inventory: CollaboratorOwnerInfo;
+  /**
+   * Shared Inventories
+   */
+  shared_inventories: Array<SharedInventoryResponse>;
+  /**
+   * Pending Invitations
+   */
+  pending_invitations: Array<PendingInvitationResponse>;
 };
 
 /**
@@ -2726,6 +3017,32 @@ export type PaginatedUsersResponse = {
 };
 
 /**
+ * PendingInvitationResponse
+ *
+ * Response for a pending invitation.
+ */
+export type PendingInvitationResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Owner Id
+   */
+  owner_id: string;
+  role: CollaboratorRole;
+  /**
+   * Invited Email
+   */
+  invited_email: string;
+  /**
+   * Created At
+   */
+  created_at: string;
+  owner: CollaboratorOwnerInfo;
+};
+
+/**
  * PortalResponse
  *
  * Response schema for customer portal session.
@@ -3108,6 +3425,29 @@ export type Settings = {
 };
 
 /**
+ * SharedInventoryResponse
+ *
+ * Response for a shared inventory the user has access to.
+ */
+export type SharedInventoryResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Owner Id
+   */
+  owner_id: string;
+  role: CollaboratorRole;
+  status: CollaboratorStatus;
+  /**
+   * Accepted At
+   */
+  accepted_at: string | null;
+  owner: CollaboratorOwnerInfo;
+};
+
+/**
  * SimilarItemMatch
  *
  * A potential duplicate/similar item match.
@@ -3147,64 +3487,6 @@ export type SimilarItemMatch = {
    * Primary Image Url
    */
   primary_image_url?: string | null;
-};
-
-/**
- * SpringCleaningAuditRequest
- *
- * Request to run a spring cleaning audit.
- */
-export type SpringCleaningAuditRequest = {
-  /**
-   * Max Recommendations
-   *
-   * Maximum number of recommendations to return
-   */
-  max_recommendations?: number;
-};
-
-/**
- * SpringCleaningCostResponse
- *
- * Response with the cost estimate for a spring cleaning audit.
- */
-export type SpringCleaningCostResponse = {
-  /**
-   * Total Items
-   *
-   * Total number of items in inventory
-   */
-  total_items: number;
-  /**
-   * Credits Required
-   *
-   * Number of credits required for the audit
-   */
-  credits_required: number;
-  /**
-   * Items Per Credit
-   *
-   * Number of items analyzed per credit
-   */
-  items_per_credit?: number;
-  /**
-   * Has Sufficient Credits
-   *
-   * Whether user has enough credits
-   */
-  has_sufficient_credits: boolean;
-  /**
-   * User Credit Balance
-   *
-   * User's current credit balance
-   */
-  user_credit_balance: number;
-  /**
-   * Has Profile
-   *
-   * Whether user has configured their system profile
-   */
-  has_profile: boolean;
 };
 
 /**
@@ -4311,6 +4593,39 @@ export type GetStatsApiV1AdminStatsGetResponses = {
 export type GetStatsApiV1AdminStatsGetResponse =
   GetStatsApiV1AdminStatsGetResponses[keyof GetStatsApiV1AdminStatsGetResponses];
 
+export type QueryAssistantApiV1AiQueryPostData = {
+  body: AssistantQueryRequest;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/ai/query";
+};
+
+export type QueryAssistantApiV1AiQueryPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type QueryAssistantApiV1AiQueryPostError =
+  QueryAssistantApiV1AiQueryPostErrors[keyof QueryAssistantApiV1AiQueryPostErrors];
+
+export type QueryAssistantApiV1AiQueryPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: AssistantQueryResponse;
+};
+
+export type QueryAssistantApiV1AiQueryPostResponse =
+  QueryAssistantApiV1AiQueryPostResponses[keyof QueryAssistantApiV1AiQueryPostResponses];
+
 export type ListApiKeysApiV1AdminApikeysGetData = {
   body?: never;
   headers?: {
@@ -5264,6 +5579,10 @@ export type ListItemsApiV1ItemsGetData = {
   body?: never;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -5323,6 +5642,12 @@ export type ListItemsApiV1ItemsGetData = {
      */
     low_stock?: boolean;
     /**
+     * Checked Out
+     *
+     * Filter items that are currently checked out
+     */
+    checked_out?: boolean;
+    /**
      * Page
      */
     page?: number;
@@ -5358,6 +5683,10 @@ export type CreateItemApiV1ItemsPostData = {
   body: ItemCreate;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -5391,6 +5720,10 @@ export type BatchUpdateItemsApiV1ItemsBatchPatchData = {
   body: BatchUpdateRequest;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -5423,6 +5756,10 @@ export type BatchUpdateItemsApiV1ItemsBatchPatchResponse =
 export type GetDashboardStatsApiV1ItemsStatsDashboardGetData = {
   body?: never;
   headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
     /**
      * X-Api-Key
      */
@@ -5461,6 +5798,10 @@ export type GetDashboardStatsApiV1ItemsStatsDashboardGetResponse =
 export type GetMostUsedItemsApiV1ItemsStatsMostUsedGetData = {
   body?: never;
   headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
     /**
      * X-Api-Key
      */
@@ -5502,6 +5843,10 @@ export type GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetData = {
   body?: never;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -5541,6 +5886,10 @@ export type GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetResponse =
 export type SearchItemsApiV1ItemsSearchGetData = {
   body?: never;
   headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
     /**
      * X-Api-Key
      */
@@ -5586,6 +5935,10 @@ export type FindSimilarItemsApiV1ItemsFindSimilarPostData = {
   body: FindSimilarRequest;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -5622,6 +5975,10 @@ export type SuggestItemLocationApiV1ItemsSuggestLocationPostData = {
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
   };
   path?: never;
   query?: never;
@@ -5651,6 +6008,10 @@ export type SuggestItemLocationApiV1ItemsSuggestLocationPostResponse =
 export type ListLowStockItemsApiV1ItemsLowStockGetData = {
   body?: never;
   headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
     /**
      * X-Api-Key
      */
@@ -5686,6 +6047,10 @@ export type ListLowStockItemsApiV1ItemsLowStockGetResponse =
 export type GetItemFacetsApiV1ItemsFacetsGetData = {
   body?: never;
   headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
     /**
      * X-Api-Key
      */
@@ -5744,6 +6109,10 @@ export type GetItemFacetsApiV1ItemsFacetsGetResponse =
 export type GetAllTagsApiV1ItemsTagsGetData = {
   body?: never;
   headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
     /**
      * X-Api-Key
      */
@@ -5823,6 +6192,10 @@ export type GetItemApiV1ItemsItemIdGetData = {
   body?: never;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -5860,6 +6233,10 @@ export type GetItemApiV1ItemsItemIdGetResponse =
 export type UpdateItemApiV1ItemsItemIdPutData = {
   body: ItemUpdate;
   headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
     /**
      * X-Api-Key
      */
@@ -5901,6 +6278,10 @@ export type GetItemQrCodeApiV1ItemsItemIdQrGetData = {
    */
   body?: Settings | null;
   headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
     /**
      * X-Api-Key
      */
@@ -5944,6 +6325,10 @@ export type UpdateItemQuantityApiV1ItemsItemIdQuantityPatchData = {
   body: QuantityUpdate;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -5981,6 +6366,10 @@ export type UpdateItemQuantityApiV1ItemsItemIdQuantityPatchResponse =
 export type CheckOutItemApiV1ItemsItemIdCheckOutPostData = {
   body: CheckInOutCreate;
   headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
     /**
      * X-Api-Key
      */
@@ -6020,6 +6409,10 @@ export type CheckInItemApiV1ItemsItemIdCheckInPostData = {
   body: CheckInOutCreate;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -6057,6 +6450,10 @@ export type CheckInItemApiV1ItemsItemIdCheckInPostResponse =
 export type GetItemHistoryApiV1ItemsItemIdHistoryGetData = {
   body?: never;
   headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
     /**
      * X-Api-Key
      */
@@ -6105,6 +6502,10 @@ export type GetItemUsageStatsApiV1ItemsItemIdUsageStatsGetData = {
   body?: never;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -6143,6 +6544,10 @@ export type ListCategoriesApiV1CategoriesGetData = {
   body?: never;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -6178,6 +6583,10 @@ export type CreateCategoryApiV1CategoriesPostData = {
   body: CategoryCreate;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -6210,6 +6619,10 @@ export type CreateCategoryApiV1CategoriesPostResponse =
 export type GetCategoryTreeApiV1CategoriesTreeGetData = {
   body?: never;
   headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
     /**
      * X-Api-Key
      */
@@ -6245,6 +6658,10 @@ export type GetCategoryTreeApiV1CategoriesTreeGetResponse =
 export type CreateCategoryFromPathApiV1CategoriesFromPathPostData = {
   body: CategoryCreateFromPath;
   headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
     /**
      * X-Api-Key
      */
@@ -6317,6 +6734,10 @@ export type GetCategoryApiV1CategoriesCategoryIdGetData = {
   body?: never;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -6354,6 +6775,10 @@ export type GetCategoryApiV1CategoriesCategoryIdGetResponse =
 export type UpdateCategoryApiV1CategoriesCategoryIdPutData = {
   body: CategoryUpdate;
   headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
     /**
      * X-Api-Key
      */
@@ -6393,6 +6818,10 @@ export type GetCategoryTemplateApiV1CategoriesCategoryIdTemplateGetData = {
   body?: never;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -6431,6 +6860,10 @@ export type GetCategoryDescendantsApiV1CategoriesCategoryIdDescendantsGetData =
   {
     body?: never;
     headers?: {
+      /**
+       * X-Inventory-Context
+       */
+      "X-Inventory-Context"?: string | null;
       /**
        * X-Api-Key
        */
@@ -6474,6 +6907,10 @@ export type MoveCategoryApiV1CategoriesCategoryIdMovePatchData = {
   body: CategoryMoveRequest;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -6512,6 +6949,10 @@ export type ListLocationsApiV1LocationsGetData = {
   body?: never;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -6547,6 +6988,10 @@ export type CreateLocationApiV1LocationsPostData = {
   body: LocationCreate;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -6579,6 +7024,10 @@ export type CreateLocationApiV1LocationsPostResponse =
 export type GetLocationTreeApiV1LocationsTreeGetData = {
   body?: never;
   headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
     /**
      * X-Api-Key
      */
@@ -6618,6 +7067,10 @@ export type AnalyzeLocationImageApiV1LocationsAnalyzeImagePostData = {
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
   };
   path?: never;
   query?: never;
@@ -6647,6 +7100,10 @@ export type AnalyzeLocationImageApiV1LocationsAnalyzeImagePostResponse =
 export type CreateLocationsBulkApiV1LocationsBulkPostData = {
   body: LocationBulkCreate;
   headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
     /**
      * X-Api-Key
      */
@@ -6719,6 +7176,10 @@ export type GetLocationApiV1LocationsLocationIdGetData = {
   body?: never;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -6757,6 +7218,10 @@ export type UpdateLocationApiV1LocationsLocationIdPutData = {
   body: LocationUpdate;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -6794,6 +7259,10 @@ export type UpdateLocationApiV1LocationsLocationIdPutResponse =
 export type GetLocationDescendantsApiV1LocationsLocationIdDescendantsGetData = {
   body?: never;
   headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
     /**
      * X-Api-Key
      */
@@ -6837,6 +7306,10 @@ export type MoveLocationApiV1LocationsLocationIdMovePatchData = {
   body: LocationMoveRequest;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -6875,6 +7348,10 @@ export type GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetData
   {
     body?: never;
     headers?: {
+      /**
+       * X-Inventory-Context
+       */
+      "X-Inventory-Context"?: string | null;
       /**
        * X-Api-Key
        */
@@ -6918,6 +7395,10 @@ export type GetLocationQrCodeApiV1LocationsLocationIdQrGetData = {
    */
   body?: Settings | null;
   headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
     /**
      * X-Api-Key
      */
@@ -7593,6 +8074,10 @@ export type GetImageSignedUrlApiV1ImagesImageIdSignedUrlGetData = {
   body?: never;
   headers?: {
     /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
      * X-Api-Key
      */
     "X-API-Key"?: string | null;
@@ -7905,6 +8390,45 @@ export type GetRecommendationsApiV1ProfileRecommendationsGetResponses = {
 export type GetRecommendationsApiV1ProfileRecommendationsGetResponse =
   GetRecommendationsApiV1ProfileRecommendationsGetResponses[keyof GetRecommendationsApiV1ProfileRecommendationsGetResponses];
 
+export type GetRecommendationsCostApiV1ProfileRecommendationsCostGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Items To Analyze
+     */
+    items_to_analyze?: number;
+  };
+  url: "/api/v1/profile/recommendations/cost";
+};
+
+export type GetRecommendationsCostApiV1ProfileRecommendationsCostGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetRecommendationsCostApiV1ProfileRecommendationsCostGetError =
+  GetRecommendationsCostApiV1ProfileRecommendationsCostGetErrors[keyof GetRecommendationsCostApiV1ProfileRecommendationsCostGetErrors];
+
+export type GetRecommendationsCostApiV1ProfileRecommendationsCostGetResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: DeclutterCostResponse;
+  };
+
+export type GetRecommendationsCostApiV1ProfileRecommendationsCostGetResponse =
+  GetRecommendationsCostApiV1ProfileRecommendationsCostGetResponses[keyof GetRecommendationsCostApiV1ProfileRecommendationsCostGetResponses];
+
 export type GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostData =
   {
     body: GenerateRecommendationsRequest;
@@ -8022,73 +8546,6 @@ export type UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatch
 
 export type UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponse =
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponses[keyof UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponses];
-
-export type GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetData = {
-  body?: never;
-  headers?: {
-    /**
-     * X-Api-Key
-     */
-    "X-API-Key"?: string | null;
-  };
-  path?: never;
-  query?: never;
-  url: "/api/v1/profile/spring-cleaning/cost";
-};
-
-export type GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetError =
-  GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetErrors[keyof GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetErrors];
-
-export type GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetResponses = {
-  /**
-   * Successful Response
-   */
-  200: SpringCleaningCostResponse;
-};
-
-export type GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetResponse =
-  GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetResponses[keyof GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetResponses];
-
-export type RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostData = {
-  body: SpringCleaningAuditRequest;
-  headers?: {
-    /**
-     * X-Api-Key
-     */
-    "X-API-Key"?: string | null;
-  };
-  path?: never;
-  query?: never;
-  url: "/api/v1/profile/spring-cleaning/audit";
-};
-
-export type RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostError =
-  RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostErrors[keyof RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostErrors];
-
-export type RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostResponses =
-  {
-    /**
-     * Successful Response
-     */
-    200: GenerateRecommendationsResponse;
-  };
-
-export type RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostResponse =
-  RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostResponses[keyof RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostResponses];
 
 export type ListEventTypesApiV1WebhooksEventTypesGetData = {
   body?: never;
@@ -8398,3 +8855,340 @@ export type ListExecutionsApiV1WebhooksExecutionsGetResponses = {
 
 export type ListExecutionsApiV1WebhooksExecutionsGetResponse =
   ListExecutionsApiV1WebhooksExecutionsGetResponses[keyof ListExecutionsApiV1WebhooksExecutionsGetResponses];
+
+export type GetInventoryContextApiV1CollaborationContextGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/collaboration/context";
+};
+
+export type GetInventoryContextApiV1CollaborationContextGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetInventoryContextApiV1CollaborationContextGetError =
+  GetInventoryContextApiV1CollaborationContextGetErrors[keyof GetInventoryContextApiV1CollaborationContextGetErrors];
+
+export type GetInventoryContextApiV1CollaborationContextGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: InventoryContextResponse;
+};
+
+export type GetInventoryContextApiV1CollaborationContextGetResponse =
+  GetInventoryContextApiV1CollaborationContextGetResponses[keyof GetInventoryContextApiV1CollaborationContextGetResponses];
+
+export type ListCollaboratorsApiV1CollaborationCollaboratorsGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/collaboration/collaborators";
+};
+
+export type ListCollaboratorsApiV1CollaborationCollaboratorsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListCollaboratorsApiV1CollaborationCollaboratorsGetError =
+  ListCollaboratorsApiV1CollaborationCollaboratorsGetErrors[keyof ListCollaboratorsApiV1CollaborationCollaboratorsGetErrors];
+
+export type ListCollaboratorsApiV1CollaborationCollaboratorsGetResponses = {
+  /**
+   * Response List Collaborators Api V1 Collaboration Collaborators Get
+   *
+   * Successful Response
+   */
+  200: Array<CollaboratorResponse>;
+};
+
+export type ListCollaboratorsApiV1CollaborationCollaboratorsGetResponse =
+  ListCollaboratorsApiV1CollaborationCollaboratorsGetResponses[keyof ListCollaboratorsApiV1CollaborationCollaboratorsGetResponses];
+
+export type InviteCollaboratorApiV1CollaborationCollaboratorsPostData = {
+  body: CollaboratorInviteRequest;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/collaboration/collaborators";
+};
+
+export type InviteCollaboratorApiV1CollaborationCollaboratorsPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type InviteCollaboratorApiV1CollaborationCollaboratorsPostError =
+  InviteCollaboratorApiV1CollaborationCollaboratorsPostErrors[keyof InviteCollaboratorApiV1CollaborationCollaboratorsPostErrors];
+
+export type InviteCollaboratorApiV1CollaborationCollaboratorsPostResponses = {
+  /**
+   * Successful Response
+   */
+  201: CollaboratorResponse;
+};
+
+export type InviteCollaboratorApiV1CollaborationCollaboratorsPostResponse =
+  InviteCollaboratorApiV1CollaborationCollaboratorsPostResponses[keyof InviteCollaboratorApiV1CollaborationCollaboratorsPostResponses];
+
+export type RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteData =
+  {
+    body?: never;
+    headers?: {
+      /**
+       * X-Api-Key
+       */
+      "X-API-Key"?: string | null;
+    };
+    path: {
+      /**
+       * Collaborator Id
+       */
+      collaborator_id: string;
+    };
+    query?: never;
+    url: "/api/v1/collaboration/collaborators/{collaborator_id}";
+  };
+
+export type RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteError =
+  RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteErrors[keyof RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteErrors];
+
+export type RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteResponses =
+  {
+    /**
+     * Successful Response
+     */
+    204: void;
+  };
+
+export type RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteResponse =
+  RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteResponses[keyof RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteResponses];
+
+export type UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutData =
+  {
+    body: CollaboratorUpdateRequest;
+    headers?: {
+      /**
+       * X-Api-Key
+       */
+      "X-API-Key"?: string | null;
+    };
+    path: {
+      /**
+       * Collaborator Id
+       */
+      collaborator_id: string;
+    };
+    query?: never;
+    url: "/api/v1/collaboration/collaborators/{collaborator_id}";
+  };
+
+export type UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutError =
+  UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutErrors[keyof UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutErrors];
+
+export type UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: CollaboratorResponse;
+  };
+
+export type UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutResponse =
+  UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutResponses[keyof UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutResponses];
+
+export type AcceptInvitationApiV1CollaborationInvitationsAcceptPostData = {
+  body: AcceptInvitationRequest;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/collaboration/invitations/accept";
+};
+
+export type AcceptInvitationApiV1CollaborationInvitationsAcceptPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type AcceptInvitationApiV1CollaborationInvitationsAcceptPostError =
+  AcceptInvitationApiV1CollaborationInvitationsAcceptPostErrors[keyof AcceptInvitationApiV1CollaborationInvitationsAcceptPostErrors];
+
+export type AcceptInvitationApiV1CollaborationInvitationsAcceptPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: AcceptInvitationResponse;
+};
+
+export type AcceptInvitationApiV1CollaborationInvitationsAcceptPostResponse =
+  AcceptInvitationApiV1CollaborationInvitationsAcceptPostResponses[keyof AcceptInvitationApiV1CollaborationInvitationsAcceptPostResponses];
+
+export type AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostData =
+  {
+    body?: never;
+    headers?: {
+      /**
+       * X-Api-Key
+       */
+      "X-API-Key"?: string | null;
+    };
+    path: {
+      /**
+       * Invitation Id
+       */
+      invitation_id: string;
+    };
+    query?: never;
+    url: "/api/v1/collaboration/invitations/{invitation_id}/accept";
+  };
+
+export type AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostError =
+  AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostErrors[keyof AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostErrors];
+
+export type AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: AcceptInvitationResponse;
+  };
+
+export type AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostResponse =
+  AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostResponses[keyof AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostResponses];
+
+export type DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostData =
+  {
+    body?: never;
+    headers?: {
+      /**
+       * X-Api-Key
+       */
+      "X-API-Key"?: string | null;
+    };
+    path: {
+      /**
+       * Invitation Id
+       */
+      invitation_id: string;
+    };
+    query?: never;
+    url: "/api/v1/collaboration/invitations/{invitation_id}/decline";
+  };
+
+export type DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostError =
+  DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostErrors[keyof DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostErrors];
+
+export type DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostResponses =
+  {
+    /**
+     * Successful Response
+     */
+    204: void;
+  };
+
+export type DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostResponse =
+  DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostResponses[keyof DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostResponses];
+
+export type LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Owner Id
+     */
+    owner_id: string;
+  };
+  query?: never;
+  url: "/api/v1/collaboration/shared/{owner_id}";
+};
+
+export type LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteError =
+  LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteErrors[keyof LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteErrors];
+
+export type LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteResponses =
+  {
+    /**
+     * Successful Response
+     */
+    204: void;
+  };
+
+export type LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteResponse =
+  LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteResponses[keyof LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteResponses];
