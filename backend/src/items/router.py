@@ -13,6 +13,7 @@ from src.auth.dependencies import (
 from src.billing.router import CreditServiceDep
 from src.common.schemas import PaginatedResponse
 from src.database import AsyncSessionDep
+from src.images.schemas import ImageResponse
 from src.items.repository import ItemRepository
 from src.items.schemas import (
     BatchUpdateRequest,
@@ -52,6 +53,18 @@ def _get_primary_image_url(item) -> str | None:
     if item.images:
         return f"/api/v1/images/{item.images[0].id}/file"
     return None
+
+
+def _get_image_responses(item) -> list[ImageResponse]:
+    """Convert item images to ImageResponse list, ordered by is_primary DESC, created_at."""
+    if not item.images:
+        return []
+    # Sort with primary first, then by created_at
+    sorted_images = sorted(
+        item.images,
+        key=lambda img: (not img.is_primary, img.created_at),
+    )
+    return [ImageResponse.model_validate(img) for img in sorted_images]
 
 
 @router.get("")
@@ -192,6 +205,7 @@ async def create_item(
         category=item.category,
         location=item.location,
         primary_image_url=_get_primary_image_url(item),
+        images=_get_image_responses(item),
         created_at=item.created_at,
         updated_at=item.updated_at,
     )
@@ -534,6 +548,7 @@ async def get_item(
         category=item.category,
         location=item.location,
         primary_image_url=_get_primary_image_url(item),
+        images=_get_image_responses(item),
         created_at=item.created_at,
         updated_at=item.updated_at,
     )
@@ -612,6 +627,7 @@ async def update_item(
         category=item.category,
         location=item.location,
         primary_image_url=_get_primary_image_url(item),
+        images=_get_image_responses(item),
         created_at=item.created_at,
         updated_at=item.updated_at,
     )
@@ -652,6 +668,7 @@ async def update_item_quantity(
         category=item.category,
         location=item.location,
         primary_image_url=_get_primary_image_url(item),
+        images=_get_image_responses(item),
         created_at=item.created_at,
         updated_at=item.updated_at,
     )

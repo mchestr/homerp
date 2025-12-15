@@ -471,6 +471,14 @@ export const imagesApi = {
       `/api/v1/images/classified?${params}`
     );
   },
+
+  setPrimary: (imageId: string) =>
+    apiRequest<Image>(`/api/v1/images/${imageId}/set-primary`, {
+      method: "POST",
+    }),
+
+  detach: (imageId: string) =>
+    apiRequest<Image>(`/api/v1/images/${imageId}/detach`, { method: "POST" }),
 };
 
 // Types
@@ -629,6 +637,7 @@ export type ItemDetail = ItemListItem & {
   min_quantity: number | null;
   attributes: Record<string, unknown>;
   ai_classification: Record<string, unknown>;
+  images: Image[];
 };
 
 export type ItemCreate = {

@@ -549,17 +549,42 @@ async def test_item(
 
 
 @pytest.fixture
-async def test_image(async_session: AsyncSession, test_user: User) -> Image:
-    """Create a test image."""
+async def test_image(
+    async_session: AsyncSession, test_user: User, test_item: Item
+) -> Image:
+    """Create a test image attached to an item."""
     image = Image(
         id=uuid.uuid4(),
         user_id=test_user.id,
+        item_id=test_item.id,
         original_filename="test_image.jpg",
         mime_type="image/jpeg",
         size_bytes=1024,
         storage_path="/uploads/test_image.jpg",
         thumbnail_path="/uploads/test_image_thumb.jpg",
         storage_type="local",
+        is_primary=True,
+    )
+    async_session.add(image)
+    await async_session.commit()
+    await async_session.refresh(image)
+    return image
+
+
+@pytest.fixture
+async def unattached_image(async_session: AsyncSession, test_user: User) -> Image:
+    """Create a test image not attached to any item."""
+    image = Image(
+        id=uuid.uuid4(),
+        user_id=test_user.id,
+        item_id=None,
+        original_filename="unattached_image.jpg",
+        mime_type="image/jpeg",
+        size_bytes=1024,
+        storage_path="/uploads/unattached_image.jpg",
+        thumbnail_path="/uploads/unattached_image_thumb.jpg",
+        storage_type="local",
+        is_primary=False,
     )
     async_session.add(image)
     await async_session.commit()

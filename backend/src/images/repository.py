@@ -154,6 +154,14 @@ class ImageRepository:
         await self.session.refresh(image)
         return image
 
+    async def detach_from_item(self, image: Image) -> Image:
+        """Detach an image from its item."""
+        image.item_id = None
+        image.is_primary = False
+        await self.session.commit()
+        await self.session.refresh(image)
+        return image
+
     async def delete(self, image: Image) -> None:
         """Delete an image record."""
         await self.session.delete(image)

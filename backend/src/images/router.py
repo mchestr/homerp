@@ -469,3 +469,54 @@ async def attach_image_to_item(
 
     image = await repo.attach_to_item(image, item_id, is_primary)
     return ImageResponse.model_validate(image)
+
+
+@router.post("/{image_id}/set-primary")
+async def set_image_as_primary(
+    image_id: UUID,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+) -> ImageResponse:
+    """Set an image as the primary image for its item.
+
+    The image must already be attached to an item.
+    Other images for the same item will be marked as non-primary.
+    """
+    repo = ImageRepository(session, user_id)
+    image = await repo.get_by_id(image_id)
+    if not image:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image not found",
+        )
+
+    if not image.item_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Image is not attached to any item",
+        )
+
+    image = await repo.set_primary(image)
+    return ImageResponse.model_validate(image)
+
+
+@router.post("/{image_id}/detach")
+async def detach_image_from_item(
+    image_id: UUID,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+) -> ImageResponse:
+    """Detach an image from its item.
+
+    The image is not deleted, just unassociated from the item.
+    """
+    repo = ImageRepository(session, user_id)
+    image = await repo.get_by_id(image_id)
+    if not image:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image not found",
+        )
+
+    image = await repo.detach_from_item(image)
+    return ImageResponse.model_validate(image)

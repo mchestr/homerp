@@ -27,7 +27,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useConfirmModal } from "@/components/ui/confirm-modal";
-import { AuthenticatedImage } from "@/components/ui/authenticated-image";
+import { ImageGallery } from "@/components/items/image-gallery";
 import {
   Tooltip,
   TooltipContent,
@@ -264,23 +264,8 @@ export default function ItemDetailPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="overflow-hidden rounded-xl border bg-card">
-          {item.primary_image_url ? (
-            <AuthenticatedImage
-              imageId={item.primary_image_url.split("/").at(-2)!}
-              alt={item.name}
-              className="aspect-square w-full object-cover"
-              fallback={
-                <div className="flex aspect-square items-center justify-center bg-muted">
-                  <Package className="h-24 w-24 text-muted-foreground/50" />
-                </div>
-              }
-            />
-          ) : (
-            <div className="flex aspect-square items-center justify-center bg-muted">
-              <Package className="h-24 w-24 text-muted-foreground/50" />
-            </div>
-          )}
+        <div className="overflow-hidden rounded-xl border bg-card p-4">
+          <ImageGallery images={item.images || []} />
         </div>
 
         <div className="space-y-4">

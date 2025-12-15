@@ -6,6 +6,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 from src.categories.schemas import CategoryResponse
+from src.images.schemas import ImageResponse
 from src.locations.schemas import LocationResponse
 
 
@@ -69,6 +70,7 @@ class ItemDetailResponse(ItemResponse):
     category: CategoryResponse | None = None
     location: LocationResponse | None = None
     primary_image_url: str | None = None
+    images: list[ImageResponse] = []
 
 
 class ItemListResponse(BaseModel):

@@ -19,7 +19,10 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { TreeSelect } from "@/components/ui/tree-view";
 import { TagInput } from "@/components/ui/tag-input";
-import { ImageUpload } from "@/components/items/image-upload";
+import {
+  MultiImageUpload,
+  UploadedImage,
+} from "@/components/items/multi-image-upload";
 import { DynamicAttributeForm } from "@/components/items/dynamic-attribute-form";
 import { SimilarItemsDisplay } from "@/components/items/similar-items-display";
 import { LocationSuggestionDisplay } from "@/components/items/location-suggestion-display";
@@ -45,13 +48,6 @@ import {
   LocationSuggestionItem,
 } from "@/lib/api/api-client";
 import { parseQuantityEstimate } from "@/lib/utils";
-
-type UploadedImage = {
-  id: string;
-  url: string;
-  filename: string;
-  aiProcessed?: boolean;
-};
 
 // Add icons to location tree for display
 const LOCATION_TYPES: Record<string, string> = {
@@ -205,11 +201,7 @@ export default function NewItemPage() {
     mutationFn: (data: ItemCreate) => itemsApi.create(data),
     onSuccess: async (item) => {
       for (const image of uploadedImages) {
-        await imagesApi.attachToItem(
-          image.id,
-          item.id,
-          image.id === uploadedImages[0]?.id
-        );
+        await imagesApi.attachToItem(image.id, item.id, image.isPrimary);
       }
       queryClient.invalidateQueries({ queryKey: ["items"] });
       router.push(`/items/${item.id}`);
@@ -252,11 +244,31 @@ export default function NewItemPage() {
   };
 
   const handleImageUploaded = (image: UploadedImage) => {
-    setUploadedImages((prev) => [...prev, image]);
+    setUploadedImages((prev) => {
+      // If this is the first image, mark it as primary
+      const isPrimary = prev.length === 0;
+      return [...prev, { ...image, isPrimary }];
+    });
   };
 
   const handleRemoveImage = (id: string) => {
-    setUploadedImages((prev) => prev.filter((img) => img.id !== id));
+    setUploadedImages((prev) => {
+      const filtered = prev.filter((img) => img.id !== id);
+      // If we removed the primary image and there are still images, make the first one primary
+      if (filtered.length > 0 && !filtered.some((img) => img.isPrimary)) {
+        filtered[0].isPrimary = true;
+      }
+      return filtered;
+    });
+  };
+
+  const handleSetPrimary = (id: string) => {
+    setUploadedImages((prev) =>
+      prev.map((img) => ({
+        ...img,
+        isPrimary: img.id === id,
+      }))
+    );
   };
 
   const searchForSimilarItems = async (result: ClassificationResult) => {
@@ -436,11 +448,12 @@ export default function NewItemPage() {
           </div>
           <h2 className="text-lg font-semibold">Upload Image</h2>
         </div>
-        <ImageUpload
+        <MultiImageUpload
           onImageUploaded={handleImageUploaded}
           onClassificationComplete={handleClassificationComplete}
           uploadedImages={uploadedImages}
           onRemoveImage={handleRemoveImage}
+          onSetPrimary={handleSetPrimary}
         />
       </div>
 
