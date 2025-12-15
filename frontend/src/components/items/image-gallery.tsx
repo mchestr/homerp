@@ -84,7 +84,7 @@ export function ImageGallery({
 
   if (images.length === 0) {
     return (
-      <div className="flex aspect-video items-center justify-center rounded-xl border bg-muted/50">
+      <div className="flex min-h-[200px] items-center justify-center rounded-xl border bg-muted/50">
         <div className="text-center">
           <Package className="mx-auto h-12 w-12 text-muted-foreground/50" />
           <p className="mt-2 text-sm text-muted-foreground">
@@ -104,7 +104,7 @@ export function ImageGallery({
             <AuthenticatedImage
               imageId={currentImage.id}
               alt={currentImage.original_filename || "Item image"}
-              className="aspect-video w-full object-contain"
+              className="max-h-[70vh] w-full object-contain"
               data-testid="main-gallery-image"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
