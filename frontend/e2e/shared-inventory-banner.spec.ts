@@ -7,9 +7,23 @@ import {
   sharedInventoryOwner,
 } from "./fixtures/test-data";
 
+// Helper to open mobile sidebar if needed
+async function openMobileSidebarIfNeeded(
+  page: import("@playwright/test").Page,
+  isMobile: boolean
+) {
+  if (isMobile) {
+    const menuButton = page
+      .getByRole("button")
+      .filter({ has: page.locator("svg.lucide-menu") });
+    await menuButton.waitFor({ state: "visible" });
+    await menuButton.click();
+  }
+}
+
 test.describe("Shared Inventory Banner", () => {
   test.describe("when viewing a shared inventory with editor role", () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, isMobile }) => {
       await authenticateUser(page);
       await setupApiMocks(page, {
         collaborationContext: testCollaborationContext,
@@ -20,6 +34,9 @@ test.describe("Shared Inventory Banner", () => {
       await expect(
         page.getByRole("heading", { name: /dashboard/i })
       ).toBeVisible();
+
+      // On mobile, need to open the sidebar first
+      await openMobileSidebarIfNeeded(page, isMobile);
 
       // Switch to the shared inventory
       await page.getByTestId("inventory-switcher").click();
@@ -130,7 +147,7 @@ test.describe("Shared Inventory Banner", () => {
   });
 
   test.describe("when viewing a shared inventory with viewer role", () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, isMobile }) => {
       await authenticateUser(page);
       await setupApiMocks(page, {
         collaborationContext: testCollaborationContextViewer,
@@ -141,6 +158,9 @@ test.describe("Shared Inventory Banner", () => {
       await expect(
         page.getByRole("heading", { name: /dashboard/i })
       ).toBeVisible();
+
+      // On mobile, need to open the sidebar first
+      await openMobileSidebarIfNeeded(page, isMobile);
 
       // Switch to the shared inventory
       await page.getByTestId("inventory-switcher").click();
@@ -206,7 +226,7 @@ test.describe("Shared Inventory Banner", () => {
   });
 
   test.describe("banner content", () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, isMobile }) => {
       await authenticateUser(page);
       await setupApiMocks(page, {
         collaborationContext: testCollaborationContext,
@@ -214,6 +234,10 @@ test.describe("Shared Inventory Banner", () => {
 
       // Navigate to dashboard and switch to shared inventory
       await page.goto("/dashboard");
+
+      // On mobile, need to open the sidebar first
+      await openMobileSidebarIfNeeded(page, isMobile);
+
       await page.getByTestId("inventory-switcher").click();
       await page
         .getByTestId(`inventory-option-${sharedInventoryOwner.id}`)
@@ -238,6 +262,7 @@ test.describe("Shared Inventory Banner", () => {
   test.describe("switching between inventories", () => {
     test("banner disappears when switching back to own inventory", async ({
       page,
+      isMobile,
     }) => {
       await authenticateUser(page);
       await setupApiMocks(page, {
@@ -245,6 +270,9 @@ test.describe("Shared Inventory Banner", () => {
       });
 
       await page.goto("/dashboard");
+
+      // On mobile, need to open the sidebar first
+      await openMobileSidebarIfNeeded(page, isMobile);
 
       // Switch to shared inventory
       await page.getByTestId("inventory-switcher").click();
@@ -256,6 +284,9 @@ test.describe("Shared Inventory Banner", () => {
 
       // Verify banner is visible
       await expect(page.getByTestId("shared-inventory-banner")).toBeVisible();
+
+      // On mobile, need to open the sidebar again after page navigation
+      await openMobileSidebarIfNeeded(page, isMobile);
 
       // Switch back to own inventory
       await page.getByTestId("inventory-switcher").click();
