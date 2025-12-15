@@ -10,16 +10,23 @@ import {
   Package,
   ChevronLeft,
   ChevronRight,
-  Minus,
-  Plus,
   AlertTriangle,
   ArrowRightFromLine,
+  ArrowLeftFromLine,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
 import { SpecificationTags } from "@/components/items/specification-tags";
-import { itemsApi } from "@/lib/api/api-client";
-import { cn, formatPrice } from "@/lib/utils";
+import { itemsApi, ItemListItem, CheckInOutCreate } from "@/lib/api/api-client";
+import { formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 
 export default function CheckedOutItemsPage() {
@@ -30,11 +37,18 @@ export default function CheckedOutItemsPage() {
   const t = useTranslations("checkedOut");
   const tCommon = useTranslations("common");
   const tItems = useTranslations("items");
+  const tCheckInOut = useTranslations("checkInOut");
 
   const page = Number(searchParams.get("page")) || 1;
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get("search") || ""
   );
+
+  // Check-in dialog state
+  const [checkInDialogOpen, setCheckInDialogOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<ItemListItem | null>(null);
+  const [checkInQuantity, setCheckInQuantity] = useState(1);
+  const [checkInNotes, setCheckInNotes] = useState("");
 
   const { data: itemsData, isLoading } = useQuery({
     queryKey: ["items", "checked-out", { page, search: searchQuery }],
@@ -47,11 +61,27 @@ export default function CheckedOutItemsPage() {
       }),
   });
 
-  const updateQuantityMutation = useMutation({
-    mutationFn: ({ id, quantity }: { id: string; quantity: number }) =>
-      itemsApi.updateQuantity(id, quantity),
+  // Fetch usage stats for selected item to know how many are checked out
+  const { data: usageStats } = useQuery({
+    queryKey: ["items", selectedItem?.id, "usage-stats"],
+    queryFn: () => itemsApi.getUsageStats(selectedItem!.id),
+    enabled: !!selectedItem,
+  });
+
+  const checkInMutation = useMutation({
+    mutationFn: ({
+      itemId,
+      data,
+    }: {
+      itemId: string;
+      data: CheckInOutCreate;
+    }) => itemsApi.checkIn(itemId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["items"] });
+      setCheckInDialogOpen(false);
+      setSelectedItem(null);
+      setCheckInQuantity(1);
+      setCheckInNotes("");
     },
   });
 
@@ -78,33 +108,27 @@ export default function CheckedOutItemsPage() {
     updateFilters({ search: searchQuery || undefined });
   };
 
-  const handleQuickDecrement = (
-    e: React.MouseEvent,
-    itemId: string,
-    currentQuantity: number
-  ) => {
+  const handleOpenCheckInDialog = (e: React.MouseEvent, item: ItemListItem) => {
     e.preventDefault();
     e.stopPropagation();
-    if (currentQuantity > 0) {
-      updateQuantityMutation.mutate({
-        id: itemId,
-        quantity: currentQuantity - 1,
-      });
-    }
+    setSelectedItem(item);
+    setCheckInQuantity(1);
+    setCheckInNotes("");
+    setCheckInDialogOpen(true);
   };
 
-  const handleQuickIncrement = (
-    e: React.MouseEvent,
-    itemId: string,
-    currentQuantity: number
-  ) => {
-    e.preventDefault();
-    e.stopPropagation();
-    updateQuantityMutation.mutate({
-      id: itemId,
-      quantity: currentQuantity + 1,
+  const handleCheckIn = () => {
+    if (!selectedItem) return;
+    checkInMutation.mutate({
+      itemId: selectedItem.id,
+      data: {
+        quantity: checkInQuantity,
+        notes: checkInNotes || undefined,
+      },
     });
   };
+
+  const maxCheckInQuantity = usageStats?.currently_checked_out ?? 1;
 
   return (
     <div className="space-y-6">
@@ -169,109 +193,78 @@ export default function CheckedOutItemsPage() {
             data-testid="checked-out-items-grid"
           >
             {itemsData?.items.map((item) => (
-              <Link
+              <div
                 key={item.id}
-                href={`/items/${item.id}`}
                 className="group relative overflow-hidden rounded-xl border bg-card transition-all hover:border-primary/50 hover:shadow-lg"
                 data-testid={`checked-out-item-card-${item.id}`}
               >
-                <div className="relative aspect-square bg-muted">
-                  {item.primary_image_url ? (
-                    <AuthenticatedImage
-                      imageId={item.primary_image_url.split("/").at(-2)!}
-                      alt={item.name}
-                      thumbnail
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      fallback={
-                        <div className="flex h-full items-center justify-center">
-                          <Package className="h-16 w-16 text-muted-foreground/50" />
-                        </div>
-                      }
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center">
-                      <Package className="h-16 w-16 text-muted-foreground/50" />
-                    </div>
-                  )}
-                  {item.is_low_stock && (
-                    <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-medium text-white shadow-sm">
-                      <AlertTriangle className="h-3 w-3" />
-                      {tItems("lowStock")}
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="truncate font-semibold transition-colors group-hover:text-primary">
-                      {item.name}
-                    </h3>
-                    {item.price != null && (
-                      <span className="shrink-0 text-sm font-medium text-muted-foreground">
-                        {formatPrice(item.price, user?.currency)}
-                      </span>
+                <Link href={`/items/${item.id}`}>
+                  <div className="relative aspect-square bg-muted">
+                    {item.primary_image_url ? (
+                      <AuthenticatedImage
+                        imageId={item.primary_image_url.split("/").at(-2)!}
+                        alt={item.name}
+                        thumbnail
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        fallback={
+                          <div className="flex h-full items-center justify-center">
+                            <Package className="h-16 w-16 text-muted-foreground/50" />
+                          </div>
+                        }
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <Package className="h-16 w-16 text-muted-foreground/50" />
+                      </div>
+                    )}
+                    {item.is_low_stock && (
+                      <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-medium text-white shadow-sm">
+                        <AlertTriangle className="h-3 w-3" />
+                        {tItems("lowStock")}
+                      </div>
                     )}
                   </div>
-                  <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                    {item.category?.icon}{" "}
-                    {item.category?.name ?? tItems("uncategorized")}
-                  </p>
-                  <SpecificationTags
-                    attributes={item.attributes}
-                    maxCount={3}
-                    className="mt-2"
-                  />
-                  <div className="mt-3 flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={(e) =>
-                          handleQuickDecrement(e, item.id, item.quantity)
-                        }
-                        disabled={
-                          item.quantity <= 0 || updateQuantityMutation.isPending
-                        }
-                        className={cn(
-                          "flex h-8 w-8 items-center justify-center rounded-lg border transition-colors",
-                          "hover:bg-muted active:bg-muted/80",
-                          "disabled:cursor-not-allowed disabled:opacity-50"
-                        )}
-                        title={tItems("decreaseQuantity")}
-                      >
-                        <Minus className="h-4 w-4" />
-                      </button>
-                      <span
-                        className={cn(
-                          "min-w-[48px] rounded-lg px-2 py-1 text-center text-sm font-medium",
-                          item.is_low_stock
-                            ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-                            : "bg-muted text-muted-foreground"
-                        )}
-                      >
-                        {item.quantity}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={(e) =>
-                          handleQuickIncrement(e, item.id, item.quantity)
-                        }
-                        disabled={updateQuantityMutation.isPending}
-                        className={cn(
-                          "flex h-8 w-8 items-center justify-center rounded-lg border transition-colors",
-                          "hover:bg-muted active:bg-muted/80",
-                          "disabled:cursor-not-allowed disabled:opacity-50"
-                        )}
-                        title={tItems("increaseQuantity")}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </button>
+                </Link>
+
+                <div className="p-4">
+                  <Link href={`/items/${item.id}`}>
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="truncate font-semibold transition-colors group-hover:text-primary">
+                        {item.name}
+                      </h3>
+                      {item.price != null && (
+                        <span className="shrink-0 text-sm font-medium text-muted-foreground">
+                          {formatPrice(item.price, user?.currency)}
+                        </span>
+                      )}
                     </div>
+                    <p className="mt-0.5 truncate text-sm text-muted-foreground">
+                      {item.category?.icon}{" "}
+                      {item.category?.name ?? tItems("uncategorized")}
+                    </p>
+                    <SpecificationTags
+                      attributes={item.attributes}
+                      maxCount={3}
+                      className="mt-2"
+                    />
+                  </Link>
+                  <div className="mt-3 flex items-center justify-between">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => handleOpenCheckInDialog(e, item)}
+                      className="gap-1.5"
+                      data-testid={`check-in-button-${item.id}`}
+                    >
+                      <ArrowLeftFromLine className="h-4 w-4" />
+                      {tCheckInOut("checkIn")}
+                    </Button>
                     <span className="truncate text-xs text-muted-foreground">
                       {item.location?.name ?? tItems("noLocation")}
                     </span>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
 
@@ -309,6 +302,80 @@ export default function CheckedOutItemsPage() {
           )}
         </>
       )}
+
+      {/* Check-in Dialog */}
+      <Dialog open={checkInDialogOpen} onOpenChange={setCheckInDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{tCheckInOut("checkIn")}</DialogTitle>
+            <DialogDescription>{selectedItem?.name}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                {tCheckInOut("quantity")}
+              </label>
+              <input
+                type="number"
+                min={1}
+                max={maxCheckInQuantity}
+                value={checkInQuantity}
+                onChange={(e) =>
+                  setCheckInQuantity(
+                    Math.max(
+                      1,
+                      Math.min(
+                        maxCheckInQuantity,
+                        parseInt(e.target.value) || 1
+                      )
+                    )
+                  )
+                }
+                className="h-10 w-full rounded-lg border bg-background px-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                data-testid="check-in-quantity-input"
+              />
+              {usageStats && (
+                <p className="text-xs text-muted-foreground">
+                  {tCheckInOut("currentlyOut")}:{" "}
+                  {usageStats.currently_checked_out}
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                {tCheckInOut("notes")}
+              </label>
+              <textarea
+                value={checkInNotes}
+                onChange={(e) => setCheckInNotes(e.target.value)}
+                placeholder={tCheckInOut("notesPlaceholder")}
+                className="h-20 w-full resize-none rounded-lg border bg-background px-3 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                data-testid="check-in-notes-input"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setCheckInDialogOpen(false)}
+            >
+              {tCommon("cancel")}
+            </Button>
+            <Button
+              onClick={handleCheckIn}
+              disabled={
+                checkInMutation.isPending ||
+                checkInQuantity > maxCheckInQuantity
+              }
+              data-testid="confirm-check-in-button"
+            >
+              {checkInMutation.isPending
+                ? tCommon("loading")
+                : tCheckInOut("checkIn")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
