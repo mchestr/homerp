@@ -1,6 +1,10 @@
 /**
  * Deep merge function to recursively merge translation objects.
  * Used for i18n fallback - merges locale-specific messages on top of base messages.
+ *
+ * - Undefined and null values in source are ignored (preserve target/fallback value)
+ * - Arrays are replaced, not merged
+ * - Original objects are not mutated
  */
 export function deepMerge<T extends Record<string, unknown>>(
   target: T,
@@ -24,7 +28,7 @@ export function deepMerge<T extends Record<string, unknown>>(
         targetValue as Record<string, unknown>,
         sourceValue as Record<string, unknown>
       ) as T[keyof T];
-    } else if (sourceValue !== undefined) {
+    } else if (sourceValue != null) {
       result[key] = sourceValue as T[keyof T];
     }
   }

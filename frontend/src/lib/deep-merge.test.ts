@@ -101,6 +101,26 @@ describe("deepMerge", () => {
     expect(result).toEqual({ a: "1", b: "2", c: "3" });
   });
 
+  it("should ignore null values in source (treat as missing for i18n)", () => {
+    const target = { a: "1", b: "2" };
+    const source = { a: null, c: "3" } as unknown as Partial<typeof target>;
+
+    const result = deepMerge(target, source);
+
+    expect(result).toEqual({ a: "1", b: "2", c: "3" });
+  });
+
+  it("should preserve TypeScript types", () => {
+    type Messages = { common: { save: string; cancel: string } };
+    const target: Messages = { common: { save: "Save", cancel: "Cancel" } };
+    const source: Partial<Messages> = { common: { save: "Sauvegarder" } };
+
+    const result: Messages = deepMerge(target, source);
+
+    expect(result.common.save).toBe("Sauvegarder");
+    expect(result.common.cancel).toBe("Cancel");
+  });
+
   it("should simulate i18n fallback scenario", () => {
     const englishMessages = {
       common: {
