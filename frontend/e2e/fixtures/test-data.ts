@@ -23,6 +23,64 @@ export const adminUser = {
   updated_at: "2024-01-01T00:00:00Z",
 };
 
+export const sharedInventoryOwner = {
+  id: "shared-owner-789",
+  email: "shared@example.com",
+  name: "Shared Owner",
+  avatar_url: null,
+};
+
+export const testCollaborationContext = {
+  own_inventory: {
+    id: testUser.id,
+    name: testUser.name,
+    email: testUser.email,
+    avatar_url: testUser.avatar_url,
+  },
+  shared_inventories: [
+    {
+      id: "collab-1",
+      owner_id: sharedInventoryOwner.id,
+      role: "editor" as const,
+      status: "accepted" as const,
+      accepted_at: "2024-01-15T00:00:00Z",
+      owner: sharedInventoryOwner,
+    },
+  ],
+  pending_invitations: [],
+};
+
+export const testCollaborationContextViewer = {
+  own_inventory: {
+    id: testUser.id,
+    name: testUser.name,
+    email: testUser.email,
+    avatar_url: testUser.avatar_url,
+  },
+  shared_inventories: [
+    {
+      id: "collab-2",
+      owner_id: sharedInventoryOwner.id,
+      role: "viewer" as const,
+      status: "accepted" as const,
+      accepted_at: "2024-01-15T00:00:00Z",
+      owner: sharedInventoryOwner,
+    },
+  ],
+  pending_invitations: [],
+};
+
+export const testCollaborationContextEmpty = {
+  own_inventory: {
+    id: testUser.id,
+    name: testUser.name,
+    email: testUser.email,
+    avatar_url: testUser.avatar_url,
+  },
+  shared_inventories: [],
+  pending_invitations: [],
+};
+
 export const testCategories = [
   {
     id: "cat-1",

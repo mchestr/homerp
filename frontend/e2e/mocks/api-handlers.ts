@@ -11,6 +11,10 @@ type MockOptions = {
   creditBalance?: typeof fixtures.testCreditBalance;
   items?: typeof fixtures.testItems;
   gridfinityUnits?: typeof fixtures.testGridfinityUnits;
+  collaborationContext?:
+    | typeof fixtures.testCollaborationContext
+    | typeof fixtures.testCollaborationContextViewer
+    | typeof fixtures.testCollaborationContextEmpty;
 };
 
 /**
@@ -23,6 +27,7 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     creditBalance = fixtures.testCreditBalance,
     items = fixtures.testItems,
     gridfinityUnits = fixtures.testGridfinityUnits,
+    collaborationContext = fixtures.testCollaborationContextEmpty,
   } = options;
 
   // Auth endpoints
@@ -31,6 +36,15 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
       status: 200,
       contentType: "application/json",
       body: JSON.stringify(user),
+    });
+  });
+
+  // Collaboration endpoints
+  await page.route("**/api/v1/collaboration/context", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(collaborationContext),
     });
   });
 
