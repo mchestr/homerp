@@ -126,10 +126,10 @@ export default function CategoriesPage() {
 
   const handleDelete = async (id: string, name: string) => {
     const confirmed = await confirm({
-      title: "Delete Category",
-      message: `Are you sure you want to delete "${name}"? Items in this category will become uncategorized, and child categories will become root-level.`,
-      confirmLabel: "Delete",
-      cancelLabel: "Cancel",
+      title: t("deleteCategory"),
+      message: t("deleteConfirmMessage", { name }),
+      confirmLabel: tCommon("delete"),
+      cancelLabel: tCommon("cancel"),
       variant: "danger",
     });
     if (!confirmed) return;
@@ -194,11 +194,9 @@ export default function CategoriesPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-            Categories
+            {t("title")}
           </h1>
-          <p className="mt-1 text-muted-foreground">
-            Organize your items into hierarchical categories
-          </p>
+          <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
         </div>
         <div className="flex gap-2">
           {/* View toggle */}
@@ -242,7 +240,7 @@ export default function CategoriesPage() {
         >
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">
-              {editingId ? "Edit Category" : "New Category"}
+              {editingId ? t("editCategory") : t("newCategory")}
             </h2>
             <button
               type="button"
@@ -255,7 +253,9 @@ export default function CategoriesPage() {
 
           <div className="grid gap-5 md:grid-cols-2">
             <div>
-              <label className="mb-2 block text-sm font-medium">Name *</label>
+              <label className="mb-2 block text-sm font-medium">
+                {tCommon("name")} *
+              </label>
               <input
                 type="text"
                 value={formData.name}
@@ -265,12 +265,12 @@ export default function CategoriesPage() {
                 required
                 data-testid="category-name-input"
                 className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="e.g., Hardware"
+                placeholder={t("namePlaceholder")}
               />
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium">
-                Parent Category
+                {t("parentCategory")}
               </label>
               <TreeSelect
                 nodes={getSelectableTree()}
@@ -281,7 +281,7 @@ export default function CategoriesPage() {
                     parent_id: value ?? undefined,
                   }))
                 }
-                placeholder="None (root level)"
+                placeholder={t("noneRootLevel")}
                 excludeId={editingId ?? undefined}
               />
             </div>
@@ -290,7 +290,7 @@ export default function CategoriesPage() {
           <div className="grid gap-5 md:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm font-medium">
-                Icon (emoji)
+                {t("iconEmoji")}
               </label>
               <input
                 type="text"
@@ -299,12 +299,12 @@ export default function CategoriesPage() {
                   setFormData((prev) => ({ ...prev, icon: e.target.value }))
                 }
                 className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="e.g., a screw emoji"
+                placeholder={t("iconPlaceholder")}
               />
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium">
-                Description
+                {tCommon("description")}
               </label>
               <input
                 type="text"
@@ -316,7 +316,7 @@ export default function CategoriesPage() {
                   }))
                 }
                 className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="Optional description"
+                placeholder={t("descriptionPlaceholder")}
               />
             </div>
           </div>
@@ -341,7 +341,7 @@ export default function CategoriesPage() {
               onClick={handleCancel}
               className="w-full sm:w-auto"
             >
-              Cancel
+              {tCommon("cancel")}
             </Button>
             <Button
               type="submit"
@@ -352,7 +352,7 @@ export default function CategoriesPage() {
               {(createMutation.isPending || updateMutation.isPending) && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              {editingId ? "Update Category" : "Create Category"}
+              {editingId ? t("updateCategory") : t("createCategory")}
             </Button>
           </div>
         </form>
@@ -363,7 +363,7 @@ export default function CategoriesPage() {
           <div className="flex flex-col items-center gap-4">
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
             <p className="text-sm text-muted-foreground">
-              Loading categories...
+              {t("loadingCategories")}
             </p>
           </div>
         </div>
@@ -372,13 +372,13 @@ export default function CategoriesPage() {
           <div className="rounded-full bg-muted p-4">
             <FolderOpen className="h-10 w-10 text-muted-foreground" />
           </div>
-          <h3 className="mt-4 text-lg font-semibold">No categories yet</h3>
+          <h3 className="mt-4 text-lg font-semibold">{t("noCategoriesYet")}</h3>
           <p className="mt-1 text-center text-muted-foreground">
-            Create categories to organize your items
+            {t("createToOrganize")}
           </p>
           <Button onClick={() => setIsCreating(true)} className="mt-6">
             <Plus className="mr-2 h-4 w-4" />
-            Add Category
+            {t("addCategory")}
           </Button>
         </div>
       ) : viewMode === "tree" ? (

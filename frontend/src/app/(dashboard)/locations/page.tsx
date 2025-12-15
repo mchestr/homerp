@@ -370,11 +370,9 @@ export default function LocationsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-            Locations
+            {t("title")}
           </h1>
-          <p className="mt-1 text-muted-foreground">
-            Track where your items are stored in hierarchical locations
-          </p>
+          <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
         </div>
         <div className="flex gap-2">
           {/* View toggle */}
@@ -416,7 +414,7 @@ export default function LocationsPage() {
         <div className="space-y-5 rounded-xl border bg-card p-6">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">
-              {editingId ? "Edit Location" : "New Location"}
+              {editingId ? t("editLocation") : t("newLocation")}
             </h2>
             <button
               type="button"
@@ -441,10 +439,10 @@ export default function LocationsPage() {
                   </div>
                   <div>
                     <p className="font-medium text-violet-900 dark:text-violet-100">
-                      Use AI to analyze an image
+                      {t("useAiToAnalyze")}
                     </p>
                     <p className="text-sm text-violet-600 dark:text-violet-400">
-                      Upload a photo of a storage space to suggest locations
+                      {t("uploadPhotoToSuggest")}
                     </p>
                   </div>
                 </div>
@@ -486,12 +484,12 @@ export default function LocationsPage() {
                         {isAnalyzing ? (
                           <>
                             <Loader2 className="h-4 w-4 animate-spin" />
-                            Analyzing...
+                            {t("analyzing")}
                           </>
                         ) : (
                           <>
                             <Sparkles className="h-4 w-4" />
-                            Analyze with AI (1 credit)
+                            {t("analyzeWithAiCredit")}
                           </>
                         )}
                       </Button>
@@ -525,7 +523,7 @@ export default function LocationsPage() {
                           <div className="flex flex-col items-center">
                             <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
                             <p className="mt-2 text-sm font-medium">
-                              Uploading...
+                              {tCommon("uploading")}
                             </p>
                           </div>
                         ) : (
@@ -533,11 +531,11 @@ export default function LocationsPage() {
                             <ImagePlus className="h-8 w-8 text-violet-400" />
                             <p className="mt-2 text-sm font-medium">
                               {isDragging
-                                ? "Drop image here"
-                                : "Click or drag to upload"}
+                                ? tCommon("dropImageHere")
+                                : tCommon("clickOrDragToUpload")}
                             </p>
                             <p className="mt-1 text-xs text-muted-foreground">
-                              PNG, JPG up to 10MB
+                              {tCommon("imageFormats")}
                             </p>
                           </div>
                         )}
@@ -556,7 +554,7 @@ export default function LocationsPage() {
               <div className="relative flex items-center py-2">
                 <div className="flex-grow border-t" />
                 <span className="mx-4 flex-shrink text-sm text-muted-foreground">
-                  or create manually
+                  {t("orCreateManually")}
                 </span>
                 <div className="flex-grow border-t" />
               </div>
@@ -587,7 +585,7 @@ export default function LocationsPage() {
               <div className="grid gap-5 md:grid-cols-2">
                 <div>
                   <label className="mb-2 block text-sm font-medium">
-                    Name *
+                    {tCommon("name")} *
                   </label>
                   <input
                     type="text"
@@ -598,12 +596,12 @@ export default function LocationsPage() {
                     required
                     data-testid="location-name-input"
                     className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    placeholder="e.g., Workshop Shelf A"
+                    placeholder={t("namePlaceholder")}
                   />
                 </div>
                 <div>
                   <label className="mb-2 block text-sm font-medium">
-                    Parent Location
+                    {t("parentLocation")}
                   </label>
                   <TreeSelect
                     nodes={selectTreeWithIcons}
@@ -614,7 +612,7 @@ export default function LocationsPage() {
                         parent_id: value ?? undefined,
                       }))
                     }
-                    placeholder="None (root level)"
+                    placeholder={t("noneRootLevel")}
                     excludeId={editingId ?? undefined}
                   />
                 </div>
@@ -622,7 +620,9 @@ export default function LocationsPage() {
 
               <div className="grid gap-5 md:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm font-medium">Type</label>
+                  <label className="mb-2 block text-sm font-medium">
+                    {t("locationType")}
+                  </label>
                   <select
                     value={formData.location_type || ""}
                     onChange={(e) =>
@@ -633,17 +633,17 @@ export default function LocationsPage() {
                     }
                     className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   >
-                    <option value="">Select type</option>
+                    <option value="">{t("selectType")}</option>
                     {LOCATION_TYPES.map((type) => (
                       <option key={type.value} value={type.value}>
-                        {type.icon} {type.label}
+                        {type.icon} {t(`locationType.${type.value}`)}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div>
                   <label className="mb-2 block text-sm font-medium">
-                    Description
+                    {tCommon("description")}
                   </label>
                   <input
                     type="text"
@@ -655,7 +655,7 @@ export default function LocationsPage() {
                       }))
                     }
                     className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    placeholder="Optional description"
+                    placeholder={t("descriptionPlaceholder")}
                   />
                 </div>
               </div>
@@ -667,7 +667,7 @@ export default function LocationsPage() {
                   onClick={handleCancel}
                   className="w-full sm:w-auto"
                 >
-                  Cancel
+                  {tCommon("cancel")}
                 </Button>
                 <Button
                   type="submit"
@@ -680,7 +680,7 @@ export default function LocationsPage() {
                   {(createMutation.isPending || updateMutation.isPending) && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  {editingId ? "Update Location" : "Create Location"}
+                  {editingId ? t("updateLocation") : t("createLocation")}
                 </Button>
               </div>
             </form>
@@ -695,7 +695,7 @@ export default function LocationsPage() {
           <div className="flex flex-col items-center gap-4">
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
             <p className="text-sm text-muted-foreground">
-              Loading locations...
+              {t("loadingLocations")}
             </p>
           </div>
         </div>
@@ -704,13 +704,13 @@ export default function LocationsPage() {
           <div className="rounded-full bg-muted p-4">
             <MapPin className="h-10 w-10 text-muted-foreground" />
           </div>
-          <h3 className="mt-4 text-lg font-semibold">No locations yet</h3>
+          <h3 className="mt-4 text-lg font-semibold">{t("noLocationsYet")}</h3>
           <p className="mt-1 text-center text-muted-foreground">
-            Create locations to track where items are stored
+            {t("createToOrganize")}
           </p>
           <Button onClick={() => setIsCreating(true)} className="mt-6">
             <Plus className="mr-2 h-4 w-4" />
-            Add Location
+            {t("addLocation")}
           </Button>
         </div>
       ) : viewMode === "tree" ? (

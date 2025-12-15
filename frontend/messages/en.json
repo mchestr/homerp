@@ -38,7 +38,11 @@
       "grid": "Grid view",
       "list": "List view",
       "tree": "Tree view"
-    }
+    },
+    "uploading": "Uploading...",
+    "dropImageHere": "Drop image here",
+    "clickOrDragToUpload": "Click or drag to upload",
+    "imageFormats": "PNG, JPG up to 10MB"
   },
   "app": {
     "name": "HomERP",
@@ -211,7 +215,9 @@
     "tree": "Tree",
     "grid": "Grid",
     "analyzeWithAi": "Analyze with AI",
+    "analyzeWithAiCredit": "Analyze with AI (1 credit)",
     "analyzing": "Analyzing...",
+    "selectType": "Select type",
     "analysisFailed": "Analysis failed",
     "uploadStorageImage": "Upload Storage Image",
     "uploadImageDescription": "Upload a photo of a storage space to have AI suggest locations",

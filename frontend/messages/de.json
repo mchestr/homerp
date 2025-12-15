@@ -38,7 +38,11 @@
       "grid": "Rasteransicht",
       "list": "Listenansicht",
       "tree": "Baumansicht"
-    }
+    },
+    "uploading": "Wird hochgeladen...",
+    "dropImageHere": "Bild hier ablegen",
+    "clickOrDragToUpload": "Klicken oder ziehen zum Hochladen",
+    "imageFormats": "PNG, JPG bis zu 10MB"
   },
   "app": {
     "name": "HomERP",
@@ -211,7 +215,9 @@
     "tree": "Baum",
     "grid": "Raster",
     "analyzeWithAi": "Mit KI analysieren",
+    "analyzeWithAiCredit": "Mit KI analysieren (1 Credit)",
     "analyzing": "Analysieren...",
+    "selectType": "Typ auswählen",
     "analysisFailed": "Analyse fehlgeschlagen",
     "uploadStorageImage": "Lagerbild hochladen",
     "uploadImageDescription": "Laden Sie ein Foto eines Lagerraums hoch, damit die KI Standorte vorschlagen kann",
