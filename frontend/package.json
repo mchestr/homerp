@@ -53,7 +53,7 @@
   "devDependencies": {
     "@hey-api/openapi-ts": "^0.89.0",
     "@playwright/test": "^1.57.0",
-    "@types/node": "^22.10.1",
+    "@types/node": "^25.0.2",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.1",
     "eslint": "^9.39.2",
