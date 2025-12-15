@@ -720,7 +720,8 @@
     },
     "editPlacementDialog": {
       "title": "Edit Bin Size",
-      "description": "Adjust the bin size for this placement"
+      "description": "Adjust the bin size for this placement",
+      "overlapWarning": "This size would overlap with another bin. Choose a smaller size."
     }
   },
   "labels": {
