@@ -478,3 +478,33 @@ export const testSimilarItems = {
   ],
   total_searched: 50,
 };
+
+// Gridfinity test data
+export const testGridfinityUnits = [
+  {
+    id: "gf-unit-1",
+    name: "Workshop Drawer",
+    description: "Main workshop drawer with gridfinity baseplate",
+    location_id: "loc-1",
+    container_width_mm: 252,
+    container_depth_mm: 252,
+    container_height_mm: 50,
+    grid_columns: 6,
+    grid_rows: 6,
+    created_at: "2024-01-01T00:00:00Z",
+    updated_at: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: "gf-unit-2",
+    name: "Electronics Tray",
+    description: "Small tray for electronics components",
+    location_id: "loc-2",
+    container_width_mm: 168,
+    container_depth_mm: 126,
+    container_height_mm: 42,
+    grid_columns: 4,
+    grid_rows: 3,
+    created_at: "2024-01-02T00:00:00Z",
+    updated_at: "2024-01-02T00:00:00Z",
+  },
+];
