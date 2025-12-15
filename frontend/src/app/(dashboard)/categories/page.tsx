@@ -31,11 +31,14 @@ import {
   type TreeViewMode,
 } from "@/hooks/use-view-mode";
 import { useTranslations } from "next-intl";
+import { useAuth } from "@/context/auth-context";
+import { formatPrice } from "@/lib/utils";
 
 export default function CategoriesPage() {
   const queryClient = useQueryClient();
   const t = useTranslations("categories");
   const tCommon = useTranslations("common");
+  const { user } = useAuth();
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -498,12 +501,11 @@ export default function CategoriesPage() {
                           {treeStats.get(category.id)!.total_value > 0 && (
                             <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-600 dark:text-emerald-400">
                               {tCommon("totalValue", {
-                                value: treeStats
-                                  .get(category.id)!
-                                  .total_value.toLocaleString(undefined, {
-                                    minimumFractionDigits: 0,
-                                    maximumFractionDigits: 0,
-                                  }),
+                                value:
+                                  formatPrice(
+                                    treeStats.get(category.id)!.total_value,
+                                    user?.currency || "USD"
+                                  ) ?? "",
                               })}
                             </span>
                           )}

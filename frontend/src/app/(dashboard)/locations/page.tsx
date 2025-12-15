@@ -39,7 +39,7 @@ import {
   LocationTreeNode,
   LocationAnalysisResult,
 } from "@/lib/api/api-client";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import type { LabelData } from "@/lib/labels";
 import { useTranslations } from "next-intl";
 import {
@@ -102,7 +102,7 @@ export default function LocationsPage() {
   const { confirm, ConfirmModal } = useConfirmModal();
   const { show: showInsufficientCredits, InsufficientCreditsModal } =
     useInsufficientCreditsModal();
-  const { refreshCredits } = useAuth();
+  const { refreshCredits, user } = useAuth();
   const { openQRModal, QRCodeModal } = useQRCodeModal();
   const { openLabelModal, LabelPrintModal } = useLabelPrintModal();
   const tLabels = useTranslations("labels");
@@ -863,12 +863,11 @@ export default function LocationsPage() {
                             {treeStats.get(location.id)!.total_value > 0 && (
                               <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-600 dark:text-emerald-400">
                                 {tCommon("totalValue", {
-                                  value: treeStats
-                                    .get(location.id)!
-                                    .total_value.toLocaleString(undefined, {
-                                      minimumFractionDigits: 0,
-                                      maximumFractionDigits: 0,
-                                    }),
+                                  value:
+                                    formatPrice(
+                                      treeStats.get(location.id)!.total_value,
+                                      user?.currency || "USD"
+                                    ) ?? "",
                                 })}
                               </span>
                             )}

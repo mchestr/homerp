@@ -75,15 +75,13 @@ export default function SettingsPage() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-          Settings
+          {t("settings.title")}
         </h1>
-        <p className="mt-1 text-muted-foreground">
-          Manage your account and preferences
-        </p>
+        <p className="mt-1 text-muted-foreground">{t("settings.subtitle")}</p>
       </div>
 
       <div className="rounded-xl border bg-card p-6">
-        <h2 className="font-semibold">Profile</h2>
+        <h2 className="font-semibold">{t("settings.profile")}</h2>
         <div className="mt-4 flex items-center gap-5">
           {user?.avatar_url ? (
             <img
@@ -107,9 +105,9 @@ export default function SettingsPage() {
       </div>
 
       <div className="rounded-xl border bg-card p-6">
-        <h2 className="font-semibold">Preferences</h2>
+        <h2 className="font-semibold">{t("settings.preferences")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Customize your experience
+          {t("settings.customizeExperience")}
         </p>
         <div className="mt-4 space-y-4">
           <div className="flex items-center justify-between">
@@ -118,9 +116,9 @@ export default function SettingsPage() {
                 <DollarSign className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <p className="font-medium">Currency</p>
+                <p className="font-medium">{t("settings.currency")}</p>
                 <p className="text-sm text-muted-foreground">
-                  Display prices in your preferred currency
+                  {t("settings.currencyDescription")}
                 </p>
               </div>
             </div>
@@ -174,15 +172,15 @@ export default function SettingsPage() {
       </div>
 
       <div className="rounded-xl border bg-card p-6">
-        <h2 className="font-semibold">Appearance</h2>
+        <h2 className="font-semibold">{t("settings.appearance")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Customize how the app looks
+          {t("settings.appearanceDescription")}
         </p>
         <div className="mt-4 flex items-center justify-between">
           <div>
-            <p className="font-medium">Theme</p>
+            <p className="font-medium">{t("settings.theme")}</p>
             <p className="text-sm text-muted-foreground">
-              Choose light, dark, or system theme
+              {t("settings.themeDescription")}
             </p>
           </div>
           <ThemeToggle />
@@ -202,9 +200,11 @@ export default function SettingsPage() {
                 <Brain className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h2 className="font-semibold">AI System Profile</h2>
+                <h2 className="font-semibold">
+                  {t("settings.aiSystemProfile")}
+                </h2>
                 <p className="text-sm text-muted-foreground">
-                  Configure your profile for personalized AI recommendations
+                  {t("settings.aiSystemProfileDescription")}
                 </p>
               </div>
             </div>
@@ -226,9 +226,9 @@ export default function SettingsPage() {
                 <Users className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h2 className="font-semibold">Collaboration</h2>
+                <h2 className="font-semibold">{t("settings.collaboration")}</h2>
                 <p className="text-sm text-muted-foreground">
-                  Share your inventory with family or team members
+                  {t("settings.collaborationDescription")}
                 </p>
               </div>
             </div>
@@ -250,11 +250,15 @@ export default function SettingsPage() {
                 <Coins className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h2 className="font-semibold">Billing & Credits</h2>
+                <h2 className="font-semibold">
+                  {t("settings.billingAndCredits")}
+                </h2>
                 <p className="text-sm text-muted-foreground">
                   {creditBalance
-                    ? `${creditBalance.total_credits} credits available`
-                    : "Manage your AI credits"}
+                    ? t("settings.creditsAvailable", {
+                        count: creditBalance.total_credits,
+                      })
+                    : t("settings.manageAiCredits")}
                 </p>
               </div>
             </div>
@@ -264,16 +268,16 @@ export default function SettingsPage() {
       </Link>
 
       <div className="rounded-xl border bg-card p-6">
-        <h2 className="font-semibold">Account</h2>
+        <h2 className="font-semibold">{t("settings.account")}</h2>
         <div className="mt-4 space-y-4">
           <div className="flex items-start gap-4 rounded-lg bg-muted/50 p-4">
             <div className="rounded-lg bg-primary/10 p-2">
               <Shield className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="font-medium">Authentication</p>
+              <p className="font-medium">{t("settings.authentication")}</p>
               <p className="text-sm text-muted-foreground">
-                Signed in via Google OAuth
+                {t("settings.signedInViaGoogle")}
               </p>
             </div>
           </div>
@@ -282,14 +286,17 @@ export default function SettingsPage() {
               <Calendar className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="font-medium">Member since</p>
+              <p className="font-medium">{t("settings.memberSince")}</p>
               <p className="text-sm text-muted-foreground">
                 {user?.created_at
-                  ? new Date(user.created_at).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })
+                  ? new Date(user.created_at).toLocaleDateString(
+                      currentLocale,
+                      {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      }
+                    )
                   : "N/A"}
               </p>
             </div>
