@@ -162,11 +162,13 @@ test.describe("Items", () => {
             .url()
             .match(/\/images\/([^/]+)\/signed-url/);
           signedUrlCalls.push(match?.[1] || "");
+          const apiUrl =
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
           await route.fulfill({
             status: 200,
             contentType: "application/json",
             body: JSON.stringify({
-              url: `http://localhost:8000/uploads/mock.jpg?token=mock`,
+              url: `${apiUrl}/uploads/mock.jpg?token=mock`,
             }),
           });
         }

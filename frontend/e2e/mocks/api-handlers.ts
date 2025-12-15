@@ -502,11 +502,12 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
   });
 
   await page.route(/\/api\/v1\/images\/[^/]+\/signed-url$/, async (route) => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
     await route.fulfill({
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({
-        url: "http://localhost:8000/uploads/mock-signed-url.jpg?token=mock-token",
+        url: `${apiUrl}/uploads/mock-signed-url.jpg?token=mock-token`,
       }),
     });
   });
