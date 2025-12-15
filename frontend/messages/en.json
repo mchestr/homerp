@@ -716,7 +716,8 @@
       "width": "Width",
       "depth": "Depth",
       "preview": "{width}×{depth} grid units ({widthMm}×{depthMm}mm)",
-      "place": "Place Item"
+      "place": "Place Item",
+      "overlapWarning": "This size would overlap with an existing bin. Choose a smaller size."
     },
     "editPlacementDialog": {
       "title": "Edit Bin Size",

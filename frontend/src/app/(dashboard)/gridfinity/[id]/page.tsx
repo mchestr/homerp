@@ -659,10 +659,19 @@ export default function GridfinityEditorPage() {
                 <div className="grid grid-cols-4 gap-2">
                   {BIN_SIZE_PRESETS.filter(
                     (preset) =>
+                      // Check fits within grid bounds
                       pendingPlacement.gridX + preset.width <=
                         (unit?.grid_columns || 1) &&
                       pendingPlacement.gridY + preset.depth <=
-                        (unit?.grid_rows || 1)
+                        (unit?.grid_rows || 1) &&
+                      // Check doesn't overlap with other placements
+                      !checkPlacementOverlap(
+                        unit?.placements || [],
+                        pendingPlacement.gridX,
+                        pendingPlacement.gridY,
+                        preset.width,
+                        preset.depth
+                      )
                   ).map((preset) => {
                     const isRecommended =
                       preset.width ===
@@ -757,6 +766,22 @@ export default function GridfinityEditorPage() {
                   })}
                 </p>
               </div>
+
+              {/* Overlap warning */}
+              {checkPlacementOverlap(
+                unit?.placements || [],
+                pendingPlacement.gridX,
+                pendingPlacement.gridY,
+                pendingPlacement.widthUnits,
+                pendingPlacement.depthUnits
+              ) && (
+                <div className="flex items-center gap-2 rounded-lg border border-destructive bg-destructive/10 p-3">
+                  <AlertCircle className="h-4 w-4 text-destructive" />
+                  <p className="text-sm text-destructive">
+                    {t("placementDialog.overlapWarning")}
+                  </p>
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>
@@ -765,7 +790,17 @@ export default function GridfinityEditorPage() {
             </Button>
             <Button
               onClick={handleConfirmPlacement}
-              disabled={createPlacementMutation.isPending}
+              disabled={
+                createPlacementMutation.isPending ||
+                (pendingPlacement !== null &&
+                  checkPlacementOverlap(
+                    unit?.placements || [],
+                    pendingPlacement.gridX,
+                    pendingPlacement.gridY,
+                    pendingPlacement.widthUnits,
+                    pendingPlacement.depthUnits
+                  ))
+              }
             >
               {createPlacementMutation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
