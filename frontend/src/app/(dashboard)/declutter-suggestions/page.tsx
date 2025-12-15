@@ -75,6 +75,11 @@ export default function DeclutterSuggestionsPage() {
         ]);
         setCostInfo(costRes);
         setRecommendations(recommendationsRes);
+        // Cap itemsToAnalyze to total items if needed
+        const maxItems = Math.max(10, Math.min(200, costRes.total_items));
+        if (itemsToAnalyze > maxItems) {
+          setItemsToAnalyze(maxItems);
+        }
       } catch {
         toast({
           title: "Error",
@@ -279,15 +284,14 @@ export default function DeclutterSuggestionsPage() {
                 value={[itemsToAnalyze]}
                 onValueChange={handleSliderChange}
                 min={10}
-                max={200}
+                max={Math.max(10, Math.min(200, costInfo.total_items))}
                 step={10}
                 className="w-full"
                 data-testid="items-slider"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>10</span>
-                <span>100</span>
-                <span>200</span>
+                <span>{Math.max(10, Math.min(200, costInfo.total_items))}</span>
               </div>
             </div>
 
