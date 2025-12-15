@@ -91,6 +91,40 @@ const BIN_SIZE_PRESETS = [
   { width: 3, depth: 3, label: "3×3" },
 ];
 
+// Check if a placement would overlap with existing placements
+function checkPlacementOverlap(
+  placements: GridfinityPlacement[],
+  gridX: number,
+  gridY: number,
+  widthUnits: number,
+  depthUnits: number,
+  excludeId?: string
+): boolean {
+  const newXEnd = gridX + widthUnits;
+  const newYEnd = gridY + depthUnits;
+
+  for (const placement of placements) {
+    if (excludeId && placement.id === excludeId) {
+      continue;
+    }
+
+    const existingXEnd = placement.grid_x + placement.width_units;
+    const existingYEnd = placement.grid_y + placement.depth_units;
+
+    // Check for overlap using AABB collision detection
+    if (
+      gridX < existingXEnd &&
+      newXEnd > placement.grid_x &&
+      gridY < existingYEnd &&
+      newYEnd > placement.grid_y
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export default function GridfinityEditorPage() {
   const params = useParams();
   const unitId = params.id as string;
@@ -625,10 +659,19 @@ export default function GridfinityEditorPage() {
                 <div className="grid grid-cols-4 gap-2">
                   {BIN_SIZE_PRESETS.filter(
                     (preset) =>
+                      // Check fits within grid bounds
                       pendingPlacement.gridX + preset.width <=
                         (unit?.grid_columns || 1) &&
                       pendingPlacement.gridY + preset.depth <=
-                        (unit?.grid_rows || 1)
+                        (unit?.grid_rows || 1) &&
+                      // Check doesn't overlap with other placements
+                      !checkPlacementOverlap(
+                        unit?.placements || [],
+                        pendingPlacement.gridX,
+                        pendingPlacement.gridY,
+                        preset.width,
+                        preset.depth
+                      )
                   ).map((preset) => {
                     const isRecommended =
                       preset.width ===
@@ -741,6 +784,22 @@ export default function GridfinityEditorPage() {
                   })}
                 </p>
               </div>
+
+              {/* Overlap warning */}
+              {checkPlacementOverlap(
+                unit?.placements || [],
+                pendingPlacement.gridX,
+                pendingPlacement.gridY,
+                pendingPlacement.widthUnits,
+                pendingPlacement.depthUnits
+              ) && (
+                <div className="flex items-center gap-2 rounded-lg border border-destructive bg-destructive/10 p-3">
+                  <AlertCircle className="h-4 w-4 text-destructive" />
+                  <p className="text-sm text-destructive">
+                    {t("placementDialog.overlapWarning")}
+                  </p>
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>
@@ -749,7 +808,17 @@ export default function GridfinityEditorPage() {
             </Button>
             <Button
               onClick={handleConfirmPlacement}
-              disabled={createPlacementMutation.isPending}
+              disabled={
+                createPlacementMutation.isPending ||
+                (pendingPlacement !== null &&
+                  checkPlacementOverlap(
+                    unit?.placements || [],
+                    pendingPlacement.gridX,
+                    pendingPlacement.gridY,
+                    pendingPlacement.widthUnits,
+                    pendingPlacement.depthUnits
+                  ))
+              }
             >
               {createPlacementMutation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -780,10 +849,20 @@ export default function GridfinityEditorPage() {
                 <div className="grid grid-cols-4 gap-2">
                   {BIN_SIZE_PRESETS.filter(
                     (preset) =>
+                      // Check fits within grid bounds
                       editingPlacement.placement.grid_x + preset.width <=
                         (unit?.grid_columns || 1) &&
                       editingPlacement.placement.grid_y + preset.depth <=
-                        (unit?.grid_rows || 1)
+                        (unit?.grid_rows || 1) &&
+                      // Check doesn't overlap with other placements
+                      !checkPlacementOverlap(
+                        unit?.placements || [],
+                        editingPlacement.placement.grid_x,
+                        editingPlacement.placement.grid_y,
+                        preset.width,
+                        preset.depth,
+                        editingPlacement.placement.id
+                      )
                   ).map((preset) => {
                     const isSelected =
                       preset.width === editingPlacement.widthUnits &&
@@ -887,6 +966,23 @@ export default function GridfinityEditorPage() {
                   })}
                 </p>
               </div>
+
+              {/* Overlap warning */}
+              {checkPlacementOverlap(
+                unit?.placements || [],
+                editingPlacement.placement.grid_x,
+                editingPlacement.placement.grid_y,
+                editingPlacement.widthUnits,
+                editingPlacement.depthUnits,
+                editingPlacement.placement.id
+              ) && (
+                <div className="flex items-center gap-2 rounded-lg border border-destructive bg-destructive/10 p-3">
+                  <AlertCircle className="h-4 w-4 text-destructive" />
+                  <p className="text-sm text-destructive">
+                    {t("editPlacementDialog.overlapWarning")}
+                  </p>
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>
@@ -895,7 +991,18 @@ export default function GridfinityEditorPage() {
             </Button>
             <Button
               onClick={handleConfirmEditPlacement}
-              disabled={updatePlacementMutation.isPending}
+              disabled={
+                updatePlacementMutation.isPending ||
+                (editingPlacement !== null &&
+                  checkPlacementOverlap(
+                    unit?.placements || [],
+                    editingPlacement.placement.grid_x,
+                    editingPlacement.placement.grid_y,
+                    editingPlacement.widthUnits,
+                    editingPlacement.depthUnits,
+                    editingPlacement.placement.id
+                  ))
+              }
             >
               {updatePlacementMutation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

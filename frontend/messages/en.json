@@ -716,11 +716,13 @@
       "width": "Width",
       "depth": "Depth",
       "preview": "{width}×{depth} grid units ({widthMm}×{depthMm}mm)",
-      "place": "Place Item"
+      "place": "Place Item",
+      "overlapWarning": "This size would overlap with an existing bin. Choose a smaller size."
     },
     "editPlacementDialog": {
       "title": "Edit Bin Size",
-      "description": "Adjust the bin size for this placement"
+      "description": "Adjust the bin size for this placement",
+      "overlapWarning": "This size would overlap with another bin. Choose a smaller size."
     }
   },
   "labels": {
