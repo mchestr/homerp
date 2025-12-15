@@ -117,9 +117,9 @@ test.describe("Items", () => {
       await page.getByTestId("view-mode-list").click();
       await expect(page.getByTestId("items-list-view")).toBeVisible();
 
-      // Verify localStorage
+      // Verify localStorage (key is prefixed with "homerp:")
       const viewMode = await page.evaluate(() =>
-        localStorage.getItem("items-view-mode")
+        localStorage.getItem("homerp:items-view-mode")
       );
       expect(viewMode).toBe('"list"');
 
