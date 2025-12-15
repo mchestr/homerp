@@ -650,11 +650,15 @@ export default function GridfinityEditorPage() {
                           isRecommended && !isSelected && "border-primary"
                         )}
                         onClick={() =>
-                          setPendingPlacement({
-                            ...pendingPlacement,
-                            widthUnits: preset.width,
-                            depthUnits: preset.depth,
-                          })
+                          setPendingPlacement((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  widthUnits: preset.width,
+                                  depthUnits: preset.depth,
+                                }
+                              : prev
+                          )
                         }
                       >
                         {preset.label}
@@ -682,10 +686,17 @@ export default function GridfinityEditorPage() {
                       const value = parseInt(e.target.value) || 1;
                       const maxWidth =
                         (unit?.grid_columns || 1) - pendingPlacement.gridX;
-                      setPendingPlacement({
-                        ...pendingPlacement,
-                        widthUnits: Math.max(1, Math.min(value, maxWidth)),
-                      });
+                      setPendingPlacement((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              widthUnits: Math.max(
+                                1,
+                                Math.min(value, maxWidth)
+                              ),
+                            }
+                          : prev
+                      );
                     }}
                   />
                 </div>
@@ -701,10 +712,17 @@ export default function GridfinityEditorPage() {
                       const value = parseInt(e.target.value) || 1;
                       const maxDepth =
                         (unit?.grid_rows || 1) - pendingPlacement.gridY;
-                      setPendingPlacement({
-                        ...pendingPlacement,
-                        depthUnits: Math.max(1, Math.min(value, maxDepth)),
-                      });
+                      setPendingPlacement((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              depthUnits: Math.max(
+                                1,
+                                Math.min(value, maxDepth)
+                              ),
+                            }
+                          : prev
+                      );
                     }}
                   />
                 </div>
@@ -776,11 +794,15 @@ export default function GridfinityEditorPage() {
                         variant={isSelected ? "default" : "outline"}
                         size="sm"
                         onClick={() =>
-                          setEditingPlacement({
-                            ...editingPlacement,
-                            widthUnits: preset.width,
-                            depthUnits: preset.depth,
-                          })
+                          setEditingPlacement((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  widthUnits: preset.width,
+                                  depthUnits: preset.depth,
+                                }
+                              : prev
+                          )
                         }
                       >
                         {preset.label}
@@ -807,10 +829,17 @@ export default function GridfinityEditorPage() {
                       const maxWidth =
                         (unit?.grid_columns || 1) -
                         editingPlacement.placement.grid_x;
-                      setEditingPlacement({
-                        ...editingPlacement,
-                        widthUnits: Math.max(1, Math.min(value, maxWidth)),
-                      });
+                      setEditingPlacement((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              widthUnits: Math.max(
+                                1,
+                                Math.min(value, maxWidth)
+                              ),
+                            }
+                          : prev
+                      );
                     }}
                   />
                 </div>
@@ -829,10 +858,17 @@ export default function GridfinityEditorPage() {
                       const maxDepth =
                         (unit?.grid_rows || 1) -
                         editingPlacement.placement.grid_y;
-                      setEditingPlacement({
-                        ...editingPlacement,
-                        depthUnits: Math.max(1, Math.min(value, maxDepth)),
-                      });
+                      setEditingPlacement((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              depthUnits: Math.max(
+                                1,
+                                Math.min(value, maxDepth)
+                              ),
+                            }
+                          : prev
+                      );
                     }}
                   />
                 </div>
