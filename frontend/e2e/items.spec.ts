@@ -423,25 +423,16 @@ test.describe("Items", () => {
       await expect(item1).toBeVisible();
       await expect(item2).toBeVisible();
 
-      // Scroll similar items into view to ensure images load (especially on mobile)
-      await item1.scrollIntoViewIfNeeded();
-      await item2.scrollIntoViewIfNeeded();
+      // Wait for the images inside similar items to actually render
+      // The AuthenticatedImage shows a loading placeholder first, then the img once loaded
+      const img1 = item1.locator("img");
+      const img2 = item2.locator("img");
+      await expect(img1).toBeVisible({ timeout: 10000 });
+      await expect(img2).toBeVisible({ timeout: 10000 });
 
-      // Wait for images to load - the AuthenticatedImage component makes async signed-url requests
-      await page.waitForResponse(
-        (resp) =>
-          resp.url().includes("/signed-url") &&
-          resp.url().includes("img-similar"),
-        { timeout: 10000 }
-      );
-
-      // Verify the similar item names are shown (scroll into view first for mobile)
-      const name1 = page.getByText("Arduino Uno Clone");
-      const name2 = page.getByText("Arduino Nano");
-      await name1.scrollIntoViewIfNeeded();
-      await expect(name1).toBeVisible();
-      await name2.scrollIntoViewIfNeeded();
-      await expect(name2).toBeVisible();
+      // Verify the similar item names are shown
+      await expect(page.getByText("Arduino Uno Clone")).toBeVisible();
+      await expect(page.getByText("Arduino Nano")).toBeVisible();
 
       // Verify that signed-url endpoints were called (proving AuthenticatedImage is used)
       // This is the key assertion - if direct <img> tags were used, this would be empty
