@@ -393,6 +393,7 @@
     "freeMonthly": "Kostenlos (monatlich)",
     "resetsOn": "Wird zurückgesetzt am {date}",
     "identifyItemCost": "Artikel identifizieren (1 Credit)",
+    "identifyItemCostMultiple": "Artikel identifizieren ({count, plural, one {1 Credit} other {# Credits}})",
     "reclassifyCost": "Neu klassifizieren (1 Credit)",
     "analyzing": "Analysieren...",
     "creditTooltipTitle": "KI-Credits",

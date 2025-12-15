@@ -280,7 +280,7 @@ class TestImageIsolation:
         """User should not be able to classify images owned by another user."""
         response = await authenticated_client.post(
             "/api/v1/images/classify",
-            json={"image_id": str(second_user_image.id)},
+            json={"image_ids": [str(second_user_image.id)]},
         )
 
         # Should fail with 404 (image not found for this user)

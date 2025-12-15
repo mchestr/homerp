@@ -158,23 +158,27 @@ class AIClassificationService:
         """Get the prompt template manager."""
         return self._template_manager
 
-    async def classify_image(
+    async def classify_images(
         self,
-        image_data: bytes,
-        mime_type: str = "image/jpeg",
+        images: list[tuple[bytes, str]],
         custom_prompt: str | None = None,
     ) -> ClassificationResult:
         """
-        Classify an image using GPT-4 Vision.
+        Classify one or more images using GPT-4 Vision.
+
+        Multiple images are sent together in a single request, allowing the AI
+        to see different angles/views of the same item for better identification.
 
         Args:
-            image_data: Raw image bytes
-            mime_type: MIME type of the image
+            images: List of tuples containing (image_data, mime_type)
             custom_prompt: Optional user-supplied prompt to augment the AI request
 
         Returns:
             ClassificationResult with identified item details
         """
+        if not images:
+            raise ValueError("At least one image is required")
+
         # Get prompts from templates
         system_prompt = self._template_manager.get_system_prompt(
             TEMPLATE_ITEM_CLASSIFICATION
@@ -183,14 +187,34 @@ class AIClassificationService:
             TEMPLATE_ITEM_CLASSIFICATION
         )
 
+        # Add multi-image context if multiple images provided
+        if len(images) > 1:
+            user_prompt = (
+                f"{user_prompt}\n\nNote: You are being shown {len(images)} images "
+                "of the same item from different angles. Use all images together "
+                "to make the most accurate identification."
+            )
+
         # Append custom prompt if provided
         if custom_prompt:
             user_prompt = (
                 f"{user_prompt}\n\nAdditional context from the user:\n{custom_prompt}"
             )
 
-        # Encode image to base64
-        base64_image = base64.b64encode(image_data).decode("utf-8")
+        # Build content array with text prompt and all images
+        content: list[dict[str, Any]] = [{"type": "text", "text": user_prompt}]
+
+        for image_data, mime_type in images:
+            base64_image = base64.b64encode(image_data).decode("utf-8")
+            content.append(
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:{mime_type};base64,{base64_image}",
+                        "detail": "high",
+                    },
+                }
+            )
 
         # Call OpenAI API
         response = await self.client.chat.completions.create(
@@ -199,40 +223,35 @@ class AIClassificationService:
                 {"role": "system", "content": system_prompt},
                 {
                     "role": "user",
-                    "content": [
-                        {"type": "text", "text": user_prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:{mime_type};base64,{base64_image}",
-                                "detail": "high",
-                            },
-                        },
-                    ],
+                    "content": content,
                 },
             ],
             max_tokens=1000,
         )
 
         # Parse response
-        content = response.choices[0].message.content or "{}"
+        response_content = response.choices[0].message.content or "{}"
 
         # Try to extract JSON from the response
         try:
             # Handle case where response might have markdown code blocks
-            if "```json" in content:
-                content = content.split("```json")[1].split("```")[0].strip()
-            elif "```" in content:
-                content = content.split("```")[1].split("```")[0].strip()
+            if "```json" in response_content:
+                response_content = (
+                    response_content.split("```json")[1].split("```")[0].strip()
+                )
+            elif "```" in response_content:
+                response_content = (
+                    response_content.split("```")[1].split("```")[0].strip()
+                )
 
-            data = json.loads(content)
+            data = json.loads(response_content)
         except json.JSONDecodeError:
             # Fallback if parsing fails
             data = {
                 "identified_name": "Unknown Item",
                 "confidence": 0.0,
                 "category_path": "Uncategorized",
-                "description": content,
+                "description": response_content,
                 "specifications": {},
             }
 
@@ -244,6 +263,30 @@ class AIClassificationService:
             specifications=data.get("specifications", {}),
             alternative_suggestions=data.get("alternative_suggestions"),
             quantity_estimate=data.get("quantity_estimate"),
+        )
+
+    async def classify_image(
+        self,
+        image_data: bytes,
+        mime_type: str = "image/jpeg",
+        custom_prompt: str | None = None,
+    ) -> ClassificationResult:
+        """
+        Classify a single image using GPT-4 Vision.
+
+        This is a convenience wrapper around classify_images for single-image use.
+
+        Args:
+            image_data: Raw image bytes
+            mime_type: MIME type of the image
+            custom_prompt: Optional user-supplied prompt to augment the AI request
+
+        Returns:
+            ClassificationResult with identified item details
+        """
+        return await self.classify_images(
+            images=[(image_data, mime_type)],
+            custom_prompt=custom_prompt,
         )
 
     def create_item_prefill(

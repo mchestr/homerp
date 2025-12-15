@@ -439,10 +439,10 @@ export const imagesApi = {
   upload: (file: File) =>
     uploadFile("/api/v1/images/upload", file) as Promise<ImageUpload>,
 
-  classify: (imageId: string, customPrompt?: string) =>
+  classify: (imageIds: string[], customPrompt?: string) =>
     apiRequest<ClassificationResponse>("/api/v1/images/classify", {
       method: "POST",
-      body: { image_id: imageId, custom_prompt: customPrompt || null },
+      body: { image_ids: imageIds, custom_prompt: customPrompt || null },
     }),
 
   get: (id: string) => apiRequest<Image>(`/api/v1/images/${id}`),
@@ -838,6 +838,7 @@ export type ClassificationResponse = {
   classification?: ClassificationResult;
   error?: string;
   create_item_prefill?: Record<string, unknown>;
+  credits_charged?: number;
 };
 
 // Billing Types

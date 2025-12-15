@@ -49,12 +49,7 @@ export function MultiImageUpload({
 }: MultiImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [isClassifying, setIsClassifying] = useState(false);
-  const [classifyingImageId, setClassifyingImageId] = useState<string | null>(
-    null
-  );
-  const [classifiedImageIds, setClassifiedImageIds] = useState<Set<string>>(
-    new Set()
-  );
+  const [allClassified, setAllClassified] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [customPrompt, setCustomPrompt] = useState("");
@@ -71,6 +66,14 @@ export function MultiImageUpload({
     (img) => img.id === selectedImageId
   );
   const currentImage = selectedImage || uploadedImages[0];
+
+  // Check if images need classification (not already processed and not yet classified in this session)
+  const unclassifiedImages = uploadedImages.filter((img) => !img.aiProcessed);
+  const needsClassification =
+    !allClassified &&
+    unclassifiedImages.length > 0 &&
+    uploadedImages.length > 0;
+  const creditCost = uploadedImages.length;
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,51 +137,51 @@ export function MultiImageUpload({
     ]
   );
 
-  const handleClassify = useCallback(
-    async (imageId: string) => {
-      setIsClassifying(true);
-      setClassifyingImageId(imageId);
-      setError(null);
+  const handleClassifyAll = useCallback(async () => {
+    if (uploadedImages.length === 0) return;
 
-      try {
-        const response = await imagesApi.classify(
-          imageId,
-          customPrompt.trim() || undefined
-        );
-        if (response.success && response.classification) {
-          onClassificationComplete(response.classification);
-          setClassifiedImageIds((prev) => new Set([...prev, imageId]));
-          refreshCredits();
-          setCustomPrompt("");
-          setIsPromptExpanded(false);
-        } else {
-          setError(response.error || tImages("classificationFailed"));
-        }
-      } catch (err: unknown) {
-        console.error("Classification error:", err);
-        if (
-          err &&
-          typeof err === "object" &&
-          "status" in err &&
-          (err as { status: number }).status === 402
-        ) {
-          showInsufficientCredits();
-        } else {
-          setError(tImages("classifyFailed"));
-        }
-      } finally {
-        setIsClassifying(false);
-        setClassifyingImageId(null);
+    setIsClassifying(true);
+    setError(null);
+
+    try {
+      // Send all image IDs together for classification
+      const imageIds = uploadedImages.map((img) => img.id);
+      const response = await imagesApi.classify(
+        imageIds,
+        customPrompt.trim() || undefined
+      );
+      if (response.success && response.classification) {
+        onClassificationComplete(response.classification);
+        setAllClassified(true);
+        refreshCredits();
+        setCustomPrompt("");
+        setIsPromptExpanded(false);
+      } else {
+        setError(response.error || tImages("classificationFailed"));
       }
-    },
-    [
-      onClassificationComplete,
-      showInsufficientCredits,
-      refreshCredits,
-      customPrompt,
-      tImages,
-    ]
-  );
+    } catch (err: unknown) {
+      console.error("Classification error:", err);
+      if (
+        err &&
+        typeof err === "object" &&
+        "status" in err &&
+        (err as { status: number }).status === 402
+      ) {
+        showInsufficientCredits();
+      } else {
+        setError(tImages("classifyFailed"));
+      }
+    } finally {
+      setIsClassifying(false);
+    }
+  }, [
+    uploadedImages,
+    onClassificationComplete,
+    showInsufficientCredits,
+    refreshCredits,
+    customPrompt,
+    tImages,
+  ]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -279,8 +282,7 @@ export function MultiImageUpload({
           >
             <X className="h-4 w-4" />
           </button>
-          {currentImage.aiProcessed ||
-          classifiedImageIds.has(currentImage.id) ? (
+          {allClassified || currentImage.aiProcessed ? (
             <div className="absolute bottom-4 right-4 flex items-center gap-1.5 rounded-md bg-emerald-500 px-3 py-1.5 text-sm font-medium text-white shadow-lg">
               <CheckCircle2 className="h-4 w-4" />
               {tImages("identified")}
@@ -288,13 +290,13 @@ export function MultiImageUpload({
           ) : (
             <Button
               type="button"
-              onClick={() => handleClassify(currentImage.id)}
+              onClick={handleClassifyAll}
               disabled={isClassifying}
               size="sm"
               className="absolute bottom-4 right-4 gap-2 shadow-lg"
               data-testid="classify-button"
             >
-              {isClassifying && classifyingImageId === currentImage.id ? (
+              {isClassifying ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
                   {t("analyzing")}
@@ -302,7 +304,7 @@ export function MultiImageUpload({
               ) : (
                 <>
                   <Sparkles className="h-4 w-4" />
-                  {t("identifyItemCost")}
+                  {t("identifyItemCostMultiple", { count: creditCost })}
                 </>
               )}
             </Button>
@@ -453,39 +455,37 @@ export function MultiImageUpload({
       )}
 
       {/* Custom prompt section */}
-      {currentImage &&
-        !currentImage.aiProcessed &&
-        !classifiedImageIds.has(currentImage.id) && (
-          <div className="rounded-lg border bg-card">
-            <button
-              type="button"
-              onClick={() => setIsPromptExpanded(!isPromptExpanded)}
-              className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium hover:bg-muted/50"
-              data-testid="custom-prompt-toggle"
-            >
-              <span>{tImages("customPrompt.title")}</span>
-              {isPromptExpanded ? (
-                <ChevronUp className="h-4 w-4 text-muted-foreground" />
-              ) : (
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              )}
-            </button>
-            {isPromptExpanded && (
-              <div className="border-t px-4 pb-4 pt-3">
-                <p className="mb-2 text-xs text-muted-foreground">
-                  {tImages("customPrompt.description")}
-                </p>
-                <Textarea
-                  value={customPrompt}
-                  onChange={(e) => setCustomPrompt(e.target.value)}
-                  placeholder={tImages("customPrompt.placeholder")}
-                  className="min-h-[80px] resize-none text-sm"
-                  data-testid="custom-prompt-textarea"
-                />
-              </div>
+      {needsClassification && (
+        <div className="rounded-lg border bg-card">
+          <button
+            type="button"
+            onClick={() => setIsPromptExpanded(!isPromptExpanded)}
+            className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium hover:bg-muted/50"
+            data-testid="custom-prompt-toggle"
+          >
+            <span>{tImages("customPrompt.title")}</span>
+            {isPromptExpanded ? (
+              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
             )}
-          </div>
-        )}
+          </button>
+          {isPromptExpanded && (
+            <div className="border-t px-4 pb-4 pt-3">
+              <p className="mb-2 text-xs text-muted-foreground">
+                {tImages("customPrompt.description")}
+              </p>
+              <Textarea
+                value={customPrompt}
+                onChange={(e) => setCustomPrompt(e.target.value)}
+                placeholder={tImages("customPrompt.placeholder")}
+                className="min-h-[80px] resize-none text-sm"
+                data-testid="custom-prompt-textarea"
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       {error && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
