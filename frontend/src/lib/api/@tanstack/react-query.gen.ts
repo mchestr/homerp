@@ -10,6 +10,8 @@ import {
 
 import { client } from "../client.gen";
 import {
+  acceptInvitationApiV1CollaborationInvitationsAcceptPost,
+  acceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPost,
   adjustUserCreditsApiV1AdminUsersUserIdCreditsPost,
   analyzeLocationImageApiV1LocationsAnalyzeImagePost,
   attachImageToItemApiV1ImagesImageIdAttachItemIdPost,
@@ -33,6 +35,7 @@ import {
   createPlacementApiV1GridfinityUnitsUnitIdPlacementsPost,
   createPortalSessionApiV1BillingPortalPost,
   createUnitApiV1GridfinityUnitsPost,
+  declineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePost,
   deleteApiKeyApiV1AdminApikeysApiKeyIdDelete,
   deleteCategoryApiV1CategoriesCategoryIdDelete,
   deleteConfigApiV1WebhooksConfigsConfigIdDelete,
@@ -63,6 +66,7 @@ import {
   getImageFileApiV1ImagesImageIdFileGet,
   getImageSignedUrlApiV1ImagesImageIdSignedUrlGet,
   getImageThumbnailApiV1ImagesImageIdThumbnailGet,
+  getInventoryContextApiV1CollaborationContextGet,
   getItemApiV1ItemsItemIdGet,
   getItemFacetsApiV1ItemsFacetsGet,
   getItemHistoryApiV1ItemsItemIdHistoryGet,
@@ -78,17 +82,20 @@ import {
   getPackApiV1AdminPacksPackIdGet,
   getRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGet,
   getRecommendationsApiV1ProfileRecommendationsGet,
-  getSpringCleaningCostApiV1ProfileSpringCleaningCostGet,
+  getRecommendationsCostApiV1ProfileRecommendationsCostGet,
   getStatsApiV1AdminStatsGet,
   getUnitApiV1GridfinityUnitsUnitIdGet,
   getUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGet,
   getUserApiV1AdminUsersUserIdGet,
   handleWebhookApiV1BillingWebhookPost,
   healthCheckHealthGet,
+  inviteCollaboratorApiV1CollaborationCollaboratorsPost,
+  leaveSharedInventoryApiV1CollaborationSharedOwnerIdDelete,
   listAllFeedbackApiV1FeedbackAdminGet,
   listApiKeysApiV1AdminApikeysGet,
   listCategoriesApiV1CategoriesGet,
   listClassifiedImagesApiV1ImagesClassifiedGet,
+  listCollaboratorsApiV1CollaborationCollaboratorsGet,
   listConfigsApiV1WebhooksConfigsGet,
   listEventTypesApiV1WebhooksEventTypesGet,
   listExecutionsApiV1WebhooksExecutionsGet,
@@ -106,17 +113,19 @@ import {
   moveLocationApiV1LocationsLocationIdMovePatch,
   oauthCallbackApiV1AuthCallbackProviderGet,
   type Options,
+  queryAssistantApiV1AiQueryPost,
   recommendBinSizesApiV1GridfinityRecommendBinsPost,
   refreshTokenApiV1AuthRefreshPost,
+  removeCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDelete,
   requestRefundApiV1BillingRefundPost,
   resolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePut,
   retriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPost,
-  runSpringCleaningAuditApiV1ProfileSpringCleaningAuditPost,
   searchItemsApiV1ItemsSearchGet,
   suggestItemLocationApiV1ItemsSuggestLocationPost,
   testConfigApiV1WebhooksConfigsConfigIdTestPost,
   updateApiKeyApiV1AdminApikeysApiKeyIdPatch,
   updateCategoryApiV1CategoriesCategoryIdPut,
+  updateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPut,
   updateConfigApiV1WebhooksConfigsConfigIdPut,
   updateFeedbackApiV1FeedbackAdminFeedbackIdPut,
   updateItemApiV1ItemsItemIdPut,
@@ -132,6 +141,12 @@ import {
   uploadImageApiV1ImagesUploadPost,
 } from "../sdk.gen";
 import type {
+  AcceptInvitationApiV1CollaborationInvitationsAcceptPostData,
+  AcceptInvitationApiV1CollaborationInvitationsAcceptPostError,
+  AcceptInvitationApiV1CollaborationInvitationsAcceptPostResponse,
+  AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostData,
+  AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostError,
+  AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostResponse,
   AdjustUserCreditsApiV1AdminUsersUserIdCreditsPostData,
   AdjustUserCreditsApiV1AdminUsersUserIdCreditsPostError,
   AdjustUserCreditsApiV1AdminUsersUserIdCreditsPostResponse,
@@ -201,6 +216,9 @@ import type {
   CreateUnitApiV1GridfinityUnitsPostData,
   CreateUnitApiV1GridfinityUnitsPostError,
   CreateUnitApiV1GridfinityUnitsPostResponse,
+  DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostData,
+  DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostError,
+  DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostResponse,
   DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteData,
   DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteError,
   DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteResponse,
@@ -288,6 +306,9 @@ import type {
   GetImageSignedUrlApiV1ImagesImageIdSignedUrlGetResponse,
   GetImageThumbnailApiV1ImagesImageIdThumbnailGetData,
   GetImageThumbnailApiV1ImagesImageIdThumbnailGetError,
+  GetInventoryContextApiV1CollaborationContextGetData,
+  GetInventoryContextApiV1CollaborationContextGetError,
+  GetInventoryContextApiV1CollaborationContextGetResponse,
   GetItemApiV1ItemsItemIdGetData,
   GetItemApiV1ItemsItemIdGetError,
   GetItemApiV1ItemsItemIdGetResponse,
@@ -331,9 +352,9 @@ import type {
   GetRecommendationsApiV1ProfileRecommendationsGetData,
   GetRecommendationsApiV1ProfileRecommendationsGetError,
   GetRecommendationsApiV1ProfileRecommendationsGetResponse,
-  GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetData,
-  GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetError,
-  GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetResponse,
+  GetRecommendationsCostApiV1ProfileRecommendationsCostGetData,
+  GetRecommendationsCostApiV1ProfileRecommendationsCostGetError,
+  GetRecommendationsCostApiV1ProfileRecommendationsCostGetResponse,
   GetStatsApiV1AdminStatsGetData,
   GetStatsApiV1AdminStatsGetError,
   GetStatsApiV1AdminStatsGetResponse,
@@ -350,6 +371,12 @@ import type {
   HandleWebhookApiV1BillingWebhookPostError,
   HandleWebhookApiV1BillingWebhookPostResponse,
   HealthCheckHealthGetData,
+  InviteCollaboratorApiV1CollaborationCollaboratorsPostData,
+  InviteCollaboratorApiV1CollaborationCollaboratorsPostError,
+  InviteCollaboratorApiV1CollaborationCollaboratorsPostResponse,
+  LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteData,
+  LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteError,
+  LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteResponse,
   ListAllFeedbackApiV1FeedbackAdminGetData,
   ListAllFeedbackApiV1FeedbackAdminGetError,
   ListAllFeedbackApiV1FeedbackAdminGetResponse,
@@ -362,6 +389,9 @@ import type {
   ListClassifiedImagesApiV1ImagesClassifiedGetData,
   ListClassifiedImagesApiV1ImagesClassifiedGetError,
   ListClassifiedImagesApiV1ImagesClassifiedGetResponse,
+  ListCollaboratorsApiV1CollaborationCollaboratorsGetData,
+  ListCollaboratorsApiV1CollaborationCollaboratorsGetError,
+  ListCollaboratorsApiV1CollaborationCollaboratorsGetResponse,
   ListConfigsApiV1WebhooksConfigsGetData,
   ListConfigsApiV1WebhooksConfigsGetError,
   ListConfigsApiV1WebhooksConfigsGetResponse,
@@ -408,12 +438,18 @@ import type {
   OauthCallbackApiV1AuthCallbackProviderGetData,
   OauthCallbackApiV1AuthCallbackProviderGetError,
   OauthCallbackApiV1AuthCallbackProviderGetResponse,
+  QueryAssistantApiV1AiQueryPostData,
+  QueryAssistantApiV1AiQueryPostError,
+  QueryAssistantApiV1AiQueryPostResponse,
   RecommendBinSizesApiV1GridfinityRecommendBinsPostData,
   RecommendBinSizesApiV1GridfinityRecommendBinsPostError,
   RecommendBinSizesApiV1GridfinityRecommendBinsPostResponse,
   RefreshTokenApiV1AuthRefreshPostData,
   RefreshTokenApiV1AuthRefreshPostError,
   RefreshTokenApiV1AuthRefreshPostResponse,
+  RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteData,
+  RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteError,
+  RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteResponse,
   RequestRefundApiV1BillingRefundPostData,
   RequestRefundApiV1BillingRefundPostError,
   RequestRefundApiV1BillingRefundPostResponse,
@@ -423,9 +459,6 @@ import type {
   RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostData,
   RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostError,
   RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostResponse,
-  RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostData,
-  RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostError,
-  RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostResponse,
   SearchItemsApiV1ItemsSearchGetData,
   SearchItemsApiV1ItemsSearchGetError,
   SearchItemsApiV1ItemsSearchGetResponse,
@@ -441,6 +474,9 @@ import type {
   UpdateCategoryApiV1CategoriesCategoryIdPutData,
   UpdateCategoryApiV1CategoriesCategoryIdPutError,
   UpdateCategoryApiV1CategoriesCategoryIdPutResponse,
+  UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutData,
+  UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutError,
+  UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutResponse,
   UpdateConfigApiV1WebhooksConfigsConfigIdPutData,
   UpdateConfigApiV1WebhooksConfigsConfigIdPutError,
   UpdateConfigApiV1WebhooksConfigsConfigIdPutResponse,
@@ -932,6 +968,40 @@ export const getStatsApiV1AdminStatsGetOptions = (
     },
     queryKey: getStatsApiV1AdminStatsGetQueryKey(options),
   });
+
+/**
+ * Query Assistant
+ *
+ * Query the AI assistant with a prompt.
+ *
+ * The assistant can provide personalized suggestions based on your inventory,
+ * such as planting schedules, craft project ideas, organization tips, and more.
+ *
+ * Consumes 1 credit per query.
+ */
+export const queryAssistantApiV1AiQueryPostMutation = (
+  options?: Partial<Options<QueryAssistantApiV1AiQueryPostData>>
+): UseMutationOptions<
+  QueryAssistantApiV1AiQueryPostResponse,
+  QueryAssistantApiV1AiQueryPostError,
+  Options<QueryAssistantApiV1AiQueryPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    QueryAssistantApiV1AiQueryPostResponse,
+    QueryAssistantApiV1AiQueryPostError,
+    Options<QueryAssistantApiV1AiQueryPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await queryAssistantApiV1AiQueryPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
 
 export const listApiKeysApiV1AdminApikeysGetQueryKey = (
   options?: Options<ListApiKeysApiV1AdminApikeysGetData>
@@ -1946,6 +2016,7 @@ export const listItemsApiV1ItemsGetQueryKey = (
  *
  * Use no_category=true to filter items without any category assigned.
  * Use no_location=true to filter items without any location assigned.
+ * Use checked_out=true to filter items that are currently checked out.
  *
  * Filter by tags using ?tags=tag1&tags=tag2 (items must have ALL specified tags).
  * Filter by attributes using ?attr=key1:value1&attr=key2:value2.
@@ -1986,6 +2057,7 @@ export const listItemsApiV1ItemsGetInfiniteQueryKey = (
  *
  * Use no_category=true to filter items without any category assigned.
  * Use no_location=true to filter items without any location assigned.
+ * Use checked_out=true to filter items that are currently checked out.
  *
  * Filter by tags using ?tags=tag1&tags=tag2 (items must have ALL specified tags).
  * Filter by attributes using ?attr=key1:value1&attr=key2:value2.
@@ -2536,6 +2608,9 @@ export const updateItemQuantityApiV1ItemsItemIdQuantityPatchMutation = (
  * Check Out Item
  *
  * Record a check-out event for an item.
+ *
+ * Uses row-level locking to prevent race conditions where concurrent
+ * check-outs could exceed the available quantity.
  */
 export const checkOutItemApiV1ItemsItemIdCheckOutPostMutation = (
   options?: Partial<Options<CheckOutItemApiV1ItemsItemIdCheckOutPostData>>
@@ -2713,7 +2788,7 @@ export const listCategoriesApiV1CategoriesGetQueryKey = (
 /**
  * List Categories
  *
- * List all categories for the current user, ordered by hierarchy path.
+ * List all categories for the inventory context, ordered by hierarchy path.
  */
 export const listCategoriesApiV1CategoriesGetOptions = (
   options?: Options<ListCategoriesApiV1CategoriesGetData>
@@ -3036,7 +3111,7 @@ export const listLocationsApiV1LocationsGetQueryKey = (
 /**
  * List Locations
  *
- * List all locations for the current user, ordered by hierarchy path.
+ * List all locations for the inventory context, ordered by hierarchy path.
  */
 export const listLocationsApiV1LocationsGetOptions = (
   options?: Options<ListLocationsApiV1LocationsGetData>
@@ -4009,6 +4084,9 @@ export const getImageSignedUrlApiV1ImagesImageIdSignedUrlGetQueryKey = (
  * where Authorization headers cannot be sent.
  *
  * Set thumbnail=true to get a URL for the thumbnail version.
+ *
+ * Supports collaboration: when viewing a shared inventory, the signed URL
+ * will be generated for the inventory owner's images.
  */
 export const getImageSignedUrlApiV1ImagesImageIdSignedUrlGetOptions = (
   options: Options<GetImageSignedUrlApiV1ImagesImageIdSignedUrlGetData>
@@ -4279,12 +4357,54 @@ export const getRecommendationsApiV1ProfileRecommendationsGetOptions = (
     queryKey: getRecommendationsApiV1ProfileRecommendationsGetQueryKey(options),
   });
 
+export const getRecommendationsCostApiV1ProfileRecommendationsCostGetQueryKey =
+  (
+    options?: Options<GetRecommendationsCostApiV1ProfileRecommendationsCostGetData>
+  ) =>
+    createQueryKey(
+      "getRecommendationsCostApiV1ProfileRecommendationsCostGet",
+      options
+    );
+
+/**
+ * Get Recommendations Cost
+ *
+ * Get the cost estimate for generating declutter suggestions.
+ *
+ * Returns the number of credits required based on items to analyze.
+ * Cost is 1 credit per 50 items, with a minimum of 1 credit.
+ */
+export const getRecommendationsCostApiV1ProfileRecommendationsCostGetOptions = (
+  options?: Options<GetRecommendationsCostApiV1ProfileRecommendationsCostGetData>
+) =>
+  queryOptions<
+    GetRecommendationsCostApiV1ProfileRecommendationsCostGetResponse,
+    GetRecommendationsCostApiV1ProfileRecommendationsCostGetError,
+    GetRecommendationsCostApiV1ProfileRecommendationsCostGetResponse,
+    ReturnType<
+      typeof getRecommendationsCostApiV1ProfileRecommendationsCostGetQueryKey
+    >
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } =
+        await getRecommendationsCostApiV1ProfileRecommendationsCostGet({
+          ...options,
+          ...queryKey[0],
+          signal,
+          throwOnError: true,
+        });
+      return data;
+    },
+    queryKey:
+      getRecommendationsCostApiV1ProfileRecommendationsCostGetQueryKey(options),
+  });
+
 /**
  * Generate Recommendations
  *
- * Generate new purge recommendations using AI.
+ * Generate new declutter suggestions using AI.
  *
- * This endpoint requires 1 credit to generate recommendations.
+ * Credit cost is based on items_to_analyze: 1 credit per 50 items (minimum 1).
  */
 export const generateRecommendationsApiV1ProfileRecommendationsGeneratePostMutation =
   (
@@ -4378,87 +4498,6 @@ export const updateRecommendationApiV1ProfileRecommendationsRecommendationIdPatc
               throwOnError: true,
             }
           );
-        return data;
-      },
-    };
-    return mutationOptions;
-  };
-
-export const getSpringCleaningCostApiV1ProfileSpringCleaningCostGetQueryKey = (
-  options?: Options<GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetData>
-) =>
-  createQueryKey(
-    "getSpringCleaningCostApiV1ProfileSpringCleaningCostGet",
-    options
-  );
-
-/**
- * Get Spring Cleaning Cost
- *
- * Get the cost estimate for a spring cleaning audit.
- *
- * Returns the number of credits required based on inventory size.
- * Cost is 1 credit per 50 items, with a minimum of 1 credit.
- */
-export const getSpringCleaningCostApiV1ProfileSpringCleaningCostGetOptions = (
-  options?: Options<GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetData>
-) =>
-  queryOptions<
-    GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetResponse,
-    GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetError,
-    GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetResponse,
-    ReturnType<
-      typeof getSpringCleaningCostApiV1ProfileSpringCleaningCostGetQueryKey
-    >
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } =
-        await getSpringCleaningCostApiV1ProfileSpringCleaningCostGet({
-          ...options,
-          ...queryKey[0],
-          signal,
-          throwOnError: true,
-        });
-      return data;
-    },
-    queryKey:
-      getSpringCleaningCostApiV1ProfileSpringCleaningCostGetQueryKey(options),
-  });
-
-/**
- * Run Spring Cleaning Audit
- *
- * Run a comprehensive spring cleaning audit of the entire inventory.
- *
- * This is an enhanced version of generate_recommendations that:
- * - Analyzes all items in the inventory
- * - Charges credits based on inventory size (1 credit per 50 items)
- * - Returns more comprehensive recommendations
- *
- * The credit cost is calculated as 1 credit per 50 items, minimum 1 credit.
- */
-export const runSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostMutation =
-  (
-    options?: Partial<
-      Options<RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostData>
-    >
-  ): UseMutationOptions<
-    RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostResponse,
-    RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostError,
-    Options<RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostData>
-  > => {
-    const mutationOptions: UseMutationOptions<
-      RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostResponse,
-      RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostError,
-      Options<RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostData>
-    > = {
-      mutationFn: async (fnOptions) => {
-        const { data } =
-          await runSpringCleaningAuditApiV1ProfileSpringCleaningAuditPost({
-            ...options,
-            ...fnOptions,
-            throwOnError: true,
-          });
         return data;
       },
     };
@@ -4753,3 +4792,308 @@ export const listExecutionsApiV1WebhooksExecutionsGetInfiniteOptions = (
         listExecutionsApiV1WebhooksExecutionsGetInfiniteQueryKey(options),
     }
   );
+
+export const getInventoryContextApiV1CollaborationContextGetQueryKey = (
+  options?: Options<GetInventoryContextApiV1CollaborationContextGetData>
+) => createQueryKey("getInventoryContextApiV1CollaborationContextGet", options);
+
+/**
+ * Get Inventory Context
+ *
+ * Get the user's inventory context including own and shared inventories.
+ */
+export const getInventoryContextApiV1CollaborationContextGetOptions = (
+  options?: Options<GetInventoryContextApiV1CollaborationContextGetData>
+) =>
+  queryOptions<
+    GetInventoryContextApiV1CollaborationContextGetResponse,
+    GetInventoryContextApiV1CollaborationContextGetError,
+    GetInventoryContextApiV1CollaborationContextGetResponse,
+    ReturnType<typeof getInventoryContextApiV1CollaborationContextGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getInventoryContextApiV1CollaborationContextGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getInventoryContextApiV1CollaborationContextGetQueryKey(options),
+  });
+
+export const listCollaboratorsApiV1CollaborationCollaboratorsGetQueryKey = (
+  options?: Options<ListCollaboratorsApiV1CollaborationCollaboratorsGetData>
+) =>
+  createQueryKey(
+    "listCollaboratorsApiV1CollaborationCollaboratorsGet",
+    options
+  );
+
+/**
+ * List Collaborators
+ *
+ * List all collaborators for the current user's inventory.
+ */
+export const listCollaboratorsApiV1CollaborationCollaboratorsGetOptions = (
+  options?: Options<ListCollaboratorsApiV1CollaborationCollaboratorsGetData>
+) =>
+  queryOptions<
+    ListCollaboratorsApiV1CollaborationCollaboratorsGetResponse,
+    ListCollaboratorsApiV1CollaborationCollaboratorsGetError,
+    ListCollaboratorsApiV1CollaborationCollaboratorsGetResponse,
+    ReturnType<
+      typeof listCollaboratorsApiV1CollaborationCollaboratorsGetQueryKey
+    >
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } =
+        await listCollaboratorsApiV1CollaborationCollaboratorsGet({
+          ...options,
+          ...queryKey[0],
+          signal,
+          throwOnError: true,
+        });
+      return data;
+    },
+    queryKey:
+      listCollaboratorsApiV1CollaborationCollaboratorsGetQueryKey(options),
+  });
+
+/**
+ * Invite Collaborator
+ *
+ * Invite a new collaborator to the inventory.
+ */
+export const inviteCollaboratorApiV1CollaborationCollaboratorsPostMutation = (
+  options?: Partial<
+    Options<InviteCollaboratorApiV1CollaborationCollaboratorsPostData>
+  >
+): UseMutationOptions<
+  InviteCollaboratorApiV1CollaborationCollaboratorsPostResponse,
+  InviteCollaboratorApiV1CollaborationCollaboratorsPostError,
+  Options<InviteCollaboratorApiV1CollaborationCollaboratorsPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    InviteCollaboratorApiV1CollaborationCollaboratorsPostResponse,
+    InviteCollaboratorApiV1CollaborationCollaboratorsPostError,
+    Options<InviteCollaboratorApiV1CollaborationCollaboratorsPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } =
+        await inviteCollaboratorApiV1CollaborationCollaboratorsPost({
+          ...options,
+          ...fnOptions,
+          throwOnError: true,
+        });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Remove Collaborator
+ *
+ * Remove a collaborator from the inventory.
+ */
+export const removeCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteMutation =
+  (
+    options?: Partial<
+      Options<RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteData>
+    >
+  ): UseMutationOptions<
+    RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteResponse,
+    RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteError,
+    Options<RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteResponse,
+      RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteError,
+      Options<RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteData>
+    > = {
+      mutationFn: async (fnOptions) => {
+        const { data } =
+          await removeCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDelete(
+            {
+              ...options,
+              ...fnOptions,
+              throwOnError: true,
+            }
+          );
+        return data;
+      },
+    };
+    return mutationOptions;
+  };
+
+/**
+ * Update Collaborator
+ *
+ * Update a collaborator's role.
+ */
+export const updateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutMutation =
+  (
+    options?: Partial<
+      Options<UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutData>
+    >
+  ): UseMutationOptions<
+    UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutResponse,
+    UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutError,
+    Options<UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutResponse,
+      UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutError,
+      Options<UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutData>
+    > = {
+      mutationFn: async (fnOptions) => {
+        const { data } =
+          await updateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPut(
+            {
+              ...options,
+              ...fnOptions,
+              throwOnError: true,
+            }
+          );
+        return data;
+      },
+    };
+    return mutationOptions;
+  };
+
+/**
+ * Accept Invitation
+ *
+ * Accept a collaboration invitation using the token.
+ */
+export const acceptInvitationApiV1CollaborationInvitationsAcceptPostMutation = (
+  options?: Partial<
+    Options<AcceptInvitationApiV1CollaborationInvitationsAcceptPostData>
+  >
+): UseMutationOptions<
+  AcceptInvitationApiV1CollaborationInvitationsAcceptPostResponse,
+  AcceptInvitationApiV1CollaborationInvitationsAcceptPostError,
+  Options<AcceptInvitationApiV1CollaborationInvitationsAcceptPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AcceptInvitationApiV1CollaborationInvitationsAcceptPostResponse,
+    AcceptInvitationApiV1CollaborationInvitationsAcceptPostError,
+    Options<AcceptInvitationApiV1CollaborationInvitationsAcceptPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } =
+        await acceptInvitationApiV1CollaborationInvitationsAcceptPost({
+          ...options,
+          ...fnOptions,
+          throwOnError: true,
+        });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Accept Invitation By Id
+ *
+ * Accept a collaboration invitation by ID (for logged-in users).
+ */
+export const acceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostMutation =
+  (
+    options?: Partial<
+      Options<AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostData>
+    >
+  ): UseMutationOptions<
+    AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostResponse,
+    AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostError,
+    Options<AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostResponse,
+      AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostError,
+      Options<AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostData>
+    > = {
+      mutationFn: async (fnOptions) => {
+        const { data } =
+          await acceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPost(
+            {
+              ...options,
+              ...fnOptions,
+              throwOnError: true,
+            }
+          );
+        return data;
+      },
+    };
+    return mutationOptions;
+  };
+
+/**
+ * Decline Invitation
+ *
+ * Decline a collaboration invitation.
+ */
+export const declineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostMutation =
+  (
+    options?: Partial<
+      Options<DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostData>
+    >
+  ): UseMutationOptions<
+    DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostResponse,
+    DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostError,
+    Options<DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostResponse,
+      DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostError,
+      Options<DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostData>
+    > = {
+      mutationFn: async (fnOptions) => {
+        const { data } =
+          await declineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePost(
+            {
+              ...options,
+              ...fnOptions,
+              throwOnError: true,
+            }
+          );
+        return data;
+      },
+    };
+    return mutationOptions;
+  };
+
+/**
+ * Leave Shared Inventory
+ *
+ * Leave a shared inventory.
+ */
+export const leaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteMutation =
+  (
+    options?: Partial<
+      Options<LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteData>
+    >
+  ): UseMutationOptions<
+    LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteResponse,
+    LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteError,
+    Options<LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteResponse,
+      LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteError,
+      Options<LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteData>
+    > = {
+      mutationFn: async (fnOptions) => {
+        const { data } =
+          await leaveSharedInventoryApiV1CollaborationSharedOwnerIdDelete({
+            ...options,
+            ...fnOptions,
+            throwOnError: true,
+          });
+        return data;
+      },
+    };
+    return mutationOptions;
+  };

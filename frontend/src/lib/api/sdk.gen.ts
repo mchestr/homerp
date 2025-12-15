@@ -8,6 +8,12 @@ import {
 } from "./client";
 import { client } from "./client.gen";
 import type {
+  AcceptInvitationApiV1CollaborationInvitationsAcceptPostData,
+  AcceptInvitationApiV1CollaborationInvitationsAcceptPostErrors,
+  AcceptInvitationApiV1CollaborationInvitationsAcceptPostResponses,
+  AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostData,
+  AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostErrors,
+  AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostResponses,
   AdjustUserCreditsApiV1AdminUsersUserIdCreditsPostData,
   AdjustUserCreditsApiV1AdminUsersUserIdCreditsPostErrors,
   AdjustUserCreditsApiV1AdminUsersUserIdCreditsPostResponses,
@@ -77,6 +83,9 @@ import type {
   CreateUnitApiV1GridfinityUnitsPostData,
   CreateUnitApiV1GridfinityUnitsPostErrors,
   CreateUnitApiV1GridfinityUnitsPostResponses,
+  DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostData,
+  DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostErrors,
+  DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostResponses,
   DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteData,
   DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteErrors,
   DeleteApiKeyApiV1AdminApikeysApiKeyIdDeleteResponses,
@@ -166,6 +175,9 @@ import type {
   GetImageThumbnailApiV1ImagesImageIdThumbnailGetData,
   GetImageThumbnailApiV1ImagesImageIdThumbnailGetErrors,
   GetImageThumbnailApiV1ImagesImageIdThumbnailGetResponses,
+  GetInventoryContextApiV1CollaborationContextGetData,
+  GetInventoryContextApiV1CollaborationContextGetErrors,
+  GetInventoryContextApiV1CollaborationContextGetResponses,
   GetItemApiV1ItemsItemIdGetData,
   GetItemApiV1ItemsItemIdGetErrors,
   GetItemApiV1ItemsItemIdGetResponses,
@@ -211,9 +223,9 @@ import type {
   GetRecommendationsApiV1ProfileRecommendationsGetData,
   GetRecommendationsApiV1ProfileRecommendationsGetErrors,
   GetRecommendationsApiV1ProfileRecommendationsGetResponses,
-  GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetData,
-  GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetErrors,
-  GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetResponses,
+  GetRecommendationsCostApiV1ProfileRecommendationsCostGetData,
+  GetRecommendationsCostApiV1ProfileRecommendationsCostGetErrors,
+  GetRecommendationsCostApiV1ProfileRecommendationsCostGetResponses,
   GetStatsApiV1AdminStatsGetData,
   GetStatsApiV1AdminStatsGetErrors,
   GetStatsApiV1AdminStatsGetResponses,
@@ -231,6 +243,12 @@ import type {
   HandleWebhookApiV1BillingWebhookPostResponses,
   HealthCheckHealthGetData,
   HealthCheckHealthGetResponses,
+  InviteCollaboratorApiV1CollaborationCollaboratorsPostData,
+  InviteCollaboratorApiV1CollaborationCollaboratorsPostErrors,
+  InviteCollaboratorApiV1CollaborationCollaboratorsPostResponses,
+  LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteData,
+  LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteErrors,
+  LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteResponses,
   ListAllFeedbackApiV1FeedbackAdminGetData,
   ListAllFeedbackApiV1FeedbackAdminGetErrors,
   ListAllFeedbackApiV1FeedbackAdminGetResponses,
@@ -243,6 +261,9 @@ import type {
   ListClassifiedImagesApiV1ImagesClassifiedGetData,
   ListClassifiedImagesApiV1ImagesClassifiedGetErrors,
   ListClassifiedImagesApiV1ImagesClassifiedGetResponses,
+  ListCollaboratorsApiV1CollaborationCollaboratorsGetData,
+  ListCollaboratorsApiV1CollaborationCollaboratorsGetErrors,
+  ListCollaboratorsApiV1CollaborationCollaboratorsGetResponses,
   ListConfigsApiV1WebhooksConfigsGetData,
   ListConfigsApiV1WebhooksConfigsGetErrors,
   ListConfigsApiV1WebhooksConfigsGetResponses,
@@ -289,12 +310,18 @@ import type {
   OauthCallbackApiV1AuthCallbackProviderGetData,
   OauthCallbackApiV1AuthCallbackProviderGetErrors,
   OauthCallbackApiV1AuthCallbackProviderGetResponses,
+  QueryAssistantApiV1AiQueryPostData,
+  QueryAssistantApiV1AiQueryPostErrors,
+  QueryAssistantApiV1AiQueryPostResponses,
   RecommendBinSizesApiV1GridfinityRecommendBinsPostData,
   RecommendBinSizesApiV1GridfinityRecommendBinsPostErrors,
   RecommendBinSizesApiV1GridfinityRecommendBinsPostResponses,
   RefreshTokenApiV1AuthRefreshPostData,
   RefreshTokenApiV1AuthRefreshPostErrors,
   RefreshTokenApiV1AuthRefreshPostResponses,
+  RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteData,
+  RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteErrors,
+  RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteResponses,
   RequestRefundApiV1BillingRefundPostData,
   RequestRefundApiV1BillingRefundPostErrors,
   RequestRefundApiV1BillingRefundPostResponses,
@@ -304,9 +331,6 @@ import type {
   RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostData,
   RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostErrors,
   RetriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPostResponses,
-  RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostData,
-  RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostErrors,
-  RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostResponses,
   SearchItemsApiV1ItemsSearchGetData,
   SearchItemsApiV1ItemsSearchGetErrors,
   SearchItemsApiV1ItemsSearchGetResponses,
@@ -322,6 +346,9 @@ import type {
   UpdateCategoryApiV1CategoriesCategoryIdPutData,
   UpdateCategoryApiV1CategoriesCategoryIdPutErrors,
   UpdateCategoryApiV1CategoriesCategoryIdPutResponses,
+  UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutData,
+  UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutErrors,
+  UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutResponses,
   UpdateConfigApiV1WebhooksConfigsConfigIdPutData,
   UpdateConfigApiV1WebhooksConfigsConfigIdPutErrors,
   UpdateConfigApiV1WebhooksConfigsConfigIdPutResponses,
@@ -609,6 +636,35 @@ export const getStatsApiV1AdminStatsGet = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/stats",
     ...options,
+  });
+
+/**
+ * Query Assistant
+ *
+ * Query the AI assistant with a prompt.
+ *
+ * The assistant can provide personalized suggestions based on your inventory,
+ * such as planting schedules, craft project ideas, organization tips, and more.
+ *
+ * Consumes 1 credit per query.
+ */
+export const queryAssistantApiV1AiQueryPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<QueryAssistantApiV1AiQueryPostData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    QueryAssistantApiV1AiQueryPostResponses,
+    QueryAssistantApiV1AiQueryPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/ai/query",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**
@@ -1179,6 +1235,7 @@ export const retriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhoo
  *
  * Use no_category=true to filter items without any category assigned.
  * Use no_location=true to filter items without any location assigned.
+ * Use checked_out=true to filter items that are currently checked out.
  *
  * Filter by tags using ?tags=tag1&tags=tag2 (items must have ALL specified tags).
  * Filter by attributes using ?attr=key1:value1&attr=key2:value2.
@@ -1578,6 +1635,9 @@ export const updateItemQuantityApiV1ItemsItemIdQuantityPatch = <
  * Check Out Item
  *
  * Record a check-out event for an item.
+ *
+ * Uses row-level locking to prevent race conditions where concurrent
+ * check-outs could exceed the available quantity.
  */
 export const checkOutItemApiV1ItemsItemIdCheckOutPost = <
   ThrowOnError extends boolean = false,
@@ -1671,7 +1731,7 @@ export const getItemUsageStatsApiV1ItemsItemIdUsageStatsGet = <
 /**
  * List Categories
  *
- * List all categories for the current user, ordered by hierarchy path.
+ * List all categories for the inventory context, ordered by hierarchy path.
  */
 export const listCategoriesApiV1CategoriesGet = <
   ThrowOnError extends boolean = false,
@@ -1908,7 +1968,7 @@ export const moveCategoryApiV1CategoriesCategoryIdMovePatch = <
 /**
  * List Locations
  *
- * List all locations for the current user, ordered by hierarchy path.
+ * List all locations for the inventory context, ordered by hierarchy path.
  */
 export const listLocationsApiV1LocationsGet = <
   ThrowOnError extends boolean = false,
@@ -2599,6 +2659,9 @@ export const getImageApiV1ImagesImageIdGet = <
  * where Authorization headers cannot be sent.
  *
  * Set thumbnail=true to get a URL for the thumbnail version.
+ *
+ * Supports collaboration: when viewing a shared inventory, the signed URL
+ * will be generated for the inventory owner's images.
  */
 export const getImageSignedUrlApiV1ImagesImageIdSignedUrlGet = <
   ThrowOnError extends boolean = false,
@@ -2791,11 +2854,37 @@ export const getRecommendationsApiV1ProfileRecommendationsGet = <
   });
 
 /**
+ * Get Recommendations Cost
+ *
+ * Get the cost estimate for generating declutter suggestions.
+ *
+ * Returns the number of credits required based on items to analyze.
+ * Cost is 1 credit per 50 items, with a minimum of 1 credit.
+ */
+export const getRecommendationsCostApiV1ProfileRecommendationsCostGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    GetRecommendationsCostApiV1ProfileRecommendationsCostGetData,
+    ThrowOnError
+  >
+) =>
+  (options?.client ?? client).get<
+    GetRecommendationsCostApiV1ProfileRecommendationsCostGetResponses,
+    GetRecommendationsCostApiV1ProfileRecommendationsCostGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/profile/recommendations/cost",
+    ...options,
+  });
+
+/**
  * Generate Recommendations
  *
- * Generate new purge recommendations using AI.
+ * Generate new declutter suggestions using AI.
  *
- * This endpoint requires 1 credit to generate recommendations.
+ * Credit cost is based on items_to_analyze: 1 credit per 50 items (minimum 1).
  */
 export const generateRecommendationsApiV1ProfileRecommendationsGeneratePost = <
   ThrowOnError extends boolean = false,
@@ -2866,66 +2955,6 @@ export const updateRecommendationApiV1ProfileRecommendationsRecommendationIdPatc
         ...options.headers,
       },
     });
-
-/**
- * Get Spring Cleaning Cost
- *
- * Get the cost estimate for a spring cleaning audit.
- *
- * Returns the number of credits required based on inventory size.
- * Cost is 1 credit per 50 items, with a minimum of 1 credit.
- */
-export const getSpringCleaningCostApiV1ProfileSpringCleaningCostGet = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<
-    GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetData,
-    ThrowOnError
-  >
-) =>
-  (options?.client ?? client).get<
-    GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetResponses,
-    GetSpringCleaningCostApiV1ProfileSpringCleaningCostGetErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/profile/spring-cleaning/cost",
-    ...options,
-  });
-
-/**
- * Run Spring Cleaning Audit
- *
- * Run a comprehensive spring cleaning audit of the entire inventory.
- *
- * This is an enhanced version of generate_recommendations that:
- * - Analyzes all items in the inventory
- * - Charges credits based on inventory size (1 credit per 50 items)
- * - Returns more comprehensive recommendations
- *
- * The credit cost is calculated as 1 credit per 50 items, minimum 1 credit.
- */
-export const runSpringCleaningAuditApiV1ProfileSpringCleaningAuditPost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostData,
-    ThrowOnError
-  >
-) =>
-  (options.client ?? client).post<
-    RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostResponses,
-    RunSpringCleaningAuditApiV1ProfileSpringCleaningAuditPostErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/profile/spring-cleaning/audit",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
 
 /**
  * List Event Types
@@ -3105,5 +3134,220 @@ export const listExecutionsApiV1WebhooksExecutionsGet = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/webhooks/executions",
+    ...options,
+  });
+
+/**
+ * Get Inventory Context
+ *
+ * Get the user's inventory context including own and shared inventories.
+ */
+export const getInventoryContextApiV1CollaborationContextGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    GetInventoryContextApiV1CollaborationContextGetData,
+    ThrowOnError
+  >
+) =>
+  (options?.client ?? client).get<
+    GetInventoryContextApiV1CollaborationContextGetResponses,
+    GetInventoryContextApiV1CollaborationContextGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/collaboration/context",
+    ...options,
+  });
+
+/**
+ * List Collaborators
+ *
+ * List all collaborators for the current user's inventory.
+ */
+export const listCollaboratorsApiV1CollaborationCollaboratorsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    ListCollaboratorsApiV1CollaborationCollaboratorsGetData,
+    ThrowOnError
+  >
+) =>
+  (options?.client ?? client).get<
+    ListCollaboratorsApiV1CollaborationCollaboratorsGetResponses,
+    ListCollaboratorsApiV1CollaborationCollaboratorsGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/collaboration/collaborators",
+    ...options,
+  });
+
+/**
+ * Invite Collaborator
+ *
+ * Invite a new collaborator to the inventory.
+ */
+export const inviteCollaboratorApiV1CollaborationCollaboratorsPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    InviteCollaboratorApiV1CollaborationCollaboratorsPostData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).post<
+    InviteCollaboratorApiV1CollaborationCollaboratorsPostResponses,
+    InviteCollaboratorApiV1CollaborationCollaboratorsPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/collaboration/collaborators",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Remove Collaborator
+ *
+ * Remove a collaborator from the inventory.
+ */
+export const removeCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDelete =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteData,
+      ThrowOnError
+    >
+  ) =>
+    (options.client ?? client).delete<
+      RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteResponses,
+      RemoveCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDeleteErrors,
+      ThrowOnError
+    >({
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/collaboration/collaborators/{collaborator_id}",
+      ...options,
+    });
+
+/**
+ * Update Collaborator
+ *
+ * Update a collaborator's role.
+ */
+export const updateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPut =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutData,
+      ThrowOnError
+    >
+  ) =>
+    (options.client ?? client).put<
+      UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutResponses,
+      UpdateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPutErrors,
+      ThrowOnError
+    >({
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/collaboration/collaborators/{collaborator_id}",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
+
+/**
+ * Accept Invitation
+ *
+ * Accept a collaboration invitation using the token.
+ */
+export const acceptInvitationApiV1CollaborationInvitationsAcceptPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AcceptInvitationApiV1CollaborationInvitationsAcceptPostData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).post<
+    AcceptInvitationApiV1CollaborationInvitationsAcceptPostResponses,
+    AcceptInvitationApiV1CollaborationInvitationsAcceptPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/collaboration/invitations/accept",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Accept Invitation By Id
+ *
+ * Accept a collaboration invitation by ID (for logged-in users).
+ */
+export const acceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPost =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostData,
+      ThrowOnError
+    >
+  ) =>
+    (options.client ?? client).post<
+      AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostResponses,
+      AcceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPostErrors,
+      ThrowOnError
+    >({
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/collaboration/invitations/{invitation_id}/accept",
+      ...options,
+    });
+
+/**
+ * Decline Invitation
+ *
+ * Decline a collaboration invitation.
+ */
+export const declineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePost =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostData,
+      ThrowOnError
+    >
+  ) =>
+    (options.client ?? client).post<
+      DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostResponses,
+      DeclineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePostErrors,
+      ThrowOnError
+    >({
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/collaboration/invitations/{invitation_id}/decline",
+      ...options,
+    });
+
+/**
+ * Leave Shared Inventory
+ *
+ * Leave a shared inventory.
+ */
+export const leaveSharedInventoryApiV1CollaborationSharedOwnerIdDelete = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).delete<
+    LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteResponses,
+    LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/collaboration/shared/{owner_id}",
     ...options,
   });
