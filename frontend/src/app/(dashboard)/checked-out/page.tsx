@@ -13,6 +13,8 @@ import {
   AlertTriangle,
   ArrowRightFromLine,
   ArrowLeftFromLine,
+  LayoutGrid,
+  LayoutList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,9 +27,11 @@ import {
 } from "@/components/ui/dialog";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
 import { SpecificationTags } from "@/components/items/specification-tags";
+import { ViewModeToggle } from "@/components/ui/view-mode-toggle";
 import { itemsApi, ItemListItem, CheckInOutCreate } from "@/lib/api/api-client";
 import { formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
+import { useViewMode, type ViewMode } from "@/hooks/use-view-mode";
 
 export default function CheckedOutItemsPage() {
   const router = useRouter();
@@ -38,6 +42,12 @@ export default function CheckedOutItemsPage() {
   const tCommon = useTranslations("common");
   const tItems = useTranslations("items");
   const tCheckInOut = useTranslations("checkInOut");
+
+  const [viewMode, setViewMode] = useViewMode<ViewMode>(
+    "checked-out-view-mode",
+    "grid",
+    ["grid", "list"]
+  );
 
   const page = Number(searchParams.get("page")) || 1;
   const [searchQuery, setSearchQuery] = useState(
@@ -143,7 +153,7 @@ export default function CheckedOutItemsPage() {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="flex items-center gap-4">
         <form onSubmit={handleSearch} className="flex flex-1 gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -160,6 +170,22 @@ export default function CheckedOutItemsPage() {
             {tCommon("search")}
           </Button>
         </form>
+        <ViewModeToggle
+          value={viewMode}
+          onChange={setViewMode}
+          options={[
+            {
+              value: "grid",
+              icon: LayoutGrid,
+              label: tCommon("viewMode.grid"),
+            },
+            {
+              value: "list",
+              icon: LayoutList,
+              label: tCommon("viewMode.list"),
+            },
+          ]}
+        />
       </div>
 
       {isLoading ? (
@@ -188,85 +214,187 @@ export default function CheckedOutItemsPage() {
         </div>
       ) : (
         <>
-          <div
-            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-            data-testid="checked-out-items-grid"
-          >
-            {itemsData?.items.map((item) => (
-              <div
-                key={item.id}
-                className="group relative overflow-hidden rounded-xl border bg-card transition-all hover:border-primary/50 hover:shadow-lg"
-                data-testid={`checked-out-item-card-${item.id}`}
-              >
-                <Link href={`/items/${item.id}`}>
-                  <div className="relative aspect-square bg-muted">
-                    {item.primary_image_url ? (
-                      <AuthenticatedImage
-                        imageId={item.primary_image_url.split("/").at(-2)!}
-                        alt={item.name}
-                        thumbnail
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        fallback={
-                          <div className="flex h-full items-center justify-center">
-                            <Package className="h-16 w-16 text-muted-foreground/50" />
-                          </div>
-                        }
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center">
-                        <Package className="h-16 w-16 text-muted-foreground/50" />
-                      </div>
-                    )}
-                    {item.is_low_stock && (
-                      <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-medium text-white shadow-sm">
-                        <AlertTriangle className="h-3 w-3" />
-                        {tItems("lowStock")}
-                      </div>
-                    )}
-                  </div>
-                </Link>
-
-                <div className="p-4">
+          {viewMode === "grid" ? (
+            <div
+              className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              data-testid="checked-out-items-grid"
+            >
+              {itemsData?.items.map((item) => (
+                <div
+                  key={item.id}
+                  className="group relative overflow-hidden rounded-xl border bg-card transition-all hover:border-primary/50 hover:shadow-lg"
+                  data-testid={`checked-out-item-card-${item.id}`}
+                >
                   <Link href={`/items/${item.id}`}>
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="truncate font-semibold transition-colors group-hover:text-primary">
-                        {item.name}
-                      </h3>
-                      {item.price != null && (
-                        <span className="shrink-0 text-sm font-medium text-muted-foreground">
-                          {formatPrice(item.price, user?.currency)}
-                        </span>
+                    <div className="relative aspect-square bg-muted">
+                      {item.primary_image_url ? (
+                        <AuthenticatedImage
+                          imageId={item.primary_image_url.split("/").at(-2)!}
+                          alt={item.name}
+                          thumbnail
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          fallback={
+                            <div className="flex h-full items-center justify-center">
+                              <Package className="h-16 w-16 text-muted-foreground/50" />
+                            </div>
+                          }
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center">
+                          <Package className="h-16 w-16 text-muted-foreground/50" />
+                        </div>
+                      )}
+                      {item.is_low_stock && (
+                        <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-medium text-white shadow-sm">
+                          <AlertTriangle className="h-3 w-3" />
+                          {tItems("lowStock")}
+                        </div>
                       )}
                     </div>
-                    <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                      {item.category?.icon}{" "}
-                      {item.category?.name ?? tItems("uncategorized")}
-                    </p>
-                    <SpecificationTags
-                      attributes={item.attributes}
-                      maxCount={3}
-                      className="mt-2"
-                    />
                   </Link>
-                  <div className="mt-3 flex items-center justify-between">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={(e) => handleOpenCheckInDialog(e, item)}
-                      className="gap-1.5"
-                      data-testid={`check-in-button-${item.id}`}
-                    >
-                      <ArrowLeftFromLine className="h-4 w-4" />
-                      {tCheckInOut("checkIn")}
-                    </Button>
-                    <span className="truncate text-xs text-muted-foreground">
-                      {item.location?.name ?? tItems("noLocation")}
-                    </span>
+
+                  <div className="p-4">
+                    <Link href={`/items/${item.id}`}>
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="truncate font-semibold transition-colors group-hover:text-primary">
+                          {item.name}
+                        </h3>
+                        {item.price != null && (
+                          <span className="shrink-0 text-sm font-medium text-muted-foreground">
+                            {formatPrice(item.price, user?.currency)}
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-0.5 truncate text-sm text-muted-foreground">
+                        {item.category?.icon}{" "}
+                        {item.category?.name ?? tItems("uncategorized")}
+                      </p>
+                      <SpecificationTags
+                        attributes={item.attributes}
+                        maxCount={3}
+                        className="mt-2"
+                      />
+                    </Link>
+                    <div className="mt-3 flex items-center justify-between">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => handleOpenCheckInDialog(e, item)}
+                        className="gap-1.5"
+                        data-testid={`check-in-button-${item.id}`}
+                      >
+                        <ArrowLeftFromLine className="h-4 w-4" />
+                        {tCheckInOut("checkIn")}
+                      </Button>
+                      <span className="truncate text-xs text-muted-foreground">
+                        {item.location?.name ?? tItems("noLocation")}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div
+              className="overflow-x-auto rounded-lg border"
+              data-testid="checked-out-items-list"
+            >
+              <table className="w-full">
+                <thead className="border-b bg-muted/50">
+                  <tr>
+                    <th className="whitespace-nowrap px-4 py-3 text-left text-sm font-medium">
+                      {tCommon("name")}
+                    </th>
+                    <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium sm:table-cell">
+                      {tItems("category")}
+                    </th>
+                    <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium md:table-cell">
+                      {tItems("location")}
+                    </th>
+                    <th className="hidden whitespace-nowrap px-4 py-3 text-right text-sm font-medium lg:table-cell">
+                      {tItems("price")}
+                    </th>
+                    <th className="whitespace-nowrap px-4 py-3 text-right text-sm font-medium">
+                      {tCommon("actions")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {itemsData?.items.map((item) => (
+                    <tr
+                      key={item.id}
+                      className="group transition-colors hover:bg-muted/50"
+                      data-testid={`checked-out-item-row-${item.id}`}
+                    >
+                      <td className="px-4 py-3">
+                        <Link
+                          href={`/items/${item.id}`}
+                          className="flex items-center gap-3"
+                        >
+                          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
+                            {item.primary_image_url ? (
+                              <AuthenticatedImage
+                                imageId={
+                                  item.primary_image_url.split("/").at(-2)!
+                                }
+                                alt={item.name}
+                                thumbnail
+                                className="h-full w-full object-cover"
+                                fallback={
+                                  <div className="flex h-full items-center justify-center">
+                                    <Package className="h-5 w-5 text-muted-foreground/50" />
+                                  </div>
+                                }
+                              />
+                            ) : (
+                              <div className="flex h-full items-center justify-center">
+                                <Package className="h-5 w-5 text-muted-foreground/50" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <span className="block truncate font-medium group-hover:text-primary">
+                              {item.name}
+                            </span>
+                            {item.is_low_stock && (
+                              <span className="inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+                                <AlertTriangle className="h-3 w-3" />
+                                {tItems("lowStock")}
+                              </span>
+                            )}
+                          </div>
+                        </Link>
+                      </td>
+                      <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-muted-foreground sm:table-cell">
+                        {item.category?.icon}{" "}
+                        {item.category?.name ?? tItems("uncategorized")}
+                      </td>
+                      <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-muted-foreground md:table-cell">
+                        {item.location?.name ?? tItems("noLocation")}
+                      </td>
+                      <td className="hidden whitespace-nowrap px-4 py-3 text-right text-sm text-muted-foreground lg:table-cell">
+                        {item.price != null
+                          ? formatPrice(item.price, user?.currency)
+                          : "-"}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 text-right">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => handleOpenCheckInDialog(e, item)}
+                          className="gap-1.5"
+                          data-testid={`check-in-button-${item.id}`}
+                        >
+                          <ArrowLeftFromLine className="h-4 w-4" />
+                          {tCheckInOut("checkIn")}
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
           {itemsData && itemsData.total_pages > 1 && (
             <div className="flex items-center justify-center gap-4 pt-4">
