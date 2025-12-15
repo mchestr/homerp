@@ -190,9 +190,13 @@ jobs:
         working-directory: frontend
         run: pnpm exec playwright install --with-deps
 
-      - name: Run Playwright tests
+      - name: Run unit tests
         working-directory: frontend
         run: pnpm test
+
+      - name: Run Playwright tests
+        working-directory: frontend
+        run: pnpm test:e2e
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v6
