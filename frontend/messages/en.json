@@ -739,9 +739,9 @@
     "description": "Description"
   },
   "storagePlanner": {
-    "wizard": "Wizard",
-    "wizardTitle": "Storage Planner Wizard",
-    "wizardDescription": "Create a new storage planning system with guided setup",
+    "create": "Create",
+    "createTitle": "Create Storage System",
+    "createDescription": "Set up a new storage planning system to organize your inventory items with precision placement and visual planning tools.",
     "step": "Step {current} of {total}",
     "steps": {
       "type-selection": "Select Storage Type",
@@ -750,33 +750,38 @@
     },
     "back": "Back",
     "next": "Next",
-    "create": "Create",
     "comingSoon": "Coming Soon",
     "selectType": {
       "title": "Choose Your Storage System",
-      "description": "Select the type of storage system you want to plan"
+      "description": "Different storage systems work best for different use cases. Select the type that matches your physical storage setup.",
+      "helpText": "Not sure which to choose? Gridfinity is great for drawers and toolboxes, while pegboards work well for wall-mounted tool organization."
     },
     "configuration": {
       "title": "Configure Your Storage",
-      "description": "Set up the dimensions and details for your {type}"
+      "description": "Set up the dimensions and details for your {type}. Measure your physical container to ensure accurate grid planning."
     },
     "review": {
       "title": "Review Your Configuration",
-      "description": "Confirm your storage setup before creating",
+      "description": "Confirm your storage setup before creating. You can edit these settings later if needed.",
       "dimensions": "Dimensions",
       "comingSoon": "Feature Coming Soon",
       "comingSoonDescription": "This storage type is not yet available. Please select Gridfinity to proceed."
     },
     "gridfinity": {
       "title": "Gridfinity",
-      "description": "Modular 3D-printed storage system with standardized 42mm grid units",
+      "description": "The popular open-source modular storage system. Perfect for organizing small parts, tools, and components in drawers and containers.",
+      "longDescription": "Gridfinity uses a standardized 42mm grid system that allows you to mix and match bins of different sizes. Plan exactly where each item goes, then 3D print bins to fit.",
       "feature1": "Standard 42mm grid spacing",
       "feature2": "Drag-and-drop item placement",
-      "feature3": "Auto-layout algorithm"
+      "feature3": "AI-powered bin size recommendations",
+      "useCase1": "Workshop tool drawers",
+      "useCase2": "Electronics component storage",
+      "useCase3": "Craft supply organization"
     },
     "multiboard": {
       "title": "Multiboard / Pegboard / Honeycomb",
-      "description": "Wall-mounted storage with hooks and accessories for tools and supplies",
+      "description": "Wall-mounted modular storage with hooks and accessories. Ideal for frequently-used tools and supplies.",
+      "longDescription": "Plan your wall storage layout before drilling a single hole. Visualize hook placements and ensure you have room for all your tools.",
       "feature1": "Multiple board type support",
       "feature2": "Hook and accessory planning",
       "feature3": "Wall space optimization",
@@ -785,7 +790,8 @@
     },
     "toteRack": {
       "title": "Storage Tote Rack",
-      "description": "Shelving system for organizing storage bins and totes",
+      "description": "Organize bins and totes on shelving units. Track what's in each bin with a visual map of your storage rack.",
+      "longDescription": "Create a digital map of your shelving system. Know exactly which bin contains what, and generate labels to mark each position.",
       "feature1": "Row and column planning",
       "feature2": "Bin size tracking",
       "feature3": "Label generation",

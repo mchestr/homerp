@@ -1,23 +1,23 @@
 import { test, expect } from "@playwright/test";
 import { setupApiMocks, authenticateUser } from "./mocks/api-handlers";
 
-test.describe("Storage Planner Wizard", () => {
+test.describe("Storage Planner Create", () => {
   test.beforeEach(async ({ page }) => {
     await authenticateUser(page);
     await setupApiMocks(page);
   });
 
-  test("opens wizard from Storage Planner page", async ({ page }) => {
+  test("opens create dialog from Storage Planner page", async ({ page }) => {
     await page.goto("/gridfinity");
 
-    // Verify the wizard button is visible
-    const wizardButton = page.getByTestId("open-wizard-button");
-    await expect(wizardButton).toBeVisible();
+    // Verify the create button is visible
+    const createButton = page.getByTestId("open-wizard-button");
+    await expect(createButton).toBeVisible();
 
-    // Click the wizard button
-    await wizardButton.click();
+    // Click the create button
+    await createButton.click();
 
-    // Verify wizard dialog is open
+    // Verify create dialog is open
     await expect(page.getByTestId("storage-planner-wizard")).toBeVisible();
   });
 
@@ -162,58 +162,36 @@ test.describe("Storage Planner Wizard", () => {
     await page.waitForURL(/\/gridfinity\/gf-unit-\d+/);
   });
 
-  test("shows coming soon message for multiboard type", async ({ page }) => {
+  test("disables multiboard type selection (coming soon)", async ({ page }) => {
     await page.goto("/gridfinity");
     await page.getByTestId("open-wizard-button").click();
 
-    // Select Multiboard type
+    // Multiboard type should be visible but disabled
     const multiboardButton = page.getByTestId("storage-type-multiboard");
     await expect(multiboardButton).toBeVisible();
+    await expect(multiboardButton).toBeDisabled();
 
     // Should show coming soon badge
     await expect(multiboardButton.getByText("Coming Soon")).toBeVisible();
 
-    await multiboardButton.click();
-    await page.getByTestId("wizard-next-button").click();
-
-    // Configuration step should show coming soon message
-    await expect(page.getByTestId("step-configuration")).toBeVisible();
-    await expect(
-      page.getByText("Multiboard Support Coming Soon")
-    ).toBeVisible();
-
-    // Can still navigate to review
-    await page.getByTestId("wizard-next-button").click();
-    await expect(page.getByTestId("step-review")).toBeVisible();
-
-    // But create button should be disabled for coming soon types
-    await expect(page.getByTestId("wizard-create-button")).toBeDisabled();
+    // Should have reduced opacity
+    await expect(multiboardButton).toHaveClass(/opacity-60/);
   });
 
-  test("shows coming soon message for tote-rack type", async ({ page }) => {
+  test("disables tote-rack type selection (coming soon)", async ({ page }) => {
     await page.goto("/gridfinity");
     await page.getByTestId("open-wizard-button").click();
 
-    // Select Tote Rack type
-    const toteRackButton = page.getByTestId("storage-type-tote-rack");
+    // Tote Rack type should be visible but disabled
+    const toteRackButton = page.getByTestId("storage-type-toteRack");
     await expect(toteRackButton).toBeVisible();
+    await expect(toteRackButton).toBeDisabled();
 
     // Should show coming soon badge
     await expect(toteRackButton.getByText("Coming Soon")).toBeVisible();
 
-    await toteRackButton.click();
-    await page.getByTestId("wizard-next-button").click();
-
-    // Configuration step should show coming soon message
-    await expect(page.getByTestId("step-configuration")).toBeVisible();
-    await expect(page.getByText("Tote Rack Support Coming Soon")).toBeVisible();
-
-    // Can still navigate to review
-    await page.getByTestId("wizard-next-button").click();
-    await expect(page.getByTestId("step-review")).toBeVisible();
-
-    // But create button should be disabled for coming soon types
-    await expect(page.getByTestId("wizard-create-button")).toBeDisabled();
+    // Should have reduced opacity
+    await expect(toteRackButton).toHaveClass(/opacity-60/);
   });
 
   test("cancels wizard from first step", async ({ page }) => {
@@ -374,10 +352,15 @@ test.describe("Storage Planner Wizard", () => {
     // All three types should be visible
     await expect(page.getByTestId("storage-type-gridfinity")).toBeVisible();
     await expect(page.getByTestId("storage-type-multiboard")).toBeVisible();
-    await expect(page.getByTestId("storage-type-tote-rack")).toBeVisible();
+    await expect(page.getByTestId("storage-type-toteRack")).toBeVisible();
 
-    // Only Gridfinity should not have coming soon badge
+    // Only Gridfinity should be enabled (not have coming soon badge)
     const gridfinityButton = page.getByTestId("storage-type-gridfinity");
     await expect(gridfinityButton.getByText("Coming Soon")).not.toBeVisible();
+    await expect(gridfinityButton).toBeEnabled();
+
+    // Multiboard and Tote Rack should be disabled
+    await expect(page.getByTestId("storage-type-multiboard")).toBeDisabled();
+    await expect(page.getByTestId("storage-type-toteRack")).toBeDisabled();
   });
 });

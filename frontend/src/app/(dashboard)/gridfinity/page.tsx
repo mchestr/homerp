@@ -10,8 +10,6 @@ import {
   Trash2,
   Edit,
   ExternalLink,
-  Info,
-  Wand2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,10 +44,9 @@ export default function GridfinityPage() {
   const tStoragePlanner = useTranslations("storagePlanner");
   const queryClient = useQueryClient();
 
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false);
   const [editingUnit, setEditingUnit] = useState<GridfinityUnit | null>(null);
-  const [formData, setFormData] = useState<GridfinityUnitCreate>({
+  const [editFormData, setEditFormData] = useState<GridfinityUnitCreate>({
     name: "",
     description: "",
     location_id: null,
@@ -72,24 +69,14 @@ export default function GridfinityPage() {
     queryFn: () => locationsApi.tree(),
   });
 
-  // Create mutation
-  const createMutation = useMutation({
-    mutationFn: (data: GridfinityUnitCreate) => gridfinityApi.createUnit(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["gridfinity", "units"] });
-      setIsCreateDialogOpen(false);
-      resetForm();
-    },
-  });
-
-  // Update mutation
+  // Update mutation (for editing existing units)
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: GridfinityUnitCreate }) =>
       gridfinityApi.updateUnit(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["gridfinity", "units"] });
       setEditingUnit(null);
-      resetForm();
+      resetEditForm();
     },
   });
 
@@ -101,8 +88,8 @@ export default function GridfinityPage() {
     },
   });
 
-  const resetForm = () => {
-    setFormData({
+  const resetEditForm = () => {
+    setEditFormData({
       name: "",
       description: "",
       location_id: null,
@@ -113,7 +100,7 @@ export default function GridfinityPage() {
   };
 
   const handleEdit = (unit: GridfinityUnit) => {
-    setFormData({
+    setEditFormData({
       name: unit.name,
       description: unit.description || "",
       location_id: unit.location_id,
@@ -136,12 +123,10 @@ export default function GridfinityPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingUnit) {
-      updateMutation.mutate({ id: editingUnit.id, data: formData });
-    } else {
-      createMutation.mutate(formData);
+      updateMutation.mutate({ id: editingUnit.id, data: editFormData });
     }
   };
 
@@ -150,9 +135,9 @@ export default function GridfinityPage() {
     rows: Math.floor(depthMm / GRID_UNIT_MM),
   });
 
-  const currentGrid = calculateGrid(
-    formData.container_width_mm,
-    formData.container_depth_mm
+  const editGrid = calculateGrid(
+    editFormData.container_width_mm,
+    editFormData.container_depth_mm
   );
 
   // Convert location tree for TreeSelect
@@ -178,32 +163,13 @@ export default function GridfinityPage() {
           </h1>
           <p className="text-muted-foreground">{t("subtitle")}</p>
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setIsWizardOpen(true)}
-            data-testid="open-wizard-button"
-          >
-            <Wand2 className="mr-2 h-4 w-4" />
-            {tStoragePlanner("wizard")}
-          </Button>
-          <Button
-            onClick={() => setIsCreateDialogOpen(true)}
-            data-testid="quick-create-button"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            {t("createUnit")}
-          </Button>
-        </div>
-      </div>
-
-      {/* Info Box */}
-      <div className="flex items-start gap-3 rounded-lg bg-muted/50 p-4">
-        <Info className="mt-0.5 h-5 w-5 text-muted-foreground" />
-        <div className="text-sm text-muted-foreground">
-          <p className="font-medium text-foreground">{t("whatIsGridfinity")}</p>
-          <p>{t("gridfinityDescription")}</p>
-        </div>
+        <Button
+          onClick={() => setIsCreateWizardOpen(true)}
+          data-testid="open-wizard-button"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          {tStoragePlanner("create")}
+        </Button>
       </div>
 
       {/* Units Grid */}
@@ -227,44 +193,41 @@ export default function GridfinityPage() {
           <Grid3X3 className="mx-auto h-12 w-12 text-muted-foreground/50" />
           <h3 className="mt-4 text-lg font-semibold">{t("noUnits")}</h3>
           <p className="mt-1 text-muted-foreground">{t("createFirst")}</p>
-          <Button className="mt-4" onClick={() => setIsCreateDialogOpen(true)}>
+          <Button
+            className="mt-4"
+            onClick={() => setIsCreateWizardOpen(true)}
+            data-testid="empty-state-create-button"
+          >
             <Plus className="mr-2 h-4 w-4" />
-            {t("createUnit")}
+            {tStoragePlanner("create")}
           </Button>
         </div>
       )}
 
-      {/* Create/Edit Dialog */}
+      {/* Edit Dialog */}
       <Dialog
-        open={isCreateDialogOpen || !!editingUnit}
+        open={!!editingUnit}
         onOpenChange={(open) => {
           if (!open) {
-            setIsCreateDialogOpen(false);
             setEditingUnit(null);
-            resetForm();
+            resetEditForm();
           }
         }}
       >
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>
-              {editingUnit ? t("editUnit") : t("createUnit")}
-            </DialogTitle>
-            <DialogDescription>
-              {editingUnit
-                ? t("editUnitDescription")
-                : t("createUnitDescription")}
-            </DialogDescription>
+            <DialogTitle>{t("editUnit")}</DialogTitle>
+            <DialogDescription>{t("editUnitDescription")}</DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleEditSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">{tCommon("name")} *</Label>
+              <Label htmlFor="edit-name">{tCommon("name")} *</Label>
               <Input
-                id="name"
-                value={formData.name}
+                id="edit-name"
+                value={editFormData.name}
                 onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                  setEditFormData((prev) => ({ ...prev, name: e.target.value }))
                 }
                 placeholder={t("namePlaceholder")}
                 required
@@ -272,12 +235,12 @@ export default function GridfinityPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">{tCommon("description")}</Label>
+              <Label htmlFor="edit-description">{tCommon("description")}</Label>
               <Input
-                id="description"
-                value={formData.description || ""}
+                id="edit-description"
+                value={editFormData.description || ""}
                 onChange={(e) =>
-                  setFormData((prev) => ({
+                  setEditFormData((prev) => ({
                     ...prev,
                     description: e.target.value,
                   }))
@@ -290,9 +253,9 @@ export default function GridfinityPage() {
               <Label>{t("location")}</Label>
               <TreeSelect
                 nodes={locationSelectNodes}
-                value={formData.location_id}
+                value={editFormData.location_id}
                 onChange={(id) =>
-                  setFormData((prev) => ({
+                  setEditFormData((prev) => ({
                     ...prev,
                     location_id: id,
                   }))
@@ -303,14 +266,14 @@ export default function GridfinityPage() {
 
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="width">{t("width")} (mm) *</Label>
+                <Label htmlFor="edit-width">{t("width")} (mm) *</Label>
                 <Input
-                  id="width"
+                  id="edit-width"
                   type="number"
                   min={42}
-                  value={formData.container_width_mm}
+                  value={editFormData.container_width_mm}
                   onChange={(e) =>
-                    setFormData((prev) => ({
+                    setEditFormData((prev) => ({
                       ...prev,
                       container_width_mm: parseInt(e.target.value) || 42,
                     }))
@@ -319,14 +282,14 @@ export default function GridfinityPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="depth">{t("depth")} (mm) *</Label>
+                <Label htmlFor="edit-depth">{t("depth")} (mm) *</Label>
                 <Input
-                  id="depth"
+                  id="edit-depth"
                   type="number"
                   min={42}
-                  value={formData.container_depth_mm}
+                  value={editFormData.container_depth_mm}
                   onChange={(e) =>
-                    setFormData((prev) => ({
+                    setEditFormData((prev) => ({
                       ...prev,
                       container_depth_mm: parseInt(e.target.value) || 42,
                     }))
@@ -335,14 +298,14 @@ export default function GridfinityPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="height">{t("height")} (mm) *</Label>
+                <Label htmlFor="edit-height">{t("height")} (mm) *</Label>
                 <Input
-                  id="height"
+                  id="edit-height"
                   type="number"
                   min={7}
-                  value={formData.container_height_mm}
+                  value={editFormData.container_height_mm}
                   onChange={(e) =>
-                    setFormData((prev) => ({
+                    setEditFormData((prev) => ({
                       ...prev,
                       container_height_mm: parseInt(e.target.value) || 7,
                     }))
@@ -357,16 +320,16 @@ export default function GridfinityPage() {
               <div className="text-sm text-muted-foreground">
                 {t("gridSize")}:{" "}
                 <span className="font-medium text-foreground">
-                  {currentGrid.columns} x {currentGrid.rows}
+                  {editGrid.columns} x {editGrid.rows}
                 </span>{" "}
-                ({currentGrid.columns * currentGrid.rows} {t("cells")})
+                ({editGrid.columns * editGrid.rows} {t("cells")})
               </div>
               <div className="mt-2 flex gap-1">
-                {Array.from({ length: Math.min(currentGrid.columns, 8) }).map(
+                {Array.from({ length: Math.min(editGrid.columns, 8) }).map(
                   (_, i) => (
                     <div key={i} className="flex flex-col gap-1">
                       {Array.from({
-                        length: Math.min(currentGrid.rows, 8),
+                        length: Math.min(editGrid.rows, 8),
                       }).map((_, j) => (
                         <div
                           key={j}
@@ -376,7 +339,7 @@ export default function GridfinityPage() {
                     </div>
                   )
                 )}
-                {currentGrid.columns > 8 && (
+                {editGrid.columns > 8 && (
                   <div className="flex items-center text-xs text-muted-foreground">
                     ...
                   </div>
@@ -389,21 +352,17 @@ export default function GridfinityPage() {
                 type="button"
                 variant="outline"
                 onClick={() => {
-                  setIsCreateDialogOpen(false);
                   setEditingUnit(null);
-                  resetForm();
+                  resetEditForm();
                 }}
               >
                 {tCommon("cancel")}
               </Button>
-              <Button
-                type="submit"
-                disabled={createMutation.isPending || updateMutation.isPending}
-              >
-                {(createMutation.isPending || updateMutation.isPending) && (
+              <Button type="submit" disabled={updateMutation.isPending}>
+                {updateMutation.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                {editingUnit ? tCommon("update") : tCommon("create")}
+                {tCommon("update")}
               </Button>
             </DialogFooter>
           </form>
@@ -412,18 +371,18 @@ export default function GridfinityPage() {
 
       <ConfirmModal />
 
-      {/* Storage Planner Wizard Dialog */}
-      <Dialog open={isWizardOpen} onOpenChange={setIsWizardOpen}>
+      {/* Storage Planner Create Dialog */}
+      <Dialog open={isCreateWizardOpen} onOpenChange={setIsCreateWizardOpen}>
         <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{tStoragePlanner("wizardTitle")}</DialogTitle>
+            <DialogTitle>{tStoragePlanner("createTitle")}</DialogTitle>
             <DialogDescription>
-              {tStoragePlanner("wizardDescription")}
+              {tStoragePlanner("createDescription")}
             </DialogDescription>
           </DialogHeader>
           <StoragePlannerWizard
-            onComplete={() => setIsWizardOpen(false)}
-            onCancel={() => setIsWizardOpen(false)}
+            onComplete={() => setIsCreateWizardOpen(false)}
+            onCancel={() => setIsCreateWizardOpen(false)}
           />
         </DialogContent>
       </Dialog>
