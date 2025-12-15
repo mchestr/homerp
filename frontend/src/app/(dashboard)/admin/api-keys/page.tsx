@@ -69,6 +69,7 @@ function ApiKeyFormDialog({
   isSaving: boolean;
 }) {
   const t = useTranslations("admin.apiKeys");
+  const tCommon = useTranslations("common");
   const [formData, setFormData] = useState<ApiKeyFormData>({
     name: apiKey?.name ?? "",
     scopes: apiKey?.scopes ?? [],
@@ -191,7 +192,7 @@ function ApiKeyFormDialog({
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              {t("../common.cancel")}
+              {tCommon("cancel")}
             </Button>
             <Button
               type="submit"
@@ -199,7 +200,7 @@ function ApiKeyFormDialog({
               data-testid="save-api-key-button"
             >
               {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {apiKey ? t("../common.save") : t("createApiKey")}
+              {apiKey ? tCommon("save") : t("createApiKey")}
             </Button>
           </DialogFooter>
         </form>
@@ -218,6 +219,7 @@ function KeyCreatedDialog({
   createdKey: ApiKeyCreatedResponse | null;
 }) {
   const t = useTranslations("admin.apiKeys");
+  const tCommon = useTranslations("common");
   const [copied, setCopied] = useState(false);
 
   const copyToClipboard = async () => {
@@ -247,7 +249,7 @@ function KeyCreatedDialog({
           <div className="space-y-2">
             <Label>{t("key")}</Label>
             <div className="flex items-center gap-2">
-              <code className="flex-1 overflow-x-auto rounded bg-muted p-3 text-sm">
+              <code className="min-w-0 flex-1 break-all rounded bg-muted p-2 text-xs sm:p-3 sm:text-sm">
                 {createdKey?.key}
               </code>
               <Button
@@ -255,6 +257,7 @@ function KeyCreatedDialog({
                 size="icon"
                 onClick={copyToClipboard}
                 data-testid="copy-api-key-button"
+                className="shrink-0"
               >
                 {copied ? (
                   <Check className="h-4 w-4 text-green-500" />
@@ -264,7 +267,7 @@ function KeyCreatedDialog({
               </Button>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
             <div>
               <span className="text-muted-foreground">{t("name")}:</span>
               <p className="font-medium">{createdKey?.name}</p>
@@ -279,7 +282,7 @@ function KeyCreatedDialog({
         </div>
         <DialogFooter>
           <Button onClick={onClose} data-testid="close-key-dialog-button">
-            {t("../common.close")}
+            {tCommon("close")}
           </Button>
         </DialogFooter>
       </DialogContent>
