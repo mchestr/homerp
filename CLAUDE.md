@@ -170,6 +170,26 @@ pnpm generate-api                # Regenerate OpenAPI client from backend
 - Run `mise run api:generate` after backend API changes
 - Provides full type safety between frontend and backend
 
+### State Management
+- **No Redux/Zustand** - uses React Context + TanStack React Query
+- Global state: React Context (`AuthContext`, `InventoryContext`, `ThemeContext`)
+- Server state: TanStack React Query with 1-minute stale time
+- Local state: React `useState`
+- Persistent preferences: `useLocalStorage` hook
+
+### Backend Module Structure
+Each feature module follows this pattern:
+```
+backend/src/{module}/
+├── models.py      # SQLAlchemy ORM models
+├── schemas.py     # Pydantic request/response schemas
+├── router.py      # FastAPI endpoints
+├── service.py     # Business logic (optional)
+└── repository.py  # Database operations (optional)
+```
+- **Repository pattern** - Data access with RLS filtering (items, categories, locations)
+- **Service pattern** - Business logic, external APIs (billing, AI, auth)
+
 ## Environment Variables
 
 ### Backend
@@ -215,6 +235,49 @@ Core tables:
 - `POST /api/v1/billing/portal` - Stripe customer portal
 - `POST /api/v1/billing/webhook` - Stripe webhooks
 
+## API Client & Data Fetching
+
+### Generated vs Hand-Written Client
+- Auto-generated client in `lib/api/` from OpenAPI spec (`pnpm generate-api`)
+- Hand-written wrapper functions in `lib/api/api-client.ts`
+- Use hand-written functions (`itemsApi.list()`, `categoriesApi.tree()`) for most operations
+
+### React Query Patterns
+```tsx
+// Queries (reading data)
+const { data, isLoading } = useQuery({
+  queryKey: ["items", { page, categoryId }],
+  queryFn: () => itemsApi.list({ page, category_id: categoryId }),
+});
+
+// Mutations (writing data)
+const mutation = useMutation({
+  mutationFn: (data) => itemsApi.create(data),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["items"] });
+  },
+});
+```
+
+### Query Key Conventions
+- `["items"]` - All items
+- `["items", { page, categoryId }]` - Filtered/paginated items
+- `["categories", "tree"]` - Category tree structure
+- `["item", itemId]` - Single item by ID
+
+### API Error Handling
+```tsx
+try {
+  await imagesApi.classify([imageId]);
+} catch (err) {
+  if (err?.status === 402) {
+    showInsufficientCreditsModal();  // Special handling for credits
+  } else {
+    toast({ title: "Error", description: t("errorMessage"), variant: "destructive" });
+  }
+}
+```
+
 ## Billing System
 
 ### Credit Model
@@ -230,11 +293,184 @@ Core tables:
 4. Configure webhook endpoint: `POST /api/v1/billing/webhook`
 5. Enable webhook events: `checkout.session.completed`, `charge.refunded`
 
+## UI Component Patterns
+
+### Modal/Dialog Components
+- **Dialog** (`@/components/ui/dialog`) - General purpose modals for forms and content
+- **AlertDialog** (`@/components/ui/alert-dialog`) - Destructive action confirmations (delete, remove)
+- **ConfirmModal** (`@/components/ui/confirm-modal`) - Promise-based confirmations with loading state
+
+### Hook-Based Modal Pattern
+Feature-specific modals use a hook pattern returning the modal component and control functions:
+```tsx
+const { confirm, setIsLoading, ConfirmModal } = useConfirmModal();
+
+const handleDelete = async () => {
+  const confirmed = await confirm({
+    title: "Delete Item?",
+    message: "This cannot be undone.",
+    variant: "danger"  // "danger" | "warning" | "default"
+  });
+  if (confirmed) {
+    setIsLoading(true);
+    await deleteItem();
+    setIsLoading(false);
+  }
+};
+
+// In render - always include the modal component
+return <><Button onClick={handleDelete}>Delete</Button><ConfirmModal /></>;
+```
+
+Other hook-based modals: `useInsufficientCreditsModal()`, `useQRCodeModal()`, `useLabelPrintModal()`
+
+### Toast Notifications
+Use `useToast` hook for user feedback (not browser alerts):
+```tsx
+const { toast } = useToast();
+
+// Success
+toast({ title: t("saved"), description: t("itemSaved") });
+
+// Error
+toast({ title: t("error"), description: t("saveFailed"), variant: "destructive" });
+```
+
+### Error Display
+- Use toast notifications for operation errors (variant: "destructive")
+- Handle 402 status specially with `useInsufficientCreditsModal()`
+- Inline error alerts use: `border-destructive/50 bg-destructive/10 text-destructive`
+
+## Form Handling Patterns
+
+### Form State Management
+- Use vanilla React `useState` for form state (no React Hook Form/Formik)
+- No validation library - use HTML5 `required` attribute and manual checks
+- Use TanStack React Query `useMutation` for form submission
+
+### Form Submission Pattern
+```tsx
+const createMutation = useMutation({
+  mutationFn: (data) => itemsApi.create(data),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["items"] });
+    router.push("/items");
+  },
+});
+
+const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+  createMutation.mutate(formData);
+};
+
+// Button with loading state
+<Button disabled={createMutation.isPending || !formData.name}>
+  {createMutation.isPending ? "Creating..." : "Create"}
+</Button>
+```
+
+### Required Field Indicators
+Mark required fields with red asterisk:
+```tsx
+<Label>{t("name")} <span className="text-destructive">*</span></Label>
+```
+
 ## Guidelines
 - always use the most idiomatic and standard way to solve issues, do not invent hacks or workarounds.
-- never use browser alerts always use our common modal components
-- all frontend strings should be translated using the i18n library
+- never use browser alerts always use our common modal components (see UI Component Patterns above)
+- all frontend strings should be translated using the i18n library (see i18n section below)
 - always run the pre-push checks below before pushing remotely to ensure the GitHub Actions workflows will pass
+
+### File Naming Conventions
+
+**Frontend:**
+| Type | Convention | Example |
+|------|------------|---------|
+| Components | kebab-case.tsx | `image-gallery.tsx`, `confirm-modal.tsx` |
+| Hooks | use-kebab-case.ts | `use-local-storage.ts`, `use-toast.tsx` |
+| Context | kebab-case-context.tsx | `auth-context.tsx`, `inventory-context.tsx` |
+| Props/Types | PascalCase + Props | `ImageGalleryProps`, `AuthState` |
+
+**Backend:**
+| Type | Convention | Example |
+|------|------------|---------|
+| Modules | snake_case.py | `router.py`, `service.py`, `models.py` |
+| Classes | PascalCase | `ItemRepository`, `CreditService` |
+| Functions | snake_case | `get_current_user`, `create_item` |
+
+**Directory Organization:**
+- `components/ui/` - Shared shadcn/ui components
+- `components/{feature}/` - Feature-specific components (items, billing, locations)
+- `hooks/` - Custom React hooks
+- `context/` - React Context providers
+
+### Internationalization (i18n)
+
+**Library:** `next-intl`
+
+**Translation files:** `frontend/messages/{locale}.json` (en, de, es, fr, pt-BR, ja)
+
+**Usage pattern:**
+```tsx
+import { useTranslations } from "next-intl";
+
+function Component() {
+  const t = useTranslations("items");       // Scoped to "items.*" keys
+  const tCommon = useTranslations("common"); // Common strings
+  return <h1>{t("title")}</h1>;
+}
+```
+
+**Adding new translation keys:**
+1. Add key to `messages/en.json` first (authoritative source)
+2. Add translations to other locale files (missing keys fall back to English)
+3. Use parameterized strings for dynamic values: `t("count", { count: 10 })`
+
+### Commit Message Convention
+Use [Conventional Commits](https://www.conventionalcommits.org/) format:
+- `feat:` - New features
+- `fix:` - Bug fixes
+- `chore:` - Maintenance tasks (dependencies, configs)
+- `refactor:` - Code improvements without behavior change
+- `docs:` - Documentation updates
+- `test:` - Test additions or fixes
+
+Examples:
+```
+feat(items): add bulk delete functionality
+fix(gridfinity): correct collision detection for overlapping bins
+chore: update dependencies
+```
+
+### High-Churn Files
+These files change frequently and may need regeneration or special attention:
+
+| File | Why It Changes | Action |
+|------|---------------|--------|
+| `frontend/messages/en.json` | New UI strings | Add translations to all locale files |
+| `frontend/src/lib/api/api-client.ts` | Backend API changes | Run `mise run api:generate` after backend changes |
+| `frontend/e2e/mocks/api-handlers.ts` | API changes | Update mocks when API responses change |
+
+### Known Complexity Areas
+These features have historically been sources of bugs and require extra care:
+
+**Gridfinity Storage System:**
+- State updates for bin positioning and resizing
+- Collision detection between bins
+- Drag-and-drop interactions
+- Test with multiple bins and edge cases
+
+**Collaboration/Sharing:**
+- Viewer vs owner permissions
+- Shared inventory image access
+- RLS policy interactions for shared items
+- Test with both owner and viewer accounts
+
+**E2E Tests:**
+- Use stable selectors (prefer `data-testid`)
+- Add proper wait strategies for async operations
+- Mock API responses consistently
+- See "Playwright E2E Testing" section for best practices
 
 ### Keeping mise.toml in Sync
 When adding or modifying npm scripts in `frontend/package.json` or new commands in the backend:
