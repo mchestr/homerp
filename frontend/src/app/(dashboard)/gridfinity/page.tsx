@@ -11,7 +11,6 @@ import {
   Edit,
   ExternalLink,
   Info,
-  Wand2,
   LayoutGrid,
   LayoutList,
 } from "lucide-react";
