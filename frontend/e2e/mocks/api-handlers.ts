@@ -727,7 +727,7 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     });
   });
 
-  await page.route("**/api/v1/profile/recommendations", async (route) => {
+  await page.route("**/api/v1/profile/recommendations?*", async (route) => {
     if (route.request().method() === "GET") {
       await route.fulfill({
         status: 200,
