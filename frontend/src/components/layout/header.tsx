@@ -1,9 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { LogOut, User, Menu, Package, Coins } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import { LogOut, User, Menu, Package, Coins, Users } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
+import { useInventory } from "@/context/inventory-context";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
   Tooltip,
@@ -26,15 +28,42 @@ function formatDate(dateString: string): string {
   });
 }
 
+// Pages that show the user's own data (not the shared inventory)
+const OWN_DATA_PATHS = [
+  "/settings",
+  "/ai-assistant",
+  "/images/classified",
+  "/declutter-suggestions",
+  "/feedback",
+  "/admin",
+];
+
 export function Header({ onMenuClick }: HeaderProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, logout, creditBalance } = useAuth();
+  const { selectedInventory, isViewingSharedInventory, canEdit } =
+    useInventory();
   const t = useTranslations("billing");
+  const tInventory = useTranslations("inventory");
 
   const handleLogout = () => {
     logout();
     router.push("/login");
   };
+
+  // Check if current page shows own data (not affected by shared inventory)
+  const isOwnDataPage = OWN_DATA_PATHS.some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`)
+  );
+
+  // Only show banner on pages that actually display shared inventory data
+  const showSharedBanner = isViewingSharedInventory && !isOwnDataPage;
+
+  const ownerName =
+    selectedInventory?.name ||
+    selectedInventory?.email ||
+    tInventory("sharedInventory");
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-card/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-card/60 md:px-6">
@@ -52,6 +81,29 @@ export function Header({ onMenuClick }: HeaderProps) {
           <span className="font-semibold">HomERP</span>
         </Link>
       </div>
+
+      {/* Shared Inventory Banner - only show on pages displaying shared data */}
+      {showSharedBanner && (
+        <div
+          data-testid="shared-inventory-banner"
+          className="flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm dark:border-blue-800 dark:bg-blue-950"
+        >
+          <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          <span className="hidden text-blue-700 dark:text-blue-300 sm:inline">
+            {tInventory("viewingInventoryOf", { name: ownerName })}
+          </span>
+          <span className="text-blue-700 dark:text-blue-300 sm:hidden">
+            {ownerName}
+          </span>
+          <Badge
+            data-testid="shared-inventory-role-badge"
+            variant={canEdit ? "default" : "secondary"}
+            className="h-5 text-xs"
+          >
+            {canEdit ? tInventory("editor") : tInventory("viewer")}
+          </Badge>
+        </div>
+      )}
 
       <div className="flex items-center gap-2 sm:gap-4">
         {/* Credit Balance with Tooltip */}

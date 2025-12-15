@@ -23,10 +23,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-context";
 import { useInventory } from "@/context/inventory-context";
-import {
-  InventorySwitcher,
-  InventoryBanner,
-} from "@/components/layout/inventory-switcher";
+import { InventorySwitcher } from "@/components/layout/inventory-switcher";
 
 interface NavSection {
   label: string;
@@ -191,9 +188,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </div>
 
         {/* Inventory Switcher */}
-        <div className="space-y-3 px-3 py-4">
+        <div className="px-3 py-4">
           <InventorySwitcher />
-          {isViewingSharedInventory && <InventoryBanner />}
         </div>
 
         {/* Quick Action - only show if user can edit */}
@@ -212,15 +208,17 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         <div className="flex-1 overflow-auto px-3 pb-4">
           <nav className="space-y-6">
             {allSections.map((section) => {
-              const isOwnDataSection =
-                isViewingSharedInventory && section.usesOwnData;
+              // When viewing shared inventory, sections that DON'T use own data
+              // (i.e., show the shared user's inventory) should be highlighted blue
+              const isSharedDataSection =
+                isViewingSharedInventory && !section.usesOwnData;
 
               return (
                 <div key={section.label}>
                   <h3
                     className={cn(
                       "mb-2 px-3 text-[11px] font-medium uppercase tracking-wider",
-                      isOwnDataSection
+                      isSharedDataSection
                         ? "text-blue-600 dark:text-blue-400"
                         : "text-muted-foreground"
                     )}
@@ -241,7 +239,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                             "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                             isActive
                               ? "bg-primary text-primary-foreground"
-                              : isOwnDataSection
+                              : isSharedDataSection
                                 ? "text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-950 dark:hover:text-blue-300"
                                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
                           )}
