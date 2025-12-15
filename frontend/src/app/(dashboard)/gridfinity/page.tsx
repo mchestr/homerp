@@ -11,6 +11,7 @@ import {
   Edit,
   ExternalLink,
   Info,
+  Wand2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +35,7 @@ import {
 } from "@/lib/api/api-client";
 import { formatDate } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import { StoragePlannerWizard } from "@/components/storage-planner/storage-planner-wizard";
 
 // Gridfinity unit size constant
 const GRID_UNIT_MM = 42;
@@ -41,9 +43,11 @@ const GRID_UNIT_MM = 42;
 export default function GridfinityPage() {
   const t = useTranslations("gridfinity");
   const tCommon = useTranslations("common");
+  const tStoragePlanner = useTranslations("storagePlanner");
   const queryClient = useQueryClient();
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [editingUnit, setEditingUnit] = useState<GridfinityUnit | null>(null);
   const [formData, setFormData] = useState<GridfinityUnitCreate>({
     name: "",
@@ -174,10 +178,23 @@ export default function GridfinityPage() {
           </h1>
           <p className="text-muted-foreground">{t("subtitle")}</p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          {t("createUnit")}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setIsWizardOpen(true)}
+            data-testid="open-wizard-button"
+          >
+            <Wand2 className="mr-2 h-4 w-4" />
+            {tStoragePlanner("wizard")}
+          </Button>
+          <Button
+            onClick={() => setIsCreateDialogOpen(true)}
+            data-testid="quick-create-button"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            {t("createUnit")}
+          </Button>
+        </div>
       </div>
 
       {/* Info Box */}
@@ -394,6 +411,22 @@ export default function GridfinityPage() {
       </Dialog>
 
       <ConfirmModal />
+
+      {/* Storage Planner Wizard Dialog */}
+      <Dialog open={isWizardOpen} onOpenChange={setIsWizardOpen}>
+        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{tStoragePlanner("wizardTitle")}</DialogTitle>
+            <DialogDescription>
+              {tStoragePlanner("wizardDescription")}
+            </DialogDescription>
+          </DialogHeader>
+          <StoragePlannerWizard
+            onComplete={() => setIsWizardOpen(false)}
+            onCancel={() => setIsWizardOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

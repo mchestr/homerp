@@ -10,6 +10,7 @@ type MockOptions = {
   user?: typeof fixtures.testUser | typeof fixtures.adminUser;
   creditBalance?: typeof fixtures.testCreditBalance;
   items?: typeof fixtures.testItems;
+  gridfinityUnits?: typeof fixtures.testGridfinityUnits;
 };
 
 /**
@@ -21,6 +22,7 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     user = fixtures.testUser,
     creditBalance = fixtures.testCreditBalance,
     items = fixtures.testItems,
+    gridfinityUnits = fixtures.testGridfinityUnits,
   } = options;
 
   // Auth endpoints
@@ -622,6 +624,78 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
         contentType: "application/json",
         body: JSON.stringify({ detail: "Admin access required" }),
       });
+    }
+  });
+
+  // Gridfinity endpoints
+  await page.route("**/api/v1/gridfinity/units", async (route) => {
+    if (route.request().method() === "GET") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(gridfinityUnits),
+      });
+    } else if (route.request().method() === "POST") {
+      const body = route.request().postDataJSON();
+      const newUnit = {
+        id: `gf-unit-${Date.now()}`,
+        ...body,
+        grid_columns: Math.floor(body.container_width_mm / 42),
+        grid_rows: Math.floor(body.container_depth_mm / 42),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      await route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify(newUnit),
+      });
+    } else {
+      await route.continue();
+    }
+  });
+
+  await page.route(/\/api\/v1\/gridfinity\/units\/[^/]+$/, async (route) => {
+    const method = route.request().method();
+    const url = route.request().url();
+    const unitId = url.split("/").pop();
+    const unit = gridfinityUnits.find((u) => u.id === unitId);
+
+    if (method === "GET") {
+      if (unit) {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(unit),
+        });
+      } else {
+        await route.fulfill({
+          status: 404,
+          contentType: "application/json",
+          body: JSON.stringify({ detail: "Gridfinity unit not found" }),
+        });
+      }
+    } else if (method === "PUT") {
+      const body = route.request().postDataJSON();
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ...unit,
+          ...body,
+          grid_columns: body.container_width_mm
+            ? Math.floor(body.container_width_mm / 42)
+            : unit?.grid_columns || 0,
+          grid_rows: body.container_depth_mm
+            ? Math.floor(body.container_depth_mm / 42)
+            : unit?.grid_rows || 0,
+          updated_at: new Date().toISOString(),
+        }),
+      });
+    } else if (method === "DELETE") {
+      await route.fulfill({ status: 204 });
+    } else {
+      await route.continue();
     }
   });
 }
