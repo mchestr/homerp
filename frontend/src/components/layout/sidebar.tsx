@@ -18,6 +18,7 @@ import {
   MessageSquare,
   Bot,
   ArrowRightFromLine,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -133,6 +134,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
   const adminSection: NavSection = {
     label: t("nav.admin"),
+    usesOwnData: true,
     items: [
       {
         title: t("sidebar.adminPanel"),
@@ -145,6 +147,12 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const allSections = user?.is_admin
     ? [...navSections, adminSection]
     : navSections;
+
+  // When viewing shared inventory, hide sections that use own data
+  // (AI Tools, Account, Admin) to avoid confusion
+  const visibleSections = isViewingSharedInventory
+    ? allSections.filter((section) => !section.usesOwnData)
+    : allSections;
 
   const isItemActive = (href: string) => {
     if (href === "/settings" && pathname === "/settings/billing") return false;
@@ -207,7 +215,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         {/* Navigation */}
         <div className="flex-1 overflow-auto px-3 pb-4">
           <nav className="space-y-6">
-            {allSections.map((section) => {
+            {visibleSections.map((section) => {
               // When viewing shared inventory, sections that DON'T use own data
               // (i.e., show the shared user's inventory) should be highlighted blue
               const isSharedDataSection =
@@ -254,6 +262,33 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               );
             })}
           </nav>
+        </div>
+
+        {/* User Profile */}
+        <div className="border-t px-4 py-3" data-testid="sidebar-user-profile">
+          <div className="flex items-center gap-3">
+            {user?.avatar_url ? (
+              <img
+                src={user.avatar_url}
+                alt={user.name || "User"}
+                className="h-8 w-8 rounded-full ring-2 ring-border"
+              />
+            ) : (
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted ring-2 ring-border">
+                <User className="h-4 w-4" />
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium">
+                {user?.name || user?.email}
+              </p>
+              {user?.name && (
+                <p className="truncate text-xs text-muted-foreground">
+                  {user?.email}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Footer */}
