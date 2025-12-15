@@ -339,4 +339,105 @@ test.describe("Items", () => {
       expect(scrollWidth).toBeGreaterThan(clientWidth);
     });
   });
+
+  test.describe("Similar Items Display", () => {
+    test("displays similar items with images using AuthenticatedImage", async ({
+      page,
+    }) => {
+      await authenticateUser(page);
+      await setupApiMocks(page);
+
+      // Track calls to the signed-url endpoint to verify AuthenticatedImage is used
+      // Note: thumbnail images append ?thumbnail=true, so we can't use $ anchor in regex
+      const signedUrlCalls: string[] = [];
+      await page.route(
+        /\/api\/v1\/images\/[^/]+\/signed-url/,
+        async (route) => {
+          const url = route.request().url();
+          // Extract image ID from URL (e.g., /api/v1/images/{imageId}/signed-url)
+          const match = url.match(/\/images\/([^/]+)\/signed-url/);
+          const imageId = match?.[1] || "";
+          signedUrlCalls.push(imageId);
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              url: `http://localhost:8000/uploads/mock-signed-${imageId}.jpg?token=mock-token`,
+            }),
+          });
+        }
+      );
+
+      // Mock the image endpoint to return a pre-classified image
+      // This must be registered AFTER setupApiMocks due to LIFO priority
+      await page.route(/\/api\/v1\/images\/[^/]+$/, async (route) => {
+        const url = route.request().url();
+        const imageId = url.split("/").pop();
+
+        // Skip signed-url endpoint
+        if (url.includes("signed-url")) {
+          await route.fallback();
+          return;
+        }
+
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            id: imageId,
+            storage_path: "/uploads/test-image.jpg",
+            original_filename: "test-image.jpg",
+            mime_type: "image/jpeg",
+            size_bytes: 102400,
+            content_hash: "abc123",
+            ai_processed: true,
+            ai_result: {
+              identified_name: "Arduino Uno R3",
+              confidence: 0.95,
+              category_path: "Electronics.Microcontrollers",
+              description:
+                "Arduino Uno microcontroller board based on ATmega328P",
+              specifications: {
+                microcontroller: "ATmega328P",
+                operating_voltage: "5V",
+              },
+              quantity_estimate: "1 piece",
+            },
+            created_at: "2024-01-01T00:00:00Z",
+          }),
+        });
+      });
+
+      // Navigate to /items/new with image_id parameter to trigger pre-classified flow
+      // This will load the image, see it's AI processed, and trigger similar items search
+      await page.goto("/items/new?image_id=pre-classified-img");
+
+      // Wait for similar items section to appear (the mock returns similar items)
+      await expect(page.getByTestId("similar-items-section")).toBeVisible({
+        timeout: 10000,
+      });
+
+      // Verify both similar items are displayed
+      const item1 = page.getByTestId("similar-item-similar-1");
+      const item2 = page.getByTestId("similar-item-similar-2");
+      await expect(item1).toBeVisible();
+      await expect(item2).toBeVisible();
+
+      // Wait for AuthenticatedImage to load by checking for img or allowing time for request
+      // The component shows: loading div -> img (success) OR fallback (error)
+      // On mobile, we need to ensure the component has had time to make the signed-url request
+      await page.waitForTimeout(1000);
+
+      // Scroll similar items into view for mobile viewport
+      await item1.scrollIntoViewIfNeeded();
+
+      // Wait a bit more for any async operations
+      await page.waitForTimeout(500);
+
+      // Verify that signed-url endpoints were called (proving AuthenticatedImage is used)
+      // This is the key assertion - if direct <img> tags were used, signedUrlCalls would not contain these
+      expect(signedUrlCalls).toContain("img-similar-1");
+      expect(signedUrlCalls).toContain("img-similar-2");
+    });
+  });
 });

@@ -448,3 +448,33 @@ export const testFacets = {
   ],
   total_items: 100,
 };
+
+export const testSimilarItems = {
+  similar_items: [
+    {
+      id: "similar-1",
+      name: "Arduino Uno Clone",
+      description: "Compatible Arduino clone",
+      quantity: 2,
+      quantity_unit: "pcs",
+      similarity_score: 0.85,
+      match_reasons: ["Similar name", "Same category"],
+      category: testCategories[0],
+      location: testLocations[0],
+      primary_image_url: "/api/v1/images/img-similar-1/file",
+    },
+    {
+      id: "similar-2",
+      name: "Arduino Nano",
+      description: "Smaller Arduino board",
+      quantity: 5,
+      quantity_unit: "pcs",
+      similarity_score: 0.65,
+      match_reasons: ["Similar category"],
+      category: testCategories[0],
+      location: testLocations[1],
+      primary_image_url: "/api/v1/images/img-similar-2/file",
+    },
+  ],
+  total_searched: 50,
+};
