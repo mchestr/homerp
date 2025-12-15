@@ -67,7 +67,11 @@ export async function apiRequest<T>(
 
   // Add inventory context header when viewing a shared inventory
   // Skip for certain endpoints like auth and collaboration
-  if (!skipInventoryContext && _inventoryContextId) {
+  if (
+    !skipInventoryContext &&
+    _inventoryContextId &&
+    _inventoryContextId.trim() !== ""
+  ) {
     requestHeaders["X-Inventory-Context"] = _inventoryContextId;
   }
 
@@ -108,7 +112,7 @@ export async function uploadFile(
   }
 
   // Add inventory context header when viewing a shared inventory
-  if (_inventoryContextId) {
+  if (_inventoryContextId && _inventoryContextId.trim() !== "") {
     headers["X-Inventory-Context"] = _inventoryContextId;
   }
 

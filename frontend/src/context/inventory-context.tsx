@@ -94,8 +94,11 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
         (inv) => inv.status === "accepted"
       );
 
-      // Check if we have a stored selection
-      const storedId = localStorage.getItem(STORAGE_KEY);
+      // Check if we have a stored selection (with SSR safety check)
+      const storedId =
+        typeof window !== "undefined"
+          ? localStorage.getItem(STORAGE_KEY)
+          : null;
       let selectedInventory: SelectedInventory | null = null;
 
       if (storedId && storedId !== user?.id) {
@@ -134,8 +137,9 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
         sharedInventories: acceptedShared,
         isLoading: false,
       });
-    } catch {
+    } catch (error) {
       // If collaboration endpoint fails, just use own inventory
+      console.error("Failed to fetch collaboration context:", error);
       setApiInventoryContext(null);
       if (user) {
         setState({
@@ -154,7 +158,9 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
   }, [isAuthenticated, user]);
 
   const selectInventory = useCallback((inventory: SelectedInventory) => {
-    localStorage.setItem(STORAGE_KEY, inventory.id);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEY, inventory.id);
+    }
     // Update the API client's inventory context
     setApiInventoryContext(inventory.isOwn ? null : inventory.id);
     setState((prev) => ({
@@ -172,7 +178,9 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
         avatar_url: user.avatar_url,
         isOwn: true,
       };
-      localStorage.setItem(STORAGE_KEY, user.id);
+      if (typeof window !== "undefined") {
+        localStorage.setItem(STORAGE_KEY, user.id);
+      }
       // Clear the API client's inventory context when switching to own inventory
       setApiInventoryContext(null);
       setState((prev) => ({
@@ -193,6 +201,13 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     refreshInventories();
   }, [refreshInventories]);
+
+  // Cleanup API context on unmount
+  useEffect(() => {
+    return () => {
+      setApiInventoryContext(null);
+    };
+  }, []);
 
   // Update own inventory when user changes
   useEffect(() => {

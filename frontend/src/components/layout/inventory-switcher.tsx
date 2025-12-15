@@ -26,16 +26,23 @@ export function InventorySwitcher() {
   } = useInventory();
   const queryClient = useQueryClient();
 
+  const invalidateInventoryQueries = () => {
+    // Invalidate inventory-related queries to refetch with new context
+    queryClient.invalidateQueries({ queryKey: ["items"] });
+    queryClient.invalidateQueries({ queryKey: ["categories"] });
+    queryClient.invalidateQueries({ queryKey: ["locations"] });
+    queryClient.invalidateQueries({ queryKey: ["images"] });
+    queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+  };
+
   const handleSelectInventory = (inventory: SelectedInventory) => {
     selectInventory(inventory);
-    // Invalidate all queries to refetch with new context
-    queryClient.invalidateQueries();
+    invalidateInventoryQueries();
   };
 
   const handleSelectOwnInventory = () => {
     selectOwnInventory();
-    // Invalidate all queries to refetch with new context
-    queryClient.invalidateQueries();
+    invalidateInventoryQueries();
   };
 
   // Don't show switcher if there are no shared inventories
