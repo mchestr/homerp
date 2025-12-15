@@ -10,6 +10,7 @@
     "update": "Update",
     "search": "Search",
     "filters": "Filters",
+    "unknownError": "An unknown error occurred",
     "clearAll": "Clear all",
     "viewDetails": "View details",
     "noResults": "No results found",
@@ -691,6 +692,8 @@
     "exportPdf": "Export PDF",
     "printLabels": "Print Labels",
     "positionCode": "Position",
+    "loadError": "Failed to load unit: {error}",
+    "autoLayoutPartialError": "Placed {success} items, but {failed} failed to place",
     "placementDialog": {
       "title": "Select Bin Size",
       "description": "Choose the bin size for \"{item}\"",

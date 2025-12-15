@@ -77,6 +77,9 @@ type EditingPlacement = {
   depthUnits: number;
 };
 
+// Gridfinity standard grid unit size in mm
+const GRIDFINITY_GRID_UNIT_MM = 42;
+
 // Common bin size presets
 const BIN_SIZE_PRESETS = [
   { width: 1, depth: 1, label: "1×1" },
@@ -113,7 +116,11 @@ export default function GridfinityEditorPage() {
   );
 
   // Fetch unit with placements
-  const { data: unit, isLoading: unitLoading } = useQuery({
+  const {
+    data: unit,
+    isLoading: unitLoading,
+    error: unitError,
+  } = useQuery({
     queryKey: ["gridfinity", "units", unitId, "layout"],
     queryFn: () => gridfinityApi.getUnitLayout(unitId),
   });
@@ -136,11 +143,12 @@ export default function GridfinityEditorPage() {
   }, [itemsData?.items, unit?.placements]);
 
   // Fetch bin recommendations for available items
-  const { data: binRecommendations } = useQuery({
-    queryKey: ["gridfinity", "recommendations", availableItemIds],
-    queryFn: () => gridfinityApi.recommendBins(availableItemIds),
-    enabled: availableItemIds.length > 0,
-  });
+  const { data: binRecommendations, isLoading: recommendationsLoading } =
+    useQuery({
+      queryKey: ["gridfinity", "recommendations", availableItemIds],
+      queryFn: () => gridfinityApi.recommendBins(availableItemIds),
+      enabled: availableItemIds.length > 0,
+    });
 
   // Create a map of recommendations by item ID
   const recommendationsMap = useMemo(() => {
@@ -214,27 +222,33 @@ export default function GridfinityEditorPage() {
       gridfinityApi.autoLayout(unitId, itemIds),
     onSuccess: async (result: AutoLayoutResult) => {
       setErrorMessage(null);
-      // Create placements for all placed items using Promise.all for better performance
-      try {
-        await Promise.all(
-          result.placed.map((placement) =>
-            gridfinityApi.createPlacement(unitId, {
-              item_id: placement.item_id,
-              grid_x: placement.grid_x,
-              grid_y: placement.grid_y,
-              width_units: placement.width_units,
-              depth_units: placement.depth_units,
-            })
-          )
-        );
-        queryClient.invalidateQueries({
-          queryKey: ["gridfinity", "units", unitId, "layout"],
-        });
-      } catch (error) {
+      // Create placements using Promise.allSettled for better error handling
+      const results = await Promise.allSettled(
+        result.placed.map((placement) =>
+          gridfinityApi.createPlacement(unitId, {
+            item_id: placement.item_id,
+            grid_x: placement.grid_x,
+            grid_y: placement.grid_y,
+            width_units: placement.width_units,
+            depth_units: placement.depth_units,
+          })
+        )
+      );
+
+      const failures = results.filter((r) => r.status === "rejected");
+      if (failures.length > 0) {
+        const successCount = results.length - failures.length;
         setErrorMessage(
-          error instanceof Error ? error.message : "Failed to create placements"
+          t("autoLayoutPartialError", {
+            success: successCount,
+            failed: failures.length,
+          })
         );
       }
+
+      queryClient.invalidateQueries({
+        queryKey: ["gridfinity", "units", unitId, "layout"],
+      });
     },
     onError: (error: Error) => {
       setErrorMessage(error.message);
@@ -294,13 +308,19 @@ export default function GridfinityEditorPage() {
     if (activeData.type === "item" && activeData.item) {
       // Show placement dialog with bin size recommendations
       const recommendation = recommendationsMap.get(activeData.item.id);
+      // Only use recommendation if it has valid dimensions
+      const validRecommendation =
+        recommendation?.recommended_width_units &&
+        recommendation?.recommended_depth_units
+          ? recommendation
+          : undefined;
       setPendingPlacement({
         item: activeData.item,
         gridX: overData.x,
         gridY: overData.y,
-        widthUnits: recommendation?.recommended_width_units || 1,
-        depthUnits: recommendation?.recommended_depth_units || 1,
-        recommendation,
+        widthUnits: validRecommendation?.recommended_width_units || 1,
+        depthUnits: validRecommendation?.recommended_depth_units || 1,
+        recommendation: validRecommendation,
       });
     } else if (activeData.type === "placement" && activeData.placement) {
       // Moving an existing placement
@@ -360,6 +380,28 @@ export default function GridfinityEditorPage() {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (unitError) {
+    return (
+      <div className="py-12 text-center">
+        <AlertCircle className="mx-auto h-12 w-12 text-destructive" />
+        <p className="mt-4 text-muted-foreground">
+          {t("loadError", {
+            error:
+              unitError instanceof Error
+                ? unitError.message
+                : tCommon("unknownError"),
+          })}
+        </p>
+        <Link href="/gridfinity">
+          <Button className="mt-4">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {t("backToUnits")}
+          </Button>
+        </Link>
       </div>
     );
   }
@@ -488,7 +530,12 @@ export default function GridfinityEditorPage() {
           {/* Items sidebar */}
           <div className="flex w-72 flex-col border-l pl-4">
             <div className="border-b pb-3">
-              <h2 className="font-semibold">{t("availableItems")}</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="font-semibold">{t("availableItems")}</h2>
+                {recommendationsLoading && (
+                  <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                )}
+              </div>
               <p className="text-xs text-muted-foreground">
                 {t("dragToPlace")}
               </p>
@@ -631,12 +678,15 @@ export default function GridfinityEditorPage() {
                     min={1}
                     max={(unit?.grid_columns || 1) - pendingPlacement.gridX}
                     value={pendingPlacement.widthUnits}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value) || 1;
+                      const maxWidth =
+                        (unit?.grid_columns || 1) - pendingPlacement.gridX;
                       setPendingPlacement({
                         ...pendingPlacement,
-                        widthUnits: Math.max(1, parseInt(e.target.value) || 1),
-                      })
-                    }
+                        widthUnits: Math.max(1, Math.min(value, maxWidth)),
+                      });
+                    }}
                   />
                 </div>
                 <X className="mt-6 h-4 w-4 text-muted-foreground" />
@@ -647,12 +697,15 @@ export default function GridfinityEditorPage() {
                     min={1}
                     max={(unit?.grid_rows || 1) - pendingPlacement.gridY}
                     value={pendingPlacement.depthUnits}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value) || 1;
+                      const maxDepth =
+                        (unit?.grid_rows || 1) - pendingPlacement.gridY;
                       setPendingPlacement({
                         ...pendingPlacement,
-                        depthUnits: Math.max(1, parseInt(e.target.value) || 1),
-                      })
-                    }
+                        depthUnits: Math.max(1, Math.min(value, maxDepth)),
+                      });
+                    }}
                   />
                 </div>
               </div>
@@ -663,8 +716,10 @@ export default function GridfinityEditorPage() {
                   {t("placementDialog.preview", {
                     width: pendingPlacement.widthUnits,
                     depth: pendingPlacement.depthUnits,
-                    widthMm: pendingPlacement.widthUnits * 42,
-                    depthMm: pendingPlacement.depthUnits * 42,
+                    widthMm:
+                      pendingPlacement.widthUnits * GRIDFINITY_GRID_UNIT_MM,
+                    depthMm:
+                      pendingPlacement.depthUnits * GRIDFINITY_GRID_UNIT_MM,
                   })}
                 </p>
               </div>
@@ -747,12 +802,16 @@ export default function GridfinityEditorPage() {
                       editingPlacement.placement.grid_x
                     }
                     value={editingPlacement.widthUnits}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value) || 1;
+                      const maxWidth =
+                        (unit?.grid_columns || 1) -
+                        editingPlacement.placement.grid_x;
                       setEditingPlacement({
                         ...editingPlacement,
-                        widthUnits: Math.max(1, parseInt(e.target.value) || 1),
-                      })
-                    }
+                        widthUnits: Math.max(1, Math.min(value, maxWidth)),
+                      });
+                    }}
                   />
                 </div>
                 <X className="mt-6 h-4 w-4 text-muted-foreground" />
@@ -765,12 +824,16 @@ export default function GridfinityEditorPage() {
                       (unit?.grid_rows || 1) - editingPlacement.placement.grid_y
                     }
                     value={editingPlacement.depthUnits}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value) || 1;
+                      const maxDepth =
+                        (unit?.grid_rows || 1) -
+                        editingPlacement.placement.grid_y;
                       setEditingPlacement({
                         ...editingPlacement,
-                        depthUnits: Math.max(1, parseInt(e.target.value) || 1),
-                      })
-                    }
+                        depthUnits: Math.max(1, Math.min(value, maxDepth)),
+                      });
+                    }}
                   />
                 </div>
               </div>
@@ -781,8 +844,10 @@ export default function GridfinityEditorPage() {
                   {t("placementDialog.preview", {
                     width: editingPlacement.widthUnits,
                     depth: editingPlacement.depthUnits,
-                    widthMm: editingPlacement.widthUnits * 42,
-                    depthMm: editingPlacement.depthUnits * 42,
+                    widthMm:
+                      editingPlacement.widthUnits * GRIDFINITY_GRID_UNIT_MM,
+                    depthMm:
+                      editingPlacement.depthUnits * GRIDFINITY_GRID_UNIT_MM,
                   })}
                 </p>
               </div>
@@ -915,6 +980,7 @@ function DraggablePlacement({
             }}
             className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground"
             data-testid="placement-edit-button"
+            aria-label="Resize placement"
           >
             <Maximize2 className="h-3 w-3" />
           </button>
@@ -927,6 +993,7 @@ function DraggablePlacement({
             }}
             className="flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground"
             data-testid="placement-delete-button"
+            aria-label="Remove placement"
           >
             <X className="h-3 w-3" />
           </button>
