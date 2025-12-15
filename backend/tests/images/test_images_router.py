@@ -1,10 +1,21 @@
 """HTTP integration tests for images router."""
 
 import uuid
+from collections.abc import AsyncGenerator
+from datetime import UTC, datetime
 
-from httpx import AsyncClient
+import pytest
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.collaboration.models import (
+    CollaboratorRole,
+    CollaboratorStatus,
+    InventoryCollaborator,
+)
+from src.config import Settings
 from src.images.models import Image
+from src.users.models import User
 
 
 class TestGetImageEndpoint:
@@ -264,3 +275,128 @@ class TestAttachImageEndpoint:
         )
 
         assert response.status_code == 401
+
+
+class TestCollaboratorImageAccess:
+    """Tests for collaborator access to images via signed URLs."""
+
+    @pytest.fixture
+    async def collaborator_user(self, async_session: AsyncSession) -> User:
+        """Create a collaborator user for testing."""
+        user = User(
+            id=uuid.uuid4(),
+            email="collaborator@example.com",
+            name="Collaborator User",
+            oauth_provider="google",
+            oauth_id="google_collaborator_123",
+            credit_balance=0,
+            free_credits_remaining=5,
+            is_admin=False,
+        )
+        async_session.add(user)
+        await async_session.commit()
+        await async_session.refresh(user)
+        return user
+
+    @pytest.fixture
+    async def accepted_collaboration(
+        self,
+        async_session: AsyncSession,
+        test_user: User,
+        collaborator_user: User,
+    ) -> InventoryCollaborator:
+        """Create an accepted collaboration between test_user and collaborator_user."""
+        collaboration = InventoryCollaborator(
+            id=uuid.uuid4(),
+            owner_id=test_user.id,
+            collaborator_id=collaborator_user.id,
+            invited_email=collaborator_user.email,
+            role=CollaboratorRole.VIEWER.value,
+            status=CollaboratorStatus.ACCEPTED.value,
+            accepted_at=datetime.now(UTC),
+        )
+        async_session.add(collaboration)
+        await async_session.commit()
+        await async_session.refresh(collaboration)
+        return collaboration
+
+    @pytest.fixture
+    async def collaborator_client(
+        self,
+        async_session: AsyncSession,
+        test_settings: Settings,  # noqa: ARG002
+        collaborator_user: User,
+    ) -> AsyncGenerator[AsyncClient, None]:
+        """Create an authenticated client for the collaborator user."""
+        from src.auth.dependencies import get_current_user_id
+        from src.database import get_session
+        from src.main import app
+
+        async def override_session():
+            yield async_session
+
+        app.dependency_overrides[get_session] = override_session
+        app.dependency_overrides[get_current_user_id] = lambda: collaborator_user.id
+
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            yield client
+
+        app.dependency_overrides.clear()
+
+    async def test_collaborator_can_get_signed_url_for_shared_image(
+        self,
+        collaborator_client: AsyncClient,
+        test_user: User,
+        test_image: Image,
+        accepted_collaboration: InventoryCollaborator,  # noqa: ARG002
+    ):
+        """Test that a collaborator can get a signed URL for an image in a shared inventory.
+
+        This is a regression test for the bug where collaborators couldn't view
+        images because the signed URL was generated with the wrong user_id.
+        """
+        # Request signed URL with X-Inventory-Context header set to owner's ID
+        response = await collaborator_client.get(
+            f"/api/v1/images/{test_image.id}/signed-url",
+            headers={"X-Inventory-Context": str(test_user.id)},
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "url" in data
+        assert "token=" in data["url"]
+
+    async def test_collaborator_can_get_signed_url_for_thumbnail(
+        self,
+        collaborator_client: AsyncClient,
+        test_user: User,
+        test_image: Image,
+        accepted_collaboration: InventoryCollaborator,  # noqa: ARG002
+    ):
+        """Test that a collaborator can get a signed URL for a thumbnail in shared inventory."""
+        response = await collaborator_client.get(
+            f"/api/v1/images/{test_image.id}/signed-url",
+            params={"thumbnail": True},
+            headers={"X-Inventory-Context": str(test_user.id)},
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "thumbnail" in data["url"]
+
+    async def test_non_collaborator_cannot_access_other_users_images(
+        self,
+        collaborator_client: AsyncClient,
+        test_user: User,
+        test_image: Image,
+        # Note: no accepted_collaboration fixture - user is not a collaborator
+    ):
+        """Test that a non-collaborator cannot access another user's images."""
+        response = await collaborator_client.get(
+            f"/api/v1/images/{test_image.id}/signed-url",
+            headers={"X-Inventory-Context": str(test_user.id)},
+        )
+
+        # Should get 403 because user doesn't have collaboration access
+        assert response.status_code == 403
