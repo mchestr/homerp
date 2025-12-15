@@ -17,6 +17,7 @@ import {
   CreditCard,
   MessageSquare,
   Bot,
+  ArrowRightFromLine,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -50,6 +51,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           title: t("sidebar.items"),
           href: "/items",
           icon: Package,
+        },
+        {
+          title: t("sidebar.checkedOutItems"),
+          href: "/checked-out",
+          icon: ArrowRightFromLine,
         },
         {
           title: t("sidebar.categories"),

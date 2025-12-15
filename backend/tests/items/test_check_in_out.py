@@ -632,3 +632,180 @@ class TestUserIsolation:
         items = await repo1.get_most_used_items()
 
         assert len(items) == 0
+
+
+class TestCheckedOutFilter:
+    """Tests for the checked_out filter in get_all and count methods."""
+
+    async def test_checked_out_filter_returns_checked_out_items(
+        self,
+        async_session: AsyncSession,
+        test_user: User,
+        test_item: Item,
+        second_test_item: Item,
+    ):
+        """Test that checked_out filter returns only items with checked out quantity > 0."""
+        repo = ItemRepository(async_session, test_user.id)
+
+        # Check out test_item, leave second_test_item alone
+        await repo.create_check_in_out(
+            test_item.id, "check_out", CheckInOutCreate(quantity=2)
+        )
+
+        # Get items with checked_out filter
+        items = await repo.get_all(checked_out=True)
+
+        assert len(items) == 1
+        assert items[0].id == test_item.id
+
+    async def test_checked_out_filter_excludes_fully_checked_in_items(
+        self,
+        async_session: AsyncSession,
+        test_user: User,
+        test_item: Item,
+    ):
+        """Test that items with all checked out quantity returned are excluded."""
+        repo = ItemRepository(async_session, test_user.id)
+
+        # Check out then check in all
+        await repo.create_check_in_out(
+            test_item.id, "check_out", CheckInOutCreate(quantity=3)
+        )
+        await repo.create_check_in_out(
+            test_item.id, "check_in", CheckInOutCreate(quantity=3)
+        )
+
+        # Get items with checked_out filter
+        items = await repo.get_all(checked_out=True)
+
+        assert len(items) == 0
+
+    async def test_checked_out_filter_includes_partially_checked_in_items(
+        self,
+        async_session: AsyncSession,
+        test_user: User,
+        test_item: Item,
+    ):
+        """Test that items with some quantity still checked out are included."""
+        repo = ItemRepository(async_session, test_user.id)
+
+        # Check out 5, check in 2 (3 still out)
+        await repo.create_check_in_out(
+            test_item.id, "check_out", CheckInOutCreate(quantity=5)
+        )
+        await repo.create_check_in_out(
+            test_item.id, "check_in", CheckInOutCreate(quantity=2)
+        )
+
+        # Get items with checked_out filter
+        items = await repo.get_all(checked_out=True)
+
+        assert len(items) == 1
+        assert items[0].id == test_item.id
+
+    async def test_checked_out_filter_count_returns_correct_total(
+        self,
+        async_session: AsyncSession,
+        test_user: User,
+        test_item: Item,
+        second_test_item: Item,
+        third_test_item: Item,
+    ):
+        """Test that count with checked_out filter returns correct total."""
+        repo = ItemRepository(async_session, test_user.id)
+
+        # Check out two items
+        await repo.create_check_in_out(
+            test_item.id, "check_out", CheckInOutCreate(quantity=1)
+        )
+        await repo.create_check_in_out(
+            second_test_item.id, "check_out", CheckInOutCreate(quantity=2)
+        )
+        # third_test_item has no check-outs
+
+        count = await repo.count(checked_out=True)
+
+        assert count == 2
+
+    async def test_checked_out_filter_with_search(
+        self,
+        async_session: AsyncSession,
+        test_user: User,
+        test_item: Item,
+        second_test_item: Item,
+    ):
+        """Test that checked_out filter works with search."""
+        repo = ItemRepository(async_session, test_user.id)
+
+        # Check out both items
+        await repo.create_check_in_out(
+            test_item.id, "check_out", CheckInOutCreate(quantity=1)
+        )
+        await repo.create_check_in_out(
+            second_test_item.id, "check_out", CheckInOutCreate(quantity=1)
+        )
+
+        # Search for "Second" among checked out items
+        items = await repo.get_all(checked_out=True, search="Second")
+
+        assert len(items) == 1
+        assert items[0].id == second_test_item.id
+
+    async def test_checked_out_filter_no_items_checked_out(
+        self,
+        async_session: AsyncSession,
+        test_user: User,
+        test_item: Item,
+    ):
+        """Test that filter returns empty when no items are checked out."""
+        repo = ItemRepository(async_session, test_user.id)
+
+        # No check-outs
+        items = await repo.get_all(checked_out=True)
+        count = await repo.count(checked_out=True)
+
+        assert len(items) == 0
+        assert count == 0
+
+    async def test_checked_out_filter_isolated_by_user(
+        self,
+        async_session: AsyncSession,
+        test_user: User,
+        test_item: Item,
+    ):
+        """Test that checked_out filter respects user isolation."""
+        # Create another user
+        other_user = User(
+            id=uuid.uuid4(),
+            email="other_checkedout@example.com",
+            name="Other User CheckedOut",
+            oauth_provider="google",
+            oauth_id="google_other_checkedout_123",
+            credit_balance=0,
+            free_credits_remaining=5,
+        )
+        async_session.add(other_user)
+        await async_session.commit()
+
+        # Create item for other user
+        other_item = Item(
+            id=uuid.uuid4(),
+            user_id=other_user.id,
+            name="Other Item CheckedOut",
+            quantity=5,
+            quantity_unit="pcs",
+        )
+        async_session.add(other_item)
+        await async_session.commit()
+
+        # Check out item for other user
+        repo_other = ItemRepository(async_session, other_user.id)
+        await repo_other.create_check_in_out(
+            other_item.id, "check_out", CheckInOutCreate(quantity=1)
+        )
+
+        # Test user should see no checked out items
+        repo_test = ItemRepository(async_session, test_user.id)
+        items = await repo_test.get_all(checked_out=True)
+
+        assert len(items) == 0
