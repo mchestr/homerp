@@ -10,6 +10,9 @@ import {
   Trash2,
   Edit,
   ExternalLink,
+  Info,
+  LayoutGrid,
+  LayoutList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +27,7 @@ import {
 } from "@/components/ui/dialog";
 import { useConfirmModal } from "@/components/ui/confirm-modal";
 import { TreeSelect, TreeNode } from "@/components/ui/tree-view";
+import { ViewModeToggle } from "@/components/ui/view-mode-toggle";
 import {
   gridfinityApi,
   locationsApi,
@@ -34,6 +38,7 @@ import {
 import { formatDate } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { StoragePlannerWizard } from "@/components/storage-planner/storage-planner-wizard";
+import { useViewMode, VIEW_MODES, type ViewMode } from "@/hooks/use-view-mode";
 
 // Gridfinity unit size constant
 const GRID_UNIT_MM = 42;
@@ -43,6 +48,12 @@ export default function GridfinityPage() {
   const tCommon = useTranslations("common");
   const tStoragePlanner = useTranslations("storagePlanner");
   const queryClient = useQueryClient();
+
+  const [viewMode, setViewMode] = useViewMode<ViewMode>(
+    "gridfinity-view-mode",
+    "grid",
+    VIEW_MODES
+  );
 
   const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false);
   const [editingUnit, setEditingUnit] = useState<GridfinityUnit | null>(null);
@@ -163,31 +174,142 @@ export default function GridfinityPage() {
           </h1>
           <p className="text-muted-foreground">{t("subtitle")}</p>
         </div>
-        <Button
-          onClick={() => setIsCreateWizardOpen(true)}
-          data-testid="open-wizard-button"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          {tStoragePlanner("create")}
-        </Button>
+        <div className="flex items-center gap-2">
+          <ViewModeToggle
+            value={viewMode}
+            onChange={setViewMode}
+            options={[
+              {
+                value: "grid",
+                icon: LayoutGrid,
+                label: tCommon("viewMode.grid"),
+              },
+              {
+                value: "list",
+                icon: LayoutList,
+                label: tCommon("viewMode.list"),
+              },
+            ]}
+          />
+          <Button
+            onClick={() => setIsCreateWizardOpen(true)}
+            data-testid="open-wizard-button"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            {tStoragePlanner("create")}
+          </Button>
+        </div>
       </div>
 
-      {/* Units Grid */}
+      {/* Info Box */}
+      <div className="flex items-start gap-3 rounded-lg bg-muted/50 p-4">
+        <Info className="mt-0.5 h-5 w-5 text-muted-foreground" />
+        <div className="text-sm text-muted-foreground">
+          <p className="font-medium text-foreground">{t("whatIsGridfinity")}</p>
+          <p>{t("gridfinityDescription")}</p>
+        </div>
+      </div>
+
+      {/* Units Grid/List */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       ) : units && units.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {units.map((unit) => (
-            <UnitCard
-              key={unit.id}
-              unit={unit}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
+        viewMode === "grid" ? (
+          <div
+            className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+            data-testid="gridfinity-grid-view"
+          >
+            {units.map((unit) => (
+              <UnitCard
+                key={unit.id}
+                unit={unit}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        ) : (
+          <div
+            className="overflow-x-auto rounded-lg border"
+            data-testid="gridfinity-list-view"
+          >
+            <table className="w-full">
+              <thead className="border-b bg-muted/50">
+                <tr>
+                  <th className="whitespace-nowrap px-4 py-3 text-left text-sm font-medium">
+                    {tCommon("name")}
+                  </th>
+                  <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium sm:table-cell">
+                    {t("gridSize")}
+                  </th>
+                  <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium md:table-cell">
+                    {t("location")}
+                  </th>
+                  <th className="whitespace-nowrap px-4 py-3 text-right text-sm font-medium">
+                    {tCommon("actions")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {units.map((unit) => (
+                  <tr
+                    key={unit.id}
+                    className="group transition-colors hover:bg-muted/50"
+                    data-testid={`gridfinity-unit-row-${unit.id}`}
+                  >
+                    <td className="px-4 py-3">
+                      <div className="min-w-0">
+                        <span className="block truncate font-medium">
+                          {unit.name}
+                        </span>
+                        {unit.description && (
+                          <span className="block truncate text-sm text-muted-foreground">
+                            {unit.description}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-muted-foreground sm:table-cell">
+                      {unit.grid_columns} x {unit.grid_rows} (
+                      {unit.grid_columns * unit.grid_rows} {t("cells")})
+                    </td>
+                    <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-muted-foreground md:table-cell">
+                      {unit.container_width_mm} x {unit.container_depth_mm} mm
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEdit(unit)}
+                          title={t("editUnit")}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(unit)}
+                          title={t("deleteUnit")}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        <Link href={`/gridfinity/${unit.id}`}>
+                          <Button variant="outline" size="sm">
+                            {t("openEditor")}
+                            <ExternalLink className="ml-2 h-3 w-3" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )
       ) : (
         <div className="py-12 text-center">
           <Grid3X3 className="mx-auto h-12 w-12 text-muted-foreground/50" />
@@ -403,7 +525,10 @@ function UnitCard({
   const t = useTranslations("gridfinity");
 
   return (
-    <div className="rounded-lg border p-4 transition-colors hover:border-primary/50">
+    <div
+      className="rounded-lg border p-4 transition-colors hover:border-primary/50"
+      data-testid={`gridfinity-unit-card-${unit.id}`}
+    >
       <div className="flex items-start justify-between">
         <div>
           <h3 className="font-semibold">{unit.name}</h3>

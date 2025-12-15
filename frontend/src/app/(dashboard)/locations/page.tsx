@@ -17,6 +17,9 @@ import {
   QrCode,
   ExternalLink,
   Printer,
+  LayoutGrid,
+  LayoutList,
+  TreePine,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TreeView, TreeSelect } from "@/components/ui/tree-view";
@@ -26,6 +29,7 @@ import { useLabelPrintModal } from "@/components/labels";
 import { ItemsPanel } from "@/components/items/items-panel";
 import { LocationSuggestionPreview } from "@/components/locations/location-suggestion-preview";
 import { useInsufficientCreditsModal } from "@/components/billing/insufficient-credits-modal";
+import { ViewModeToggle } from "@/components/ui/view-mode-toggle";
 import { useAuth } from "@/context/auth-context";
 import {
   locationsApi,
@@ -38,6 +42,11 @@ import {
 import { cn } from "@/lib/utils";
 import type { LabelData } from "@/lib/labels";
 import { useTranslations } from "next-intl";
+import {
+  useViewMode,
+  TREE_VIEW_MODES,
+  type TreeViewMode,
+} from "@/hooks/use-view-mode";
 
 const LOCATION_TYPES = [
   { value: "room", label: "Room", icon: "🏠" },
@@ -62,10 +71,16 @@ function addIconsToTree(
 
 export default function LocationsPage() {
   const queryClient = useQueryClient();
+  const t = useTranslations("locations");
+  const tCommon = useTranslations("common");
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"tree" | "grid">("tree");
+  const [viewMode, setViewMode] = useViewMode<TreeViewMode>(
+    "locations-view-mode",
+    "tree",
+    TREE_VIEW_MODES
+  );
   const [formData, setFormData] = useState<LocationCreate>({
     name: "",
     description: "",
@@ -363,30 +378,27 @@ export default function LocationsPage() {
         </div>
         <div className="flex gap-2">
           {/* View toggle */}
-          <div className="flex rounded-lg border p-1">
-            <button
-              type="button"
-              onClick={() => setViewMode("tree")}
-              className={`rounded px-3 py-1 text-sm transition-colors ${
-                viewMode === "tree"
-                  ? "bg-primary text-primary-foreground"
-                  : "hover:bg-muted"
-              }`}
-            >
-              Tree
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode("grid")}
-              className={`rounded px-3 py-1 text-sm transition-colors ${
-                viewMode === "grid"
-                  ? "bg-primary text-primary-foreground"
-                  : "hover:bg-muted"
-              }`}
-            >
-              Grid
-            </button>
-          </div>
+          <ViewModeToggle
+            value={viewMode}
+            onChange={setViewMode}
+            options={[
+              {
+                value: "tree",
+                icon: TreePine,
+                label: tCommon("viewMode.tree"),
+              },
+              {
+                value: "grid",
+                icon: LayoutGrid,
+                label: tCommon("viewMode.grid"),
+              },
+              {
+                value: "list",
+                icon: LayoutList,
+                label: tCommon("viewMode.list"),
+              },
+            ]}
+          />
           {!isFormVisible && (
             <Button
               onClick={() => setIsCreating(true)}
@@ -394,7 +406,7 @@ export default function LocationsPage() {
               data-testid="add-location-button"
             >
               <Plus className="mr-2 h-4 w-4" />
-              Add Location
+              {t("addLocation")}
             </Button>
           )}
         </div>
@@ -702,7 +714,10 @@ export default function LocationsPage() {
           </Button>
         </div>
       ) : viewMode === "tree" ? (
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div
+          className="grid gap-6 lg:grid-cols-2"
+          data-testid="locations-tree-view"
+        >
           <div className="rounded-xl border bg-card p-4">
             <TreeView
               nodes={treeWithIcons}
@@ -716,7 +731,7 @@ export default function LocationsPage() {
                   <Link
                     href={`/locations/${node.id}`}
                     className="rounded p-1 hover:bg-accent"
-                    title="View details"
+                    title={t("viewDetails")}
                   >
                     <ExternalLink className="h-4 w-4 text-muted-foreground" />
                   </Link>
@@ -739,7 +754,7 @@ export default function LocationsPage() {
                       if (location) openQRModal(location);
                     }}
                     className="rounded p-1 hover:bg-accent"
-                    title="Generate QR Code"
+                    title={t("qrCode")}
                     data-testid={`qr-button-${node.id}`}
                   >
                     <QrCode className="h-4 w-4 text-muted-foreground" />
@@ -748,7 +763,7 @@ export default function LocationsPage() {
                     type="button"
                     onClick={() => handleAddChild(node.id)}
                     className="rounded p-1 hover:bg-accent"
-                    title="Add child location"
+                    title={t("addChildLocation")}
                   >
                     <Plus className="h-4 w-4 text-muted-foreground" />
                   </button>
@@ -759,7 +774,7 @@ export default function LocationsPage() {
                       if (location) handleEdit(location);
                     }}
                     className="rounded p-1 hover:bg-accent"
-                    title="Edit"
+                    title={tCommon("edit")}
                   >
                     <Edit className="h-4 w-4 text-muted-foreground" />
                   </button>
@@ -767,26 +782,26 @@ export default function LocationsPage() {
                     type="button"
                     onClick={() => handleDelete(node.id, node.name)}
                     className="rounded p-1 hover:bg-accent"
-                    title="Delete"
+                    title={tCommon("delete")}
                   >
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </button>
                 </div>
               )}
-              emptyMessage="No locations yet"
+              emptyMessage={t("noLocationsYet")}
             />
           </div>
           <div className="rounded-xl border bg-card p-4">
             <ItemsPanel
               locationId={selectedId}
-              title="Items in Location"
-              emptyMessage="No items in this location"
-              noSelectionMessage="Select a location to view its items"
+              title={t("itemsInLocation")}
+              emptyMessage={t("noItemsInLocation")}
+              noSelectionMessage={t("selectLocationToView")}
             />
           </div>
         </div>
-      ) : (
-        <div className="space-y-6">
+      ) : viewMode === "grid" ? (
+        <div className="space-y-6" data-testid="locations-grid-view">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {locations?.map((location) => {
               const typeInfo = getLocationTypeInfo(location.location_type);
@@ -804,6 +819,7 @@ export default function LocationsPage() {
                       ? "border-primary ring-2 ring-primary/20"
                       : ""
                   }`}
+                  data-testid={`location-card-${location.id}`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-4">
@@ -836,21 +852,24 @@ export default function LocationsPage() {
                           <div className="mt-2 flex items-center gap-2">
                             {treeStats.get(location.id)!.item_count > 0 && (
                               <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                                {treeStats.get(location.id)!.item_count} item
-                                {treeStats.get(location.id)!.item_count !== 1
-                                  ? "s"
-                                  : ""}
+                                {treeStats.get(location.id)!.item_count === 1
+                                  ? tCommon("itemCount", { count: 1 })
+                                  : tCommon("itemCountPlural", {
+                                      count: treeStats.get(location.id)!
+                                        .item_count,
+                                    })}
                               </span>
                             )}
                             {treeStats.get(location.id)!.total_value > 0 && (
                               <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-600 dark:text-emerald-400">
-                                $
-                                {treeStats
-                                  .get(location.id)!
-                                  .total_value.toLocaleString(undefined, {
-                                    minimumFractionDigits: 0,
-                                    maximumFractionDigits: 0,
-                                  })}
+                                {tCommon("totalValue", {
+                                  value: treeStats
+                                    .get(location.id)!
+                                    .total_value.toLocaleString(undefined, {
+                                      minimumFractionDigits: 0,
+                                      maximumFractionDigits: 0,
+                                    }),
+                                })}
                               </span>
                             )}
                           </div>
@@ -866,7 +885,7 @@ export default function LocationsPage() {
                         size="icon"
                         asChild
                         className="h-8 w-8"
-                        title="View details"
+                        title={t("viewDetails")}
                       >
                         <Link href={`/locations/${location.id}`}>
                           <ExternalLink className="h-4 w-4" />
@@ -887,7 +906,7 @@ export default function LocationsPage() {
                         size="icon"
                         onClick={() => openQRModal(location)}
                         className="h-8 w-8"
-                        title="QR Code"
+                        title={t("qrCode")}
                         data-testid={`grid-qr-button-${location.id}`}
                       >
                         <QrCode className="h-4 w-4" />
@@ -897,7 +916,7 @@ export default function LocationsPage() {
                         size="icon"
                         onClick={() => handleAddChild(location.id)}
                         className="h-8 w-8"
-                        title="Add child"
+                        title={t("addChildLocation")}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
@@ -906,6 +925,7 @@ export default function LocationsPage() {
                         size="icon"
                         onClick={() => handleEdit(location)}
                         className="h-8 w-8"
+                        title={tCommon("edit")}
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -914,6 +934,7 @@ export default function LocationsPage() {
                         size="icon"
                         onClick={() => handleDelete(location.id, location.name)}
                         className="h-8 w-8 text-destructive hover:text-destructive"
+                        title={tCommon("delete")}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -927,9 +948,146 @@ export default function LocationsPage() {
             <div className="rounded-xl border bg-card p-4">
               <ItemsPanel
                 locationId={selectedId}
-                title={`Items in ${locations?.find((l) => l.id === selectedId)?.name ?? "Location"}`}
-                emptyMessage="No items in this location"
-                noSelectionMessage="Select a location to view its items"
+                title={`${t("itemsInLocation").replace("Location", "")} ${locations?.find((l) => l.id === selectedId)?.name ?? ""}`}
+                emptyMessage={t("noItemsInLocation")}
+                noSelectionMessage={t("selectLocationToView")}
+              />
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-6" data-testid="locations-list-view">
+          <div className="overflow-x-auto rounded-lg border">
+            <table className="w-full">
+              <thead className="border-b bg-muted/50">
+                <tr>
+                  <th className="whitespace-nowrap px-4 py-3 text-left text-sm font-medium">
+                    {tCommon("name")}
+                  </th>
+                  <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium sm:table-cell">
+                    {t("parentLocation")}
+                  </th>
+                  <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium md:table-cell">
+                    {tCommon("description")}
+                  </th>
+                  <th className="hidden whitespace-nowrap px-4 py-3 text-center text-sm font-medium lg:table-cell">
+                    {tCommon("items")}
+                  </th>
+                  <th className="whitespace-nowrap px-4 py-3 text-right text-sm font-medium">
+                    {tCommon("actions")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {locations?.map((location) => {
+                  const typeInfo = getLocationTypeInfo(location.location_type);
+                  return (
+                    <tr
+                      key={location.id}
+                      className="group transition-colors hover:bg-muted/50"
+                      data-testid={`location-row-${location.id}`}
+                    >
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl">
+                            {typeInfo?.icon || "📍"}
+                          </span>
+                          <div className="min-w-0">
+                            <span className="block truncate font-medium">
+                              {location.name}
+                            </span>
+                            {location.location_type && (
+                              <span className="text-xs capitalize text-muted-foreground">
+                                {location.location_type}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-muted-foreground sm:table-cell">
+                        {location.parent_id
+                          ? (locations?.find((l) => l.id === location.parent_id)
+                              ?.name ?? "-")
+                          : "-"}
+                      </td>
+                      <td className="hidden max-w-xs truncate px-4 py-3 text-sm text-muted-foreground md:table-cell">
+                        {location.description || "-"}
+                      </td>
+                      <td className="hidden whitespace-nowrap px-4 py-3 text-center text-sm text-muted-foreground lg:table-cell">
+                        {treeStats.get(location.id)?.item_count ?? 0}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            asChild
+                            title={t("viewDetails")}
+                          >
+                            <Link href={`/locations/${location.id}`}>
+                              <ExternalLink className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handlePrintLabel(location)}
+                            title={tLabels("printLabel")}
+                            data-testid={`list-print-label-button-${location.id}`}
+                          >
+                            <Printer className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openQRModal(location)}
+                            title={t("qrCode")}
+                            data-testid={`list-qr-button-${location.id}`}
+                          >
+                            <QrCode className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleAddChild(location.id)}
+                            title={t("addChildLocation")}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(location)}
+                            title={tCommon("edit")}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() =>
+                              handleDelete(location.id, location.name)
+                            }
+                            className="text-destructive hover:text-destructive"
+                            title={tCommon("delete")}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          {selectedId && (
+            <div className="rounded-xl border bg-card p-4">
+              <ItemsPanel
+                locationId={selectedId}
+                title={`${t("itemsInLocation").replace("Location", "")} ${locations?.find((l) => l.id === selectedId)?.name ?? ""}`}
+                emptyMessage={t("noItemsInLocation")}
+                noSelectionMessage={t("selectLocationToView")}
               />
             </div>
           )}

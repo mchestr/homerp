@@ -26,12 +26,11 @@ import { Button } from "@/components/ui/button";
 import { InlineFacetedFilter } from "@/components/items/faceted-filter";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
 import { SpecificationTags } from "@/components/items/specification-tags";
+import { ViewModeToggle } from "@/components/ui/view-mode-toggle";
 import { itemsApi, categoriesApi, locationsApi } from "@/lib/api/api-client";
 import { cn, formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
-import { useLocalStorage } from "@/hooks/use-local-storage";
-
-type ViewMode = "grid" | "table";
+import { useViewMode, VIEW_MODES, type ViewMode } from "@/hooks/use-view-mode";
 
 export default function ItemsPage() {
   const router = useRouter();
@@ -41,9 +40,10 @@ export default function ItemsPage() {
   const t = useTranslations("items");
   const tCommon = useTranslations("common");
 
-  const [viewMode, setViewMode] = useLocalStorage<ViewMode>(
+  const [viewMode, setViewMode] = useViewMode<ViewMode>(
     "items-view-mode",
-    "grid"
+    "grid",
+    VIEW_MODES
   );
 
   const page = Number(searchParams.get("page")) || 1;
@@ -514,39 +514,22 @@ export default function ItemsPage() {
           </Button>
 
           {/* View Mode Toggle */}
-          <div
-            className="flex rounded-lg border p-1"
-            data-testid="view-mode-toggle"
-          >
-            <button
-              type="button"
-              onClick={() => setViewMode("grid")}
-              className={cn(
-                "rounded px-2 py-1.5 transition-colors",
-                viewMode === "grid"
-                  ? "bg-primary text-primary-foreground"
-                  : "hover:bg-muted"
-              )}
-              title={t("viewGrid")}
-              data-testid="view-mode-grid"
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode("table")}
-              className={cn(
-                "rounded px-2 py-1.5 transition-colors",
-                viewMode === "table"
-                  ? "bg-primary text-primary-foreground"
-                  : "hover:bg-muted"
-              )}
-              title={t("viewTable")}
-              data-testid="view-mode-table"
-            >
-              <LayoutList className="h-4 w-4" />
-            </button>
-          </div>
+          <ViewModeToggle
+            value={viewMode}
+            onChange={setViewMode}
+            options={[
+              {
+                value: "grid",
+                icon: LayoutGrid,
+                label: tCommon("viewMode.grid"),
+              },
+              {
+                value: "list",
+                icon: LayoutList,
+                label: tCommon("viewMode.list"),
+              },
+            ]}
+          />
         </div>
 
         {showFilters && (
@@ -941,7 +924,7 @@ export default function ItemsPage() {
           ) : (
             <div
               className="overflow-x-auto rounded-lg border"
-              data-testid="items-table-view"
+              data-testid="items-list-view"
             >
               <table className="w-full">
                 <thead className="border-b bg-muted/50">
