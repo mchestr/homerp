@@ -39,7 +39,7 @@ import {
 import { formatDate } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { StoragePlannerWizard } from "@/components/storage-planner/storage-planner-wizard";
-import { useViewMode, type ViewMode } from "@/hooks/use-view-mode";
+import { useViewMode, VIEW_MODES, type ViewMode } from "@/hooks/use-view-mode";
 
 // Gridfinity unit size constant
 const GRID_UNIT_MM = 42;
@@ -53,7 +53,7 @@ export default function GridfinityPage() {
   const [viewMode, setViewMode] = useViewMode<ViewMode>(
     "gridfinity-view-mode",
     "grid",
-    ["grid", "list"]
+    VIEW_MODES
   );
 
   const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false);

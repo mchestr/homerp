@@ -30,7 +30,7 @@ import { ViewModeToggle } from "@/components/ui/view-mode-toggle";
 import { itemsApi, categoriesApi, locationsApi } from "@/lib/api/api-client";
 import { cn, formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
-import { useViewMode, type ViewMode } from "@/hooks/use-view-mode";
+import { useViewMode, VIEW_MODES, type ViewMode } from "@/hooks/use-view-mode";
 
 export default function ItemsPage() {
   const router = useRouter();
@@ -43,7 +43,7 @@ export default function ItemsPage() {
   const [viewMode, setViewMode] = useViewMode<ViewMode>(
     "items-view-mode",
     "grid",
-    ["grid", "list"]
+    VIEW_MODES
   );
 
   const page = Number(searchParams.get("page")) || 1;

@@ -25,7 +25,11 @@ import {
   CategoryCreate,
   CategoryTreeNode,
 } from "@/lib/api/api-client";
-import { useViewMode, type TreeViewMode } from "@/hooks/use-view-mode";
+import {
+  useViewMode,
+  TREE_VIEW_MODES,
+  type TreeViewMode,
+} from "@/hooks/use-view-mode";
 import { useTranslations } from "next-intl";
 
 export default function CategoriesPage() {
@@ -38,7 +42,7 @@ export default function CategoriesPage() {
   const [viewMode, setViewMode] = useViewMode<TreeViewMode>(
     "categories-view-mode",
     "tree",
-    ["tree", "grid", "list"]
+    TREE_VIEW_MODES
   );
   const [formData, setFormData] = useState<CategoryCreate>({
     name: "",

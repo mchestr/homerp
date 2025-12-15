@@ -31,7 +31,7 @@ import { ViewModeToggle } from "@/components/ui/view-mode-toggle";
 import { itemsApi, ItemListItem, CheckInOutCreate } from "@/lib/api/api-client";
 import { formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
-import { useViewMode, type ViewMode } from "@/hooks/use-view-mode";
+import { useViewMode, VIEW_MODES, type ViewMode } from "@/hooks/use-view-mode";
 
 export default function CheckedOutItemsPage() {
   const router = useRouter();
@@ -46,7 +46,7 @@ export default function CheckedOutItemsPage() {
   const [viewMode, setViewMode] = useViewMode<ViewMode>(
     "checked-out-view-mode",
     "grid",
-    ["grid", "list"]
+    VIEW_MODES
   );
 
   const page = Number(searchParams.get("page")) || 1;

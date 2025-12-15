@@ -42,7 +42,11 @@ import {
 import { cn } from "@/lib/utils";
 import type { LabelData } from "@/lib/labels";
 import { useTranslations } from "next-intl";
-import { useViewMode, type TreeViewMode } from "@/hooks/use-view-mode";
+import {
+  useViewMode,
+  TREE_VIEW_MODES,
+  type TreeViewMode,
+} from "@/hooks/use-view-mode";
 
 const LOCATION_TYPES = [
   { value: "room", label: "Room", icon: "🏠" },
@@ -75,7 +79,7 @@ export default function LocationsPage() {
   const [viewMode, setViewMode] = useViewMode<TreeViewMode>(
     "locations-view-mode",
     "tree",
-    ["tree", "grid", "list"]
+    TREE_VIEW_MODES
   );
   const [formData, setFormData] = useState<LocationCreate>({
     name: "",
