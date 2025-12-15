@@ -73,25 +73,45 @@ mise run install:backend  # Backend only
 mise run install:frontend # Frontend only
 
 # Build
-mise run build            # Build all Docker images
-mise run build:backend    # Backend only
-mise run build:frontend   # Frontend only
+mise run build              # Build all Docker images
+mise run build:backend      # Backend Docker image
+mise run build:frontend     # Frontend Docker image
+mise run build:frontend:local  # Frontend Next.js build (local)
 
 # Code quality
-mise run lint             # Lint all code
-mise run lint:backend     # Backend only
-mise run lint:frontend    # Frontend only
-mise run format           # Format all code
-mise run format:backend   # Backend only
-mise run format:frontend  # Frontend only
+mise run lint               # Lint all code
+mise run lint:backend       # Backend only
+mise run lint:backend:fix   # Backend lint + auto-fix
+mise run lint:frontend      # Frontend only
+mise run lint:frontend:fix  # Frontend lint + auto-fix
+mise run format             # Format all code
+mise run format:backend     # Backend only
+mise run format:frontend    # Frontend only
+mise run format:check       # Check formatting (CI)
+mise run format:check:backend   # Backend format check
+mise run format:check:frontend  # Frontend format check
 
 # Testing
-mise run test             # Run all tests
-mise run test:backend     # Backend tests only
+mise run test               # Run all tests (backend + frontend unit)
+mise run test:backend       # Backend tests (pytest)
+mise run test:backend:unit  # Backend unit tests only
+mise run test:integration   # Backend integration tests
+mise run test:frontend      # Frontend unit tests (vitest)
+mise run test:frontend:watch  # Frontend unit tests (watch mode)
+mise run test:e2e           # Frontend e2e tests (playwright)
+mise run test:e2e:ui        # E2e tests with Playwright UI
+mise run test:e2e:headed    # E2e tests in headed browser
+mise run test:e2e:debug     # E2e tests in debug mode
+
+# CI Checks (run before pushing)
+mise run check              # Run ALL CI checks
+mise run check:backend      # Backend CI checks only
+mise run check:frontend     # Frontend CI checks only
 
 # Database
 mise run db:migrate       # Run migrations
 mise run db:migration "description"  # Create new migration
+mise run db:reset         # Reset database (drop + migrate)
 
 # API
 mise run api:generate     # Regenerate frontend API client
@@ -120,6 +140,11 @@ pnpm install                     # Install dependencies
 pnpm dev                         # Start dev server
 pnpm build                       # Production build
 pnpm lint                        # Lint code
+pnpm lint:fix                    # Lint and auto-fix
+pnpm format                      # Format code
+pnpm format:check                # Check formatting (CI)
+pnpm test                        # Run unit tests (vitest)
+pnpm test:e2e                    # Run e2e tests (playwright)
 pnpm generate-api                # Regenerate OpenAPI client from backend
 ```
 
@@ -211,9 +236,26 @@ Core tables:
 - all frontend strings should be translated using the i18n library
 - always run the pre-push checks below before pushing remotely to ensure the GitHub Actions workflows will pass
 
+### Keeping mise.toml in Sync
+When adding or modifying npm scripts in `frontend/package.json` or new commands in the backend:
+1. Update `mise.toml` with corresponding tasks
+2. Update the "Common Tasks (mise)" section in this file
+3. Ensure task names follow existing conventions (e.g., `category:subcategory`)
+4. Run `mise tasks` to verify the new tasks are listed correctly
+
 ## Pre-Push Checklist
 
 **IMPORTANT:** Before pushing any changes, run these commands to match what CI checks:
+
+### Quickest Method (Recommended)
+```bash
+# Run all CI checks at once
+mise run check
+
+# Or run checks for just one part
+mise run check:backend   # Backend only
+mise run check:frontend  # Frontend only
+```
 
 ### Backend (from `backend/` directory)
 ```bash
