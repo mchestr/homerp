@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Check, ChevronDown, Users } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -61,14 +62,24 @@ export function InventorySwitcher() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="w-full justify-between gap-2 text-left"
+          className={cn(
+            "h-auto w-full justify-between gap-2 px-3 py-2.5 text-left",
+            isViewingSharedInventory
+              ? "border-blue-200 bg-blue-50/50 hover:bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30 dark:hover:bg-blue-950/50"
+              : "hover:bg-muted"
+          )}
           data-testid="inventory-switcher"
         >
           <div className="flex items-center gap-2 truncate">
-            {isViewingSharedInventory && (
-              <Users className="h-4 w-4 shrink-0 text-muted-foreground" />
-            )}
-            <span className="truncate">{displayName}</span>
+            <Users
+              className={cn(
+                "h-4 w-4 shrink-0",
+                isViewingSharedInventory
+                  ? "text-blue-600 dark:text-blue-400"
+                  : "text-muted-foreground"
+              )}
+            />
+            <span className="truncate font-medium">{displayName}</span>
           </div>
           <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
         </Button>

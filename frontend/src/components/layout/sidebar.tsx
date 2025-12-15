@@ -28,6 +28,16 @@ import {
   InventoryBanner,
 } from "@/components/layout/inventory-switcher";
 
+interface NavSection {
+  label: string;
+  items: {
+    title: string;
+    href: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }[];
+  usesOwnData?: boolean;
+}
+
 interface SidebarProps {
   open?: boolean;
   onClose?: () => void;
@@ -39,7 +49,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const { canEdit, isViewingSharedInventory } = useInventory();
   const t = useTranslations();
 
-  const navSections = [
+  const navSections: NavSection[] = [
     {
       label: t("nav.overview"),
       items: [
@@ -59,11 +69,6 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           icon: Package,
         },
         {
-          title: t("sidebar.checkedOutItems"),
-          href: "/checked-out",
-          icon: ArrowRightFromLine,
-        },
-        {
           title: t("sidebar.categories"),
           href: "/categories",
           icon: FolderOpen,
@@ -74,6 +79,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           icon: MapPin,
         },
         {
+          title: t("sidebar.checkedOutItems"),
+          href: "/checked-out",
+          icon: ArrowRightFromLine,
+        },
+        {
           title: t("sidebar.storagePlanner"),
           href: "/gridfinity",
           icon: Grid3X3,
@@ -82,6 +92,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     },
     {
       label: t("nav.aiTools"),
+      usesOwnData: true,
       items: [
         {
           title: t("sidebar.aiAssistant"),
@@ -102,16 +113,17 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     },
     {
       label: t("nav.account"),
+      usesOwnData: true,
       items: [
-        {
-          title: t("sidebar.billing"),
-          href: "/settings/billing",
-          icon: CreditCard,
-        },
         {
           title: t("sidebar.settings"),
           href: "/settings",
           icon: Settings,
+        },
+        {
+          title: t("sidebar.billing"),
+          href: "/settings/billing",
+          icon: CreditCard,
         },
         {
           title: t("sidebar.feedback"),
@@ -122,7 +134,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     },
   ];
 
-  const adminSection = {
+  const adminSection: NavSection = {
     label: t("nav.admin"),
     items: [
       {
@@ -179,53 +191,70 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </div>
 
         {/* Inventory Switcher */}
-        <div className="space-y-2 px-3 py-4">
+        <div className="space-y-3 px-3 py-4">
           <InventorySwitcher />
           {isViewingSharedInventory && <InventoryBanner />}
-          {/* Quick Action - only show if user can edit */}
-          {canEdit && (
+        </div>
+
+        {/* Quick Action - only show if user can edit */}
+        {canEdit && (
+          <div className="border-b px-3 pb-4">
             <Link href="/items/new" onClick={onClose}>
               <Button size="sm" className="w-full gap-2">
                 <Plus className="h-4 w-4" />
                 {t("sidebar.newItem")}
               </Button>
             </Link>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Navigation */}
         <div className="flex-1 overflow-auto px-3 pb-4">
           <nav className="space-y-6">
-            {allSections.map((section) => (
-              <div key={section.label}>
-                <h3 className="mb-2 px-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  {section.label}
-                </h3>
-                <div className="space-y-0.5">
-                  {section.items.map((item) => {
-                    const isActive = isItemActive(item.href);
+            {allSections.map((section) => {
+              const isOwnDataSection =
+                isViewingSharedInventory && section.usesOwnData;
 
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={onClose}
-                        data-testid={`sidebar-link-${item.href.replace(/\//g, "-").replace(/^-/, "")}`}
-                        className={cn(
-                          "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                          isActive
-                            ? "bg-primary text-primary-foreground"
-                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                        )}
-                      >
-                        <item.icon className="h-4 w-4" />
-                        {item.title}
-                      </Link>
-                    );
-                  })}
+              return (
+                <div key={section.label}>
+                  <h3
+                    className={cn(
+                      "mb-2 px-3 text-[11px] font-medium uppercase tracking-wider",
+                      isOwnDataSection
+                        ? "text-blue-600 dark:text-blue-400"
+                        : "text-muted-foreground"
+                    )}
+                  >
+                    {section.label}
+                  </h3>
+                  <div className="space-y-0.5">
+                    {section.items.map((item) => {
+                      const isActive = isItemActive(item.href);
+
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={onClose}
+                          data-testid={`sidebar-link-${item.href.replace(/\//g, "-").replace(/^-/, "")}`}
+                          className={cn(
+                            "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                            isActive
+                              ? "bg-primary text-primary-foreground"
+                              : isOwnDataSection
+                                ? "text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-950 dark:hover:text-blue-300"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                          )}
+                        >
+                          <item.icon className="h-4 w-4" />
+                          {item.title}
+                        </Link>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </nav>
         </div>
 
