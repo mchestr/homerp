@@ -28,12 +28,13 @@ import {
 import { cn } from "@/lib/utils";
 
 // Storage type definitions
-export type StorageType = "gridfinity" | "multiboard" | "tote-rack";
+export type StorageType = "gridfinity" | "multiboard" | "toteRack";
 
 interface StorageTypeOption {
   id: StorageType;
   icon: React.ReactNode;
   features: string[];
+  isComingSoon?: boolean;
 }
 
 // Wizard step definitions
@@ -111,15 +112,17 @@ export function StoragePlannerWizard({
         t("multiboard.feature2"),
         t("multiboard.feature3"),
       ],
+      isComingSoon: true,
     },
     {
-      id: "tote-rack",
+      id: "toteRack",
       icon: <Package className="h-8 w-8" />,
       features: [
         t("toteRack.feature1"),
         t("toteRack.feature2"),
         t("toteRack.feature3"),
       ],
+      isComingSoon: true,
     },
   ];
 
@@ -162,9 +165,9 @@ export function StoragePlannerWizard({
         if (selectedType === "gridfinity") {
           return gridfinityData.name.trim() !== "";
         }
-        // Multiboard and tote-rack are coming soon, so they always pass
+        // Multiboard and toteRack are coming soon, so they always pass
         // configuration step (we show coming soon message instead)
-        if (selectedType === "multiboard" || selectedType === "tote-rack") {
+        if (selectedType === "multiboard" || selectedType === "toteRack") {
           return true;
         }
         return false;
@@ -179,7 +182,7 @@ export function StoragePlannerWizard({
     if (selectedType === "gridfinity") {
       createGridfinityMutation.mutate(gridfinityData);
     }
-    // For now, multiboard and tote-rack are coming soon
+    // For now, multiboard and toteRack are coming soon
     // TODO: Implement when backend support is added
   };
 
@@ -222,10 +225,13 @@ export function StoragePlannerWizard({
         {/* Step 1: Type Selection */}
         {currentStep === "type-selection" && (
           <div className="space-y-6" data-testid="step-type-selection">
-            <div>
+            <div className="space-y-2">
               <h2 className="text-lg font-semibold">{t("selectType.title")}</h2>
               <p className="text-muted-foreground">
                 {t("selectType.description")}
+              </p>
+              <p className="text-sm text-muted-foreground/80">
+                {t("selectType.helpText")}
               </p>
             </div>
 
@@ -234,13 +240,16 @@ export function StoragePlannerWizard({
                 <button
                   key={type.id}
                   type="button"
-                  onClick={() => setSelectedType(type.id)}
+                  onClick={() => !type.isComingSoon && setSelectedType(type.id)}
+                  disabled={type.isComingSoon}
                   data-testid={`storage-type-${type.id}`}
                   className={cn(
                     "group relative flex flex-col rounded-xl border-2 p-6 text-left transition-all",
-                    selectedType === type.id
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/50"
+                    type.isComingSoon
+                      ? "cursor-not-allowed border-border opacity-60"
+                      : selectedType === type.id
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/50"
                   )}
                 >
                   {/* Selected indicator */}
@@ -287,8 +296,8 @@ export function StoragePlannerWizard({
                     ))}
                   </ul>
 
-                  {/* Coming soon badge for non-gridfinity */}
-                  {type.id !== "gridfinity" && (
+                  {/* Coming soon badge */}
+                  {type.isComingSoon && (
                     <div className="mt-4 inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
                       <Info className="h-3 w-3" />
                       {t("comingSoon")}
@@ -482,7 +491,7 @@ export function StoragePlannerWizard({
             )}
 
             {/* Tote Rack Configuration (Coming Soon) */}
-            {selectedType === "tote-rack" && (
+            {selectedType === "toteRack" && (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
                   <Info className="h-8 w-8 text-amber-600 dark:text-amber-400" />
@@ -553,8 +562,7 @@ export function StoragePlannerWizard({
               </div>
             )}
 
-            {(selectedType === "multiboard" ||
-              selectedType === "tote-rack") && (
+            {(selectedType === "multiboard" || selectedType === "toteRack") && (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
                   <Info className="h-8 w-8 text-amber-600 dark:text-amber-400" />
@@ -593,7 +601,7 @@ export function StoragePlannerWizard({
                 !canProceed() ||
                 isCreating ||
                 selectedType === "multiboard" ||
-                selectedType === "tote-rack"
+                selectedType === "toteRack"
               }
               data-testid="wizard-create-button"
             >
