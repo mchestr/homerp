@@ -351,6 +351,7 @@
     "freeMonthly": "Free (Monthly)",
     "resetsOn": "Resets {date}",
     "identifyItemCost": "Identify Item (1 credit)",
+    "reclassifyCost": "Re-classify (1 credit)",
     "analyzing": "Analyzing...",
     "creditTooltipTitle": "AI Credits",
     "creditTooltipPurchased": "Purchased: {count}",
