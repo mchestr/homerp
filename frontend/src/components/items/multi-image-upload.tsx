@@ -80,17 +80,17 @@ export function MultiImageUpload({
       // Process each file
       for (const file of Array.from(files)) {
         if (uploadedImages.length >= maxImages) {
-          setError(`Maximum ${maxImages} images allowed`);
+          setError(tImages("maxImagesAllowed", { count: maxImages }));
           break;
         }
 
         if (!file.type.startsWith("image/")) {
-          setError("Please select an image file");
+          setError(tImages("pleaseSelectImageFile"));
           continue;
         }
 
         if (file.size > 10 * 1024 * 1024) {
-          setError("Image must be less than 10MB");
+          setError(tImages("imageMustBeLessThan10MB"));
           continue;
         }
 
@@ -119,7 +119,7 @@ export function MultiImageUpload({
           }
         } catch (err) {
           console.error("Upload error:", err);
-          setError("Failed to upload image. Please try again.");
+          setError(tImages("uploadFailed"));
         }
       }
       setIsUploading(false);
@@ -130,6 +130,7 @@ export function MultiImageUpload({
       onClassificationComplete,
       uploadedImages.length,
       maxImages,
+      tImages,
     ]
   );
 
@@ -151,7 +152,7 @@ export function MultiImageUpload({
           setCustomPrompt("");
           setIsPromptExpanded(false);
         } else {
-          setError(response.error || "Classification failed");
+          setError(response.error || tImages("classificationFailed"));
         }
       } catch (err: unknown) {
         console.error("Classification error:", err);
@@ -163,7 +164,7 @@ export function MultiImageUpload({
         ) {
           showInsufficientCredits();
         } else {
-          setError("Failed to classify image. Please try again.");
+          setError(tImages("classifyFailed"));
         }
       } finally {
         setIsClassifying(false);
@@ -175,6 +176,7 @@ export function MultiImageUpload({
       showInsufficientCredits,
       refreshCredits,
       customPrompt,
+      tImages,
     ]
   );
 
@@ -197,17 +199,17 @@ export function MultiImageUpload({
 
     for (const file of Array.from(files)) {
       if (uploadedImages.length >= maxImages) {
-        setError(`Maximum ${maxImages} images allowed`);
+        setError(tImages("maxImagesAllowed", { count: maxImages }));
         break;
       }
 
       if (!file.type.startsWith("image/")) {
-        setError("Please drop an image file");
+        setError(tImages("pleaseDropImageFile"));
         continue;
       }
 
       if (file.size > 10 * 1024 * 1024) {
-        setError("Image must be less than 10MB");
+        setError(tImages("imageMustBeLessThan10MB"));
         continue;
       }
 
@@ -234,7 +236,7 @@ export function MultiImageUpload({
         }
       } catch (err) {
         console.error("Upload error:", err);
-        setError("Failed to upload image. Please try again.");
+        setError(tImages("uploadFailed"));
       }
     }
     setIsUploading(false);

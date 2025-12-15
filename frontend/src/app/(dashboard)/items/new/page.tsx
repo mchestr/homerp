@@ -74,6 +74,10 @@ export default function NewItemPage() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const t = useTranslations();
+  const tItems = useTranslations("items");
+  const tCommon = useTranslations("common");
+  const tImages = useTranslations("images");
+  const tSimilarItems = useTranslations("similarItems");
 
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [classification, setClassification] =
@@ -403,10 +407,10 @@ export default function NewItemPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-            Add New Item
+            {tItems("addNewItem")}
           </h1>
           <p className="mt-1 text-muted-foreground">
-            Upload a photo to automatically identify your item
+            {tItems("uploadToIdentify")}
           </p>
         </div>
       </div>
@@ -417,8 +421,10 @@ export default function NewItemPage() {
             <Upload className="h-5 w-5" />
           </div>
           <div>
-            <p className="font-medium">Step 1</p>
-            <p className="text-sm text-muted-foreground">Upload image</p>
+            <p className="font-medium">{tItems("step", { number: 1 })}</p>
+            <p className="text-sm text-muted-foreground">
+              {tImages("uploadImage")}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-3 rounded-xl border bg-card p-4">
@@ -426,8 +432,10 @@ export default function NewItemPage() {
             <Sparkles className="h-5 w-5" />
           </div>
           <div>
-            <p className="font-medium">Step 2</p>
-            <p className="text-sm text-muted-foreground">Auto-identify</p>
+            <p className="font-medium">{tItems("step", { number: 2 })}</p>
+            <p className="text-sm text-muted-foreground">
+              {tItems("autoIdentify")}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-3 rounded-xl border bg-card p-4">
@@ -435,8 +443,10 @@ export default function NewItemPage() {
             <Package className="h-5 w-5" />
           </div>
           <div>
-            <p className="font-medium">Step 3</p>
-            <p className="text-sm text-muted-foreground">Review & save</p>
+            <p className="font-medium">{tItems("step", { number: 3 })}</p>
+            <p className="text-sm text-muted-foreground">
+              {tItems("reviewAndSave")}
+            </p>
           </div>
         </div>
       </div>
@@ -446,7 +456,7 @@ export default function NewItemPage() {
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
             1
           </div>
-          <h2 className="text-lg font-semibold">Upload Image</h2>
+          <h2 className="text-lg font-semibold">{tImages("uploadImage")}</h2>
         </div>
         <MultiImageUpload
           onImageUploaded={handleImageUploaded}
@@ -464,13 +474,13 @@ export default function NewItemPage() {
               <CheckCircle2 className="h-5 w-5 text-white" />
             </div>
             <h2 className="text-lg font-semibold text-emerald-800 dark:text-emerald-300">
-              Item Identified
+              {tItems("itemIdentified")}
             </h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="rounded-lg bg-white/60 p-3 dark:bg-black/20">
               <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                Identified as
+                {tItems("identifiedAs")}
               </p>
               <p className="mt-1 font-semibold text-emerald-900 dark:text-emerald-200">
                 {classification.identified_name}
@@ -478,7 +488,7 @@ export default function NewItemPage() {
             </div>
             <div className="rounded-lg bg-white/60 p-3 dark:bg-black/20">
               <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                Confidence
+                {tImages("confidence")}
               </p>
               <div className="mt-1 flex items-center gap-2">
                 <div className="h-2 flex-1 overflow-hidden rounded-full bg-emerald-200 dark:bg-emerald-800">
@@ -496,7 +506,7 @@ export default function NewItemPage() {
             </div>
             <div className="rounded-lg bg-white/60 p-3 dark:bg-black/20 sm:col-span-2">
               <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                Suggested category
+                {tItems("suggestedCategory")}
               </p>
               <div className="mt-1 flex items-center justify-between gap-2">
                 <p className="font-medium text-emerald-900 dark:text-emerald-200">
@@ -505,7 +515,7 @@ export default function NewItemPage() {
                 {categoriesCreated ? (
                   <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
                     <Check className="h-3 w-3" />
-                    Created
+                    {tItems("categoriesCreated")}
                   </span>
                 ) : (
                   <Button
@@ -514,9 +524,10 @@ export default function NewItemPage() {
                     variant="outline"
                     className="shrink-0 border-emerald-300 bg-white text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 dark:hover:bg-emerald-900"
                     onClick={() => setShowCategoryDialog(true)}
+                    data-testid="create-categories-button"
                   >
                     <FolderPlus className="mr-1.5 h-3.5 w-3.5" />
-                    Create Categories
+                    {tItems("createCategories")}
                   </Button>
                 )}
               </div>
@@ -524,7 +535,7 @@ export default function NewItemPage() {
             {Object.keys(classification.specifications).length > 0 && (
               <div className="rounded-lg bg-white/60 p-3 dark:bg-black/20 sm:col-span-2">
                 <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                  Detected specifications
+                  {tItems("detectedSpecifications")}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {Object.entries(classification.specifications).map(
@@ -559,7 +570,7 @@ export default function NewItemPage() {
         <div className="flex items-center justify-center rounded-xl border border-amber-200 bg-amber-50 p-6 dark:border-amber-800 dark:bg-amber-950/30">
           <Loader2 className="mr-2 h-5 w-5 animate-spin text-amber-600" />
           <span className="text-amber-700 dark:text-amber-300">
-            Checking for similar items...
+            {tSimilarItems("checking")}
           </span>
         </div>
       )}
@@ -632,13 +643,13 @@ export default function NewItemPage() {
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
             2
           </div>
-          <h2 className="text-lg font-semibold">Item Details</h2>
+          <h2 className="text-lg font-semibold">{tItems("itemDetails")}</h2>
         </div>
 
         <div className="space-y-5">
           <div>
             <label className="mb-2 block text-sm font-medium">
-              Name <span className="text-destructive">*</span>
+              {tCommon("name")} <span className="text-destructive">*</span>
             </label>
             <input
               type="text"
@@ -648,13 +659,13 @@ export default function NewItemPage() {
               onChange={handleInputChange}
               required
               className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              placeholder="e.g., M3x16mm Pan Head Screws"
+              placeholder={tItems("namePlaceholder")}
             />
           </div>
 
           <div>
             <label className="mb-2 block text-sm font-medium">
-              Description
+              {tCommon("description")}
             </label>
             <textarea
               name="description"
@@ -662,13 +673,15 @@ export default function NewItemPage() {
               onChange={handleInputChange}
               rows={3}
               className="w-full rounded-lg border bg-background px-4 py-3 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              placeholder="Optional description of the item"
+              placeholder={tItems("descriptionPlaceholder")}
             />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-2 block text-sm font-medium">Category</label>
+              <label className="mb-2 block text-sm font-medium">
+                {tItems("category")}
+              </label>
               <TreeSelect
                 nodes={categoryTree ?? []}
                 value={formData.category_id ?? null}
@@ -678,12 +691,14 @@ export default function NewItemPage() {
                     category_id: value ?? undefined,
                   }))
                 }
-                placeholder="Select category"
+                placeholder={tItems("selectCategory")}
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium">Location</label>
+              <label className="mb-2 block text-sm font-medium">
+                {tItems("location")}
+              </label>
               <TreeSelect
                 nodes={locationTreeWithIcons}
                 value={formData.location_id ?? null}
@@ -693,14 +708,16 @@ export default function NewItemPage() {
                     location_id: value ?? undefined,
                   }))
                 }
-                placeholder="Select location"
+                placeholder={tItems("selectLocation")}
               />
             </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-4">
             <div>
-              <label className="mb-2 block text-sm font-medium">Quantity</label>
+              <label className="mb-2 block text-sm font-medium">
+                {tItems("quantity")}
+              </label>
               <input
                 type="number"
                 name="quantity"
@@ -712,7 +729,7 @@ export default function NewItemPage() {
               />
               {quantityEstimateRaw && (
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {t("items.quantityEstimateFromAi", {
+                  {tItems("quantityEstimateFromAi", {
                     estimate: quantityEstimateRaw,
                   })}
                 </p>
@@ -720,7 +737,9 @@ export default function NewItemPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium">Unit</label>
+              <label className="mb-2 block text-sm font-medium">
+                {tItems("quantityUnit")}
+              </label>
               <input
                 type="text"
                 name="quantity_unit"
@@ -728,13 +747,13 @@ export default function NewItemPage() {
                 value={formData.quantity_unit}
                 onChange={handleInputChange}
                 className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="pcs, meters, etc."
+                placeholder={tItems("unitPlaceholder")}
               />
             </div>
 
             <div>
               <label className="mb-2 block text-sm font-medium">
-                Min Quantity
+                {tItems("minQuantity")}
               </label>
               <input
                 type="number"
@@ -743,12 +762,14 @@ export default function NewItemPage() {
                 onChange={handleInputChange}
                 min={0}
                 className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="Alert threshold"
+                placeholder={tItems("alertThreshold")}
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium">Price</label>
+              <label className="mb-2 block text-sm font-medium">
+                {tItems("price")}
+              </label>
               <input
                 type="number"
                 name="price"
@@ -764,15 +785,17 @@ export default function NewItemPage() {
 
           {/* Tags */}
           <div>
-            <label className="mb-2 block text-sm font-medium">Tags</label>
+            <label className="mb-2 block text-sm font-medium">
+              {tItems("tags")}
+            </label>
             <TagInput
               value={formData.tags || []}
               onChange={(tags) => setFormData((prev) => ({ ...prev, tags }))}
               suggestions={allTags?.map((t) => t.value) || []}
-              placeholder="Add tags for search aliases..."
+              placeholder={tItems("tagsPlaceholder")}
             />
             <p className="mt-1 text-xs text-muted-foreground">
-              Press Enter or comma to add. Tags help with search.
+              {tItems("tagsHelp")}
             </p>
           </div>
 
@@ -790,22 +813,28 @@ export default function NewItemPage() {
 
         <div className="mt-8 flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-end">
           <Link href="/items" className="w-full sm:w-auto">
-            <Button type="button" variant="outline" className="w-full">
-              Cancel
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              data-testid="cancel-button"
+            >
+              {tCommon("cancel")}
             </Button>
           </Link>
           <Button
             type="submit"
             disabled={createMutation.isPending || !formData.name}
             className="w-full sm:w-auto"
+            data-testid="create-item-button"
           >
             {createMutation.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating...
+                {tItems("creating")}
               </>
             ) : (
-              "Create Item"
+              tItems("createItem")
             )}
           </Button>
         </div>
@@ -817,10 +846,12 @@ export default function NewItemPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Create Category Hierarchy?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {tItems("createCategoryHierarchy")}
+            </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-3">
-                <p>This will create the following categories:</p>
+                <p>{tItems("categoryCreationDescription")}</p>
                 <ul className="list-inside list-disc space-y-1 rounded-lg bg-muted p-3 text-sm">
                   {classification?.category_path
                     .split(">")
@@ -832,20 +863,19 @@ export default function NewItemPage() {
                         {index > 0 && (
                           <span className="text-muted-foreground">
                             {" "}
-                            (under {arr[index - 1]})
+                            ({tItems("underParent", { parent: arr[index - 1] })}
+                            )
                           </span>
                         )}
                       </li>
                     ))}
                 </ul>
-                <p className="text-sm">
-                  Existing categories with matching names will be reused.
-                </p>
+                <p className="text-sm">{tItems("existingCategoriesReused")}</p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (classification?.category_path) {
@@ -857,10 +887,10 @@ export default function NewItemPage() {
               {createCategoriesMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
+                  {tItems("creating")}
                 </>
               ) : (
-                "Create"
+                tCommon("create")
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

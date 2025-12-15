@@ -49,6 +49,7 @@ export default function ItemDetailPage() {
   const itemId = params.id as string;
   const t = useTranslations("checkInOut");
   const tCommon = useTranslations("common");
+  const tItems = useTranslations("items");
 
   const [checkInOutQuantity, setCheckInOutQuantity] = useState(1);
   const [checkInOutNotes, setCheckInOutNotes] = useState("");
@@ -125,10 +126,10 @@ export default function ItemDetailPage() {
 
   const handleDelete = async () => {
     const confirmed = await confirm({
-      title: "Delete Item",
-      message: `Are you sure you want to delete "${item?.name}"? This action cannot be undone.`,
-      confirmLabel: "Delete",
-      cancelLabel: "Cancel",
+      title: tItems("deleteConfirmTitle"),
+      message: tItems("deleteConfirmMessage", { name: item?.name ?? "" }),
+      confirmLabel: tCommon("delete"),
+      cancelLabel: tCommon("cancel"),
       variant: "danger",
     });
     if (!confirmed) return;
@@ -175,7 +176,9 @@ export default function ItemDetailPage() {
       <div className="flex items-center justify-center py-16">
         <div className="flex flex-col items-center gap-4">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground">Loading item...</p>
+          <p className="text-sm text-muted-foreground">
+            {tItems("loadingItem")}
+          </p>
         </div>
       </div>
     );
@@ -187,14 +190,14 @@ export default function ItemDetailPage() {
         <div className="rounded-full bg-muted p-4">
           <Package className="h-10 w-10 text-muted-foreground" />
         </div>
-        <h2 className="mt-4 text-xl font-semibold">Item not found</h2>
+        <h2 className="mt-4 text-xl font-semibold">{tItems("itemNotFound")}</h2>
         <p className="mt-1 text-muted-foreground">
-          This item may have been deleted
+          {tItems("itemNotFoundDescription")}
         </p>
         <Link href="/items" className="mt-6">
           <Button variant="outline">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to items
+            {tItems("backToItems")}
           </Button>
         </Link>
       </div>
@@ -246,7 +249,7 @@ export default function ItemDetailPage() {
           <Link href={`/items/${itemId}/edit`}>
             <Button variant="outline" className="gap-2">
               <Edit className="h-4 w-4" />
-              <span className="hidden sm:inline">Edit</span>
+              <span className="hidden sm:inline">{tCommon("edit")}</span>
             </Button>
           </Link>
           <Button
@@ -257,7 +260,9 @@ export default function ItemDetailPage() {
           >
             <Trash2 className="h-4 w-4" />
             <span className="hidden sm:inline">
-              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+              {deleteMutation.isPending
+                ? tItems("deleting")
+                : tCommon("delete")}
             </span>
           </Button>
         </div>
@@ -271,10 +276,11 @@ export default function ItemDetailPage() {
         <div className="space-y-4">
           <div className="rounded-xl border bg-card p-5">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold">Quantity</h2>
+              <h2 className="font-semibold">{tItems("quantity")}</h2>
               {item.min_quantity != null && (
                 <span className="text-sm text-muted-foreground">
-                  Min: {String(item.min_quantity)} {item.quantity_unit}
+                  {tItems("minQuantity")}: {String(item.min_quantity)}{" "}
+                  {item.quantity_unit}
                 </span>
               )}
             </div>
@@ -316,23 +322,25 @@ export default function ItemDetailPage() {
             {item.is_low_stock && (
               <div className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
                 <AlertTriangle className="h-4 w-4" />
-                Stock is below minimum quantity
+                {tItems("stockBelowMinimum")}
               </div>
             )}
           </div>
 
           <div className="rounded-xl border bg-card p-5">
-            <h2 className="font-semibold">Organization</h2>
+            <h2 className="font-semibold">{tItems("organization")}</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div className="flex items-start gap-3 rounded-lg bg-muted/50 p-3">
                 <div className="rounded-lg bg-emerald-500/10 p-2 dark:bg-emerald-400/10">
                   <FolderOpen className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground">Category</p>
+                  <p className="text-xs text-muted-foreground">
+                    {tItems("category")}
+                  </p>
                   <p className="truncate font-medium">
                     {item.category?.icon}{" "}
-                    {item.category?.name ?? "Uncategorized"}
+                    {item.category?.name ?? tItems("uncategorized")}
                   </p>
                 </div>
               </div>
@@ -341,9 +349,11 @@ export default function ItemDetailPage() {
                   <MapPin className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground">Location</p>
+                  <p className="text-xs text-muted-foreground">
+                    {tItems("location")}
+                  </p>
                   <p className="truncate font-medium">
-                    {item.location?.name ?? "No location"}
+                    {item.location?.name ?? tItems("noLocation")}
                   </p>
                 </div>
               </div>
@@ -357,7 +367,9 @@ export default function ItemDetailPage() {
                   <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Price</p>
+                  <p className="text-xs text-muted-foreground">
+                    {tItems("price")}
+                  </p>
                   <p className="text-2xl font-bold tabular-nums">
                     {formatPrice(item.price, user?.currency)}
                   </p>
@@ -368,7 +380,7 @@ export default function ItemDetailPage() {
 
           {item.description && (
             <div className="rounded-xl border bg-card p-5">
-              <h2 className="font-semibold">Description</h2>
+              <h2 className="font-semibold">{tCommon("description")}</h2>
               <p className="mt-2 leading-relaxed text-muted-foreground">
                 {item.description}
               </p>
@@ -386,7 +398,7 @@ export default function ItemDetailPage() {
               <div className="rounded-xl border bg-card p-5">
                 <div className="flex items-center gap-2">
                   <Tag className="h-4 w-4 text-muted-foreground" />
-                  <h2 className="font-semibold">Specifications</h2>
+                  <h2 className="font-semibold">{tItems("specifications")}</h2>
                 </div>
                 <dl className="mt-4 space-y-3">
                   {entries.map(([key, value]) => (

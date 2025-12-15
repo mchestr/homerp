@@ -7,6 +7,7 @@ import { AuthenticatedImage } from "@/components/ui/authenticated-image";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import { useToast } from "@/hooks/use-toast";
 
 type ImageGalleryProps = {
   images: Image[];
@@ -24,6 +25,8 @@ export function ImageGallery({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const t = useTranslations("images");
+  const tCommon = useTranslations("common");
+  const { toast } = useToast();
 
   const currentImage = images[selectedIndex];
 
@@ -41,11 +44,18 @@ export function ImageGallery({
       setIsLoading(true);
       try {
         await onSetPrimary(imageId);
+      } catch (error) {
+        console.error("Failed to set primary image:", error);
+        toast({
+          title: tCommon("error"),
+          description: t("setPrimaryFailed"),
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }
     },
-    [onSetPrimary]
+    [onSetPrimary, toast, tCommon, t]
   );
 
   const handleRemove = useCallback(
@@ -58,11 +68,18 @@ export function ImageGallery({
         if (selectedIndex >= images.length - 1 && selectedIndex > 0) {
           setSelectedIndex(selectedIndex - 1);
         }
+      } catch (error) {
+        console.error("Failed to remove image:", error);
+        toast({
+          title: tCommon("error"),
+          description: t("removeFailed"),
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }
     },
-    [onRemoveImage, selectedIndex, images.length]
+    [onRemoveImage, selectedIndex, images.length, toast, tCommon, t]
   );
 
   if (images.length === 0) {
