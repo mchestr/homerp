@@ -6,6 +6,7 @@ uv = "latest"
 
 [env]
 VIRTUAL_ENV = "{{config_root}}/backend/.venv"
+_.file = "frontend/.env"
 
 [tasks.install]
 description = "Install all dependencies"
