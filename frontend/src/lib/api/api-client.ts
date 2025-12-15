@@ -9,10 +9,23 @@ function getApiBaseUrl(): string {
   return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 }
 
+// Inventory context for shared inventory access
+// This is set by the InventoryProvider when viewing a shared inventory
+let _inventoryContextId: string | null = null;
+
+export function setInventoryContext(ownerId: string | null): void {
+  _inventoryContextId = ownerId;
+}
+
+export function getInventoryContext(): string | null {
+  return _inventoryContextId;
+}
+
 type RequestOptions = {
   method?: string;
   body?: unknown;
   headers?: Record<string, string>;
+  skipInventoryContext?: boolean;
 };
 
 class ApiError extends Error {
@@ -34,7 +47,12 @@ export async function apiRequest<T>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const { method = "GET", body, headers = {} } = options;
+  const {
+    method = "GET",
+    body,
+    headers = {},
+    skipInventoryContext = false,
+  } = options;
 
   const token = await getAuthToken();
 
@@ -45,6 +63,12 @@ export async function apiRequest<T>(
 
   if (token) {
     requestHeaders["Authorization"] = `Bearer ${token}`;
+  }
+
+  // Add inventory context header when viewing a shared inventory
+  // Skip for certain endpoints like auth and collaboration
+  if (!skipInventoryContext && _inventoryContextId) {
+    requestHeaders["X-Inventory-Context"] = _inventoryContextId;
   }
 
   const response = await fetch(`${getApiBaseUrl()}${endpoint}`, {
@@ -81,6 +105,11 @@ export async function uploadFile(
   const headers: Record<string, string> = {};
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  // Add inventory context header when viewing a shared inventory
+  if (_inventoryContextId) {
+    headers["X-Inventory-Context"] = _inventoryContextId;
   }
 
   const response = await fetch(`${getApiBaseUrl()}${endpoint}`, {

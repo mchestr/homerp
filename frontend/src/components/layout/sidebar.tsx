@@ -22,6 +22,11 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-context";
+import { useInventory } from "@/context/inventory-context";
+import {
+  InventorySwitcher,
+  InventoryBanner,
+} from "@/components/layout/inventory-switcher";
 
 interface SidebarProps {
   open?: boolean;
@@ -31,6 +36,7 @@ interface SidebarProps {
 export function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
+  const { canEdit, isViewingSharedInventory } = useInventory();
   const t = useTranslations();
 
   const navSections = [
@@ -172,14 +178,19 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           </button>
         </div>
 
-        {/* Quick Action */}
-        <div className="px-3 py-4">
-          <Link href="/items/new" onClick={onClose}>
-            <Button size="sm" className="w-full gap-2">
-              <Plus className="h-4 w-4" />
-              {t("sidebar.newItem")}
-            </Button>
-          </Link>
+        {/* Inventory Switcher */}
+        <div className="space-y-2 px-3 py-4">
+          <InventorySwitcher />
+          {isViewingSharedInventory && <InventoryBanner />}
+          {/* Quick Action - only show if user can edit */}
+          {canEdit && (
+            <Link href="/items/new" onClick={onClose}>
+              <Button size="sm" className="w-full gap-2">
+                <Plus className="h-4 w-4" />
+                {t("sidebar.newItem")}
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Navigation */}
