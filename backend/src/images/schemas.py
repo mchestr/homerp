@@ -57,9 +57,13 @@ class PaginatedImagesResponse(BaseModel):
 
 
 class ClassificationRequest(BaseModel):
-    """Schema for image classification request."""
+    """Schema for image classification request.
 
-    image_id: UUID
+    Accepts multiple image IDs to classify together (e.g., multiple angles of same item).
+    Charges 1 credit per image.
+    """
+
+    image_ids: list[UUID]
     custom_prompt: str | None = None
 
 
@@ -82,6 +86,7 @@ class ClassificationResponse(BaseModel):
     classification: ClassificationResult | None = None
     error: str | None = None
     create_item_prefill: dict[str, Any] | None = None
+    credits_charged: int = 0
 
 
 class ImageSignedUrlResponse(BaseModel):

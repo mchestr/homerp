@@ -181,7 +181,7 @@ async def upload_image(
 
 
 @router.post("/classify")
-async def classify_image(
+async def classify_images(
     data: ClassificationRequest,
     session: AsyncSessionDep,
     user_id: CurrentUserIdDep,
@@ -189,42 +189,63 @@ async def classify_image(
     ai_service: Annotated[AIClassificationService, Depends(get_ai_service)],
     credit_service: CreditServiceDep,
 ) -> ClassificationResponse:
-    """Classify an uploaded image using AI."""
-    # Check if user has credits
-    if not await credit_service.has_credits(user_id):
+    """Classify one or more uploaded images using AI.
+
+    Multiple images are sent together in a single request, allowing the AI
+    to see different angles/views of the same item for better identification.
+
+    Charges 1 credit per image.
+    """
+    num_images = len(data.image_ids)
+    if num_images == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="At least one image ID is required",
+        )
+
+    # Check if user has enough credits for all images
+    if not await credit_service.has_credits(user_id, amount=num_images):
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
-            detail="Insufficient credits. Please purchase more credits to use AI classification.",
+            detail=f"Insufficient credits. You need {num_images} credits to classify {num_images} image(s).",
         )
 
-    # Get image record
+    # Get all image records
     repo = ImageRepository(session, user_id)
-    image = await repo.get_by_id(data.image_id)
-    if not image:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Image not found",
-        )
+    images = []
+    for image_id in data.image_ids:
+        image = await repo.get_by_id(image_id)
+        if not image:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Image {image_id} not found",
+            )
+        images.append(image)
 
     try:
-        # Read image data
-        image_data = await storage.read(image.storage_path)
+        # Read all image data
+        image_data_list: list[tuple[bytes, str]] = []
+        for image in images:
+            image_data = await storage.read(image.storage_path)
+            image_data_list.append((image_data, image.mime_type or "image/jpeg"))
 
-        # Classify with AI
-        classification = await ai_service.classify_image(
-            image_data,
-            mime_type=image.mime_type or "image/jpeg",
+        # Classify all images together with AI
+        classification = await ai_service.classify_images(
+            image_data_list,
             custom_prompt=data.custom_prompt,
         )
 
-        # Deduct credit after successful classification
+        # Deduct credits after successful classification (1 per image)
+        filenames = [img.original_filename or "image" for img in images]
         await credit_service.deduct_credit(
             user_id,
-            f"AI classification: {image.original_filename or 'image'}",
+            f"AI classification ({num_images} images): {', '.join(filenames[:3])}{'...' if len(filenames) > 3 else ''}",
+            amount=num_images,
         )
 
-        # Update image record with AI result
-        await repo.update_ai_result(image, classification.model_dump())
+        # Update all image records with AI result
+        for image in images:
+            await repo.update_ai_result(image, classification.model_dump())
 
         # Create prefill data
         prefill = ai_service.create_item_prefill(classification)
@@ -233,6 +254,7 @@ async def classify_image(
             success=True,
             classification=classification,
             create_item_prefill=prefill,
+            credits_charged=num_images,
         )
 
     except Exception as e:
@@ -468,4 +490,55 @@ async def attach_image_to_item(
         )
 
     image = await repo.attach_to_item(image, item_id, is_primary)
+    return ImageResponse.model_validate(image)
+
+
+@router.post("/{image_id}/set-primary")
+async def set_image_as_primary(
+    image_id: UUID,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+) -> ImageResponse:
+    """Set an image as the primary image for its item.
+
+    The image must already be attached to an item.
+    Other images for the same item will be marked as non-primary.
+    """
+    repo = ImageRepository(session, user_id)
+    image = await repo.get_by_id(image_id)
+    if not image:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image not found",
+        )
+
+    if not image.item_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Image is not attached to any item",
+        )
+
+    image = await repo.set_primary(image)
+    return ImageResponse.model_validate(image)
+
+
+@router.post("/{image_id}/detach")
+async def detach_image_from_item(
+    image_id: UUID,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+) -> ImageResponse:
+    """Detach an image from its item.
+
+    The image is not deleted, just unassociated from the item.
+    """
+    repo = ImageRepository(session, user_id)
+    image = await repo.get_by_id(image_id)
+    if not image:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image not found",
+        )
+
+    image = await repo.detach_from_item(image)
     return ImageResponse.model_validate(image)

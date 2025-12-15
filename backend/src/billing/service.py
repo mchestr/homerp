@@ -94,9 +94,11 @@ class CreditService:
         balance = await self.get_balance(user_id)
         return balance.total_credits >= amount
 
-    async def deduct_credit(self, user_id: UUID, description: str) -> bool:
+    async def deduct_credit(
+        self, user_id: UUID, description: str, amount: int = 1
+    ) -> bool:
         """
-        Deduct one credit from user's balance.
+        Deduct credits from user's balance.
 
         Uses free credits first, then purchased credits.
         Admins bypass credit deduction entirely.
@@ -104,7 +106,15 @@ class CreditService:
 
         Uses SELECT FOR UPDATE to prevent race conditions when multiple
         concurrent requests try to deduct credits simultaneously.
+
+        Args:
+            user_id: The user's ID
+            description: Description of what the credits were used for
+            amount: Number of credits to deduct (default: 1)
         """
+        if amount < 1:
+            return True  # Nothing to deduct
+
         # Use row-level locking to prevent race conditions
         user = await self.get_user_for_update(user_id)
         if not user:
@@ -118,19 +128,23 @@ class CreditService:
         await self._check_and_reset_free_credits(user)
 
         total_available = user.free_credits_remaining + user.credit_balance
-        if total_available < 1:
+        if total_available < amount:
             return False
 
-        # Deduct from free credits first
+        # Deduct from free credits first, then purchased credits
+        remaining_to_deduct = amount
         if user.free_credits_remaining > 0:
-            user.free_credits_remaining -= 1
-        else:
-            user.credit_balance -= 1
+            free_to_use = min(user.free_credits_remaining, remaining_to_deduct)
+            user.free_credits_remaining -= free_to_use
+            remaining_to_deduct -= free_to_use
+
+        if remaining_to_deduct > 0:
+            user.credit_balance -= remaining_to_deduct
 
         # Log the usage transaction
         transaction = CreditTransaction(
             user_id=user.id,
-            amount=-1,
+            amount=-amount,
             transaction_type="usage",
             description=description,
         )

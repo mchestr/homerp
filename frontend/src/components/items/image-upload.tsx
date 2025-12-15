@@ -113,7 +113,7 @@ export function ImageUpload({
 
       try {
         const response = await imagesApi.classify(
-          imageId,
+          [imageId],
           customPrompt.trim() || undefined
         );
         if (response.success && response.classification) {

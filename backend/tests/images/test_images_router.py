@@ -277,6 +277,90 @@ class TestAttachImageEndpoint:
         assert response.status_code == 401
 
 
+class TestSetPrimaryImageEndpoint:
+    """Tests for POST /api/v1/images/{image_id}/set-primary."""
+
+    async def test_set_primary_image(
+        self, authenticated_client: AsyncClient, test_image: Image
+    ):
+        """Test setting an image as primary for its item."""
+        response = await authenticated_client.post(
+            f"/api/v1/images/{test_image.id}/set-primary"
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["id"] == str(test_image.id)
+        assert data["is_primary"] is True
+
+    async def test_set_primary_image_not_found(self, authenticated_client: AsyncClient):
+        """Test setting non-existent image as primary."""
+        response = await authenticated_client.post(
+            f"/api/v1/images/{uuid.uuid4()}/set-primary"
+        )
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Image not found"
+
+    async def test_set_primary_image_not_attached(
+        self, authenticated_client: AsyncClient, unattached_image: Image
+    ):
+        """Test setting an image as primary when it's not attached to any item."""
+        response = await authenticated_client.post(
+            f"/api/v1/images/{unattached_image.id}/set-primary"
+        )
+
+        assert response.status_code == 400
+        assert response.json()["detail"] == "Image is not attached to any item"
+
+    async def test_set_primary_image_unauthenticated(
+        self, unauthenticated_client: AsyncClient, test_image: Image
+    ):
+        """Test that unauthenticated request returns 401."""
+        response = await unauthenticated_client.post(
+            f"/api/v1/images/{test_image.id}/set-primary"
+        )
+
+        assert response.status_code == 401
+
+
+class TestDetachImageEndpoint:
+    """Tests for POST /api/v1/images/{image_id}/detach."""
+
+    async def test_detach_image(
+        self, authenticated_client: AsyncClient, test_image: Image
+    ):
+        """Test detaching an image from its item."""
+        response = await authenticated_client.post(
+            f"/api/v1/images/{test_image.id}/detach"
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["id"] == str(test_image.id)
+        assert data["item_id"] is None
+        assert data["is_primary"] is False
+
+    async def test_detach_image_not_found(self, authenticated_client: AsyncClient):
+        """Test detaching non-existent image."""
+        response = await authenticated_client.post(
+            f"/api/v1/images/{uuid.uuid4()}/detach"
+        )
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Image not found"
+
+    async def test_detach_image_unauthenticated(
+        self, unauthenticated_client: AsyncClient, test_image: Image
+    ):
+        """Test that unauthenticated request returns 401."""
+        response = await unauthenticated_client.post(
+            f"/api/v1/images/{test_image.id}/detach"
+        )
+
+        assert response.status_code == 401
+
+
 class TestCollaboratorImageAccess:
     """Tests for collaborator access to images via signed URLs."""
 
