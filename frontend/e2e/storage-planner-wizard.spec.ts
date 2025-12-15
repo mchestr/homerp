@@ -206,9 +206,7 @@ test.describe("Storage Planner Wizard", () => {
 
     // Configuration step should show coming soon message
     await expect(page.getByTestId("step-configuration")).toBeVisible();
-    await expect(
-      page.getByText("Storage Tote Rack Support Coming Soon")
-    ).toBeVisible();
+    await expect(page.getByText("Tote Rack Support Coming Soon")).toBeVisible();
 
     // Can still navigate to review
     await page.getByTestId("wizard-next-button").click();
@@ -269,16 +267,24 @@ test.describe("Storage Planner Wizard", () => {
     await page.getByTestId("gridfinity-name-input").fill("Test");
 
     // Default dimensions (252x252) should show 6x6 grid
-    await expect(page.getByText(/6 x 6/)).toBeVisible();
-    await expect(page.getByText(/36.*cells/i)).toBeVisible();
+    await expect(
+      page.getByTestId("step-configuration").getByText("6 x 6", { exact: true })
+    ).toBeVisible();
+    await expect(
+      page.getByTestId("step-configuration").getByText(/36.*cells/i)
+    ).toBeVisible();
 
     // Change dimensions to get different grid size
     await page.getByTestId("gridfinity-width-input").fill("168");
     await page.getByTestId("gridfinity-depth-input").fill("126");
 
     // Should update to 4x3 grid (168/42 = 4, 126/42 = 3)
-    await expect(page.getByText(/4 x 3/)).toBeVisible();
-    await expect(page.getByText(/12.*cells/i)).toBeVisible();
+    await expect(
+      page.getByTestId("step-configuration").getByText("4 x 3", { exact: true })
+    ).toBeVisible();
+    await expect(
+      page.getByTestId("step-configuration").getByText(/12.*cells/i)
+    ).toBeVisible();
   });
 
   test("preserves form data when navigating back and forward", async ({

@@ -82,10 +82,13 @@ export function StoragePlannerWizard({
   // Create Gridfinity unit mutation
   const createGridfinityMutation = useMutation({
     mutationFn: (data: GridfinityUnitCreate) => gridfinityApi.createUnit(data),
-    onSuccess: (unit) => {
-      queryClient.invalidateQueries({ queryKey: ["gridfinity", "units"] });
-      onComplete();
+    onSuccess: async (unit) => {
+      await queryClient.invalidateQueries({
+        queryKey: ["gridfinity", "units"],
+      });
+      // Navigate first, then close dialog to avoid race condition
       router.push(`/gridfinity/${unit.id}`);
+      onComplete();
     },
   });
 
@@ -351,7 +354,10 @@ export function StoragePlannerWizard({
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div
+                  className="space-y-2"
+                  data-testid="gridfinity-location-select"
+                >
                   <Label>{tGridfinity("location")}</Label>
                   <TreeSelect
                     nodes={locationSelectNodes}
@@ -423,7 +429,10 @@ export function StoragePlannerWizard({
                 </div>
 
                 {/* Grid preview */}
-                <div className="rounded-lg bg-muted/50 p-4">
+                <div
+                  className="rounded-lg bg-muted/50 p-4"
+                  data-testid="gridfinity-grid-preview"
+                >
                   <div className="text-sm text-muted-foreground">
                     {tGridfinity("gridSize")}:{" "}
                     <span className="font-medium text-foreground">
