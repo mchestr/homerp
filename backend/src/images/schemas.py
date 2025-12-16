@@ -4,6 +4,8 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+from src.common.ai_input_validator import ValidatedCustomPrompt
+
 
 class ImageUploadResponse(BaseModel):
     """Schema for image upload response."""
@@ -65,7 +67,7 @@ class ClassificationRequest(BaseModel):
     """
 
     image_ids: list[UUID]
-    custom_prompt: str | None = None
+    custom_prompt: ValidatedCustomPrompt = None
 
 
 class ClassificationResult(BaseModel):

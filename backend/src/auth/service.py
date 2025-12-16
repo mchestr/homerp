@@ -3,6 +3,7 @@ from uuid import UUID
 
 from jose import JWTError, jwt
 
+from src.common.crypto_utils import constant_time_compare
 from src.config import Settings, get_settings
 
 IMAGE_TOKEN_EXPIRY_MINUTES = 60
@@ -51,11 +52,13 @@ class AuthService:
                 self.settings.jwt_secret,
                 algorithms=[self.settings.jwt_algorithm],
             )
-            # Verify this is an image token
-            if payload.get("type") != "image":
+            # Verify this is an image token (use constant-time comparison)
+            token_type = payload.get("type") or ""
+            if not constant_time_compare(token_type, "image"):
                 return None
-            # Verify it's for the correct image
-            if payload.get("image_id") != str(image_id):
+            # Verify it's for the correct image (use constant-time comparison)
+            token_image_id = payload.get("image_id") or ""
+            if not constant_time_compare(token_image_id, str(image_id)):
                 return None
             user_id_str: str | None = payload.get("sub")
             if user_id_str is None:
@@ -100,11 +103,13 @@ class AuthService:
                 self.settings.jwt_secret,
                 algorithms=[self.settings.jwt_algorithm],
             )
-            # Verify this is a location token
-            if payload.get("type") != "location":
+            # Verify this is a location token (use constant-time comparison)
+            token_type = payload.get("type") or ""
+            if not constant_time_compare(token_type, "location"):
                 return None
-            # Verify it's for the correct location
-            if payload.get("location_id") != str(location_id):
+            # Verify it's for the correct location (use constant-time comparison)
+            token_location_id = payload.get("location_id") or ""
+            if not constant_time_compare(token_location_id, str(location_id)):
                 return None
             user_id_str: str | None = payload.get("sub")
             if user_id_str is None:

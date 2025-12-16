@@ -4,13 +4,22 @@ import re
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Query,
+    Request,
+    UploadFile,
+    status,
+)
 from fastapi.responses import FileResponse
 
 from src.ai.service import AIClassificationService, get_ai_service
 from src.auth.dependencies import CurrentUserIdDep, InventoryContextDep
 from src.auth.service import AuthService, get_auth_service
 from src.billing.router import CreditServiceDep
+from src.common.rate_limiter import RATE_LIMIT_AI, RATE_LIMIT_UPLOAD, limiter
 from src.config import Settings, get_settings
 from src.database import AsyncSessionDep
 from src.images.repository import ImageRepository
@@ -108,7 +117,9 @@ router = APIRouter()
 
 
 @router.post("/upload", status_code=status.HTTP_201_CREATED)
+@limiter.limit(RATE_LIMIT_UPLOAD)
 async def upload_image(
+    request: Request,  # noqa: ARG001 - Required for rate limiting
     file: UploadFile,
     session: AsyncSessionDep,
     user_id: CurrentUserIdDep,
@@ -181,7 +192,9 @@ async def upload_image(
 
 
 @router.post("/classify")
+@limiter.limit(RATE_LIMIT_AI)
 async def classify_images(
+    request: Request,  # noqa: ARG001 - Required for rate limiting
     data: ClassificationRequest,
     session: AsyncSessionDep,
     user_id: CurrentUserIdDep,

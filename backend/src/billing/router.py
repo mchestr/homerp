@@ -16,6 +16,7 @@ from src.billing.schemas import (
     RefundResponse,
 )
 from src.billing.service import CreditService, StripeService
+from src.common.rate_limiter import RATE_LIMIT_BILLING, limiter
 from src.config import Settings, get_settings
 from src.database import AsyncSessionDep
 
@@ -80,7 +81,9 @@ async def list_packs(
 
 
 @router.post("/checkout")
+@limiter.limit(RATE_LIMIT_BILLING)
 async def create_checkout(
+    request: Request,  # noqa: ARG001 - Required for rate limiting
     data: CheckoutRequest,
     user: CurrentUserDep,
     session: AsyncSessionDep,
@@ -127,7 +130,9 @@ async def list_transactions(
 
 
 @router.post("/portal")
+@limiter.limit(RATE_LIMIT_BILLING)
 async def create_portal_session(
+    request: Request,  # noqa: ARG001 - Required for rate limiting
     user: CurrentUserDep,
     session: AsyncSessionDep,
     stripe_service: StripeServiceDep,
@@ -146,7 +151,9 @@ async def create_portal_session(
 
 
 @router.post("/refund")
+@limiter.limit(RATE_LIMIT_BILLING)
 async def request_refund(
+    request: Request,  # noqa: ARG001 - Required for rate limiting
     data: RefundRequest,
     user_id: CurrentUserIdDep,
     _session: AsyncSessionDep,

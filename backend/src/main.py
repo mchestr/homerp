@@ -2,7 +2,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi.middleware import SlowAPIMiddleware
 
+from src.common.rate_limiter import configure_rate_limiting
+from src.common.security_headers import SecurityHeadersMiddleware
 from src.config import get_settings
 from src.database import close_db, init_db
 
@@ -35,6 +38,13 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # Add security headers to all responses
+    app.add_middleware(SecurityHeadersMiddleware)
+
+    # Configure rate limiting
+    configure_rate_limiting(app)
+    app.add_middleware(SlowAPIMiddleware)
 
     # Health check endpoint
     @app.get("/health")
