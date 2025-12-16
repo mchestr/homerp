@@ -107,7 +107,7 @@ export default function ClassifiedImagesPage() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             {t("classifiedImages")}
           </h1>
-          <p className="mt-1 text-muted-foreground">
+          <p className="text-muted-foreground mt-1">
             {t("classifiedImagesSubtitle", { count: data?.total ?? 0 })}
           </p>
         </div>
@@ -116,20 +116,20 @@ export default function ClassifiedImagesPage() {
       {/* Search Bar */}
       <form onSubmit={handleSearch} className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
             type="text"
             placeholder={t("searchPlaceholder")}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="pl-9 pr-9"
+            className="pr-9 pl-9"
             data-testid="classified-images-search-input"
           />
           {searchInput && (
             <button
               type="button"
               onClick={clearSearch}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
               data-testid="classified-images-clear-search"
             >
               <X className="h-4 w-4" />
@@ -144,21 +144,21 @@ export default function ClassifiedImagesPage() {
       {isLoading ? (
         <div className="flex items-center justify-center py-16">
           <div className="flex flex-col items-center gap-4">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            <p className="text-sm text-muted-foreground">
+            <div className="border-primary h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
+            <p className="text-muted-foreground text-sm">
               {t("loadingImages")}
             </p>
           </div>
         </div>
       ) : showEmpty ? (
         <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed py-16">
-          <div className="rounded-full bg-muted p-4">
-            <Sparkles className="h-10 w-10 text-muted-foreground" />
+          <div className="bg-muted rounded-full p-4">
+            <Sparkles className="text-muted-foreground h-10 w-10" />
           </div>
           <h3 className="mt-4 text-lg font-semibold">
             {t("noClassifiedImages")}
           </h3>
-          <p className="mt-1 text-center text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-center">
             {t("uploadAndClassify")}
           </p>
           <Link href="/items/new" className="mt-6">
@@ -170,11 +170,11 @@ export default function ClassifiedImagesPage() {
         </div>
       ) : showNoResults ? (
         <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed py-16">
-          <div className="rounded-full bg-muted p-4">
-            <Search className="h-10 w-10 text-muted-foreground" />
+          <div className="bg-muted rounded-full p-4">
+            <Search className="text-muted-foreground h-10 w-10" />
           </div>
           <h3 className="mt-4 text-lg font-semibold">{t("noSearchResults")}</h3>
-          <p className="mt-1 text-center text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-center">
             {t("noSearchResultsDescription")}
           </p>
           <Button
@@ -196,10 +196,10 @@ export default function ClassifiedImagesPage() {
                   key={image.id}
                   type="button"
                   onClick={() => setSelectedImage(image)}
-                  className="group overflow-hidden rounded-xl border bg-card text-left transition-all hover:border-primary/50 hover:shadow-lg"
+                  className="group bg-card hover:border-primary/50 overflow-hidden rounded-xl border text-left transition-all hover:shadow-lg"
                   data-testid={`classified-image-card-${image.id}`}
                 >
-                  <div className="relative aspect-square bg-muted">
+                  <div className="bg-muted relative aspect-square">
                     <AuthenticatedImage
                       imageId={image.id}
                       alt={result?.identified_name || t("unknown")}
@@ -207,23 +207,23 @@ export default function ClassifiedImagesPage() {
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                       fallback={
                         <div className="flex h-full items-center justify-center">
-                          <ImageIcon className="h-16 w-16 text-muted-foreground/50" />
+                          <ImageIcon className="text-muted-foreground/50 h-16 w-16" />
                         </div>
                       }
                     />
-                    <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-green-500 px-2 py-1 text-xs font-medium text-white">
+                    <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-green-500 px-2 py-1 text-xs font-medium text-white">
                       <Check className="h-3 w-3" />
                       {t("identified")}
                     </div>
                   </div>
                   <div className="p-4">
-                    <h3 className="truncate font-semibold transition-colors group-hover:text-primary">
+                    <h3 className="group-hover:text-primary truncate font-semibold transition-colors">
                       {result?.identified_name || t("unknown")}
                     </h3>
-                    <p className="mt-0.5 truncate text-sm text-muted-foreground">
+                    <p className="text-muted-foreground mt-0.5 truncate text-sm">
                       {result?.category_path || t("noCategory")}
                     </p>
-                    <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                    <div className="text-muted-foreground mt-2 flex items-center justify-between text-xs">
                       <span>
                         {result?.confidence
                           ? formatConfidence(result.confidence)
@@ -251,11 +251,11 @@ export default function ClassifiedImagesPage() {
                 <ChevronLeft className="h-4 w-4" />
                 {tCommon("previous")}
               </Button>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-muted-foreground text-sm">
                 {tCommon("page")}{" "}
-                <span className="font-medium text-foreground">{page}</span>{" "}
+                <span className="text-foreground font-medium">{page}</span>{" "}
                 {tCommon("of")}{" "}
-                <span className="font-medium text-foreground">
+                <span className="text-foreground font-medium">
                   {data.total_pages}
                 </span>
               </span>
@@ -289,14 +289,14 @@ export default function ClassifiedImagesPage() {
           </DialogHeader>
           {selectedImage && (
             <div className="space-y-4">
-              <div className="aspect-video overflow-hidden rounded-lg bg-muted">
+              <div className="bg-muted aspect-video overflow-hidden rounded-lg">
                 <AuthenticatedImage
                   imageId={selectedImage.id}
                   alt={aiResult?.identified_name || t("unknown")}
                   className="h-full w-full object-contain"
                   fallback={
                     <div className="flex h-full items-center justify-center">
-                      <ImageIcon className="h-16 w-16 text-muted-foreground/50" />
+                      <ImageIcon className="text-muted-foreground/50 h-16 w-16" />
                     </div>
                   }
                 />
@@ -306,7 +306,7 @@ export default function ClassifiedImagesPage() {
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="font-medium text-muted-foreground">
+                      <p className="text-muted-foreground font-medium">
                         {t("confidence")}
                       </p>
                       <p className="mt-1">
@@ -314,7 +314,7 @@ export default function ClassifiedImagesPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="font-medium text-muted-foreground">
+                      <p className="text-muted-foreground font-medium">
                         {tCommon("name")}
                       </p>
                       <p className="mt-1">{aiResult.category_path}</p>
@@ -322,7 +322,7 @@ export default function ClassifiedImagesPage() {
                   </div>
 
                   <div>
-                    <p className="font-medium text-muted-foreground">
+                    <p className="text-muted-foreground font-medium">
                       {t("description")}
                     </p>
                     <p className="mt-1 text-sm">{aiResult.description}</p>
@@ -330,7 +330,7 @@ export default function ClassifiedImagesPage() {
 
                   {aiResult.quantity_estimate && (
                     <div>
-                      <p className="font-medium text-muted-foreground">
+                      <p className="text-muted-foreground font-medium">
                         {t("quantityEstimate")}
                       </p>
                       <p className="mt-1 text-sm">
@@ -342,7 +342,7 @@ export default function ClassifiedImagesPage() {
                   {aiResult.specifications &&
                     Object.keys(aiResult.specifications).length > 0 && (
                       <div>
-                        <p className="font-medium text-muted-foreground">
+                        <p className="text-muted-foreground font-medium">
                           {t("specifications")}
                         </p>
                         <div className="mt-1 grid grid-cols-2 gap-2 text-sm">
@@ -350,7 +350,7 @@ export default function ClassifiedImagesPage() {
                             ([key, value]) => (
                               <div
                                 key={key}
-                                className="rounded bg-muted px-2 py-1"
+                                className="bg-muted rounded px-2 py-1"
                               >
                                 <span className="font-medium">{key}:</span>{" "}
                                 {String(value)}
@@ -364,14 +364,14 @@ export default function ClassifiedImagesPage() {
                   {aiResult.alternative_suggestions &&
                     aiResult.alternative_suggestions.length > 0 && (
                       <div>
-                        <p className="font-medium text-muted-foreground">
+                        <p className="text-muted-foreground font-medium">
                           {t("alternativeSuggestions")}
                         </p>
                         <div className="mt-1 flex flex-wrap gap-2">
                           {aiResult.alternative_suggestions.map((alt, i) => (
                             <span
                               key={i}
-                              className="rounded-full bg-muted px-2 py-1 text-xs"
+                              className="bg-muted rounded-full px-2 py-1 text-xs"
                             >
                               {alt.name} ({formatConfidence(alt.confidence)})
                             </span>
@@ -382,7 +382,7 @@ export default function ClassifiedImagesPage() {
                 </div>
               )}
 
-              <div className="flex justify-between border-t pt-4 text-xs text-muted-foreground">
+              <div className="text-muted-foreground flex justify-between border-t pt-4 text-xs">
                 <span>
                   {t("filename")}:{" "}
                   {selectedImage.original_filename || t("unknown")}

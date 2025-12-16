@@ -150,7 +150,7 @@ export function LabelPrintModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -159,23 +159,23 @@ export function LabelPrintModal({
     >
       <div
         ref={modalRef}
-        className="animate-in fade-in-0 zoom-in-95 flex max-h-[90vh] w-full max-w-2xl flex-col rounded-xl bg-background shadow-2xl duration-200"
+        className="animate-in fade-in-0 zoom-in-95 bg-background flex max-h-[90vh] w-full max-w-2xl flex-col rounded-xl shadow-2xl duration-200"
       >
         <div className="flex items-center justify-between border-b p-4">
           <div className="flex items-center gap-2">
-            <Tag className="h-5 w-5 text-primary" />
+            <Tag className="text-primary h-5 w-5" />
             <h2 id="label-modal-title" className="text-lg font-semibold">
               {items.length === 1 ? t("printLabel") : t("printLabels")}
             </h2>
             {items.length > 1 && (
-              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+              <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs font-medium">
                 {t("selectedCount", { count: items.length })}
               </span>
             )}
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-1 transition-colors"
             data-testid="label-modal-close"
           >
             <X className="h-5 w-5" />
@@ -190,11 +190,11 @@ export function LabelPrintModal({
             </label>
             <div className="flex min-h-[150px] items-center justify-center rounded-lg border bg-white p-4">
               {isGenerating ? (
-                <div className="text-sm text-muted-foreground">
+                <div className="text-muted-foreground text-sm">
                   {t("generating")}
                 </div>
               ) : previewError ? (
-                <div className="flex flex-col items-center gap-2 text-destructive">
+                <div className="text-destructive flex flex-col items-center gap-2">
                   <AlertCircle className="h-5 w-5" />
                   <span className="text-sm">{previewError}</span>
                 </div>
@@ -206,7 +206,7 @@ export function LabelPrintModal({
                   data-testid="label-preview"
                 />
               ) : (
-                <div className="text-sm text-muted-foreground">
+                <div className="text-muted-foreground text-sm">
                   {t("noPreview")}
                 </div>
               )}
@@ -221,7 +221,7 @@ export function LabelPrintModal({
             <div className="space-y-3">
               {Object.entries(groupedSizes).map(([brand, sizes]) => (
                 <div key={brand}>
-                  <div className="mb-1.5 text-xs font-medium text-muted-foreground">
+                  <div className="text-muted-foreground mb-1.5 text-xs font-medium">
                     {brand}
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -239,7 +239,7 @@ export function LabelPrintModal({
                         data-testid={`label-size-${size.id}`}
                       >
                         <div className="font-medium">{size.name}</div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-muted-foreground text-xs">
                           {size.width}×{size.height}mm
                         </div>
                       </button>
@@ -312,9 +312,9 @@ export function LabelPrintModal({
           </div>
         </div>
 
-        <div className="border-t bg-muted/30 px-6 py-4">
+        <div className="bg-muted/30 border-t px-6 py-4">
           {printError && (
-            <div className="mb-3 flex items-center gap-2 rounded-lg border border-destructive/50 bg-destructive/10 p-2 text-sm text-destructive">
+            <div className="border-destructive/50 bg-destructive/10 text-destructive mb-3 flex items-center gap-2 rounded-lg border p-2 text-sm">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{printError}</span>
             </div>

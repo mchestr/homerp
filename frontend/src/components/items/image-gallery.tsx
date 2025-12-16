@@ -84,10 +84,10 @@ export function ImageGallery({
 
   if (images.length === 0) {
     return (
-      <div className="flex min-h-[200px] items-center justify-center rounded-xl border bg-muted/50">
+      <div className="bg-muted/50 flex min-h-[200px] items-center justify-center rounded-xl border">
         <div className="text-center">
-          <Package className="mx-auto h-12 w-12 text-muted-foreground/50" />
-          <p className="mt-2 text-sm text-muted-foreground">
+          <Package className="text-muted-foreground/50 mx-auto h-12 w-12" />
+          <p className="text-muted-foreground mt-2 text-sm">
             {t("uploadImages")}
           </p>
         </div>
@@ -98,7 +98,7 @@ export function ImageGallery({
   return (
     <div className="space-y-3">
       {/* Main image display */}
-      <div className="group relative overflow-hidden rounded-xl border bg-muted">
+      <div className="group bg-muted relative overflow-hidden rounded-xl border">
         {currentImage && (
           <>
             <AuthenticatedImage
@@ -107,11 +107,11 @@ export function ImageGallery({
               className="max-h-[70vh] w-full object-contain"
               data-testid="main-gallery-image"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
 
             {/* Primary badge */}
             {currentImage.is_primary && (
-              <div className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-xs font-medium text-white">
+              <div className="absolute top-3 left-3 flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-xs font-medium text-white">
                 <Star className="h-3 w-3 fill-current" />
                 {t("primaryImage")}
               </div>
@@ -124,7 +124,7 @@ export function ImageGallery({
                   type="button"
                   variant="secondary"
                   size="icon"
-                  className="absolute left-2 top-1/2 h-8 w-8 -translate-y-1/2 rounded-full opacity-0 transition-opacity group-hover:opacity-100"
+                  className="absolute top-1/2 left-2 h-8 w-8 -translate-y-1/2 rounded-full opacity-0 transition-opacity group-hover:opacity-100"
                   onClick={handlePrevious}
                   data-testid="gallery-prev"
                 >
@@ -134,7 +134,7 @@ export function ImageGallery({
                   type="button"
                   variant="secondary"
                   size="icon"
-                  className="absolute right-2 top-1/2 h-8 w-8 -translate-y-1/2 rounded-full opacity-0 transition-opacity group-hover:opacity-100"
+                  className="absolute top-1/2 right-2 h-8 w-8 -translate-y-1/2 rounded-full opacity-0 transition-opacity group-hover:opacity-100"
                   onClick={handleNext}
                   data-testid="gallery-next"
                 >
@@ -145,7 +145,7 @@ export function ImageGallery({
 
             {/* Editable controls */}
             {editable && (
-              <div className="absolute right-3 top-3 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+              <div className="absolute top-3 right-3 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
                 {!currentImage.is_primary && onSetPrimary && (
                   <Button
                     type="button"
@@ -178,7 +178,7 @@ export function ImageGallery({
 
             {/* Image counter */}
             {images.length > 1 && (
-              <div className="absolute bottom-3 right-3 rounded-full bg-black/50 px-2 py-0.5 text-xs font-medium text-white">
+              <div className="absolute right-3 bottom-3 rounded-full bg-black/50 px-2 py-0.5 text-xs font-medium text-white">
                 {selectedIndex + 1} / {images.length}
               </div>
             )}
@@ -197,8 +197,8 @@ export function ImageGallery({
               className={cn(
                 "group relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-all",
                 selectedIndex === index
-                  ? "border-primary ring-2 ring-primary/20"
-                  : "border-transparent hover:border-muted-foreground/50"
+                  ? "border-primary ring-primary/20 ring-2"
+                  : "hover:border-muted-foreground/50 border-transparent"
               )}
               data-testid={`gallery-thumbnail-${index}`}
             >
@@ -209,7 +209,7 @@ export function ImageGallery({
                 thumbnail
               />
               {image.is_primary && (
-                <div className="absolute left-0.5 top-0.5 rounded-full bg-amber-500 p-0.5">
+                <div className="absolute top-0.5 left-0.5 rounded-full bg-amber-500 p-0.5">
                   <Star className="h-2.5 w-2.5 fill-white text-white" />
                 </div>
               )}

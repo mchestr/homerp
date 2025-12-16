@@ -126,14 +126,14 @@ export default function AIAssistantPage() {
       {/* Header */}
       <div className="shrink-0 pb-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-            <Bot className="h-5 w-5 text-primary" />
+          <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
+            <Bot className="text-primary h-5 w-5" />
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
               {t("aiAssistant.title")}
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {t("aiAssistant.subtitle")}
             </p>
           </div>
@@ -141,18 +141,18 @@ export default function AIAssistantPage() {
       </div>
 
       {/* Chat Container */}
-      <div className="flex min-h-0 flex-1 flex-col rounded-xl border bg-card">
+      <div className="bg-card flex min-h-0 flex-1 flex-col rounded-xl border">
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-4">
           {messages.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center">
-              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                <Sparkles className="h-8 w-8 text-primary" />
+              <div className="bg-primary/10 mb-6 flex h-16 w-16 items-center justify-center rounded-full">
+                <Sparkles className="text-primary h-8 w-8" />
               </div>
               <h2 className="mb-2 text-lg font-semibold">
                 {t("aiAssistant.emptyStateTitle")}
               </h2>
-              <p className="mb-6 max-w-md text-sm text-muted-foreground">
+              <p className="text-muted-foreground mb-6 max-w-md text-sm">
                 {t("aiAssistant.emptyStateDescription")}
               </p>
               <div className="grid gap-2 sm:grid-cols-2">
@@ -161,7 +161,7 @@ export default function AIAssistantPage() {
                     key={index}
                     onClick={() => setPrompt(query)}
                     data-testid={`example-query-${index}`}
-                    className="rounded-lg border bg-muted/50 px-4 py-2 text-left text-sm transition-colors hover:bg-muted"
+                    className="bg-muted/50 hover:bg-muted rounded-lg border px-4 py-2 text-left text-sm transition-colors"
                   >
                     {query}
                   </button>
@@ -178,8 +178,8 @@ export default function AIAssistantPage() {
                   }`}
                 >
                   {message.role === "assistant" && (
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                      <Bot className="h-4 w-4 text-primary" />
+                    <div className="bg-primary/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+                      <Bot className="text-primary h-4 w-4" />
                     </div>
                   )}
                   <div
@@ -194,14 +194,14 @@ export default function AIAssistantPage() {
                         <ReactMarkdown>{message.content}</ReactMarkdown>
                       </div>
                     ) : (
-                      <p className="whitespace-pre-wrap text-sm">
+                      <p className="text-sm whitespace-pre-wrap">
                         {message.content}
                       </p>
                     )}
                     {message.role === "assistant" &&
                       message.itemsInContext !== undefined &&
                       message.itemsInContext > 0 && (
-                        <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+                        <div className="text-muted-foreground mt-2 flex items-center gap-1 text-xs">
                           <Database className="h-3 w-3" />
                           {t("aiAssistant.itemsUsed", {
                             count: message.itemsInContext,
@@ -210,7 +210,7 @@ export default function AIAssistantPage() {
                       )}
                   </div>
                   {message.role === "user" && (
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted">
+                    <div className="bg-muted flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
                       <User className="h-4 w-4" />
                     </div>
                   )}
@@ -218,10 +218,10 @@ export default function AIAssistantPage() {
               ))}
               {queryMutation.isPending && (
                 <div className="flex gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                    <Bot className="h-4 w-4 text-primary" />
+                  <div className="bg-primary/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+                    <Bot className="text-primary h-4 w-4" />
                   </div>
-                  <div className="rounded-lg bg-muted px-4 py-3">
+                  <div className="bg-muted rounded-lg px-4 py-3">
                     <Loader2 className="h-4 w-4 animate-spin" />
                   </div>
                 </div>
@@ -275,7 +275,7 @@ export default function AIAssistantPage() {
                 )}
               </Button>
             </div>
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <div className="text-muted-foreground flex items-center justify-between text-xs">
               <span>{prompt.length}/2000</span>
               <span className="flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" />

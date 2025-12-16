@@ -70,22 +70,22 @@ function LoginContent() {
 
   if (authLoading || loadingProviders) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="bg-background flex min-h-screen items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <div className="border-primary h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
+          <p className="text-muted-foreground text-sm">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="bg-background flex min-h-screen flex-col">
       <header className="border-b">
         <div className="mx-auto flex h-16 max-w-6xl items-center px-4">
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-              <Package className="h-5 w-5 text-primary-foreground" />
+            <div className="bg-primary flex h-9 w-9 items-center justify-center rounded-lg">
+              <Package className="text-primary-foreground h-5 w-5" />
             </div>
             <span className="text-xl font-bold tracking-tight">HomERP</span>
           </Link>
@@ -94,25 +94,25 @@ function LoginContent() {
 
       <div className="flex flex-1 items-center justify-center px-4 py-16">
         <div className="w-full max-w-md">
-          <div className="rounded-2xl border bg-card p-8 shadow-lg">
+          <div className="bg-card rounded-2xl border p-8 shadow-lg">
             <div className="mb-8 text-center">
               <h1 className="text-2xl font-bold tracking-tight">
                 Welcome back
               </h1>
-              <p className="mt-2 text-muted-foreground">
+              <p className="text-muted-foreground mt-2">
                 Sign in to manage your inventory
               </p>
             </div>
 
             <div className="space-y-4">
               {error && (
-                <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+                <div className="border-destructive/50 bg-destructive/10 text-destructive rounded-lg border p-4 text-sm">
                   {error}
                 </div>
               )}
 
               {providers.length === 0 ? (
-                <div className="text-center text-muted-foreground">
+                <div className="text-muted-foreground text-center">
                   No login providers configured. Please contact your
                   administrator.
                 </div>
@@ -145,18 +145,18 @@ function LoginContent() {
               )}
             </div>
 
-            <p className="mt-8 text-center text-xs text-muted-foreground">
+            <p className="text-muted-foreground mt-8 text-center text-xs">
               By signing in, you agree to our Terms of Service and Privacy
               Policy.
             </p>
           </div>
 
           {providers.length > 0 && (
-            <p className="mt-6 text-center text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-6 text-center text-sm">
               Don&apos;t have an account?{" "}
               <button
                 onClick={() => handleProviderLogin(providers[0].id)}
-                className="font-medium text-primary hover:underline"
+                className="text-primary font-medium hover:underline"
               >
                 Sign up for free
               </button>
@@ -172,10 +172,10 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="bg-background flex min-h-screen items-center justify-center">
           <div className="flex flex-col items-center gap-4">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            <p className="text-sm text-muted-foreground">Loading...</p>
+            <div className="border-primary h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
+            <p className="text-muted-foreground text-sm">Loading...</p>
           </div>
         </div>
       }

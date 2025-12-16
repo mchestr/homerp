@@ -263,7 +263,7 @@ export default function CollaborationSettingsPage() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             {t("title")}
           </h1>
-          <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
+          <p className="text-muted-foreground mt-1">{t("subtitle")}</p>
         </div>
       </div>
 
@@ -330,7 +330,7 @@ export default function CollaborationSettingsPage() {
                           <SelectItem value="viewer">
                             <div className="flex flex-col">
                               <span>{t("viewer")}</span>
-                              <span className="text-xs text-muted-foreground">
+                              <span className="text-muted-foreground text-xs">
                                 {t("viewerDescription")}
                               </span>
                             </div>
@@ -338,7 +338,7 @@ export default function CollaborationSettingsPage() {
                           <SelectItem value="editor">
                             <div className="flex flex-col">
                               <span>{t("editor")}</span>
-                              <span className="text-xs text-muted-foreground">
+                              <span className="text-muted-foreground text-xs">
                                 {t("editorDescription")}
                               </span>
                             </div>
@@ -369,16 +369,16 @@ export default function CollaborationSettingsPage() {
             </CardHeader>
             <CardContent>
               {isLoading ? (
-                <div className="py-8 text-center text-muted-foreground">
+                <div className="text-muted-foreground py-8 text-center">
                   {tCommon("loading")}
                 </div>
               ) : hasError ? (
-                <div className="py-8 text-center text-destructive">
+                <div className="text-destructive py-8 text-center">
                   {tCommon("error")}
                 </div>
               ) : collaborators.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <Users className="mb-4 h-12 w-12 text-muted-foreground" />
+                  <Users className="text-muted-foreground mb-4 h-12 w-12" />
                   <p className="text-muted-foreground">
                     {t("noCollaborators")}
                   </p>
@@ -399,15 +399,15 @@ export default function CollaborationSettingsPage() {
                             className="h-10 w-10 rounded-full"
                           />
                         ) : (
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                            <Mail className="h-5 w-5 text-muted-foreground" />
+                          <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-full">
+                            <Mail className="text-muted-foreground h-5 w-5" />
                           </div>
                         )}
                         <div>
                           <p className="font-medium">
                             {collab.collaborator?.name || collab.invited_email}
                           </p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-muted-foreground text-sm">
                             {collab.invited_email}
                           </p>
                         </div>
@@ -467,15 +467,15 @@ export default function CollaborationSettingsPage() {
                           className="h-10 w-10 rounded-full"
                         />
                       ) : (
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                          <Users className="h-5 w-5 text-muted-foreground" />
+                        <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-full">
+                          <Users className="text-muted-foreground h-5 w-5" />
                         </div>
                       )}
                       <div>
                         <p className="font-medium">
                           {invitation.owner.name || invitation.owner.email}
                         </p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                           {t("role")}: {t(invitation.role)}
                         </p>
                       </div>
@@ -517,12 +517,12 @@ export default function CollaborationSettingsPage() {
             </CardHeader>
             <CardContent>
               {isLoading ? (
-                <div className="py-8 text-center text-muted-foreground">
+                <div className="text-muted-foreground py-8 text-center">
                   {tCommon("loading")}
                 </div>
               ) : sharedInventories.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <Users className="mb-4 h-12 w-12 text-muted-foreground" />
+                  <Users className="text-muted-foreground mb-4 h-12 w-12" />
                   <p className="text-muted-foreground">
                     {t("noSharedInventories")}
                   </p>
@@ -543,15 +543,15 @@ export default function CollaborationSettingsPage() {
                             className="h-10 w-10 rounded-full"
                           />
                         ) : (
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                            <Users className="h-5 w-5 text-muted-foreground" />
+                          <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-full">
+                            <Users className="text-muted-foreground h-5 w-5" />
                           </div>
                         )}
                         <div>
                           <p className="font-medium">
                             {shared.owner.name || shared.owner.email}
                           </p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-muted-foreground text-sm">
                             {shared.owner.email}
                           </p>
                         </div>

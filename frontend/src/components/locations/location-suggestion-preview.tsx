@@ -138,7 +138,7 @@ export function LocationSuggestionPreview({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Confidence</span>
+          <span className="text-muted-foreground text-sm">Confidence</span>
           <div className="flex items-center gap-2">
             <div className="h-2 w-16 overflow-hidden rounded-full bg-violet-200 dark:bg-violet-800">
               <div
@@ -167,7 +167,7 @@ export function LocationSuggestionPreview({
         </button>
       )}
       {showReasoning && result.reasoning && (
-        <div className="rounded-lg bg-white/60 p-4 text-sm text-muted-foreground dark:bg-black/20">
+        <div className="text-muted-foreground rounded-lg bg-white/60 p-4 text-sm dark:bg-black/20">
           {result.reasoning}
         </div>
       )}
@@ -183,18 +183,18 @@ export function LocationSuggestionPreview({
         <div className="rounded-lg bg-white/80 p-4 dark:bg-black/30">
           <div className="grid gap-4 md:grid-cols-3">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+              <label className="text-muted-foreground mb-1.5 block text-xs font-medium">
                 Name
               </label>
               <input
                 type="text"
                 value={parent.name}
                 onChange={(e) => handleParentChange("name", e.target.value)}
-                className="h-10 w-full rounded-lg border bg-background px-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-10 w-full rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden"
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+              <label className="text-muted-foreground mb-1.5 block text-xs font-medium">
                 Type
               </label>
               <select
@@ -202,7 +202,7 @@ export function LocationSuggestionPreview({
                 onChange={(e) =>
                   handleParentChange("location_type", e.target.value)
                 }
-                className="h-10 w-full rounded-lg border bg-background px-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-10 w-full rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden"
               >
                 {LOCATION_TYPES.map((type) => (
                   <option key={type.value} value={type.value}>
@@ -212,7 +212,7 @@ export function LocationSuggestionPreview({
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+              <label className="text-muted-foreground mb-1.5 block text-xs font-medium">
                 Description
               </label>
               <input
@@ -222,7 +222,7 @@ export function LocationSuggestionPreview({
                   handleParentChange("description", e.target.value)
                 }
                 placeholder="Optional"
-                className="h-10 w-full rounded-lg border bg-background px-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-10 w-full rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden"
               />
             </div>
           </div>
@@ -250,7 +250,7 @@ export function LocationSuggestionPreview({
         </div>
 
         {children.length === 0 ? (
-          <div className="rounded-lg bg-white/60 p-4 text-center text-sm text-muted-foreground dark:bg-black/20">
+          <div className="text-muted-foreground rounded-lg bg-white/60 p-4 text-center text-sm dark:bg-black/20">
             No compartments identified. Click &quot;Add&quot; to add one
             manually.
           </div>
@@ -273,7 +273,7 @@ export function LocationSuggestionPreview({
                         handleChildChange(child.id, "name", e.target.value)
                       }
                       placeholder={`Compartment ${index + 1}`}
-                      className="h-9 w-full rounded-lg border bg-background px-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="bg-background focus:border-primary focus:ring-primary/20 h-9 w-full rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden"
                     />
                     <select
                       value={child.location_type}
@@ -284,7 +284,7 @@ export function LocationSuggestionPreview({
                           e.target.value
                         )
                       }
-                      className="h-9 w-full rounded-lg border bg-background px-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="bg-background focus:border-primary focus:ring-primary/20 h-9 w-full rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden"
                     >
                       {LOCATION_TYPES.map((type) => (
                         <option key={type.value} value={type.value}>
@@ -303,13 +303,13 @@ export function LocationSuggestionPreview({
                         )
                       }
                       placeholder="Description (optional)"
-                      className="h-9 w-full rounded-lg border bg-background px-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="bg-background focus:border-primary focus:ring-primary/20 h-9 w-full rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => handleRemoveChild(child.id)}
-                    className="rounded-lg p-2 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
+                    className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive rounded-lg p-2 opacity-0 transition-opacity group-hover:opacity-100"
                     title="Remove"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -322,7 +322,7 @@ export function LocationSuggestionPreview({
       </div>
 
       {/* Actions */}
-      <div className="flex flex-col-reverse gap-3 border-t border-violet-200 pt-5 dark:border-violet-800 sm:flex-row">
+      <div className="flex flex-col-reverse gap-3 border-t border-violet-200 pt-5 sm:flex-row dark:border-violet-800">
         <Button
           type="button"
           variant="outline"

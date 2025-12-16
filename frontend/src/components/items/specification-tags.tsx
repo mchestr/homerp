@@ -40,7 +40,7 @@ export function SpecificationTags({
       {visibleEntries.map(([key, value]) => (
         <span
           key={key}
-          className="inline-flex items-center rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground"
+          className="bg-muted text-muted-foreground inline-flex items-center rounded-md px-1.5 py-0.5 text-xs"
           title={`${key.replace(/_/g, " ")}: ${String(value)}`}
           data-testid={`spec-tag-${key}`}
         >
@@ -55,7 +55,7 @@ export function SpecificationTags({
       ))}
       {hiddenCount > 0 && (
         <span
-          className="inline-flex items-center rounded-md bg-muted/50 px-1.5 py-0.5 text-xs text-muted-foreground"
+          className="bg-muted/50 text-muted-foreground inline-flex items-center rounded-md px-1.5 py-0.5 text-xs"
           title={t("moreSpecifications", { count: hiddenCount })}
           data-testid="spec-tag-more"
         >

@@ -116,7 +116,7 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-semibold tracking-tight">
             {t("title")}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
+          <p className="text-muted-foreground mt-1 text-sm">{t("subtitle")}</p>
         </div>
         <Link href="/items/new">
           <Button className="gap-2">
@@ -132,22 +132,22 @@ export default function DashboardPage() {
           <Link
             key={stat.title}
             href={stat.href}
-            className="group relative rounded-xl border bg-card p-5 transition-colors hover:bg-muted/50"
+            className="group bg-card hover:bg-muted/50 relative rounded-xl border p-5 transition-colors"
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-muted-foreground text-sm font-medium">
                   {stat.title}
                 </p>
                 <p className="mt-1 text-3xl font-semibold tracking-tight">
                   {stat.value.toLocaleString()}
                 </p>
               </div>
-              <div className="rounded-lg bg-muted p-2.5 text-muted-foreground">
+              <div className="bg-muted text-muted-foreground rounded-lg p-2.5">
                 <stat.icon className="h-5 w-5" />
               </div>
             </div>
-            <div className="mt-4 flex items-center text-sm text-muted-foreground transition-colors group-hover:text-foreground">
+            <div className="text-muted-foreground group-hover:text-foreground mt-4 flex items-center text-sm transition-colors">
               <span>{tCommon("viewDetails")}</span>
               <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </div>
@@ -156,15 +156,15 @@ export default function DashboardPage() {
       </div>
 
       {/* Items Over Time Chart - Full Width */}
-      <div className="rounded-xl border bg-card">
+      <div className="bg-card rounded-xl border">
         <div className="border-b px-5 py-4">
           <h2 className="font-medium">{t("itemsOverTime")}</h2>
-          <p className="text-sm text-muted-foreground">{t("last30Days")}</p>
+          <p className="text-muted-foreground text-sm">{t("last30Days")}</p>
         </div>
         <div className="p-5">
           {statsLoading ? (
             <div className="flex h-[200px] items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+              <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
             </div>
           ) : cumulativeData.length > 0 &&
             cumulativeData.some((d) => d.added > 0) ? (
@@ -222,7 +222,7 @@ export default function DashboardPage() {
                       typeof label === "string"
                     ) {
                       return (
-                        <div className="rounded-md border bg-popover px-2.5 py-1.5 text-xs shadow-sm">
+                        <div className="bg-popover rounded-md border px-2.5 py-1.5 text-xs shadow-xs">
                           <span className="font-medium">
                             {formatDateShort(label as string)}
                           </span>
@@ -248,8 +248,8 @@ export default function DashboardPage() {
             </ResponsiveContainer>
           ) : (
             <div className="flex h-[200px] flex-col items-center justify-center text-center">
-              <Package className="h-10 w-10 text-muted-foreground/50" />
-              <p className="mt-2 text-sm text-muted-foreground">
+              <Package className="text-muted-foreground/50 h-10 w-10" />
+              <p className="text-muted-foreground mt-2 text-sm">
                 {t("noItemsAdded")}
               </p>
               <Link href="/items/new" className="mt-3">
@@ -266,17 +266,17 @@ export default function DashboardPage() {
       {/* Category and Location Charts */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Items by Category Chart */}
-        <div className="rounded-xl border bg-card">
+        <div className="bg-card rounded-xl border">
           <div className="border-b px-5 py-4">
             <h2 className="font-medium">{t("itemsByCategory")}</h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {t("topCategories")}
             </p>
           </div>
           <div className="p-5">
             {statsLoading ? (
               <div className="flex h-[250px] items-center justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
               </div>
             ) : dashboardStats?.items_by_category &&
               dashboardStats.items_by_category.length > 0 ? (
@@ -313,7 +313,7 @@ export default function DashboardPage() {
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         return (
-                          <div className="rounded-md border bg-popover px-2.5 py-1.5 text-xs shadow-sm">
+                          <div className="bg-popover rounded-md border px-2.5 py-1.5 text-xs shadow-xs">
                             <span className="font-medium">
                               {payload[0].payload.name}
                             </span>
@@ -336,8 +336,8 @@ export default function DashboardPage() {
               </ResponsiveContainer>
             ) : (
               <div className="flex h-[250px] flex-col items-center justify-center text-center">
-                <FolderOpen className="h-10 w-10 text-muted-foreground/50" />
-                <p className="mt-2 text-sm text-muted-foreground">
+                <FolderOpen className="text-muted-foreground/50 h-10 w-10" />
+                <p className="text-muted-foreground mt-2 text-sm">
                   {t("noCategoriesWithItems")}
                 </p>
                 <Link href="/categories" className="mt-3">
@@ -352,15 +352,15 @@ export default function DashboardPage() {
         </div>
 
         {/* Items by Location Chart */}
-        <div className="rounded-xl border bg-card">
+        <div className="bg-card rounded-xl border">
           <div className="border-b px-5 py-4">
             <h2 className="font-medium">{t("itemsByLocation")}</h2>
-            <p className="text-sm text-muted-foreground">{t("topLocations")}</p>
+            <p className="text-muted-foreground text-sm">{t("topLocations")}</p>
           </div>
           <div className="p-5">
             {statsLoading ? (
               <div className="flex h-[250px] items-center justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
               </div>
             ) : dashboardStats?.items_by_location &&
               dashboardStats.items_by_location.length > 0 ? (
@@ -397,7 +397,7 @@ export default function DashboardPage() {
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         return (
-                          <div className="rounded-md border bg-popover px-2.5 py-1.5 text-xs shadow-sm">
+                          <div className="bg-popover rounded-md border px-2.5 py-1.5 text-xs shadow-xs">
                             <span className="font-medium">
                               {payload[0].payload.name}
                             </span>
@@ -420,8 +420,8 @@ export default function DashboardPage() {
               </ResponsiveContainer>
             ) : (
               <div className="flex h-[250px] flex-col items-center justify-center text-center">
-                <MapPin className="h-10 w-10 text-muted-foreground/50" />
-                <p className="mt-2 text-sm text-muted-foreground">
+                <MapPin className="text-muted-foreground/50 h-10 w-10" />
+                <p className="text-muted-foreground mt-2 text-sm">
                   {t("noLocationsWithItems")}
                 </p>
                 <Link href="/locations" className="mt-3">
@@ -439,14 +439,14 @@ export default function DashboardPage() {
       {/* Most Used and Recently Used */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Most Used Items */}
-        <div className="rounded-xl border bg-card">
+        <div className="bg-card rounded-xl border">
           <div className="flex items-center gap-3 border-b px-5 py-4">
             <div className="rounded-lg bg-blue-500/10 p-2">
               <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
               <h2 className="font-medium">{tCheckInOut("mostUsed")}</h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 {tCheckInOut("totalCheckOuts")}
               </p>
             </div>
@@ -457,7 +457,7 @@ export default function DashboardPage() {
                 <Link
                   key={item.id}
                   href={`/items/${item.id}`}
-                  className="group flex items-center justify-between px-5 py-3 transition-colors hover:bg-muted/50"
+                  className="group hover:bg-muted/50 flex items-center justify-between px-5 py-3 transition-colors"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{item.name}</p>
@@ -466,15 +466,15 @@ export default function DashboardPage() {
                     <span className="rounded-md bg-blue-500/10 px-2 py-1 text-sm font-medium text-blue-600 dark:text-blue-400">
                       {item.total_check_outs}x
                     </span>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight className="text-muted-foreground h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
             <div className="flex h-[150px] flex-col items-center justify-center text-center">
-              <TrendingUp className="h-10 w-10 text-muted-foreground/50" />
-              <p className="mt-2 text-sm text-muted-foreground">
+              <TrendingUp className="text-muted-foreground/50 h-10 w-10" />
+              <p className="text-muted-foreground mt-2 text-sm">
                 {tCheckInOut("noUsageYet")}
               </p>
             </div>
@@ -482,14 +482,14 @@ export default function DashboardPage() {
         </div>
 
         {/* Recently Used Items */}
-        <div className="rounded-xl border bg-card">
+        <div className="bg-card rounded-xl border">
           <div className="flex items-center gap-3 border-b px-5 py-4">
             <div className="rounded-lg bg-purple-500/10 p-2">
               <Clock className="h-4 w-4 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
               <h2 className="font-medium">{tCheckInOut("recentlyUsed")}</h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 {tCheckInOut("lastUsed")}
               </p>
             </div>
@@ -500,7 +500,7 @@ export default function DashboardPage() {
                 <Link
                   key={item.id}
                   href={`/items/${item.id}`}
-                  className="group flex items-center justify-between px-5 py-3 transition-colors hover:bg-muted/50"
+                  className="group hover:bg-muted/50 flex items-center justify-between px-5 py-3 transition-colors"
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-3">
                     <div
@@ -519,18 +519,18 @@ export default function DashboardPage() {
                     <p className="truncate font-medium">{item.name}</p>
                   </div>
                   <div className="ml-4 flex items-center gap-3">
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-muted-foreground text-xs">
                       {formatDate(item.last_used)}
                     </span>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight className="text-muted-foreground h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
             <div className="flex h-[150px] flex-col items-center justify-center text-center">
-              <Clock className="h-10 w-10 text-muted-foreground/50" />
-              <p className="mt-2 text-sm text-muted-foreground">
+              <Clock className="text-muted-foreground/50 h-10 w-10" />
+              <p className="text-muted-foreground mt-2 text-sm">
                 {tCheckInOut("noUsageYet")}
               </p>
             </div>
@@ -540,7 +540,7 @@ export default function DashboardPage() {
 
       {/* Low Stock Section */}
       {lowStockItems && lowStockItems.length > 0 && (
-        <div className="rounded-xl border bg-card">
+        <div className="bg-card rounded-xl border">
           <div className="flex items-center justify-between border-b px-5 py-4">
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-amber-500/10 p-2">
@@ -548,7 +548,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h2 className="font-medium">{t("lowStockItems")}</h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {t("belowMinimum")}
                 </p>
               </div>
@@ -562,11 +562,11 @@ export default function DashboardPage() {
               <Link
                 key={item.id}
                 href={`/items/${item.id}`}
-                className="group flex items-center justify-between px-5 py-3 transition-colors hover:bg-muted/50"
+                className="group hover:bg-muted/50 flex items-center justify-between px-5 py-3 transition-colors"
               >
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{item.name}</p>
-                  <p className="truncate text-sm text-muted-foreground">
+                  <p className="text-muted-foreground truncate text-sm">
                     {item.location?.name ?? t("noLocation")}
                   </p>
                 </div>
@@ -574,7 +574,7 @@ export default function DashboardPage() {
                   <span className="rounded-md bg-amber-500/10 px-2 py-1 text-sm font-medium text-amber-600 dark:text-amber-400">
                     {item.quantity} {item.quantity_unit}
                   </span>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                  <ArrowRight className="text-muted-foreground h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </div>
               </Link>
             ))}
@@ -583,7 +583,7 @@ export default function DashboardPage() {
             <div className="border-t px-5 py-3">
               <Link
                 href="/items?low_stock=true"
-                className="flex items-center justify-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary/80"
+                className="text-primary hover:text-primary/80 flex items-center justify-center gap-1.5 text-sm font-medium transition-colors"
               >
                 {t("viewAllItems", { count: lowStockItems.length })}
                 <ArrowRight className="h-4 w-4" />

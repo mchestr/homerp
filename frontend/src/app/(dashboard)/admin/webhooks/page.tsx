@@ -266,7 +266,7 @@ export default function AdminWebhooksPage() {
   if (authLoading || !user?.is_admin) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -283,7 +283,7 @@ export default function AdminWebhooksPage() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             {t("webhooks.title")}
           </h1>
-          <p className="mt-1 text-muted-foreground">
+          <p className="text-muted-foreground mt-1">
             {t("webhooks.description")}
           </p>
         </div>
@@ -303,15 +303,15 @@ export default function AdminWebhooksPage() {
 
       {webhooksLoading ? (
         <div className="flex h-32 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
         </div>
       ) : webhooks && webhooks.length > 0 ? (
         <>
           {/* Desktop Table View */}
-          <div className="hidden rounded-xl border bg-card md:block">
+          <div className="bg-card hidden rounded-xl border md:block">
             <table className="w-full">
               <thead>
-                <tr className="border-b text-left text-sm text-muted-foreground">
+                <tr className="text-muted-foreground border-b text-left text-sm">
                   <th className="px-4 py-3 font-medium">
                     {t("webhooks.eventType")}
                   </th>
@@ -338,7 +338,7 @@ export default function AdminWebhooksPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="max-w-xs truncate text-sm text-muted-foreground">
+                      <span className="text-muted-foreground max-w-xs truncate text-sm">
                         {webhook.url}
                       </span>
                     </td>
@@ -399,7 +399,7 @@ export default function AdminWebhooksPage() {
             {webhooks.map((webhook) => (
               <div
                 key={webhook.id}
-                className="rounded-xl border bg-card p-4"
+                className="bg-card rounded-xl border p-4"
                 data-testid={`webhook-card-${webhook.id}`}
               >
                 <div className="flex items-start justify-between gap-2">
@@ -407,7 +407,7 @@ export default function AdminWebhooksPage() {
                     <p className="truncate font-mono text-sm font-medium">
                       {webhook.event_type}
                     </p>
-                    <p className="mt-1 truncate text-xs text-muted-foreground">
+                    <p className="text-muted-foreground mt-1 truncate text-xs">
                       {webhook.url}
                     </p>
                   </div>
@@ -460,14 +460,14 @@ export default function AdminWebhooksPage() {
           </div>
         </>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-xl border bg-card p-12 text-center">
-          <div className="rounded-full bg-muted p-4">
-            <History className="h-8 w-8 text-muted-foreground" />
+        <div className="bg-card flex flex-col items-center justify-center rounded-xl border p-12 text-center">
+          <div className="bg-muted rounded-full p-4">
+            <History className="text-muted-foreground h-8 w-8" />
           </div>
           <h3 className="mt-4 text-lg font-medium">
             {t("webhooks.noWebhooks")}
           </h3>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-2 text-sm">
             {t("webhooks.noWebhooksDescription")}
           </p>
           <Button className="mt-4" onClick={openCreateDialog}>
@@ -520,7 +520,7 @@ export default function AdminWebhooksPage() {
 
             {/* Available Variables */}
             {selectedEventType && (
-              <div className="rounded-lg bg-muted/50 p-3">
+              <div className="bg-muted/50 rounded-lg p-3">
                 <p className="text-sm font-medium">
                   {t("webhooks.availableVariables")}
                 </p>
@@ -585,7 +585,7 @@ export default function AdminWebhooksPage() {
                   {t("webhooks.addHeader")}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {t("webhooks.headersHelp")}
               </p>
               {formHeaders.map((header, index) => (
@@ -629,7 +629,7 @@ export default function AdminWebhooksPage() {
                 rows={4}
                 className="font-mono text-sm"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {t("webhooks.bodyTemplateHelp")}
               </p>
             </div>
@@ -659,7 +659,7 @@ export default function AdminWebhooksPage() {
                   setFormRetryCount(parseInt(e.target.value) || 0)
                 }
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {t("webhooks.retryCountHelp")}
               </p>
             </div>
@@ -675,7 +675,7 @@ export default function AdminWebhooksPage() {
                 value={formTimeout}
                 onChange={(e) => setFormTimeout(parseInt(e.target.value) || 30)}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {t("webhooks.timeoutHelp")}
               </p>
             </div>
@@ -726,7 +726,7 @@ export default function AdminWebhooksPage() {
           <div className="py-4">
             {testMutation.isPending ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
               </div>
             ) : testResult ? (
               <div className="space-y-4">
@@ -740,8 +740,8 @@ export default function AdminWebhooksPage() {
                     </>
                   ) : (
                     <>
-                      <X className="h-5 w-5 text-destructive" />
-                      <span className="font-medium text-destructive">
+                      <X className="text-destructive h-5 w-5" />
+                      <span className="text-destructive font-medium">
                         {t("webhooks.testFailed")}
                       </span>
                     </>
@@ -758,7 +758,7 @@ export default function AdminWebhooksPage() {
                 {testResult.error && (
                   <div>
                     <Label>{t("webhooks.errorMessage")}</Label>
-                    <p className="text-sm text-destructive">
+                    <p className="text-destructive text-sm">
                       {testResult.error}
                     </p>
                   </div>
@@ -766,7 +766,7 @@ export default function AdminWebhooksPage() {
                 {testResult.response_body && (
                   <div>
                     <Label>{t("webhooks.responseBody")}</Label>
-                    <pre className="max-h-40 overflow-auto rounded-lg bg-muted p-2 text-xs">
+                    <pre className="bg-muted max-h-40 overflow-auto rounded-lg p-2 text-xs">
                       {testResult.response_body}
                     </pre>
                   </div>

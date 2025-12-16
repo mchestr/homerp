@@ -110,7 +110,7 @@ export default function AdminUsersPage() {
   if (authLoading || !user?.is_admin) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -183,7 +183,7 @@ export default function AdminUsersPage() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             User Management
           </h1>
-          <p className="mt-1 text-muted-foreground">
+          <p className="text-muted-foreground mt-1">
             View and manage user accounts
           </p>
         </div>
@@ -191,7 +191,7 @@ export default function AdminUsersPage() {
 
       {/* Search */}
       <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
         <Input
           placeholder="Search by email..."
           value={search}
@@ -204,16 +204,16 @@ export default function AdminUsersPage() {
 
       {usersLoading ? (
         <div className="flex h-32 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
         </div>
       ) : (
         <>
           {/* Desktop Table View */}
-          <div className="hidden rounded-xl border bg-card md:block">
+          <div className="bg-card hidden rounded-xl border md:block">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b text-left text-sm text-muted-foreground">
+                  <tr className="text-muted-foreground border-b text-left text-sm">
                     <th className="px-4 py-3 font-medium">User</th>
                     <th className="px-4 py-3 font-medium">Credits</th>
                     <th className="px-4 py-3 font-medium">Free Credits</th>
@@ -236,13 +236,13 @@ export default function AdminUsersPage() {
                               className="h-8 w-8 rounded-full"
                             />
                           ) : (
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">
+                            <div className="bg-primary/10 text-primary flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium">
                               {u.email[0].toUpperCase()}
                             </div>
                           )}
                           <div>
                             <p className="font-medium">{u.name || "No name"}</p>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-muted-foreground text-sm">
                               {u.email}
                             </p>
                           </div>
@@ -250,16 +250,16 @@ export default function AdminUsersPage() {
                       </td>
                       <td className="px-4 py-3">{u.credit_balance}</td>
                       <td className="px-4 py-3">{u.free_credits_remaining}</td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                      <td className="text-muted-foreground px-4 py-3 text-sm">
                         {formatDate(u.created_at)}
                       </td>
                       <td className="px-4 py-3">
                         {u.is_admin ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+                          <span className="bg-primary/10 text-primary inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium">
                             <Shield className="h-3 w-3" /> Admin
                           </span>
                         ) : (
-                          <span className="text-sm text-muted-foreground">
+                          <span className="text-muted-foreground text-sm">
                             -
                           </span>
                         )}
@@ -305,7 +305,7 @@ export default function AdminUsersPage() {
                     <tr>
                       <td
                         colSpan={6}
-                        className="px-4 py-8 text-center text-muted-foreground"
+                        className="text-muted-foreground px-4 py-8 text-center"
                       >
                         No users found
                       </td>
@@ -319,7 +319,7 @@ export default function AdminUsersPage() {
           {/* Mobile Card View */}
           <div className="space-y-3 md:hidden">
             {usersData?.items.map((u) => (
-              <div key={u.id} className="rounded-xl border bg-card p-4">
+              <div key={u.id} className="bg-card rounded-xl border p-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     {u.avatar_url ? (
@@ -329,17 +329,17 @@ export default function AdminUsersPage() {
                         className="h-10 w-10 rounded-full"
                       />
                     ) : (
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">
+                      <div className="bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium">
                         {u.email[0].toUpperCase()}
                       </div>
                     )}
                     <div>
                       <p className="font-medium">{u.name || "No name"}</p>
-                      <p className="text-sm text-muted-foreground">{u.email}</p>
+                      <p className="text-muted-foreground text-sm">{u.email}</p>
                     </div>
                   </div>
                   {u.is_admin && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+                    <span className="bg-primary/10 text-primary inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium">
                       <Shield className="h-3 w-3" /> Admin
                     </span>
                   )}
@@ -391,7 +391,7 @@ export default function AdminUsersPage() {
               </div>
             ))}
             {(!usersData?.items || usersData.items.length === 0) && (
-              <div className="rounded-xl border bg-card p-8 text-center text-muted-foreground">
+              <div className="bg-card text-muted-foreground rounded-xl border p-8 text-center">
                 No users found
               </div>
             )}
@@ -400,7 +400,7 @@ export default function AdminUsersPage() {
           {/* Pagination */}
           {usersData && usersData.total_pages > 1 && (
             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Page {usersData.page} of {usersData.total_pages} (
                 {usersData.total} users)
               </p>
@@ -497,7 +497,7 @@ export default function AdminUsersPage() {
                   )
                 }
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Adjust purchased credits (never expire). Use negative to remove.
               </p>
             </div>
@@ -514,7 +514,7 @@ export default function AdminUsersPage() {
                   )
                 }
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Adjust free monthly credits. Use negative to remove (e.g., -
                 {creditAdjustment?.user.free_credits_remaining} to zero out).
               </p>

@@ -147,7 +147,7 @@ function ApiKeyFormDialog({
 
             <div className="space-y-2">
               <Label>{t("scopes")}</Label>
-              <p className="text-xs text-muted-foreground">{t("scopesHelp")}</p>
+              <p className="text-muted-foreground text-xs">{t("scopesHelp")}</p>
               <div className="space-y-2">
                 {AVAILABLE_SCOPES.map((scope) => (
                   <div key={scope} className="flex items-center space-x-2">
@@ -160,10 +160,10 @@ function ApiKeyFormDialog({
                       className="h-4 w-4 rounded border-gray-300"
                     />
                     <Label htmlFor={`scope-${scope}`} className="font-normal">
-                      <code className="rounded bg-muted px-1 py-0.5 text-sm">
+                      <code className="bg-muted rounded px-1 py-0.5 text-sm">
                         {scope}
                       </code>
-                      <span className="ml-2 text-xs text-muted-foreground">
+                      <span className="text-muted-foreground ml-2 text-xs">
                         {t(
                           `availableScopes.${scope.replace(":", "_").replace("*", "star")}` as "availableScopes.feedback_read"
                         )}
@@ -185,7 +185,7 @@ function ApiKeyFormDialog({
                   setFormData({ ...formData, expires_at: e.target.value })
                 }
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {t("expiresAtHelp")}
               </p>
             </div>
@@ -249,7 +249,7 @@ function KeyCreatedDialog({
           <div className="space-y-2">
             <Label>{t("key")}</Label>
             <div className="flex items-center gap-2">
-              <code className="min-w-0 flex-1 break-all rounded bg-muted p-2 text-xs sm:p-3 sm:text-sm">
+              <code className="bg-muted min-w-0 flex-1 rounded p-2 text-xs break-all sm:p-3 sm:text-sm">
                 {createdKey?.key}
               </code>
               <Button
@@ -346,7 +346,7 @@ export default function AdminApiKeysPage() {
   if (authLoading || !user?.is_admin) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -386,7 +386,7 @@ export default function AdminApiKeysPage() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             {t("title")}
           </h1>
-          <p className="mt-1 text-muted-foreground">{t("description")}</p>
+          <p className="text-muted-foreground mt-1">{t("description")}</p>
         </div>
         <Button
           onClick={() => setIsCreateOpen(true)}
@@ -400,16 +400,16 @@ export default function AdminApiKeysPage() {
 
       {apiKeysLoading ? (
         <div className="flex h-32 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
         </div>
       ) : (
         <>
           {/* Desktop Table View */}
-          <div className="hidden rounded-xl border bg-card md:block">
+          <div className="bg-card hidden rounded-xl border md:block">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b text-left text-sm text-muted-foreground">
+                  <tr className="text-muted-foreground border-b text-left text-sm">
                     <th className="px-4 py-3 font-medium">{t("name")}</th>
                     <th className="px-4 py-3 font-medium">{t("keyPrefix")}</th>
                     <th className="px-4 py-3 font-medium">{t("scopes")}</th>
@@ -429,7 +429,7 @@ export default function AdminApiKeysPage() {
                       data-testid={`api-key-row-${key.id}`}
                     >
                       <td className="px-4 py-3 font-medium">{key.name}</td>
-                      <td className="px-4 py-3 font-mono text-sm text-muted-foreground">
+                      <td className="text-muted-foreground px-4 py-3 font-mono text-sm">
                         {key.key_prefix}...
                       </td>
                       <td className="px-4 py-3">
@@ -437,7 +437,7 @@ export default function AdminApiKeysPage() {
                           {key.scopes.map((scope) => (
                             <span
                               key={scope}
-                              className="rounded-full bg-muted px-2 py-0.5 text-xs"
+                              className="bg-muted rounded-full px-2 py-0.5 text-xs"
                             >
                               {scope}
                             </span>
@@ -455,12 +455,12 @@ export default function AdminApiKeysPage() {
                           </span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                      <td className="text-muted-foreground px-4 py-3 text-sm">
                         {key.last_used_at
                           ? formatDateTime(key.last_used_at)
                           : t("never")}
                       </td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                      <td className="text-muted-foreground px-4 py-3 text-sm">
                         {key.expires_at
                           ? formatDateTime(key.expires_at)
                           : t("noExpiration")}
@@ -481,7 +481,7 @@ export default function AdminApiKeysPage() {
                             onClick={() => setDeleteKeyId(key.id)}
                             data-testid={`delete-api-key-${key.id}`}
                           >
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <Trash2 className="text-destructive h-4 w-4" />
                           </Button>
                         </div>
                       </td>
@@ -491,7 +491,7 @@ export default function AdminApiKeysPage() {
                     <tr>
                       <td
                         colSpan={7}
-                        className="px-4 py-8 text-center text-muted-foreground"
+                        className="text-muted-foreground px-4 py-8 text-center"
                       >
                         {t("noApiKeys")}
                       </td>
@@ -507,13 +507,13 @@ export default function AdminApiKeysPage() {
             {apiKeys.map((key) => (
               <div
                 key={key.id}
-                className="rounded-xl border bg-card p-4"
+                className="bg-card rounded-xl border p-4"
                 data-testid={`api-key-card-${key.id}`}
               >
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="font-medium">{key.name}</p>
-                    <p className="font-mono text-sm text-muted-foreground">
+                    <p className="text-muted-foreground font-mono text-sm">
                       {key.key_prefix}...
                     </p>
                   </div>
@@ -531,13 +531,13 @@ export default function AdminApiKeysPage() {
                   {key.scopes.map((scope) => (
                     <span
                       key={scope}
-                      className="rounded-full bg-muted px-2 py-0.5 text-xs"
+                      className="bg-muted rounded-full px-2 py-0.5 text-xs"
                     >
                       {scope}
                     </span>
                   ))}
                 </div>
-                <div className="mt-2 text-xs text-muted-foreground">
+                <div className="text-muted-foreground mt-2 text-xs">
                   {t("lastUsed")}:{" "}
                   {key.last_used_at
                     ? formatDateTime(key.last_used_at)
@@ -565,7 +565,7 @@ export default function AdminApiKeysPage() {
               </div>
             ))}
             {apiKeys.length === 0 && (
-              <div className="rounded-xl border bg-card p-8 text-center text-muted-foreground">
+              <div className="bg-card text-muted-foreground rounded-xl border p-8 text-center">
                 {t("noApiKeys")}
               </div>
             )}
@@ -582,7 +582,7 @@ export default function AdminApiKeysPage() {
               >
                 {tCommon("previous")}
               </Button>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-muted-foreground text-sm">
                 {tCommon("page")} {page} {tCommon("of")} {totalPages}
               </span>
               <Button

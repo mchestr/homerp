@@ -196,7 +196,7 @@ export default function CategoriesPage() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             {t("title")}
           </h1>
-          <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
+          <p className="text-muted-foreground mt-1">{t("subtitle")}</p>
         </div>
         <div className="flex gap-2">
           {/* View toggle */}
@@ -236,7 +236,7 @@ export default function CategoriesPage() {
       {isFormVisible && (
         <form
           onSubmit={handleSubmit}
-          className="space-y-5 rounded-xl border bg-card p-6"
+          className="bg-card space-y-5 rounded-xl border p-6"
         >
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">
@@ -245,7 +245,7 @@ export default function CategoriesPage() {
             <button
               type="button"
               onClick={handleCancel}
-              className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2"
             >
               <X className="h-5 w-5" />
             </button>
@@ -264,7 +264,7 @@ export default function CategoriesPage() {
                 }
                 required
                 data-testid="category-name-input"
-                className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
                 placeholder={t("namePlaceholder")}
               />
             </div>
@@ -298,7 +298,7 @@ export default function CategoriesPage() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, icon: e.target.value }))
                 }
-                className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
                 placeholder={t("iconPlaceholder")}
               />
             </div>
@@ -315,7 +315,7 @@ export default function CategoriesPage() {
                     description: e.target.value,
                   }))
                 }
-                className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
                 placeholder={t("descriptionPlaceholder")}
               />
             </div>
@@ -361,19 +361,19 @@ export default function CategoriesPage() {
       {isLoading || isTreeLoading ? (
         <div className="flex items-center justify-center py-16">
           <div className="flex flex-col items-center gap-4">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            <p className="text-sm text-muted-foreground">
+            <div className="border-primary h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
+            <p className="text-muted-foreground text-sm">
               {t("loadingCategories")}
             </p>
           </div>
         </div>
       ) : categories?.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed py-16">
-          <div className="rounded-full bg-muted p-4">
-            <FolderOpen className="h-10 w-10 text-muted-foreground" />
+          <div className="bg-muted rounded-full p-4">
+            <FolderOpen className="text-muted-foreground h-10 w-10" />
           </div>
           <h3 className="mt-4 text-lg font-semibold">{t("noCategoriesYet")}</h3>
-          <p className="mt-1 text-center text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-center">
             {t("createToOrganize")}
           </p>
           <Button onClick={() => setIsCreating(true)} className="mt-6">
@@ -386,7 +386,7 @@ export default function CategoriesPage() {
           className="grid gap-6 lg:grid-cols-2"
           data-testid="categories-tree-view"
         >
-          <div className="rounded-xl border bg-card p-4">
+          <div className="bg-card rounded-xl border p-4">
             <TreeView
               nodes={categoryTree ?? []}
               selectedId={selectedId}
@@ -399,10 +399,10 @@ export default function CategoriesPage() {
                   <button
                     type="button"
                     onClick={() => handleAddChild(node.id)}
-                    className="rounded p-1 hover:bg-accent"
+                    className="hover:bg-accent rounded p-1"
                     title={t("addChildCategory")}
                   >
-                    <Plus className="h-4 w-4 text-muted-foreground" />
+                    <Plus className="text-muted-foreground h-4 w-4" />
                   </button>
                   <button
                     type="button"
@@ -412,25 +412,25 @@ export default function CategoriesPage() {
                       );
                       if (category) handleEdit(category);
                     }}
-                    className="rounded p-1 hover:bg-accent"
+                    className="hover:bg-accent rounded p-1"
                     title={tCommon("edit")}
                   >
-                    <Edit className="h-4 w-4 text-muted-foreground" />
+                    <Edit className="text-muted-foreground h-4 w-4" />
                   </button>
                   <button
                     type="button"
                     onClick={() => handleDelete(node.id, node.name)}
-                    className="rounded p-1 hover:bg-accent"
+                    className="hover:bg-accent rounded p-1"
                     title={tCommon("delete")}
                   >
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                    <Trash2 className="text-destructive h-4 w-4" />
                   </button>
                 </div>
               )}
               emptyMessage={t("noCategoriesYet")}
             />
           </div>
-          <div className="rounded-xl border bg-card p-4">
+          <div className="bg-card rounded-xl border p-4">
             <ItemsPanel
               categoryId={selectedId}
               title={t("itemsInCategory")}
@@ -449,9 +449,9 @@ export default function CategoriesPage() {
                 onClick={() =>
                   setSelectedId(selectedId === category.id ? null : category.id)
                 }
-                className={`group rounded-xl border bg-card p-5 text-left transition-all hover:border-primary/50 hover:shadow-md ${
+                className={`group bg-card hover:border-primary/50 rounded-xl border p-5 text-left transition-all hover:shadow-md ${
                   selectedId === category.id
-                    ? "border-primary ring-2 ring-primary/20"
+                    ? "border-primary ring-primary/20 ring-2"
                     : ""
                 }`}
                 data-testid={`category-card-${category.id}`}
@@ -464,19 +464,19 @@ export default function CategoriesPage() {
                     <div className="min-w-0">
                       <h3 className="font-semibold">{category.name}</h3>
                       {category.parent_id && (
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-muted-foreground text-xs">
                           {t("in")}{" "}
                           {categories?.find((c) => c.id === category.parent_id)
                             ?.name ?? "..."}
                         </p>
                       )}
                       {category.description && (
-                        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                        <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
                           {category.description}
                         </p>
                       )}
                       {category.attribute_template?.fields?.length > 0 && (
-                        <p className="mt-1 text-xs text-primary">
+                        <p className="text-primary mt-1 text-xs">
                           {category.attribute_template.fields.length === 1
                             ? t("attributeCount", { count: 1 })
                             : t("attributeCountPlural", {
@@ -489,7 +489,7 @@ export default function CategoriesPage() {
                       {treeStats.get(category.id) && (
                         <div className="mt-2 flex items-center gap-2">
                           {treeStats.get(category.id)!.item_count > 0 && (
-                            <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                            <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
                               {treeStats.get(category.id)!.item_count === 1
                                 ? tCommon("itemCount", { count: 1 })
                                 : tCommon("itemCountPlural", {
@@ -539,7 +539,7 @@ export default function CategoriesPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDelete(category.id, category.name)}
-                      className="h-8 w-8 text-destructive hover:text-destructive"
+                      className="text-destructive hover:text-destructive h-8 w-8"
                       title={tCommon("delete")}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -550,7 +550,7 @@ export default function CategoriesPage() {
             ))}
           </div>
           {selectedId && (
-            <div className="rounded-xl border bg-card p-4">
+            <div className="bg-card rounded-xl border p-4">
               <ItemsPanel
                 categoryId={selectedId}
                 title={`${t("itemsInCategory").replace("Category", "")} ${categories?.find((c) => c.id === selectedId)?.name ?? ""}`}
@@ -564,21 +564,21 @@ export default function CategoriesPage() {
         <div className="space-y-6" data-testid="categories-list-view">
           <div className="overflow-x-auto rounded-lg border">
             <table className="w-full">
-              <thead className="border-b bg-muted/50">
+              <thead className="bg-muted/50 border-b">
                 <tr>
-                  <th className="whitespace-nowrap px-4 py-3 text-left text-sm font-medium">
+                  <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">
                     {tCommon("name")}
                   </th>
-                  <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium sm:table-cell">
+                  <th className="hidden px-4 py-3 text-left text-sm font-medium whitespace-nowrap sm:table-cell">
                     {t("parentCategory")}
                   </th>
-                  <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium md:table-cell">
+                  <th className="hidden px-4 py-3 text-left text-sm font-medium whitespace-nowrap md:table-cell">
                     {tCommon("description")}
                   </th>
-                  <th className="hidden whitespace-nowrap px-4 py-3 text-center text-sm font-medium lg:table-cell">
+                  <th className="hidden px-4 py-3 text-center text-sm font-medium whitespace-nowrap lg:table-cell">
                     {tCommon("items")}
                   </th>
-                  <th className="whitespace-nowrap px-4 py-3 text-right text-sm font-medium">
+                  <th className="px-4 py-3 text-right text-sm font-medium whitespace-nowrap">
                     {tCommon("actions")}
                   </th>
                 </tr>
@@ -587,7 +587,7 @@ export default function CategoriesPage() {
                 {categories?.map((category) => (
                   <tr
                     key={category.id}
-                    className="group transition-colors hover:bg-muted/50"
+                    className="group hover:bg-muted/50 transition-colors"
                     data-testid={`category-row-${category.id}`}
                   >
                     <td className="px-4 py-3">
@@ -596,19 +596,19 @@ export default function CategoriesPage() {
                         <span className="font-medium">{category.name}</span>
                       </div>
                     </td>
-                    <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-muted-foreground sm:table-cell">
+                    <td className="text-muted-foreground hidden px-4 py-3 text-sm whitespace-nowrap sm:table-cell">
                       {category.parent_id
                         ? (categories?.find((c) => c.id === category.parent_id)
                             ?.name ?? "-")
                         : "-"}
                     </td>
-                    <td className="hidden max-w-xs truncate px-4 py-3 text-sm text-muted-foreground md:table-cell">
+                    <td className="text-muted-foreground hidden max-w-xs truncate px-4 py-3 text-sm md:table-cell">
                       {category.description || "-"}
                     </td>
-                    <td className="hidden whitespace-nowrap px-4 py-3 text-center text-sm text-muted-foreground lg:table-cell">
+                    <td className="text-muted-foreground hidden px-4 py-3 text-center text-sm whitespace-nowrap lg:table-cell">
                       {treeStats.get(category.id)?.item_count ?? 0}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-right">
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1">
                         <Button
                           variant="ghost"
@@ -645,7 +645,7 @@ export default function CategoriesPage() {
             </table>
           </div>
           {selectedId && (
-            <div className="rounded-xl border bg-card p-4">
+            <div className="bg-card rounded-xl border p-4">
               <ItemsPanel
                 categoryId={selectedId}
                 title={`${t("itemsInCategory").replace("Category", "")} ${categories?.find((c) => c.id === selectedId)?.name ?? ""}`}

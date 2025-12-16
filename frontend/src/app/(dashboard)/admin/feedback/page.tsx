@@ -175,7 +175,7 @@ export default function AdminFeedbackPage() {
   if (authLoading || !user?.is_admin) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -210,7 +210,7 @@ export default function AdminFeedbackPage() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             {t("admin.feedback")}
           </h1>
-          <p className="mt-1 text-muted-foreground">
+          <p className="text-muted-foreground mt-1">
             {t("admin.manageFeedback")}
           </p>
         </div>
@@ -259,16 +259,16 @@ export default function AdminFeedbackPage() {
 
       {feedbackLoading ? (
         <div className="flex h-32 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
         </div>
       ) : (
         <>
           {/* Desktop Table View */}
-          <div className="hidden rounded-xl border bg-card md:block">
+          <div className="bg-card hidden rounded-xl border md:block">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b text-left text-sm text-muted-foreground">
+                  <tr className="text-muted-foreground border-b text-left text-sm">
                     <th className="px-4 py-3 font-medium">Type</th>
                     <th className="px-4 py-3 font-medium">Subject</th>
                     <th className="px-4 py-3 font-medium">User</th>
@@ -286,7 +286,7 @@ export default function AdminFeedbackPage() {
                       <tr key={feedback.id} className="border-b last:border-0">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <TypeIcon className="h-4 w-4 text-muted-foreground" />
+                            <TypeIcon className="text-muted-foreground h-4 w-4" />
                             <span className="text-sm capitalize">
                               {feedback.feedback_type.replace("_", " ")}
                             </span>
@@ -302,7 +302,7 @@ export default function AdminFeedbackPage() {
                             <p className="text-sm font-medium">
                               {feedback.user_name || "No name"}
                             </p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-muted-foreground text-xs">
                               {feedback.user_email}
                             </p>
                           </div>
@@ -318,7 +318,7 @@ export default function AdminFeedbackPage() {
                             )?.label || feedback.status}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-sm text-muted-foreground">
+                        <td className="text-muted-foreground px-4 py-3 text-sm">
                           {formatDate(feedback.created_at)}
                         </td>
                         <td className="px-4 py-3">
@@ -349,7 +349,7 @@ export default function AdminFeedbackPage() {
                     <tr>
                       <td
                         colSpan={6}
-                        className="px-4 py-8 text-center text-muted-foreground"
+                        className="text-muted-foreground px-4 py-8 text-center"
                       >
                         No feedback found
                       </td>
@@ -367,13 +367,13 @@ export default function AdminFeedbackPage() {
               return (
                 <div
                   key={feedback.id}
-                  className="rounded-xl border bg-card p-4"
+                  className="bg-card rounded-xl border p-4"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <TypeIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
-                        <span className="text-xs capitalize text-muted-foreground">
+                        <TypeIcon className="text-muted-foreground h-4 w-4 shrink-0" />
+                        <span className="text-muted-foreground text-xs capitalize">
                           {feedback.feedback_type.replace("_", " ")}
                         </span>
                       </div>
@@ -394,7 +394,7 @@ export default function AdminFeedbackPage() {
                     <p className="text-muted-foreground">
                       {feedback.user_name || "No name"} · {feedback.user_email}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       {formatDate(feedback.created_at)}
                     </p>
                   </div>
@@ -421,7 +421,7 @@ export default function AdminFeedbackPage() {
               );
             })}
             {(!feedbackData?.items || feedbackData.items.length === 0) && (
-              <div className="rounded-xl border bg-card p-8 text-center text-muted-foreground">
+              <div className="bg-card text-muted-foreground rounded-xl border p-8 text-center">
                 No feedback found
               </div>
             )}
@@ -430,7 +430,7 @@ export default function AdminFeedbackPage() {
           {/* Pagination */}
           {feedbackData && feedbackData.total_pages > 1 && (
             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Page {feedbackData.page} of {feedbackData.total_pages} (
                 {feedbackData.total} items)
               </p>
@@ -478,7 +478,7 @@ export default function AdminFeedbackPage() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Message</Label>
-              <div className="max-h-48 overflow-auto rounded-lg bg-muted/50 p-4 text-sm">
+              <div className="bg-muted/50 max-h-48 overflow-auto rounded-lg p-4 text-sm">
                 {selectedFeedback?.message}
               </div>
             </div>

@@ -96,7 +96,7 @@ export function InventorySwitcher() {
         >
           <span>{t("myInventory")}</span>
           {selectedInventory?.isOwn && (
-            <Check className="h-4 w-4 text-primary" />
+            <Check className="text-primary h-4 w-4" />
           )}
         </DropdownMenuItem>
 
@@ -104,7 +104,7 @@ export function InventorySwitcher() {
         {sharedInventories.length > 0 && (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuLabel className="text-xs text-muted-foreground">
+            <DropdownMenuLabel className="text-muted-foreground text-xs">
               {t("sharedWithMe")}
             </DropdownMenuLabel>
             {sharedInventories.map((shared) => {
@@ -129,11 +129,11 @@ export function InventorySwitcher() {
                     <span className="truncate">
                       {shared.owner.name || shared.owner.email}
                     </span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-muted-foreground text-xs">
                       {t(shared.role)}
                     </span>
                   </div>
-                  {isSelected && <Check className="h-4 w-4 text-primary" />}
+                  {isSelected && <Check className="text-primary h-4 w-4" />}
                 </DropdownMenuItem>
               );
             })}
