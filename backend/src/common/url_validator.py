@@ -4,9 +4,41 @@ import ipaddress
 import logging
 import os
 import socket
+from functools import lru_cache
 from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
+
+
+@lru_cache
+def _get_allowed_networks() -> list[ipaddress.IPv4Network | ipaddress.IPv6Network]:
+    """Parse allowed networks from settings (cached)."""
+    from src.config import get_settings
+
+    settings = get_settings()
+    if not settings.allowed_networks:
+        return []
+
+    networks = []
+    for network_str in settings.allowed_networks.split(","):
+        network_str = network_str.strip()
+        if not network_str:
+            continue
+        try:
+            networks.append(ipaddress.ip_network(network_str, strict=True))
+        except ValueError as e:
+            logger.error(
+                f"CRITICAL: Invalid network in ALLOWED_NETWORKS will be ignored: "
+                f"{network_str}: {e}"
+            )
+
+    if networks:
+        logger.info(
+            f"SSRF allowlist configured with {len(networks)} network(s): "
+            f"{[str(n) for n in networks]}"
+        )
+
+    return networks
 
 
 def _is_dns_skip_enabled() -> bool:
@@ -71,10 +103,32 @@ class SSRFValidationError(ValueError):
     pass
 
 
-def is_ip_blocked(ip_str: str) -> bool:
-    """Check if an IP address belongs to a blocked network."""
+def is_ip_in_allowlist(ip_str: str) -> bool:
+    """Check if an IP address is explicitly allowed via ALLOWED_NETWORKS.
+
+    This checks the user-configured allowlist that bypasses SSRF protection
+    for specific trusted networks (e.g., internal services).
+    """
     try:
         ip = ipaddress.ip_address(ip_str)
+        allowed_networks = _get_allowed_networks()
+        return any(ip in network for network in allowed_networks)
+    except ValueError:
+        return False
+
+
+def is_ip_blocked(ip_str: str) -> bool:
+    """Check if an IP address belongs to a blocked network.
+
+    An IP is NOT blocked if it's in the ALLOWED_NETWORKS allowlist,
+    even if it would otherwise be in a blocked range.
+    """
+    try:
+        ip = ipaddress.ip_address(ip_str)
+        # Check allowlist first - allowed IPs bypass block check
+        allowed_networks = _get_allowed_networks()
+        if any(ip in network for network in allowed_networks):
+            return False
         return any(ip in network for network in BLOCKED_NETWORKS)
     except ValueError:
         # Invalid IP address format

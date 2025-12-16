@@ -75,6 +75,16 @@ class Settings(BaseSettings):
     # Redis (for distributed rate limiting)
     redis_url: str | None = None  # e.g., "redis://localhost:6379"
 
+    # SSRF allowlist - comma-separated CIDR ranges to exempt from blocked networks
+    # WARNING: This bypasses SSRF protection. Only use for trusted internal services.
+    # Networks must use proper CIDR notation (e.g., 10.0.1.0/24, not 10.0.1.5/24).
+    # Examples:
+    #   Single subnet: "10.0.1.0/24"
+    #   Multiple subnets: "10.0.1.0/24,192.168.50.0/24"
+    #   Single IP: "10.0.0.5/32"
+    # SECURITY: Ensure this is properly restricted in production environments.
+    allowed_networks: str = ""
+
     def _is_production_environment(self) -> bool:
         """
         Determine if this is a production environment.
