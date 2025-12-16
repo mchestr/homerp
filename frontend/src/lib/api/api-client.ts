@@ -1032,6 +1032,68 @@ export type AdminStats = {
   recent_activity: RecentActivityItem[];
 };
 
+// Admin Dashboard Time Series Types
+export type AdminTimeSeriesDataPoint = {
+  date: string;
+  value: number;
+};
+
+export type RevenueTimeSeriesResponse = {
+  data: AdminTimeSeriesDataPoint[];
+  total_revenue_cents: number;
+  period_revenue_cents: number;
+  period_label: string;
+};
+
+export type SignupsTimeSeriesResponse = {
+  data: AdminTimeSeriesDataPoint[];
+  total_users: number;
+  period_signups: number;
+  period_label: string;
+};
+
+export type CreditActivityDataPoint = {
+  date: string;
+  purchases: number;
+  usage: number;
+};
+
+export type CreditActivityResponse = {
+  data: CreditActivityDataPoint[];
+  total_purchased: number;
+  total_used: number;
+  period_purchased: number;
+  period_used: number;
+  period_label: string;
+};
+
+export type PackBreakdownItem = {
+  pack_id: string;
+  pack_name: string;
+  credits: number;
+  price_cents: number;
+  purchase_count: number;
+  total_revenue_cents: number;
+  percentage: number;
+};
+
+export type PackBreakdownResponse = {
+  packs: PackBreakdownItem[];
+  total_purchases: number;
+  total_revenue_cents: number;
+  period_label: string;
+};
+
+export type PaginatedActivityResponse = {
+  items: RecentActivityItem[];
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+};
+
+export type TimeRange = "7d" | "30d" | "90d";
+
 // Admin API
 export const adminApi = {
   // Credit Packs
@@ -1077,6 +1139,42 @@ export const adminApi = {
 
   // Stats
   getStats: () => apiRequest<AdminStats>("/api/v1/admin/stats"),
+
+  // Time Series Stats
+  getRevenueOverTime: (timeRange: TimeRange = "7d") =>
+    apiRequest<RevenueTimeSeriesResponse>(
+      `/api/v1/admin/stats/revenue?time_range=${timeRange}`
+    ),
+
+  getSignupsOverTime: (timeRange: TimeRange = "7d") =>
+    apiRequest<SignupsTimeSeriesResponse>(
+      `/api/v1/admin/stats/signups?time_range=${timeRange}`
+    ),
+
+  getCreditActivity: (timeRange: TimeRange = "7d") =>
+    apiRequest<CreditActivityResponse>(
+      `/api/v1/admin/stats/credits?time_range=${timeRange}`
+    ),
+
+  getPackBreakdown: (timeRange: TimeRange = "7d") =>
+    apiRequest<PackBreakdownResponse>(
+      `/api/v1/admin/stats/packs?time_range=${timeRange}`
+    ),
+
+  getActivityFeed: (
+    page = 1,
+    limit = 20,
+    activityType?: "signup" | "feedback" | "purchase"
+  ) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (activityType) params.set("activity_type", activityType);
+    return apiRequest<PaginatedActivityResponse>(
+      `/api/v1/admin/activity?${params}`
+    );
+  },
 
   // Credit adjustment
   adjustUserCredits: (userId: string, data: CreditAdjustment) =>
