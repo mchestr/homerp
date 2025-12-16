@@ -18,8 +18,9 @@ from src.locations.schemas import (
     LocationSuggestionItem,
 )
 
-# OpenAI pricing per 1M tokens (as of Dec 2024)
-# These should be kept up to date with https://openai.com/pricing
+# OpenAI pricing per 1M tokens
+# Last updated: December 15, 2024
+# Source: https://openai.com/pricing
 MODEL_PRICING: dict[str, dict[str, Decimal]] = {
     # GPT-4o models
     "gpt-4o": {"input": Decimal("2.50"), "output": Decimal("10.00")},

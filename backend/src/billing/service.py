@@ -95,7 +95,7 @@ class CreditService:
         return balance.total_credits >= amount
 
     async def deduct_credit(
-        self, user_id: UUID, description: str, amount: int = 1
+        self, user_id: UUID, description: str, amount: int = 1, *, commit: bool = True
     ) -> CreditTransaction | None:
         """
         Deduct credits from user's balance.
@@ -112,6 +112,9 @@ class CreditService:
             user_id: The user's ID
             description: Description of what the credits were used for
             amount: Number of credits to deduct (default: 1)
+            commit: Whether to commit the transaction (default: True).
+                Set to False when you need to perform additional operations
+                atomically with the credit deduction.
         """
         if amount < 1:
             return None  # Nothing to deduct
@@ -150,7 +153,10 @@ class CreditService:
             description=description,
         )
         self.session.add(transaction)
-        await self.session.commit()
+        if commit:
+            await self.session.commit()
+        else:
+            await self.session.flush()
 
         return transaction
 

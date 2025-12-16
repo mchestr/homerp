@@ -119,9 +119,11 @@ async def query_assistant(
         )
 
         # Deduct credit after successful query
+        # Use commit=False to ensure atomicity with usage logging
         credit_transaction = await credit_service.deduct_credit(
             user_id,
             f"AI Assistant query: {data.prompt[:50]}...",
+            commit=False,
         )
 
         # Log token usage
@@ -137,6 +139,9 @@ async def query_assistant(
                 "items_in_context": items_in_context,
             },
         )
+
+        # Commit both credit deduction and usage logging together
+        await session.commit()
 
         return AssistantQueryResponse(
             success=True,

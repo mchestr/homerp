@@ -663,7 +663,7 @@
       "promptTokens": "Prompt Tokens",
       "completionTokens": "Completion Tokens",
       "totalCost": "Estimated Cost",
-      "tokensPerCredit": "Tokens per Credit",
+      "tokensPerCredit": "Avg Tokens/Call",
       "avgTokensPerCall": "Average tokens per API call",
       "byOperation": "By Operation",
       "byModel": "By Model",

@@ -99,9 +99,11 @@ async def analyze_location_image(
         )
 
         # Deduct credit after successful analysis
+        # Use commit=False to ensure atomicity with usage logging
         credit_transaction = await credit_service.deduct_credit(
             user_id,
             f"Location analysis: {image.original_filename or 'image'}",
+            commit=False,
         )
 
         # Log token usage
@@ -116,6 +118,9 @@ async def analyze_location_image(
                 "original_filename": image.original_filename,
             },
         )
+
+        # Commit both credit deduction and usage logging together
+        await session.commit()
 
         return LocationAnalysisResponse(
             success=True,

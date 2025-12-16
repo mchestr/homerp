@@ -251,11 +251,13 @@ async def classify_images(
         )
 
         # Deduct credits after successful classification (1 per image)
+        # Use commit=False to ensure atomicity with usage logging
         filenames = [img.original_filename or "image" for img in images]
         credit_transaction = await credit_service.deduct_credit(
             user_id,
             f"AI classification ({num_images} images): {', '.join(filenames[:3])}{'...' if len(filenames) > 3 else ''}",
             amount=num_images,
+            commit=False,
         )
 
         # Log token usage
@@ -271,6 +273,9 @@ async def classify_images(
                 "has_custom_prompt": data.custom_prompt is not None,
             },
         )
+
+        # Commit both credit deduction and usage logging together
+        await session.commit()
 
         # Update all image records with AI result
         for image in images:
