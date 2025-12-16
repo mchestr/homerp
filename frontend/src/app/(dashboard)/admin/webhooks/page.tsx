@@ -349,7 +349,7 @@ export default function AdminWebhooksPage() {
                       <Badge variant={getStatusBadgeVariant(webhook.is_active)}>
                         {webhook.is_active
                           ? t("webhooks.isActive")
-                          : "Inactive"}
+                          : t("webhooks.isInactive")}
                       </Badge>
                     </td>
                     <td className="px-4 py-3">
@@ -412,7 +412,9 @@ export default function AdminWebhooksPage() {
                     </p>
                   </div>
                   <Badge variant={getStatusBadgeVariant(webhook.is_active)}>
-                    {webhook.is_active ? t("webhooks.isActive") : "Inactive"}
+                    {webhook.is_active
+                      ? t("webhooks.isActive")
+                      : t("webhooks.isInactive")}
                   </Badge>
                 </div>
                 <div className="mt-2">

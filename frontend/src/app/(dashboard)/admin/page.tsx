@@ -103,6 +103,7 @@ function QuickActionCard({
   badgeVariant?: "default" | "secondary" | "destructive" | "outline";
   testId?: string;
 }) {
+  const t = useTranslations("admin");
   return (
     <Link href={href} data-testid={testId}>
       <div className="group flex h-full flex-col rounded-xl border bg-card p-3 transition-all hover:border-primary/50 hover:shadow-md sm:p-4 md:p-6">
@@ -134,7 +135,7 @@ function QuickActionCard({
           </div>
         </div>
         <div className="mt-4 hidden items-center text-sm font-medium text-primary sm:flex">
-          <span>Manage</span>
+          <span>{t("manage")}</span>
           <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
         </div>
       </div>
