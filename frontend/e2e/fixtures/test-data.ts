@@ -345,6 +345,19 @@ export const testImageUpload = {
   created_at: "2024-01-01T00:00:00Z",
 };
 
+export const testLocationImage = {
+  id: "loc-img-1",
+  storage_path: "/uploads/location-image.jpg",
+  original_filename: "location-image.jpg",
+  mime_type: "image/jpeg",
+  size_bytes: 102400,
+  content_hash: "def456",
+  location_id: "loc-1",
+  item_id: null,
+  is_primary: true,
+  created_at: "2024-01-01T00:00:00Z",
+};
+
 export const testAdminStats = {
   total_users: 150,
   total_items: 5000,

@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { ItemsPanel } from "@/components/items/items-panel";
 import { useQRCodeModal } from "@/components/locations/qr-code-modal";
 import { useLabelPrintModal } from "@/components/labels";
+import { LocationPhoto } from "@/components/locations/location-photo";
 import { locationsApi } from "@/lib/api/api-client";
 import type { LabelData } from "@/lib/labels";
 
@@ -110,6 +111,16 @@ export default function LocationDetailPage() {
         <ChevronRight className="h-4 w-4" />
         <span className="text-foreground font-medium">{location.name}</span>
       </nav>
+
+      {/* Location Photo */}
+      <div className="bg-card rounded-xl border p-4">
+        <h2 className="mb-3 text-sm font-medium">{t("locationPhoto")}</h2>
+        <LocationPhoto
+          locationId={location.id}
+          locationName={location.name}
+          editable
+        />
+      </div>
 
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

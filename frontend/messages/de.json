@@ -292,7 +292,20 @@
     "addItem": "Artikel hinzufügen",
     "notFound": "Standort nicht gefunden",
     "notFoundDescription": "Dieser Standort wurde möglicherweise gelöscht oder Sie haben keinen Zugriff.",
-    "backToLocations": "Zurück zu Standorten"
+    "backToLocations": "Zurück zu Standorten",
+    "locationPhoto": "Standortfoto",
+    "noPhoto": "Kein Foto",
+    "addPhoto": "Klicken oder ziehen, um ein Foto hinzuzufügen",
+    "dropPhotoHere": "Foto hier ablegen",
+    "uploadingPhoto": "Hochladen...",
+    "photoUploaded": "Foto hochgeladen",
+    "photoUploadedDescription": "Das Standortfoto wurde aktualisiert.",
+    "photoRemoved": "Foto entfernt",
+    "photoRemovedDescription": "Das Standortfoto wurde entfernt.",
+    "photoUploadFailed": "Foto konnte nicht hochgeladen werden. Bitte versuchen Sie es erneut.",
+    "photoRemoveFailed": "Foto konnte nicht entfernt werden. Bitte versuchen Sie es erneut.",
+    "invalidImageType": "Bitte wählen Sie eine Bilddatei aus",
+    "imageTooLarge": "Bild muss kleiner als 10MB sein"
   },
   "images": {
     "title": "Bilder",

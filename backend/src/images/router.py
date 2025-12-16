@@ -472,6 +472,22 @@ async def delete_image(
     await repo.delete(image)
 
 
+@router.get("/location/{location_id}")
+async def get_images_by_location(
+    location_id: UUID,
+    session: AsyncSessionDep,
+    inventory_owner_id: InventoryContextDep,
+) -> list[ImageResponse]:
+    """Get all images for a location.
+
+    Supports collaboration: when viewing a shared inventory, returns
+    images for the inventory owner's location.
+    """
+    repo = ImageRepository(session, inventory_owner_id)
+    images = await repo.get_by_location(location_id)
+    return [ImageResponse.model_validate(img) for img in images]
+
+
 @router.post("/{image_id}/attach/{item_id}")
 async def attach_image_to_item(
     image_id: UUID,
@@ -541,4 +557,76 @@ async def detach_image_from_item(
         )
 
     image = await repo.detach_from_item(image)
+    return ImageResponse.model_validate(image)
+
+
+@router.post("/{image_id}/attach-location/{location_id}")
+async def attach_image_to_location(
+    image_id: UUID,
+    location_id: UUID,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+    is_primary: bool = False,
+) -> ImageResponse:
+    """Attach an image to a location."""
+    repo = ImageRepository(session, user_id)
+    image = await repo.get_by_id(image_id)
+    if not image:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image not found",
+        )
+
+    image = await repo.attach_to_location(image, location_id, is_primary)
+    return ImageResponse.model_validate(image)
+
+
+@router.post("/{image_id}/set-primary-location")
+async def set_image_as_primary_for_location(
+    image_id: UUID,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+) -> ImageResponse:
+    """Set an image as the primary image for its location.
+
+    The image must already be attached to a location.
+    Other images for the same location will be marked as non-primary.
+    """
+    repo = ImageRepository(session, user_id)
+    image = await repo.get_by_id(image_id)
+    if not image:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image not found",
+        )
+
+    if not image.location_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Image is not attached to any location",
+        )
+
+    image = await repo.set_primary_for_location(image)
+    return ImageResponse.model_validate(image)
+
+
+@router.post("/{image_id}/detach-location")
+async def detach_image_from_location(
+    image_id: UUID,
+    session: AsyncSessionDep,
+    user_id: CurrentUserIdDep,
+) -> ImageResponse:
+    """Detach an image from its location.
+
+    The image is not deleted, just unassociated from the location.
+    """
+    repo = ImageRepository(session, user_id)
+    image = await repo.get_by_id(image_id)
+    if not image:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image not found",
+        )
+
+    image = await repo.detach_from_location(image)
     return ImageResponse.model_validate(image)

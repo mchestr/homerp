@@ -292,7 +292,20 @@
     "addItem": "Add Item",
     "notFound": "Location not found",
     "notFoundDescription": "This location may have been deleted or you don't have access.",
-    "backToLocations": "Back to Locations"
+    "backToLocations": "Back to Locations",
+    "locationPhoto": "Location Photo",
+    "noPhoto": "No photo",
+    "addPhoto": "Click or drag to add a photo",
+    "dropPhotoHere": "Drop photo here",
+    "uploadingPhoto": "Uploading...",
+    "photoUploaded": "Photo uploaded",
+    "photoUploadedDescription": "The location photo has been updated.",
+    "photoRemoved": "Photo removed",
+    "photoRemovedDescription": "The location photo has been removed.",
+    "photoUploadFailed": "Failed to upload photo. Please try again.",
+    "photoRemoveFailed": "Failed to remove photo. Please try again.",
+    "invalidImageType": "Please select an image file",
+    "imageTooLarge": "Image must be less than 10MB"
   },
   "images": {
     "title": "Images",

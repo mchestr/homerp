@@ -611,6 +611,29 @@ async def unattached_image(async_session: AsyncSession, test_user: User) -> Imag
 
 
 @pytest.fixture
+async def location_image(
+    async_session: AsyncSession, test_user: User, test_location: Location
+) -> Image:
+    """Create a test image attached to a location."""
+    image = Image(
+        id=uuid.uuid4(),
+        user_id=test_user.id,
+        location_id=test_location.id,
+        original_filename="location_image.jpg",
+        mime_type="image/jpeg",
+        size_bytes=1024,
+        storage_path="/uploads/location_image.jpg",
+        thumbnail_path="/uploads/location_image_thumb.jpg",
+        storage_type="local",
+        is_primary=True,
+    )
+    async_session.add(image)
+    await async_session.commit()
+    await async_session.refresh(image)
+    return image
+
+
+@pytest.fixture
 async def classified_images(
     async_session: AsyncSession, test_user: User
 ) -> list[Image]:

@@ -484,3 +484,202 @@ class TestCollaboratorImageAccess:
 
         # Should get 403 because user doesn't have collaboration access
         assert response.status_code == 403
+
+
+class TestGetImagesByLocationEndpoint:
+    """Tests for GET /api/v1/images/location/{location_id}."""
+
+    async def test_get_images_by_location(
+        self,
+        authenticated_client: AsyncClient,
+        location_image: Image,
+        test_location: "Location",  # noqa: F821
+    ):
+        """Test getting images for a location."""
+        response = await authenticated_client.get(
+            f"/api/v1/images/location/{test_location.id}"
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 1
+        assert data[0]["id"] == str(location_image.id)
+        assert data[0]["location_id"] == str(test_location.id)
+
+    async def test_get_images_by_location_empty(
+        self,
+        authenticated_client: AsyncClient,
+        test_location: "Location",  # noqa: F821
+    ):
+        """Test getting images for a location with no images."""
+        response = await authenticated_client.get(
+            f"/api/v1/images/location/{test_location.id}"
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 0
+
+    async def test_get_images_by_location_unauthenticated(
+        self,
+        unauthenticated_client: AsyncClient,
+        test_location: "Location",  # noqa: F821
+    ):
+        """Test that unauthenticated request returns 401."""
+        response = await unauthenticated_client.get(
+            f"/api/v1/images/location/{test_location.id}"
+        )
+
+        assert response.status_code == 401
+
+
+class TestAttachImageToLocationEndpoint:
+    """Tests for POST /api/v1/images/{image_id}/attach-location/{location_id}."""
+
+    async def test_attach_image_to_location(
+        self,
+        authenticated_client: AsyncClient,
+        unattached_image: Image,
+        test_location: "Location",  # noqa: F821
+    ):
+        """Test attaching an image to a location."""
+        response = await authenticated_client.post(
+            f"/api/v1/images/{unattached_image.id}/attach-location/{test_location.id}"
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["id"] == str(unattached_image.id)
+        assert data["location_id"] == str(test_location.id)
+
+    async def test_attach_image_to_location_as_primary(
+        self,
+        authenticated_client: AsyncClient,
+        unattached_image: Image,
+        test_location: "Location",  # noqa: F821
+    ):
+        """Test attaching an image to a location as primary."""
+        response = await authenticated_client.post(
+            f"/api/v1/images/{unattached_image.id}/attach-location/{test_location.id}",
+            params={"is_primary": True},
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["id"] == str(unattached_image.id)
+        assert data["location_id"] == str(test_location.id)
+        assert data["is_primary"] is True
+
+    async def test_attach_image_to_location_not_found(
+        self,
+        authenticated_client: AsyncClient,
+        test_location: "Location",  # noqa: F821
+    ):
+        """Test attaching non-existent image to location."""
+        response = await authenticated_client.post(
+            f"/api/v1/images/{uuid.uuid4()}/attach-location/{test_location.id}"
+        )
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Image not found"
+
+    async def test_attach_image_to_location_unauthenticated(
+        self,
+        unauthenticated_client: AsyncClient,
+        unattached_image: Image,
+        test_location: "Location",  # noqa: F821
+    ):
+        """Test that unauthenticated request returns 401."""
+        response = await unauthenticated_client.post(
+            f"/api/v1/images/{unattached_image.id}/attach-location/{test_location.id}"
+        )
+
+        assert response.status_code == 401
+
+
+class TestSetPrimaryImageForLocationEndpoint:
+    """Tests for POST /api/v1/images/{image_id}/set-primary-location."""
+
+    async def test_set_primary_image_for_location(
+        self, authenticated_client: AsyncClient, location_image: Image
+    ):
+        """Test setting an image as primary for its location."""
+        response = await authenticated_client.post(
+            f"/api/v1/images/{location_image.id}/set-primary-location"
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["id"] == str(location_image.id)
+        assert data["is_primary"] is True
+
+    async def test_set_primary_image_for_location_not_found(
+        self, authenticated_client: AsyncClient
+    ):
+        """Test setting non-existent image as primary for location."""
+        response = await authenticated_client.post(
+            f"/api/v1/images/{uuid.uuid4()}/set-primary-location"
+        )
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Image not found"
+
+    async def test_set_primary_image_not_attached_to_location(
+        self, authenticated_client: AsyncClient, unattached_image: Image
+    ):
+        """Test setting an image as primary when it's not attached to any location."""
+        response = await authenticated_client.post(
+            f"/api/v1/images/{unattached_image.id}/set-primary-location"
+        )
+
+        assert response.status_code == 400
+        assert response.json()["detail"] == "Image is not attached to any location"
+
+    async def test_set_primary_image_for_location_unauthenticated(
+        self, unauthenticated_client: AsyncClient, location_image: Image
+    ):
+        """Test that unauthenticated request returns 401."""
+        response = await unauthenticated_client.post(
+            f"/api/v1/images/{location_image.id}/set-primary-location"
+        )
+
+        assert response.status_code == 401
+
+
+class TestDetachImageFromLocationEndpoint:
+    """Tests for POST /api/v1/images/{image_id}/detach-location."""
+
+    async def test_detach_image_from_location(
+        self, authenticated_client: AsyncClient, location_image: Image
+    ):
+        """Test detaching an image from its location."""
+        response = await authenticated_client.post(
+            f"/api/v1/images/{location_image.id}/detach-location"
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["id"] == str(location_image.id)
+        assert data["location_id"] is None
+        assert data["is_primary"] is False
+
+    async def test_detach_image_from_location_not_found(
+        self, authenticated_client: AsyncClient
+    ):
+        """Test detaching non-existent image from location."""
+        response = await authenticated_client.post(
+            f"/api/v1/images/{uuid.uuid4()}/detach-location"
+        )
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Image not found"
+
+    async def test_detach_image_from_location_unauthenticated(
+        self, unauthenticated_client: AsyncClient, location_image: Image
+    ):
+        """Test that unauthenticated request returns 401."""
+        response = await unauthenticated_client.post(
+            f"/api/v1/images/{location_image.id}/detach-location"
+        )
+
+        assert response.status_code == 401

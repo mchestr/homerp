@@ -259,7 +259,20 @@
     "addItem": "Ajouter un Article",
     "notFound": "Emplacement non trouvé",
     "notFoundDescription": "Cet emplacement a peut-être été supprimé ou vous n'y avez pas accès.",
-    "backToLocations": "Retour aux Emplacements"
+    "backToLocations": "Retour aux Emplacements",
+    "locationPhoto": "Photo de l'Emplacement",
+    "noPhoto": "Pas de photo",
+    "addPhoto": "Cliquez ou faites glisser pour ajouter une photo",
+    "dropPhotoHere": "Déposez la photo ici",
+    "uploadingPhoto": "Téléversement...",
+    "photoUploaded": "Photo téléversée",
+    "photoUploadedDescription": "La photo de l'emplacement a été mise à jour.",
+    "photoRemoved": "Photo supprimée",
+    "photoRemovedDescription": "La photo de l'emplacement a été supprimée.",
+    "photoUploadFailed": "Échec du téléversement. Veuillez réessayer.",
+    "photoRemoveFailed": "Échec de la suppression. Veuillez réessayer.",
+    "invalidImageType": "Veuillez sélectionner un fichier image",
+    "imageTooLarge": "L'image doit être inférieure à 10Mo"
   },
   "images": {
     "title": "Images",
