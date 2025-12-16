@@ -25,12 +25,18 @@ def _get_allowed_networks() -> list[ipaddress.IPv4Network | ipaddress.IPv6Networ
         if not network_str:
             continue
         try:
-            networks.append(ipaddress.ip_network(network_str, strict=False))
+            networks.append(ipaddress.ip_network(network_str, strict=True))
         except ValueError as e:
-            logger.warning(f"Invalid network in ALLOWED_NETWORKS: {network_str}: {e}")
+            logger.error(
+                f"CRITICAL: Invalid network in ALLOWED_NETWORKS will be ignored: "
+                f"{network_str}: {e}"
+            )
 
     if networks:
-        logger.info(f"SSRF allowlist configured with {len(networks)} network(s)")
+        logger.info(
+            f"SSRF allowlist configured with {len(networks)} network(s): "
+            f"{[str(n) for n in networks]}"
+        )
 
     return networks
 
@@ -97,8 +103,12 @@ class SSRFValidationError(ValueError):
     pass
 
 
-def is_ip_allowed(ip_str: str) -> bool:
-    """Check if an IP address is explicitly allowed via ALLOWED_NETWORKS."""
+def is_ip_in_allowlist(ip_str: str) -> bool:
+    """Check if an IP address is explicitly allowed via ALLOWED_NETWORKS.
+
+    This checks the user-configured allowlist that bypasses SSRF protection
+    for specific trusted networks (e.g., internal services).
+    """
     try:
         ip = ipaddress.ip_address(ip_str)
         allowed_networks = _get_allowed_networks()
@@ -116,7 +126,8 @@ def is_ip_blocked(ip_str: str) -> bool:
     try:
         ip = ipaddress.ip_address(ip_str)
         # Check allowlist first - allowed IPs bypass block check
-        if is_ip_allowed(ip_str):
+        allowed_networks = _get_allowed_networks()
+        if any(ip in network for network in allowed_networks):
             return False
         return any(ip in network for network in BLOCKED_NETWORKS)
     except ValueError:
