@@ -4,9 +4,12 @@ import pytest
 
 from src.common.url_validator import (
     SSRFValidationError,
+    _get_allowed_networks,
+    is_ip_allowed,
     is_ip_blocked,
     validate_webhook_url,
 )
+from src.config import get_settings
 
 
 class TestIsIpBlocked:
@@ -147,3 +150,92 @@ class TestValidateWebhookUrl:
         with pytest.raises(SSRFValidationError) as exc_info:
             validate_webhook_url("http://user:pass@localhost/webhook")
         assert "not allowed" in str(exc_info.value).lower()
+
+
+class TestAllowedNetworks:
+    """Tests for IP allowlist functionality."""
+
+    @pytest.fixture(autouse=True)
+    def clear_cache(self):
+        """Clear the settings and allowed networks caches before and after each test."""
+        get_settings.cache_clear()
+        _get_allowed_networks.cache_clear()
+        yield
+        _get_allowed_networks.cache_clear()
+        get_settings.cache_clear()
+
+    def test_no_allowlist_by_default(self):
+        """By default, no networks are allowed."""
+        allowed = _get_allowed_networks()
+        assert allowed == []
+
+    def _clear_caches(self):
+        """Helper to clear both settings and allowed networks caches."""
+        get_settings.cache_clear()
+        _get_allowed_networks.cache_clear()
+
+    def test_private_ip_allowed_when_in_allowlist(self, monkeypatch):
+        """Private IPs can be allowed via ALLOWED_NETWORKS setting."""
+        monkeypatch.setenv("ALLOWED_NETWORKS", "10.0.1.0/24")
+        self._clear_caches()
+
+        assert is_ip_allowed("10.0.1.50") is True
+        assert is_ip_blocked("10.0.1.50") is False
+
+    def test_allowed_ip_not_in_range_still_blocked(self, monkeypatch):
+        """IPs outside the allowed range are still blocked."""
+        monkeypatch.setenv("ALLOWED_NETWORKS", "10.0.1.0/24")
+        self._clear_caches()
+
+        # Different subnet - not in allowlist
+        assert is_ip_allowed("10.0.2.50") is False
+        assert is_ip_blocked("10.0.2.50") is True
+
+    def test_multiple_allowed_networks(self, monkeypatch):
+        """Multiple comma-separated networks can be allowed."""
+        monkeypatch.setenv("ALLOWED_NETWORKS", "10.0.1.0/24,192.168.50.0/24")
+        self._clear_caches()
+
+        assert is_ip_allowed("10.0.1.100") is True
+        assert is_ip_allowed("192.168.50.5") is True
+        assert is_ip_blocked("10.0.1.100") is False
+        assert is_ip_blocked("192.168.50.5") is False
+
+        # Other private IPs still blocked
+        assert is_ip_blocked("192.168.1.1") is True
+
+    def test_single_ip_allowlist(self, monkeypatch):
+        """A single IP can be allowed using /32 notation."""
+        monkeypatch.setenv("ALLOWED_NETWORKS", "10.0.0.5/32")
+        self._clear_caches()
+
+        assert is_ip_allowed("10.0.0.5") is True
+        assert is_ip_blocked("10.0.0.5") is False
+        assert is_ip_blocked("10.0.0.6") is True
+
+    def test_invalid_network_ignored(self, monkeypatch):
+        """Invalid network entries are logged and ignored."""
+        monkeypatch.setenv("ALLOWED_NETWORKS", "invalid,10.0.1.0/24")
+        self._clear_caches()
+
+        # Valid network still works
+        assert is_ip_allowed("10.0.1.50") is True
+        # And we have 1 valid network
+        assert len(_get_allowed_networks()) == 1
+
+    def test_localhost_can_be_allowed(self, monkeypatch):
+        """Even localhost can be allowed if explicitly configured."""
+        monkeypatch.setenv("ALLOWED_NETWORKS", "127.0.0.0/8")
+        self._clear_caches()
+
+        assert is_ip_allowed("127.0.0.1") is True
+        assert is_ip_blocked("127.0.0.1") is False
+
+    def test_webhook_url_with_allowed_ip(self, monkeypatch):
+        """Webhook URLs to allowed private IPs should pass validation."""
+        monkeypatch.setenv("ALLOWED_NETWORKS", "10.0.1.0/24")
+        self._clear_caches()
+
+        # Direct IP URL should pass when in allowlist
+        result = validate_webhook_url("http://10.0.1.50:8080/webhook")
+        assert result == "http://10.0.1.50:8080/webhook"
