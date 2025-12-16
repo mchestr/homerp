@@ -755,7 +755,7 @@ export default function ItemsPage() {
                 <div
                   key={item.id}
                   className={cn(
-                    "group bg-card relative overflow-hidden rounded-xl border transition-all",
+                    "bg-card group relative overflow-hidden rounded-xl border transition-all",
                     isSelectionMode
                       ? selectedItems.has(item.id)
                         ? "border-primary ring-primary/20 ring-2"

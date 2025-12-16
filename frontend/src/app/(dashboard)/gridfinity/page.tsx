@@ -256,7 +256,7 @@ export default function GridfinityPage() {
                 {units.map((unit) => (
                   <tr
                     key={unit.id}
-                    className="group hover:bg-muted/50 transition-colors"
+                    className="hover:bg-muted/50 group transition-colors"
                     data-testid={`gridfinity-unit-row-${unit.id}`}
                   >
                     <td className="px-4 py-3">

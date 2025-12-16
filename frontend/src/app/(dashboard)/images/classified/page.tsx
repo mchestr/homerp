@@ -196,7 +196,7 @@ export default function ClassifiedImagesPage() {
                   key={image.id}
                   type="button"
                   onClick={() => setSelectedImage(image)}
-                  className="group bg-card hover:border-primary/50 overflow-hidden rounded-xl border text-left transition-all hover:shadow-lg"
+                  className="bg-card hover:border-primary/50 group overflow-hidden rounded-xl border text-left transition-all hover:shadow-lg"
                   data-testid={`classified-image-card-${image.id}`}
                 >
                   <div className="bg-muted relative aspect-square">

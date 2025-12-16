@@ -449,7 +449,7 @@ export default function CategoriesPage() {
                 onClick={() =>
                   setSelectedId(selectedId === category.id ? null : category.id)
                 }
-                className={`group bg-card hover:border-primary/50 rounded-xl border p-5 text-left transition-all hover:shadow-md ${
+                className={`bg-card hover:border-primary/50 group rounded-xl border p-5 text-left transition-all hover:shadow-md ${
                   selectedId === category.id
                     ? "border-primary ring-primary/20 ring-2"
                     : ""
@@ -587,7 +587,7 @@ export default function CategoriesPage() {
                 {categories?.map((category) => (
                   <tr
                     key={category.id}
-                    className="group hover:bg-muted/50 transition-colors"
+                    className="hover:bg-muted/50 group transition-colors"
                     data-testid={`category-row-${category.id}`}
                   >
                     <td className="px-4 py-3">

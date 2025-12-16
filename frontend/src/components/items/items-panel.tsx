@@ -143,7 +143,7 @@ export function ItemsPanel({
           <Link
             key={item.id}
             href={`/items/${item.id}`}
-            className="group bg-card hover:border-primary/50 flex gap-3 overflow-hidden rounded-lg border p-3 transition-all hover:shadow-md"
+            className="bg-card hover:border-primary/50 group flex gap-3 overflow-hidden rounded-lg border p-3 transition-all hover:shadow-md"
           >
             <div className="bg-muted relative h-16 w-16 shrink-0 overflow-hidden rounded-md">
               {item.primary_image_url ? (

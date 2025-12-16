@@ -1088,7 +1088,7 @@ function DraggablePlacement({
     <div
       ref={setNodeRef}
       className={cn(
-        "group border-primary bg-primary/20 relative flex h-12 w-12 items-center justify-center rounded border-2",
+        "border-primary bg-primary/20 group relative flex h-12 w-12 items-center justify-center rounded border-2",
         isDragging && "opacity-50"
       )}
       style={{

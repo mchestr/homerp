@@ -253,7 +253,7 @@ export function MultiImageUpload({
 
       {/* Main image display */}
       {currentImage ? (
-        <div className="group bg-muted relative overflow-hidden rounded-xl border">
+        <div className="bg-muted group relative overflow-hidden rounded-xl border">
           <img
             src={currentImage.url}
             alt={currentImage.filename}

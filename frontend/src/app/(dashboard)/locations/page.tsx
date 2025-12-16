@@ -814,7 +814,7 @@ export default function LocationsPage() {
                       selectedId === location.id ? null : location.id
                     )
                   }
-                  className={`group bg-card hover:border-primary/50 rounded-xl border p-5 text-left transition-all hover:shadow-md ${
+                  className={`bg-card hover:border-primary/50 group rounded-xl border p-5 text-left transition-all hover:shadow-md ${
                     selectedId === location.id
                       ? "border-primary ring-primary/20 ring-2"
                       : ""
@@ -983,7 +983,7 @@ export default function LocationsPage() {
                   return (
                     <tr
                       key={location.id}
-                      className="group hover:bg-muted/50 transition-colors"
+                      className="hover:bg-muted/50 group transition-colors"
                       data-testid={`location-row-${location.id}`}
                     >
                       <td className="px-4 py-3">
