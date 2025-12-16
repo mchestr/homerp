@@ -106,35 +106,25 @@ function QuickActionCard({
   const t = useTranslations("admin");
   return (
     <Link href={href} data-testid={testId}>
-      <div className="group bg-card hover:border-primary/50 flex h-full flex-col rounded-xl border p-3 transition-all hover:shadow-md sm:p-4 md:p-6">
-        <div className="flex items-center gap-3 sm:flex-col sm:items-start sm:gap-0">
-          <div className="flex w-full items-start justify-between sm:mb-4">
-            <div className="bg-primary/10 rounded-lg p-2 sm:p-2.5">
-              <Icon className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
-            </div>
-            {badge !== undefined && (
-              <Badge
-                variant={badgeVariant}
-                data-testid={testId ? `${testId}-badge` : undefined}
-                className="text-xs"
-              >
-                {badge}
-              </Badge>
-            )}
+      <div className="group bg-card hover:border-primary/50 flex h-full flex-col rounded-xl border p-4 transition-all hover:shadow-md sm:p-6">
+        <div className="flex items-start justify-between">
+          <div className="bg-primary/10 rounded-lg p-2.5">
+            <Icon className="text-primary h-5 w-5" />
           </div>
-          <div className="min-w-0 flex-1 sm:w-full">
-            <div className="flex items-center justify-between">
-              <h3 className="truncate text-sm font-semibold sm:text-base">
-                {title}
-              </h3>
-              <ArrowRight className="text-primary ml-2 h-4 w-4 shrink-0 sm:hidden" />
-            </div>
-            <p className="text-muted-foreground mt-1 hidden text-sm sm:block">
-              {description}
-            </p>
-          </div>
+          {badge !== undefined && (
+            <Badge
+              variant={badgeVariant}
+              data-testid={testId ? `${testId}-badge` : undefined}
+            >
+              {badge}
+            </Badge>
+          )}
         </div>
-        <div className="text-primary mt-4 hidden items-center text-sm font-medium sm:flex">
+        <div className="mt-4 flex-1">
+          <h3 className="font-semibold">{title}</h3>
+          <p className="text-muted-foreground mt-1 text-sm">{description}</p>
+        </div>
+        <div className="text-primary mt-4 flex items-center text-sm font-medium">
           <span>{t("manage")}</span>
           <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
         </div>
