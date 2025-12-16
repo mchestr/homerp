@@ -141,7 +141,9 @@ class WebhookExecutor:
             try:
                 validate_webhook_url(config.url)
             except SSRFValidationError as e:
-                execution.error_message = f"URL validation failed on attempt {attempt}: {e}"
+                execution.error_message = (
+                    f"URL validation failed on attempt {attempt}: {e}"
+                )
                 logger.error(
                     f"Webhook URL re-validation failed on attempt {attempt}: {e}"
                 )
