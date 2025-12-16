@@ -10,6 +10,8 @@ from sqlalchemy_utils import Ltree
 from src.categories.models import Category
 from src.items.models import Item, ItemCheckInOut
 from src.items.schemas import (
+    BatchItemCreate,
+    BatchItemResult,
     CheckInOutCreate,
     Facet,
     FacetValue,
@@ -417,6 +419,63 @@ class ItemRepository:
         """Delete an item."""
         await self.session.delete(item)
         await self.session.commit()
+
+    async def batch_create(
+        self,
+        items_data: list[BatchItemCreate],
+    ) -> list[BatchItemResult]:
+        """Batch create multiple items.
+
+        Args:
+            items_data: List of BatchItemCreate objects with item data
+
+        Returns:
+            List of BatchItemResult with success/failure status for each item
+        """
+        results: list[BatchItemResult] = []
+
+        for data in items_data:
+            try:
+                # Validate foreign key ownership
+                await self._validate_category_ownership(data.category_id)
+                await self._validate_location_ownership(data.location_id)
+
+                item = Item(
+                    user_id=self.user_id,
+                    name=data.name,
+                    description=data.description,
+                    category_id=data.category_id,
+                    location_id=data.location_id,
+                    quantity=data.quantity,
+                    quantity_unit=data.quantity_unit,
+                    min_quantity=data.min_quantity,
+                    price=data.price,
+                    attributes=data.attributes,
+                    tags=data.tags,
+                )
+                self.session.add(item)
+                await self.session.flush()
+
+                results.append(
+                    BatchItemResult(
+                        success=True,
+                        item_id=item.id,
+                        name=data.name,
+                        error=None,
+                    )
+                )
+            except Exception as e:
+                results.append(
+                    BatchItemResult(
+                        success=False,
+                        item_id=None,
+                        name=data.name,
+                        error=str(e),
+                    )
+                )
+
+        await self.session.commit()
+        return results
 
     async def batch_update(
         self,

@@ -257,3 +257,42 @@ class BatchUpdateResponse(BaseModel):
 
     updated_count: int
     item_ids: list[UUID]
+
+
+class BatchItemCreate(BaseModel):
+    """Schema for a single item in batch creation."""
+
+    name: str = Field(..., min_length=1, max_length=255)
+    description: str | None = Field(None, max_length=2000)
+    category_id: UUID | None = None
+    location_id: UUID | None = None
+    quantity: int = Field(1, ge=0)
+    quantity_unit: str = Field("pcs", max_length=50)
+    min_quantity: int | None = Field(None, ge=0)
+    price: Decimal | None = Field(None, ge=0, decimal_places=2)
+    attributes: dict[str, Any] = Field(default_factory=dict)
+    tags: list[str] = Field(default_factory=list)
+    image_ids: list[UUID] | None = None
+
+
+class BatchCreateRequest(BaseModel):
+    """Schema for batch creating multiple items."""
+
+    items: list[BatchItemCreate] = Field(..., min_length=1, max_length=50)
+
+
+class BatchItemResult(BaseModel):
+    """Result for a single item in batch creation."""
+
+    success: bool
+    item_id: UUID | None = None
+    name: str
+    error: str | None = None
+
+
+class BatchCreateResponse(BaseModel):
+    """Response for batch create operation."""
+
+    created_count: int
+    failed_count: int
+    results: list[BatchItemResult]

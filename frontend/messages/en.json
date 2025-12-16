@@ -69,7 +69,8 @@
     "settings": "Settings",
     "feedback": "Feedback",
     "adminPanel": "Admin Panel",
-    "newItem": "New Item"
+    "newItem": "New Item",
+    "batchUpload": "Batch Upload"
   },
   "auth": {
     "welcomeBack": "Welcome back",
@@ -294,6 +295,25 @@
     "notFoundDescription": "This location may have been deleted or you don't have access.",
     "backToLocations": "Back to Locations"
   },
+  "batch": {
+    "title": "Batch Photo Upload",
+    "description": "Upload multiple photos at once to quickly add items to your inventory",
+    "uploadPhotos": "Upload photos",
+    "classifyAll": "Classify all",
+    "reviewAndCreate": "Review & create",
+    "dropPhotos": "Drop photos here or click to browse",
+    "selectMultiple": "Select multiple photos to upload",
+    "selectAll": "Select all",
+    "selectedCount": "{count} selected",
+    "classifyAllItems": "Classify All ({count})",
+    "addMore": "Add More",
+    "clearAll": "Clear All",
+    "itemCount": "{count} photos uploaded",
+    "createItems": "Create {count} Items",
+    "itemsCreated": "Items Created",
+    "itemsCreatedDescription": "{count} items have been added to your inventory",
+    "createFailed": "Failed to create items. Please try again."
+  },
   "images": {
     "title": "Images",
     "classifiedImages": "Classified Images",
@@ -315,6 +335,7 @@
     "uploadFailed": "Failed to upload image. Please try again.",
     "classificationFailed": "Classification failed",
     "classifyFailed": "Failed to classify image. Please try again.",
+    "uploading": "Uploading...",
     "pleaseDropImageFile": "Please drop an image file",
     "setPrimaryFailed": "Failed to set primary image. Please try again.",
     "removeFailed": "Failed to remove image. Please try again.",
@@ -392,6 +413,7 @@
     "purchased": "Purchased",
     "freeMonthly": "Free (Monthly)",
     "resetsOn": "Resets {date}",
+    "identifyItem": "Identify Item (1 credit)",
     "identifyItemCost": "Identify Item (1 credit)",
     "identifyItemCostMultiple": "Identify Item ({count, plural, one {1 credit} other {# credits}})",
     "reclassifyCost": "Re-classify (1 credit)",

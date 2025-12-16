@@ -16,6 +16,8 @@ from src.database import AsyncSessionDep
 from src.images.schemas import ImageResponse
 from src.items.repository import ItemRepository
 from src.items.schemas import (
+    BatchCreateRequest,
+    BatchCreateResponse,
     BatchUpdateRequest,
     BatchUpdateResponse,
     CheckInOutCreate,
@@ -241,6 +243,34 @@ async def batch_update_items(
     return BatchUpdateResponse(
         updated_count=len(updated_ids),
         item_ids=updated_ids,
+    )
+
+
+@router.post("/batch", status_code=status.HTTP_201_CREATED)
+async def batch_create_items(
+    data: BatchCreateRequest,
+    session: AsyncSessionDep,
+    inventory_owner_id: EditableInventoryContextDep,
+) -> BatchCreateResponse:
+    """Batch create multiple items at once.
+
+    Creates up to 50 items in a single request. Each item is processed independently,
+    so if one fails, others may still succeed. The response includes the status
+    for each item.
+
+    This endpoint is optimized for the batch photo upload workflow where multiple
+    photos have been classified and the user wants to create items from all of them.
+    """
+    repo = ItemRepository(session, inventory_owner_id)
+    results = await repo.batch_create(data.items)
+
+    created_count = sum(1 for r in results if r.success)
+    failed_count = len(results) - created_count
+
+    return BatchCreateResponse(
+        created_count=created_count,
+        failed_count=failed_count,
+        results=results,
     )
 
 
