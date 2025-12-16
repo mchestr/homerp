@@ -96,13 +96,14 @@ class CreditService:
 
     async def deduct_credit(
         self, user_id: UUID, description: str, amount: int = 1
-    ) -> bool:
+    ) -> CreditTransaction | None:
         """
         Deduct credits from user's balance.
 
         Uses free credits first, then purchased credits.
         Admins bypass credit deduction entirely.
-        Returns True if successful, False if insufficient credits.
+        Returns the CreditTransaction if successful, None if admin bypass or
+        insufficient credits.
 
         Uses SELECT FOR UPDATE to prevent race conditions when multiple
         concurrent requests try to deduct credits simultaneously.
@@ -113,23 +114,23 @@ class CreditService:
             amount: Number of credits to deduct (default: 1)
         """
         if amount < 1:
-            return True  # Nothing to deduct
+            return None  # Nothing to deduct
 
         # Use row-level locking to prevent race conditions
         user = await self.get_user_for_update(user_id)
         if not user:
-            return False
+            return None
 
         # Admins bypass credit system
         if user.is_admin:
-            return True
+            return None
 
         # Check and reset free credits first
         await self._check_and_reset_free_credits(user)
 
         total_available = user.free_credits_remaining + user.credit_balance
         if total_available < amount:
-            return False
+            return None
 
         # Deduct from free credits first, then purchased credits
         remaining_to_deduct = amount
@@ -151,7 +152,7 @@ class CreditService:
         self.session.add(transaction)
         await self.session.commit()
 
-        return True
+        return transaction
 
     async def add_credits(
         self,

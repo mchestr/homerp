@@ -46,6 +46,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
+// Configuration constants
+const HISTORY_PAGE_SIZE = 20;
+const DAILY_USAGE_DAYS = 30;
+
 function StatCard({
   title,
   value,
@@ -112,7 +116,6 @@ export default function AIUsagePage() {
   const t = useTranslations();
   const [operationFilter, setOperationFilter] = useState<string>("all");
   const [historyPage, setHistoryPage] = useState(1);
-  const historyLimit = 20;
 
   const { data: summary, isLoading: summaryLoading } = useQuery({
     queryKey: ["admin-ai-usage-summary"],
@@ -122,7 +125,7 @@ export default function AIUsagePage() {
 
   const { data: dailyUsage, isLoading: dailyLoading } = useQuery({
     queryKey: ["admin-ai-usage-daily"],
-    queryFn: () => adminApi.getAIUsageDaily(30),
+    queryFn: () => adminApi.getAIUsageDaily(DAILY_USAGE_DAYS),
     enabled: !!user?.is_admin,
   });
 
@@ -131,7 +134,7 @@ export default function AIUsagePage() {
     queryFn: () =>
       adminApi.getAIUsageHistory(
         historyPage,
-        historyLimit,
+        HISTORY_PAGE_SIZE,
         operationFilter === "all" ? undefined : operationFilter
       ),
     enabled: !!user?.is_admin,
@@ -164,7 +167,7 @@ export default function AIUsagePage() {
       })) ?? [];
 
   const totalPages = historyData
-    ? Math.ceil(historyData.total / historyLimit)
+    ? Math.ceil(historyData.total / HISTORY_PAGE_SIZE)
     : 0;
 
   return (
@@ -226,7 +229,7 @@ export default function AIUsagePage() {
                   : "0"
               }
               icon={Coins}
-              description="Average tokens per API call"
+              description={t("admin.aiUsage.avgTokensPerCall")}
               testId="stat-tokens-per-credit"
             />
           </div>
@@ -290,13 +293,15 @@ export default function AIUsagePage() {
                             <div className="bg-popover rounded-lg border p-3 shadow-lg">
                               <p className="font-medium">{data.date}</p>
                               <p className="text-muted-foreground text-sm">
-                                Tokens: {data.tokens.toLocaleString()}
+                                {t("admin.aiUsage.tokens")}:{" "}
+                                {data.tokens.toLocaleString()}
                               </p>
                               <p className="text-muted-foreground text-sm">
-                                Calls: {data.calls}
+                                {t("admin.aiUsage.calls")}: {data.calls}
                               </p>
                               <p className="text-muted-foreground text-sm">
-                                Cost: {formatCost(data.cost)}
+                                {t("admin.aiUsage.cost")}:{" "}
+                                {formatCost(data.cost)}
                               </p>
                             </div>
                           );
@@ -474,13 +479,17 @@ export default function AIUsagePage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Date</TableHead>
+                        <TableHead>{t("admin.aiUsage.date")}</TableHead>
                         <TableHead>
                           {t("admin.aiUsage.operationType")}
                         </TableHead>
                         <TableHead>{t("admin.aiUsage.model")}</TableHead>
-                        <TableHead className="text-right">Prompt</TableHead>
-                        <TableHead className="text-right">Completion</TableHead>
+                        <TableHead className="text-right">
+                          {t("admin.aiUsage.prompt")}
+                        </TableHead>
+                        <TableHead className="text-right">
+                          {t("admin.aiUsage.completion")}
+                        </TableHead>
                         <TableHead className="text-right">
                           {t("admin.aiUsage.tokens")}
                         </TableHead>

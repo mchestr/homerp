@@ -142,11 +142,11 @@ class TestFreeCreditsReset:
         assert initial_purchased > 0
 
         # Deduct credit - this should trigger reset first
-        result = await service.deduct_credit(
+        transaction = await service.deduct_credit(
             user_with_expired_free_credits.id, "Test deduction"
         )
 
-        assert result is True
+        assert transaction is not None  # Transaction created on success
         await async_session.refresh(user_with_expired_free_credits)
 
         # After reset (5 credits) and deduction (1 credit), should have 4 free credits

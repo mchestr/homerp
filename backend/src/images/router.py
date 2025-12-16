@@ -252,7 +252,7 @@ async def classify_images(
 
         # Deduct credits after successful classification (1 per image)
         filenames = [img.original_filename or "image" for img in images]
-        await credit_service.deduct_credit(
+        credit_transaction = await credit_service.deduct_credit(
             user_id,
             f"AI classification ({num_images} images): {', '.join(filenames[:3])}{'...' if len(filenames) > 3 else ''}",
             amount=num_images,
@@ -264,7 +264,7 @@ async def classify_images(
             user_id=user_id,
             operation_type="image_classification",
             token_usage=token_usage,
-            credit_transaction_id=None,  # deduct_credit returns bool, not transaction
+            credit_transaction_id=credit_transaction.id if credit_transaction else None,
             metadata={
                 "image_count": num_images,
                 "image_ids": [str(img.id) for img in images],

@@ -91,12 +91,12 @@ class TestAIClassificationDeduction:
         service = CreditService(async_session, test_settings)
 
         # Simulate successful classification
-        success = await service.deduct_credit(
+        transaction = await service.deduct_credit(
             test_user.id,
             "AI classification: test_image.jpg",
         )
 
-        assert success is True
+        assert transaction is not None  # Transaction created on success
         await async_session.refresh(test_user)
         assert test_user.free_credits_remaining == 4
 
@@ -141,11 +141,11 @@ class TestAIClassificationDeduction:
 
         # Perform "classification" multiple times
         for i in range(10):
-            success = await service.deduct_credit(
+            transaction = await service.deduct_credit(
                 admin_user.id,
                 f"AI classification: image_{i}.jpg",
             )
-            assert success is True
+            assert transaction is None  # Admin bypass - no transaction created
 
         await async_session.refresh(admin_user)
         # Credits should be unchanged
@@ -177,11 +177,11 @@ class TestClassificationCreditFlow:
         # ... OpenAI API call ...
 
         # Step 3: Deduct credit on success
-        success = await service.deduct_credit(
+        transaction = await service.deduct_credit(
             test_user.id,
             "AI classification: widget.jpg",
         )
-        assert success is True
+        assert transaction is not None
 
         # Verify final state
         await async_session.refresh(test_user)
@@ -226,12 +226,12 @@ class TestClassificationCreditFlow:
         has_credits = await service.has_credits(user_with_no_credits.id)
         assert has_credits is False
 
-        # Deduction should also fail
-        success = await service.deduct_credit(
+        # Deduction should also fail (returns None when insufficient credits)
+        transaction = await service.deduct_credit(
             user_with_no_credits.id,
             "Should not work",
         )
-        assert success is False
+        assert transaction is None
 
     async def test_concurrent_classifications_deduct_correctly(
         self,
@@ -248,18 +248,18 @@ class TestClassificationCreditFlow:
 
         # Perform 5 classifications
         for i in range(5):
-            success = await service.deduct_credit(
+            transaction = await service.deduct_credit(
                 test_user.id,
                 f"Classification {i + 1}",
             )
-            assert success is True
+            assert transaction is not None
 
         await async_session.refresh(test_user)
         assert test_user.free_credits_remaining == 0
 
         # 6th classification should fail
-        success = await service.deduct_credit(test_user.id, "Classification 6")
-        assert success is False
+        transaction = await service.deduct_credit(test_user.id, "Classification 6")
+        assert transaction is None
 
 
 class TestClassificationCreditEdgeCases:
@@ -311,16 +311,18 @@ class TestClassificationCreditEdgeCases:
 
         # Use 5 credits total: 2 free + 3 purchased
         for i in range(5):
-            success = await service.deduct_credit(user.id, f"Classification {i + 1}")
-            assert success is True
+            transaction = await service.deduct_credit(
+                user.id, f"Classification {i + 1}"
+            )
+            assert transaction is not None
 
         await async_session.refresh(user)
         assert user.free_credits_remaining == 0
         assert user.credit_balance == 0
 
         # 6th should fail
-        success = await service.deduct_credit(user.id, "Classification 6")
-        assert success is False
+        transaction = await service.deduct_credit(user.id, "Classification 6")
+        assert transaction is None
 
     async def test_check_credits_exact_amount(
         self,

@@ -99,7 +99,7 @@ async def analyze_location_image(
         )
 
         # Deduct credit after successful analysis
-        await credit_service.deduct_credit(
+        credit_transaction = await credit_service.deduct_credit(
             user_id,
             f"Location analysis: {image.original_filename or 'image'}",
         )
@@ -110,7 +110,7 @@ async def analyze_location_image(
             user_id=user_id,
             operation_type="location_analysis",
             token_usage=token_usage,
-            credit_transaction_id=None,  # deduct_credit returns bool, not transaction
+            credit_transaction_id=credit_transaction.id if credit_transaction else None,
             metadata={
                 "image_id": str(image.id),
                 "original_filename": image.original_filename,

@@ -119,7 +119,7 @@ async def query_assistant(
         )
 
         # Deduct credit after successful query
-        await credit_service.deduct_credit(
+        credit_transaction = await credit_service.deduct_credit(
             user_id,
             f"AI Assistant query: {data.prompt[:50]}...",
         )
@@ -130,7 +130,7 @@ async def query_assistant(
             user_id=user_id,
             operation_type="assistant_query",
             token_usage=token_usage,
-            credit_transaction_id=None,  # deduct_credit returns bool, not transaction
+            credit_transaction_id=credit_transaction.id if credit_transaction else None,
             metadata={
                 "prompt_length": len(data.prompt),
                 "include_inventory_context": data.include_inventory_context,
