@@ -5,6 +5,7 @@
     "cancel": "キャンセル",
     "delete": "削除",
     "success": "成功",
+    "error": "エラー",
     "edit": "編集",
     "create": "作成",
     "update": "更新",
@@ -390,7 +391,8 @@
     "creditTooltipPurchased": "購入済み: {count}",
     "creditTooltipFree": "無料: {count}",
     "creditTooltipResets": "無料クレジットリセット: {date}",
-    "manageCredits": "クレジットを管理"
+    "manageCredits": "クレジットを管理",
+    "creditCost": "1クレジット"
   },
   "settings": {
     "title": "設定",

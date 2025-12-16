@@ -5,6 +5,7 @@
     "cancel": "Annuler",
     "delete": "Supprimer",
     "success": "Succès",
+    "error": "Erreur",
     "edit": "Modifier",
     "create": "Créer",
     "update": "Mettre à jour",
@@ -390,7 +391,8 @@
     "creditTooltipPurchased": "Achetés : {count}",
     "creditTooltipFree": "Gratuits : {count}",
     "creditTooltipResets": "Réinitialisation des crédits gratuits : {date}",
-    "manageCredits": "Gérer les Crédits"
+    "manageCredits": "Gérer les Crédits",
+    "creditCost": "1 crédit"
   },
   "settings": {
     "title": "Paramètres",
