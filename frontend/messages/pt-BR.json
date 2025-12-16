@@ -545,7 +545,8 @@
       "noData": "Sem dados para este período",
       "revenue": "Receita",
       "sales": "Vendas",
-      "ofTotal": "do total"
+      "ofTotal": "do total",
+      "newUsers": "novos usuários"
     },
     "activity": {
       "filterAll": "Todos",

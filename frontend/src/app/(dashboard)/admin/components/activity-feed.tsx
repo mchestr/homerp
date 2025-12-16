@@ -117,7 +117,10 @@ export function ActivityFeed({ className }: ActivityFeedProps) {
   ];
 
   return (
-    <div className={cn("bg-card rounded-xl border", className)}>
+    <div
+      className={cn("bg-card rounded-xl border", className)}
+      data-testid="recent-activity-feed"
+    >
       {/* Filter Tabs */}
       <div className="flex flex-wrap gap-1 border-b p-2 sm:p-3">
         {filters.map((f) => (

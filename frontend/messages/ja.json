@@ -545,7 +545,8 @@
       "noData": "この期間のデータはありません",
       "revenue": "収益",
       "sales": "売上",
-      "ofTotal": "全体の"
+      "ofTotal": "全体の",
+      "newUsers": "新規ユーザー"
     },
     "activity": {
       "filterAll": "すべて",

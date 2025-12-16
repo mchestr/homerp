@@ -588,7 +588,8 @@
       "noData": "Keine Daten für diesen Zeitraum",
       "revenue": "Umsatz",
       "sales": "Verkäufe",
-      "ofTotal": "vom Gesamten"
+      "ofTotal": "vom Gesamten",
+      "newUsers": "neue Benutzer"
     },
     "activity": {
       "filterAll": "Alle",

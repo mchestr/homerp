@@ -39,7 +39,10 @@ export function PackBreakdownChart({
 
   if (isLoading) {
     return (
-      <div className="flex h-[250px] items-center justify-center">
+      <div
+        className="flex h-[250px] items-center justify-center"
+        data-testid="pack-breakdown-chart"
+      >
         <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     );
@@ -47,7 +50,10 @@ export function PackBreakdownChart({
 
   if (!data || data.packs.length === 0) {
     return (
-      <div className="flex h-[250px] flex-col items-center justify-center text-center">
+      <div
+        className="flex h-[250px] flex-col items-center justify-center text-center"
+        data-testid="pack-breakdown-chart"
+      >
         <CreditCard className="text-muted-foreground/50 h-10 w-10" />
         <p className="text-muted-foreground mt-2 text-sm">{t("noData")}</p>
       </div>
@@ -63,63 +69,68 @@ export function PackBreakdownChart({
   }));
 
   return (
-    <ResponsiveContainer width="100%" height={250}>
-      <BarChart
-        data={chartData}
-        layout="vertical"
-        margin={{ top: 0, right: 10, left: 0, bottom: 0 }}
-      >
-        <CartesianGrid
-          strokeDasharray="3 3"
-          className="stroke-muted"
-          horizontal={false}
-        />
-        <XAxis
-          type="number"
-          tickFormatter={(value) => `$${(value / 100).toFixed(0)}`}
-          tick={{ fontSize: 12 }}
-          tickLine={false}
-          axisLine={false}
-          className="text-muted-foreground"
-        />
-        <YAxis
-          type="category"
-          dataKey="name"
-          tick={{ fontSize: 12 }}
-          tickLine={false}
-          axisLine={false}
-          className="text-muted-foreground"
-          width={100}
-        />
-        <Tooltip
-          cursor={{ fill: "hsl(var(--muted))", opacity: 0.5 }}
-          content={({ active, payload }) => {
-            if (active && payload && payload.length) {
-              const item = payload[0].payload;
-              return (
-                <div className="bg-popover rounded-md border px-3 py-2 text-xs shadow-xs">
-                  <p className="mb-1 font-medium">{item.name}</p>
-                  <p>
-                    {t("revenue")}: {formatPrice(item.revenue)}
-                  </p>
-                  <p>
-                    {t("sales")}: {item.count}
-                  </p>
-                  <p className="text-muted-foreground">
-                    {item.percentage.toFixed(1)}% {t("ofTotal")}
-                  </p>
-                </div>
-              );
-            }
-            return null;
-          }}
-        />
-        <Bar dataKey="revenue" radius={[0, 4, 4, 0]}>
-          {chartData.map((_, index) => (
-            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
+    <div data-testid="pack-breakdown-chart">
+      <ResponsiveContainer width="100%" height={250}>
+        <BarChart
+          data={chartData}
+          layout="vertical"
+          margin={{ top: 0, right: 10, left: 0, bottom: 0 }}
+        >
+          <CartesianGrid
+            strokeDasharray="3 3"
+            className="stroke-muted"
+            horizontal={false}
+          />
+          <XAxis
+            type="number"
+            tickFormatter={(value) => `$${(value / 100).toFixed(0)}`}
+            tick={{ fontSize: 12 }}
+            tickLine={false}
+            axisLine={false}
+            className="text-muted-foreground"
+          />
+          <YAxis
+            type="category"
+            dataKey="name"
+            tick={{ fontSize: 12 }}
+            tickLine={false}
+            axisLine={false}
+            className="text-muted-foreground"
+            width={100}
+          />
+          <Tooltip
+            cursor={{ fill: "hsl(var(--muted))", opacity: 0.5 }}
+            content={({ active, payload }) => {
+              if (active && payload && payload.length) {
+                const item = payload[0].payload;
+                return (
+                  <div className="bg-popover rounded-md border px-3 py-2 text-xs shadow-xs">
+                    <p className="mb-1 font-medium">{item.name}</p>
+                    <p>
+                      {t("revenue")}: {formatPrice(item.revenue)}
+                    </p>
+                    <p>
+                      {t("sales")}: {item.count}
+                    </p>
+                    <p className="text-muted-foreground">
+                      {item.percentage.toFixed(1)}% {t("ofTotal")}
+                    </p>
+                  </div>
+                );
+              }
+              return null;
+            }}
+          />
+          <Bar dataKey="revenue" radius={[0, 4, 4, 0]}>
+            {chartData.map((_, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={COLORS[index % COLORS.length]}
+              />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 }

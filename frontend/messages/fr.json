@@ -545,7 +545,8 @@
       "noData": "Aucune donnée pour cette période",
       "revenue": "Revenus",
       "sales": "Ventes",
-      "ofTotal": "du total"
+      "ofTotal": "du total",
+      "newUsers": "nouveaux utilisateurs"
     },
     "activity": {
       "filterAll": "Tous",

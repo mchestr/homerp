@@ -736,6 +736,158 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     }
   });
 
+  // Admin activity feed endpoint
+  await page.route("**/api/v1/admin/activity*", async (route) => {
+    if (user.is_admin) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          items: fixtures.testAdminStats.recent_activity,
+          total: fixtures.testAdminStats.recent_activity.length,
+          page: 1,
+          limit: 15,
+          total_pages: 1,
+        }),
+      });
+    } else {
+      await route.fulfill({
+        status: 403,
+        contentType: "application/json",
+        body: JSON.stringify({ detail: "Admin access required" }),
+      });
+    }
+  });
+
+  // Admin time-series endpoints
+  await page.route("**/api/v1/admin/stats/revenue*", async (route) => {
+    if (user.is_admin) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          data: [
+            { date: "2024-06-14", revenue_cents: 5000, transaction_count: 2 },
+            { date: "2024-06-15", revenue_cents: 7500, transaction_count: 3 },
+            { date: "2024-06-16", revenue_cents: 3000, transaction_count: 1 },
+            { date: "2024-06-17", revenue_cents: 10000, transaction_count: 4 },
+            { date: "2024-06-18", revenue_cents: 6000, transaction_count: 2 },
+            { date: "2024-06-19", revenue_cents: 8500, transaction_count: 3 },
+            { date: "2024-06-20", revenue_cents: 5000, transaction_count: 2 },
+          ],
+          total_revenue_cents: 250000,
+          period_revenue_cents: 45000,
+          period_label: "Last 7 days",
+        }),
+      });
+    } else {
+      await route.fulfill({
+        status: 403,
+        contentType: "application/json",
+        body: JSON.stringify({ detail: "Admin access required" }),
+      });
+    }
+  });
+
+  await page.route("**/api/v1/admin/stats/signups*", async (route) => {
+    if (user.is_admin) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          data: [
+            { date: "2024-06-14", signups: 2 },
+            { date: "2024-06-15", signups: 3 },
+            { date: "2024-06-16", signups: 1 },
+            { date: "2024-06-17", signups: 4 },
+            { date: "2024-06-18", signups: 0 },
+            { date: "2024-06-19", signups: 1 },
+            { date: "2024-06-20", signups: 1 },
+          ],
+          total_users: 150,
+          period_signups: 12,
+          period_label: "Last 7 days",
+        }),
+      });
+    } else {
+      await route.fulfill({
+        status: 403,
+        contentType: "application/json",
+        body: JSON.stringify({ detail: "Admin access required" }),
+      });
+    }
+  });
+
+  await page.route("**/api/v1/admin/stats/credits*", async (route) => {
+    if (user.is_admin) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          data: [
+            { date: "2024-06-14", purchased: 100, used: 50 },
+            { date: "2024-06-15", purchased: 200, used: 75 },
+            { date: "2024-06-16", purchased: 0, used: 30 },
+            { date: "2024-06-17", purchased: 500, used: 100 },
+            { date: "2024-06-18", purchased: 100, used: 45 },
+            { date: "2024-06-19", purchased: 0, used: 60 },
+            { date: "2024-06-20", purchased: 100, used: 40 },
+          ],
+          total_purchased: 10000,
+          total_used: 7500,
+          period_purchased: 1000,
+          period_used: 400,
+          period_label: "Last 7 days",
+        }),
+      });
+    } else {
+      await route.fulfill({
+        status: 403,
+        contentType: "application/json",
+        body: JSON.stringify({ detail: "Admin access required" }),
+      });
+    }
+  });
+
+  await page.route("**/api/v1/admin/stats/packs*", async (route) => {
+    if (user.is_admin) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          packs: [
+            {
+              pack_name: "Standard Pack",
+              purchase_count: 50,
+              revenue_cents: 100000,
+              percentage: 40.0,
+            },
+            {
+              pack_name: "Starter Pack",
+              purchase_count: 100,
+              revenue_cents: 75000,
+              percentage: 30.0,
+            },
+            {
+              pack_name: "Pro Pack",
+              purchase_count: 15,
+              revenue_cents: 75000,
+              percentage: 30.0,
+            },
+          ],
+          total_revenue_cents: 250000,
+          period_label: "Last 7 days",
+        }),
+      });
+    } else {
+      await route.fulfill({
+        status: 403,
+        contentType: "application/json",
+        body: JSON.stringify({ detail: "Admin access required" }),
+      });
+    }
+  });
+
   // Gridfinity endpoints
   await page.route("**/api/v1/gridfinity/units", async (route) => {
     if (route.request().method() === "GET") {

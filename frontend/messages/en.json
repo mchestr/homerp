@@ -590,7 +590,8 @@
       "noData": "No data for this period",
       "revenue": "Revenue",
       "sales": "Sales",
-      "ofTotal": "of total"
+      "ofTotal": "of total",
+      "newUsers": "new users"
     },
     "activity": {
       "filterAll": "All",
