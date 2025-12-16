@@ -271,10 +271,10 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               <img
                 src={user.avatar_url}
                 alt={user.name || "User"}
-                className="h-8 w-8 rounded-full ring-2 ring-border"
+                className="ring-border h-8 w-8 rounded-full ring-2"
               />
             ) : (
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted ring-2 ring-border">
+              <div className="bg-muted ring-border flex h-8 w-8 items-center justify-center rounded-full ring-2">
                 <User className="h-4 w-4" />
               </div>
             )}
@@ -283,7 +283,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                 {user?.name || user?.email}
               </p>
               {user?.name && (
-                <p className="truncate text-xs text-muted-foreground">
+                <p className="text-muted-foreground truncate text-xs">
                   {user?.email}
                 </p>
               )}
