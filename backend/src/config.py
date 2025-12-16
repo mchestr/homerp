@@ -1,7 +1,10 @@
+import logging
 from functools import lru_cache
 
-from pydantic import computed_field
+from pydantic import computed_field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -16,6 +19,7 @@ class Settings(BaseSettings):
     # Application
     app_name: str = "HomERP"
     debug: bool = False
+    environment: str = "development"  # development, staging, production
 
     # Database
     database_url: str = "postgresql+asyncpg://homerp:homerp@localhost:5432/homerp"
@@ -67,6 +71,91 @@ class Settings(BaseSettings):
 
     # Admin
     admin_email: str = ""  # Email that auto-becomes admin on login
+
+    # Redis (for distributed rate limiting)
+    redis_url: str | None = None  # e.g., "redis://localhost:6379"
+
+    def _is_production_environment(self) -> bool:
+        """
+        Determine if this is a production environment.
+
+        Uses multiple signals to detect production even if debug=True is misconfigured:
+        1. Explicit environment setting
+        2. Non-localhost frontend URL
+        """
+        # Explicit production environment
+        if self.environment.lower() in ("production", "prod"):
+            return True
+
+        # Non-localhost frontend URL suggests production
+        return bool(
+            self.frontend_url
+            and not any(
+                local in self.frontend_url.lower()
+                for local in ("localhost", "127.0.0.1", "0.0.0.0")
+            )
+        )
+
+    @model_validator(mode="after")
+    def validate_jwt_secret(self) -> "Settings":
+        """Validate that JWT secret is secure enough for production."""
+        # Known weak/default secrets
+        weak_secrets = {
+            "dev-secret-change-in-production",
+            "secret",
+            "changeme",
+            "your-secret-key",
+            "jwt-secret",
+            "supersecret",
+        }
+
+        # Use production detection instead of just debug flag
+        # This prevents accidentally deploying with DEBUG=true and weak secrets
+        is_production = self._is_production_environment()
+        is_development = not is_production and self.debug
+
+        if self.jwt_secret.lower() in weak_secrets:
+            if is_production:
+                # In production, raise an error for weak secrets
+                raise ValueError(
+                    "JWT_SECRET is set to a known weak value. "
+                    "Please set a secure, random JWT_SECRET environment variable. "
+                    'You can generate one with: python -c "import secrets; print(secrets.token_urlsafe(32))"'
+                )
+            elif is_development:
+                # In debug mode with development environment, warn but allow
+                logger.warning(
+                    "WARNING: Using a weak JWT_SECRET. "
+                    "This is acceptable for development but MUST be changed in production."
+                )
+            else:
+                # Not explicitly production but also not development - be cautious
+                raise ValueError(
+                    "JWT_SECRET is set to a known weak value. "
+                    "Set DEBUG=true for development or use a secure secret for production. "
+                    'Generate one with: python -c "import secrets; print(secrets.token_urlsafe(32))"'
+                )
+
+        # Check minimum length (32 characters recommended)
+        if len(self.jwt_secret) < 32:
+            if is_production:
+                raise ValueError(
+                    f"JWT_SECRET is too short ({len(self.jwt_secret)} chars). "
+                    "Please use at least 32 characters for security. "
+                    'Generate one with: python -c "import secrets; print(secrets.token_urlsafe(32))"'
+                )
+            elif is_development:
+                logger.warning(
+                    f"WARNING: JWT_SECRET is short ({len(self.jwt_secret)} chars). "
+                    "Consider using at least 32 characters."
+                )
+            else:
+                raise ValueError(
+                    f"JWT_SECRET is too short ({len(self.jwt_secret)} chars). "
+                    "Set DEBUG=true for development or use at least 32 characters for production."
+                )
+
+        return self
 
 
 @lru_cache

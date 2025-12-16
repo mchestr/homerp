@@ -2,9 +2,10 @@
 
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, Request, status
 
 from src.auth.dependencies import AdminUserDep
+from src.common.rate_limiter import RATE_LIMIT_WEBHOOKS, limiter
 from src.database import AsyncSessionDep
 from src.webhooks.executor import WebhookExecutor
 from src.webhooks.repository import WebhookRepository
@@ -51,7 +52,9 @@ async def list_configs(
 
 
 @router.post("/configs", status_code=status.HTTP_201_CREATED)
+@limiter.limit(RATE_LIMIT_WEBHOOKS)
 async def create_config(
+    request: Request,  # noqa: ARG001 - Required for rate limiting
     data: WebhookConfigCreate,
     _admin: AdminUserDep,
     session: AsyncSessionDep,
@@ -126,7 +129,9 @@ async def delete_config(
 
 
 @router.post("/configs/{config_id}/test")
+@limiter.limit(RATE_LIMIT_WEBHOOKS)
 async def test_config(
+    request: Request,  # noqa: ARG001 - Required for rate limiting
     config_id: UUID,
     data: WebhookTestRequest,
     _admin: AdminUserDep,

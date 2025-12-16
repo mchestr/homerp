@@ -1,7 +1,7 @@
 import logging
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, status
 
 from src.auth.dependencies import CurrentUserDep
 from src.auth.oauth import (
@@ -11,6 +11,7 @@ from src.auth.oauth import (
 )
 from src.auth.schemas import AuthResponse, TokenResponse
 from src.auth.service import AuthService, get_auth_service
+from src.common.rate_limiter import RATE_LIMIT_AUTH, limiter
 from src.database import AsyncSessionDep
 from src.users.repository import UserRepository
 from src.users.schemas import UserResponse, UserSettingsUpdate
@@ -69,7 +70,9 @@ async def update_user_settings(
 
 
 @router.get("/callback/{provider}")
+@limiter.limit(RATE_LIMIT_AUTH)
 async def oauth_callback(
+    request: Request,  # noqa: ARG001 - Required for rate limiting
     provider: Annotated[str, Path(description="OAuth provider name (google, github)")],
     code: str,
     redirect_uri: str,
@@ -132,7 +135,9 @@ async def oauth_callback(
 
 
 @router.get("/{provider}")
+@limiter.limit(RATE_LIMIT_AUTH)
 async def get_auth_url(
+    request: Request,  # noqa: ARG001 - Required for rate limiting
     provider: Annotated[str, Path(description="OAuth provider name (google, github)")],
     redirect_uri: str = Query(..., description="The redirect URI for OAuth callback"),
 ) -> dict[str, str]:

@@ -5,6 +5,16 @@ This ensures tests run against the same database engine as production,
 avoiding issues with PostgreSQL-specific types (UUID, JSONB, LtreeType).
 """
 
+import os
+
+# Enable test mode for URL validation (skip DNS resolution for safe test domains)
+# Must be set before importing modules that use url_validator
+os.environ["WEBHOOK_SKIP_DNS_RESOLUTION"] = "true"
+
+# Enable debug mode to allow weak JWT secrets in tests
+# Must be set before importing src.config which validates JWT secrets
+os.environ["DEBUG"] = "true"
+
 import uuid
 from collections.abc import AsyncGenerator
 from datetime import UTC, datetime, timedelta
@@ -65,8 +75,8 @@ def test_settings(database_url: str) -> Settings:
     """Create test settings with PostgreSQL."""
     return Settings(
         database_url=database_url,
-        debug=False,
-        jwt_secret="test-secret",
+        debug=True,  # Enable debug mode for tests to allow weak JWT secrets
+        jwt_secret="test-secret-for-automated-testing-only",  # Long enough for tests
         stripe_secret_key="sk_test_fake",
         stripe_publishable_key="pk_test_fake",
         stripe_webhook_secret="whsec_test_fake",

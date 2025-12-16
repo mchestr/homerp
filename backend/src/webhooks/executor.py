@@ -3,16 +3,53 @@
 import asyncio
 import json
 import logging
+import re
 from datetime import UTC, datetime
 
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.common.url_validator import SSRFValidationError, validate_webhook_url
 from src.webhooks.models import WebhookConfig, WebhookExecution
 from src.webhooks.repository import WebhookRepository
 from src.webhooks.template import build_default_payload, render_template
 
 logger = logging.getLogger(__name__)
+
+# Headers that contain sensitive values and should be redacted in logs
+SENSITIVE_HEADERS = {
+    "authorization",
+    "x-api-key",
+    "x-auth-token",
+    "x-access-token",
+    "api-key",
+    "apikey",
+    "token",
+    "secret",
+    "password",
+    "x-webhook-secret",
+    "x-hub-signature",
+    "x-hub-signature-256",
+}
+
+
+def sanitize_headers_for_logging(headers: dict[str, str]) -> dict[str, str]:
+    """
+    Sanitize headers by redacting sensitive values for safe storage/logging.
+
+    Sensitive header values are replaced with '[REDACTED]' to prevent
+    credential leakage in logs and database records.
+    """
+    sanitized = {}
+    for key, value in headers.items():
+        # Check known sensitive headers and common sensitive patterns
+        if key.lower() in SENSITIVE_HEADERS or re.search(
+            r"(auth|token|key|secret|password)", key.lower()
+        ):
+            sanitized[key] = "[REDACTED]"
+        else:
+            sanitized[key] = value
+    return sanitized
 
 
 class WebhookExecutor:
@@ -28,6 +65,26 @@ class WebhookExecutor:
         event_payload: dict,
     ) -> WebhookExecution:
         """Execute a webhook with the given payload."""
+        # Validate URL for SSRF before execution
+        try:
+            validate_webhook_url(config.url)
+        except SSRFValidationError as e:
+            logger.error(f"Webhook URL validation failed: {e}")
+            # Create a failed execution record
+            execution = await self.repository.create_execution(
+                webhook_config_id=config.id,
+                event_type=config.event_type,
+                event_payload=event_payload,
+                request_url=config.url,
+                request_headers={},
+                request_body="",
+            )
+            execution.status = "failed"
+            execution.error_message = f"URL validation failed: {e}"
+            execution.completed_at = datetime.now(UTC)
+            await self.repository.update_execution(execution)
+            return execution
+
         # Build request body
         if config.body_template:
             request_body = render_template(config.body_template, event_payload)
@@ -43,13 +100,15 @@ class WebhookExecutor:
             **config.headers,
         }
 
-        # Create execution record
+        # Create execution record with sanitized headers
+        # Actual headers are used for the request, but sanitized version is stored
+        sanitized_headers = sanitize_headers_for_logging(headers)
         execution = await self.repository.create_execution(
             webhook_config_id=config.id,
             event_type=config.event_type,
             event_payload=event_payload,
             request_url=config.url,
-            request_headers=headers,
+            request_headers=sanitized_headers,
             request_body=request_body,
         )
 
@@ -76,6 +135,22 @@ class WebhookExecutor:
                 await self.repository.update_execution(execution)
                 # Exponential backoff: 2^attempt seconds (2, 4, 8...)
                 await asyncio.sleep(2**attempt)
+
+            # Re-validate URL before each attempt to protect against DNS rebinding
+            # DNS records could change between validation and execution
+            try:
+                validate_webhook_url(config.url)
+            except SSRFValidationError as e:
+                execution.error_message = (
+                    f"URL validation failed on attempt {attempt}: {e}"
+                )
+                logger.error(
+                    f"Webhook URL re-validation failed on attempt {attempt}: {e}"
+                )
+                execution.status = "failed"
+                execution.completed_at = datetime.now(UTC)
+                await self.repository.update_execution(execution)
+                return
 
             try:
                 async with httpx.AsyncClient(timeout=config.timeout_seconds) as client:

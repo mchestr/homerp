@@ -12,17 +12,39 @@ from src.config import Settings, get_settings
 THUMBNAIL_SIZE = (300, 300)
 
 
+class PathTraversalError(ValueError):
+    """Raised when a path traversal attempt is detected."""
+
+    pass
+
+
 class LocalStorage:
     """Local file storage for images."""
 
     def __init__(self, settings: Settings | None = None):
         self.settings = settings or get_settings()
-        self.upload_dir = Path(self.settings.upload_dir)
+        self.upload_dir = Path(self.settings.upload_dir).resolve()
         self.upload_dir.mkdir(parents=True, exist_ok=True)
 
     def _get_file_path(self, filename: str) -> Path:
-        """Get full path for a file."""
-        return self.upload_dir / filename
+        """Get full path for a file with path traversal protection."""
+        # Sanitize the filename to remove any path components
+        # Extract just the filename part, removing any directory traversal
+        safe_filename = Path(filename).name
+
+        # Construct the path
+        file_path = (self.upload_dir / safe_filename).resolve()
+
+        # Verify the resolved path is within the upload directory
+        # This catches any edge cases the Path.name extraction might miss
+        try:
+            file_path.relative_to(self.upload_dir)
+        except ValueError:
+            raise PathTraversalError(
+                f"Path traversal attempt detected: {filename}"
+            ) from None
+
+        return file_path
 
     def _generate_filename(self, original_filename: str | None) -> str:
         """Generate a unique filename."""

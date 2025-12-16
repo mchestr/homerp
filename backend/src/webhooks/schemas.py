@@ -1,9 +1,21 @@
 """Webhook schemas for request/response models."""
 
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import AfterValidator, BaseModel, Field, HttpUrl
+
+from src.common.header_validator import validate_headers
+from src.common.url_validator import validate_webhook_url_sync
+
+# Custom type that validates URLs for SSRF
+SafeWebhookUrl = Annotated[
+    HttpUrl, AfterValidator(lambda v: validate_webhook_url_sync(str(v)) and v)
+]
+
+# Custom type that validates headers for CRLF injection
+SafeHeaders = Annotated[dict[str, str], AfterValidator(validate_headers)]
 
 # Available event types with their template variables
 AVAILABLE_EVENT_TYPES = [
@@ -29,9 +41,9 @@ class WebhookConfigCreate(BaseModel):
     """Schema for creating webhook config."""
 
     event_type: str = Field(..., max_length=100)
-    url: HttpUrl
+    url: SafeWebhookUrl  # Validates for SSRF
     http_method: str = Field("POST", pattern="^(POST|PUT|PATCH)$")
-    headers: dict[str, str] = Field(default_factory=dict)
+    headers: SafeHeaders = Field(default_factory=dict)  # Validates for CRLF injection
     body_template: str | None = None
     is_active: bool = True
     retry_count: int = Field(3, ge=0, le=10)
@@ -41,9 +53,9 @@ class WebhookConfigCreate(BaseModel):
 class WebhookConfigUpdate(BaseModel):
     """Schema for updating webhook config."""
 
-    url: HttpUrl | None = None
+    url: SafeWebhookUrl | None = None  # Validates for SSRF
     http_method: str | None = Field(None, pattern="^(POST|PUT|PATCH)$")
-    headers: dict[str, str] | None = None
+    headers: SafeHeaders | None = None  # Validates for CRLF injection
     body_template: str | None = None
     is_active: bool | None = None
     retry_count: int | None = Field(None, ge=0, le=10)

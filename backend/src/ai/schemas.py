@@ -2,14 +2,14 @@ from datetime import UTC, datetime
 
 from pydantic import BaseModel, Field
 
+from src.common.ai_input_validator import ValidatedPrompt
+
 
 class AssistantQueryRequest(BaseModel):
     """Request schema for AI assistant query."""
 
-    prompt: str = Field(
+    prompt: ValidatedPrompt = Field(
         ...,
-        min_length=1,
-        max_length=2000,
         description="The user's question or request for the AI assistant",
     )
     include_inventory_context: bool = Field(

@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from src.ai.schemas import (
     AssistantQueryRequest,
@@ -11,6 +11,7 @@ from src.ai.schemas import (
 from src.ai.service import AIClassificationService, get_ai_service
 from src.auth.dependencies import CurrentUserIdDep
 from src.billing.router import CreditServiceDep
+from src.common.rate_limiter import RATE_LIMIT_AI, limiter
 from src.database import AsyncSessionDep
 from src.items.repository import ItemRepository
 
@@ -71,7 +72,9 @@ async def _build_inventory_context(
 
 
 @router.post("/query")
+@limiter.limit(RATE_LIMIT_AI)
 async def query_assistant(
+    request: Request,  # noqa: ARG001 - Required for rate limiting
     data: AssistantQueryRequest,
     session: AsyncSessionDep,
     user_id: CurrentUserIdDep,
