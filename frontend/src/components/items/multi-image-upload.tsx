@@ -16,7 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { imagesApi, ClassificationResult } from "@/lib/api/api-client";
-import { cn } from "@/lib/utils";
+import { cn, isInsufficientCreditsError } from "@/lib/utils";
 import { useInsufficientCreditsModal } from "@/components/billing/insufficient-credits-modal";
 import { useAuth } from "@/context/auth-context";
 import { useTranslations } from "next-intl";
@@ -161,12 +161,7 @@ export function MultiImageUpload({
       }
     } catch (err: unknown) {
       console.error("Classification error:", err);
-      if (
-        err &&
-        typeof err === "object" &&
-        "status" in err &&
-        (err as { status: number }).status === 402
-      ) {
+      if (isInsufficientCreditsError(err)) {
         showInsufficientCredits();
       } else {
         setError(tImages("classifyFailed"));

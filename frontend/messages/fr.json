@@ -69,7 +69,8 @@
     "settings": "Paramètres",
     "feedback": "Commentaires",
     "adminPanel": "Panneau d'Administration",
-    "newItem": "Nouvel Article"
+    "newItem": "Nouvel Article",
+    "batchUpload": "Téléversement Groupé"
   },
   "auth": {
     "welcomeBack": "Bon retour",
@@ -190,6 +191,25 @@
     "attributeCount": "{count} attribut",
     "attributeCountPlural": "{count} attributs",
     "in": "dans"
+  },
+  "batch": {
+    "title": "Téléversement Groupé de Photos",
+    "description": "Téléversez plusieurs photos à la fois pour ajouter rapidement des articles à votre inventaire",
+    "uploadPhotos": "Téléverser des photos",
+    "classifyAll": "Tout classifier",
+    "reviewAndCreate": "Réviser et créer",
+    "dropPhotos": "Déposez des photos ici ou cliquez pour parcourir",
+    "selectMultiple": "Sélectionnez plusieurs photos à téléverser",
+    "selectAll": "Tout sélectionner",
+    "selectedCount": "{count} sélectionné(s)",
+    "classifyAllItems": "Tout Classifier ({count})",
+    "addMore": "Ajouter Plus",
+    "clearAll": "Tout Effacer",
+    "itemCount": "{count} photos téléversées",
+    "createItems": "Créer {count} Articles",
+    "itemsCreated": "Articles Créés",
+    "itemsCreatedDescription": "{count} articles ont été ajoutés à votre inventaire",
+    "createFailed": "Échec de la création des articles. Veuillez réessayer."
   },
   "locations": {
     "title": "Emplacements",
@@ -351,6 +371,7 @@
     "freeMonthly": "Gratuits (Mensuels)",
     "resetsOn": "Réinitialisation le {date}",
     "identifyItemCost": "Identifier l'Article (1 crédit)",
+    "identifyItemCostMultiple": "Identifier l'Article ({count, plural, one {1 crédit} other {# crédits}})",
     "analyzing": "Analyse en cours...",
     "creditTooltipTitle": "Crédits IA",
     "creditTooltipPurchased": "Achetés : {count}",

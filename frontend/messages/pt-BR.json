@@ -69,7 +69,8 @@
     "settings": "Configurações",
     "feedback": "Feedback",
     "adminPanel": "Painel de Administração",
-    "newItem": "Novo Item"
+    "newItem": "Novo Item",
+    "batchUpload": "Upload em Lote"
   },
   "auth": {
     "welcomeBack": "Bem-vindo de volta",
@@ -190,6 +191,25 @@
     "attributeCount": "{count} atributo",
     "attributeCountPlural": "{count} atributos",
     "in": "em"
+  },
+  "batch": {
+    "title": "Upload em Lote de Fotos",
+    "description": "Faça upload de várias fotos de uma vez para adicionar itens rapidamente ao seu inventário",
+    "uploadPhotos": "Fazer upload de fotos",
+    "classifyAll": "Classificar tudo",
+    "reviewAndCreate": "Revisar e criar",
+    "dropPhotos": "Solte fotos aqui ou clique para procurar",
+    "selectMultiple": "Selecione várias fotos para fazer upload",
+    "selectAll": "Selecionar tudo",
+    "selectedCount": "{count} selecionado(s)",
+    "classifyAllItems": "Classificar Tudo ({count})",
+    "addMore": "Adicionar Mais",
+    "clearAll": "Limpar Tudo",
+    "itemCount": "{count} fotos enviadas",
+    "createItems": "Criar {count} Itens",
+    "itemsCreated": "Itens Criados",
+    "itemsCreatedDescription": "{count} itens foram adicionados ao seu inventário",
+    "createFailed": "Falha ao criar itens. Por favor, tente novamente."
   },
   "locations": {
     "title": "Locais",
@@ -351,6 +371,7 @@
     "freeMonthly": "Gratuitos (Mensais)",
     "resetsOn": "Renova em {date}",
     "identifyItemCost": "Identificar Item (1 crédito)",
+    "identifyItemCostMultiple": "Identificar Item ({count, plural, one {1 crédito} other {# créditos}})",
     "analyzing": "Analisando...",
     "creditTooltipTitle": "Créditos de IA",
     "creditTooltipPurchased": "Comprados: {count}",

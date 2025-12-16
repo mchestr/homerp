@@ -29,7 +29,11 @@ import {
   BatchItemCreate,
   LocationTreeNode,
 } from "@/lib/api/api-client";
-import { cn, parseQuantityEstimate } from "@/lib/utils";
+import {
+  cn,
+  parseQuantityEstimate,
+  isInsufficientCreditsError,
+} from "@/lib/utils";
 import { useInsufficientCreditsModal } from "@/components/billing/insufficient-credits-modal";
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
@@ -99,22 +103,21 @@ export default function BatchUploadPage() {
     : [];
 
   const createBatchMutation = useMutation({
-    mutationFn: async (itemsToCreate: BatchItemCreate[]) => {
+    mutationFn: async (selectedItems: BatchItem[]) => {
+      const itemsToCreate = selectedItems.map((item) => item.formData);
       const result = await itemsApi.batchCreate({ items: itemsToCreate });
 
-      // Attach images to created items
-      for (const itemResult of result.results) {
-        if (itemResult.success && itemResult.item_id) {
-          const batchItem = items.find(
-            (item) => item.formData.name === itemResult.name
+      // Attach images to created items using index-based matching
+      // Results are returned in the same order as the input items
+      for (let i = 0; i < result.results.length; i++) {
+        const itemResult = result.results[i];
+        const batchItem = selectedItems[i];
+        if (itemResult.success && itemResult.item_id && batchItem) {
+          await imagesApi.attachToItem(
+            batchItem.imageId,
+            itemResult.item_id,
+            true
           );
-          if (batchItem) {
-            await imagesApi.attachToItem(
-              batchItem.imageId,
-              itemResult.item_id,
-              true
-            );
-          }
         }
       }
       return result;
@@ -291,12 +294,7 @@ export default function BatchUploadPage() {
       }
     } catch (err: unknown) {
       console.error("Classification error:", err);
-      if (
-        err &&
-        typeof err === "object" &&
-        "status" in err &&
-        (err as { status: number }).status === 402
-      ) {
+      if (isInsufficientCreditsError(err)) {
         showInsufficientCredits();
       }
       setItems((prev) =>
@@ -350,12 +348,7 @@ export default function BatchUploadPage() {
         }
       } catch (err: unknown) {
         console.error("Classification error:", err);
-        if (
-          err &&
-          typeof err === "object" &&
-          "status" in err &&
-          (err as { status: number }).status === 402
-        ) {
+        if (isInsufficientCreditsError(err)) {
           showInsufficientCredits();
           // Stop classifying remaining items
           setItems((prev) => prev.map((i) => ({ ...i, isClassifying: false })));
@@ -406,8 +399,7 @@ export default function BatchUploadPage() {
     const selectedItems = items.filter((i) => i.isSelected);
     if (selectedItems.length === 0) return;
 
-    const itemsToCreate = selectedItems.map((item) => item.formData);
-    createBatchMutation.mutate(itemsToCreate);
+    createBatchMutation.mutate(selectedItems);
   };
 
   const selectedCount = items.filter((i) => i.isSelected).length;
@@ -492,6 +484,7 @@ export default function BatchUploadPage() {
             className="hidden"
             disabled={isUploading}
             multiple
+            aria-label={tBatch("uploadPhotos")}
           />
           <div className="text-center">
             {isUploading ? (
@@ -570,6 +563,7 @@ export default function BatchUploadPage() {
                   onChange={handleFileChange}
                   className="hidden"
                   multiple
+                  aria-label={tBatch("addMore")}
                 />
                 <Button variant="outline" size="sm" asChild>
                   <span>

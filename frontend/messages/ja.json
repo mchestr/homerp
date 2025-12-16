@@ -69,7 +69,8 @@
     "settings": "設定",
     "feedback": "フィードバック",
     "adminPanel": "管理パネル",
-    "newItem": "新規アイテム"
+    "newItem": "新規アイテム",
+    "batchUpload": "一括アップロード"
   },
   "auth": {
     "welcomeBack": "おかえりなさい",
@@ -190,6 +191,25 @@
     "attributeCount": "{count}個の属性",
     "attributeCountPlural": "{count}個の属性",
     "in": "内"
+  },
+  "batch": {
+    "title": "一括写真アップロード",
+    "description": "複数の写真を一度にアップロードして、在庫にアイテムを素早く追加",
+    "uploadPhotos": "写真をアップロード",
+    "classifyAll": "すべて分類",
+    "reviewAndCreate": "確認して作成",
+    "dropPhotos": "写真をここにドロップするか、クリックして参照",
+    "selectMultiple": "アップロードする複数の写真を選択",
+    "selectAll": "すべて選択",
+    "selectedCount": "{count}件選択",
+    "classifyAllItems": "すべて分類（{count}）",
+    "addMore": "追加",
+    "clearAll": "すべてクリア",
+    "itemCount": "{count}枚の写真がアップロードされました",
+    "createItems": "{count}件のアイテムを作成",
+    "itemsCreated": "アイテムが作成されました",
+    "itemsCreatedDescription": "{count}件のアイテムが在庫に追加されました",
+    "createFailed": "アイテムの作成に失敗しました。もう一度お試しください。"
   },
   "locations": {
     "title": "ロケーション",
@@ -351,6 +371,7 @@
     "freeMonthly": "無料（月次）",
     "resetsOn": "{date}にリセット",
     "identifyItemCost": "アイテムを識別（1クレジット）",
+    "identifyItemCostMultiple": "アイテムを識別（{count, plural, other {#クレジット}}）",
     "analyzing": "分析中...",
     "creditTooltipTitle": "AIクレジット",
     "creditTooltipPurchased": "購入済み: {count}",
