@@ -218,7 +218,7 @@ export function ImageUpload({
 
       {currentImage ? (
         // Show uploaded image as the main focus
-        <div className="group bg-muted relative overflow-hidden rounded-xl border">
+        <div className="bg-muted group relative overflow-hidden rounded-xl border">
           <img
             src={currentImage.url}
             alt={currentImage.filename}

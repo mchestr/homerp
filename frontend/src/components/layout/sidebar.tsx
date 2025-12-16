@@ -19,9 +19,11 @@ import {
   Bot,
   ArrowRightFromLine,
   User,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/auth-context";
 import { useInventory } from "@/context/inventory-context";
 import { InventorySwitcher } from "@/components/layout/inventory-switcher";
@@ -44,8 +46,14 @@ interface SidebarProps {
 export function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
-  const { canEdit, isViewingSharedInventory } = useInventory();
+  const { canEdit, isViewingSharedInventory, selectedInventory } =
+    useInventory();
   const t = useTranslations();
+
+  const ownerName =
+    selectedInventory?.name ||
+    selectedInventory?.email ||
+    t("inventory.sharedInventory");
 
   const navSections: NavSection[] = [
     {
@@ -200,6 +208,28 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           <InventorySwitcher />
         </div>
 
+        {/* Shared Inventory Indicator */}
+        {isViewingSharedInventory && (
+          <div className="border-b px-3 pb-4">
+            <div
+              data-testid="shared-inventory-banner"
+              className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm dark:border-blue-800 dark:bg-blue-950"
+            >
+              <Users className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
+              <span className="min-w-0 flex-1 truncate text-blue-700 dark:text-blue-300">
+                {ownerName}
+              </span>
+              <Badge
+                data-testid="shared-inventory-role-badge"
+                variant={canEdit ? "default" : "secondary"}
+                className="h-5 shrink-0 text-xs"
+              >
+                {canEdit ? t("inventory.editor") : t("inventory.viewer")}
+              </Badge>
+            </div>
+          </div>
+        )}
+
         {/* Quick Action - only show if user can edit */}
         {canEdit && (
           <div className="border-b px-3 pb-4">
@@ -215,52 +245,36 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         {/* Navigation */}
         <div className="flex-1 overflow-auto px-3 pb-4">
           <nav className="space-y-6">
-            {visibleSections.map((section) => {
-              // When viewing shared inventory, sections that DON'T use own data
-              // (i.e., show the shared user's inventory) should be highlighted blue
-              const isSharedDataSection =
-                isViewingSharedInventory && !section.usesOwnData;
+            {visibleSections.map((section) => (
+              <div key={section.label}>
+                <h3 className="text-muted-foreground mb-2 px-3 text-[11px] font-medium tracking-wider uppercase">
+                  {section.label}
+                </h3>
+                <div className="space-y-0.5">
+                  {section.items.map((item) => {
+                    const isActive = isItemActive(item.href);
 
-              return (
-                <div key={section.label}>
-                  <h3
-                    className={cn(
-                      "mb-2 px-3 text-[11px] font-medium tracking-wider uppercase",
-                      isSharedDataSection
-                        ? "text-blue-600 dark:text-blue-400"
-                        : "text-muted-foreground"
-                    )}
-                  >
-                    {section.label}
-                  </h3>
-                  <div className="space-y-0.5">
-                    {section.items.map((item) => {
-                      const isActive = isItemActive(item.href);
-
-                      return (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          onClick={onClose}
-                          data-testid={`sidebar-link-${item.href.replace(/\//g, "-").replace(/^-/, "")}`}
-                          className={cn(
-                            "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                            isActive
-                              ? "bg-primary text-primary-foreground"
-                              : isSharedDataSection
-                                ? "text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-950 dark:hover:text-blue-300"
-                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                          )}
-                        >
-                          <item.icon className="h-4 w-4" />
-                          {item.title}
-                        </Link>
-                      );
-                    })}
-                  </div>
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={onClose}
+                        data-testid={`sidebar-link-${item.href.replace(/\//g, "-").replace(/^-/, "")}`}
+                        className={cn(
+                          "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                          isActive
+                            ? "bg-primary text-primary-foreground"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        )}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        {item.title}
+                      </Link>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </nav>
         </div>
 

@@ -103,46 +103,41 @@ test.describe("Shared Inventory Banner", () => {
       );
     });
 
-    test("hides banner on /settings page", async ({ page }) => {
-      await page.goto("/settings");
+    test("hides own-data sections from sidebar", async ({ page, isMobile }) => {
+      await page.goto("/dashboard");
+
+      // On mobile, need to open the sidebar first
+      await openMobileSidebarIfNeeded(page, isMobile);
+
+      // Verify own-data sections are hidden (AI Tools, Account, Admin)
+      await expect(page.getByTestId("sidebar-link-settings")).not.toBeVisible();
       await expect(
-        page.getByTestId("shared-inventory-banner")
+        page.getByTestId("sidebar-link-ai-assistant")
       ).not.toBeVisible();
+      await expect(
+        page.getByTestId("sidebar-link-settings-billing")
+      ).not.toBeVisible();
+      await expect(page.getByTestId("sidebar-link-feedback")).not.toBeVisible();
+
+      // Verify inventory sections are still visible
+      await expect(page.getByTestId("sidebar-link-items")).toBeVisible();
+      await expect(page.getByTestId("sidebar-link-categories")).toBeVisible();
+      await expect(page.getByTestId("sidebar-link-locations")).toBeVisible();
     });
 
-    test("hides banner on /ai-assistant page", async ({ page }) => {
-      await page.goto("/ai-assistant");
-      await expect(
-        page.getByTestId("shared-inventory-banner")
-      ).not.toBeVisible();
-    });
+    test("shows mobile banner in header", async ({ page, isMobile }) => {
+      // Skip on desktop - mobile banner is only visible on mobile
+      test.skip(!isMobile, "Mobile-only test");
 
-    test("hides banner on /images/classified page", async ({ page }) => {
-      await page.goto("/images/classified");
-      await expect(
-        page.getByTestId("shared-inventory-banner")
-      ).not.toBeVisible();
-    });
+      await page.goto("/dashboard");
 
-    test("hides banner on /declutter-suggestions page", async ({ page }) => {
-      await page.goto("/declutter-suggestions");
+      // Mobile banner should be visible in header (without opening sidebar)
       await expect(
-        page.getByTestId("shared-inventory-banner")
-      ).not.toBeVisible();
-    });
-
-    test("hides banner on /feedback page", async ({ page }) => {
-      await page.goto("/feedback");
+        page.getByTestId("shared-inventory-banner-mobile")
+      ).toBeVisible();
       await expect(
-        page.getByTestId("shared-inventory-banner")
-      ).not.toBeVisible();
-    });
-
-    test("hides banner on /admin page", async ({ page }) => {
-      await page.goto("/admin");
-      await expect(
-        page.getByTestId("shared-inventory-banner")
-      ).not.toBeVisible();
+        page.getByTestId("shared-inventory-banner-mobile")
+      ).toContainText(sharedInventoryOwner.name);
     });
   });
 
@@ -212,13 +207,6 @@ test.describe("Shared Inventory Banner", () => {
 
     test("hides banner on /items page", async ({ page }) => {
       await page.goto("/items");
-      await expect(
-        page.getByTestId("shared-inventory-banner")
-      ).not.toBeVisible();
-    });
-
-    test("hides banner on /settings page", async ({ page }) => {
-      await page.goto("/settings");
       await expect(
         page.getByTestId("shared-inventory-banner")
       ).not.toBeVisible();

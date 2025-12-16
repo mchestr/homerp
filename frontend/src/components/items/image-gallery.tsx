@@ -98,7 +98,7 @@ export function ImageGallery({
   return (
     <div className="space-y-3">
       {/* Main image display */}
-      <div className="group bg-muted relative overflow-hidden rounded-xl border">
+      <div className="bg-muted group relative overflow-hidden rounded-xl border">
         {currentImage && (
           <>
             <AuthenticatedImage

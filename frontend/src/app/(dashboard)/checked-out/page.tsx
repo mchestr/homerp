@@ -222,7 +222,7 @@ export default function CheckedOutItemsPage() {
               {itemsData?.items.map((item) => (
                 <div
                   key={item.id}
-                  className="group bg-card hover:border-primary/50 relative overflow-hidden rounded-xl border transition-all hover:shadow-lg"
+                  className="bg-card hover:border-primary/50 group relative overflow-hidden rounded-xl border transition-all hover:shadow-lg"
                   data-testid={`checked-out-item-card-${item.id}`}
                 >
                   <Link href={`/items/${item.id}`}>
@@ -323,7 +323,7 @@ export default function CheckedOutItemsPage() {
                   {itemsData?.items.map((item) => (
                     <tr
                       key={item.id}
-                      className="group hover:bg-muted/50 transition-colors"
+                      className="hover:bg-muted/50 group transition-colors"
                       data-testid={`checked-out-item-row-${item.id}`}
                     >
                       <td className="px-4 py-3">

@@ -132,7 +132,7 @@ export default function DashboardPage() {
           <Link
             key={stat.title}
             href={stat.href}
-            className="group bg-card hover:bg-muted/50 relative rounded-xl border p-5 transition-colors"
+            className="bg-card hover:bg-muted/50 group relative rounded-xl border p-5 transition-colors"
           >
             <div className="flex items-start justify-between">
               <div>
@@ -457,7 +457,7 @@ export default function DashboardPage() {
                 <Link
                   key={item.id}
                   href={`/items/${item.id}`}
-                  className="group hover:bg-muted/50 flex items-center justify-between px-5 py-3 transition-colors"
+                  className="hover:bg-muted/50 group flex items-center justify-between px-5 py-3 transition-colors"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{item.name}</p>
@@ -500,7 +500,7 @@ export default function DashboardPage() {
                 <Link
                   key={item.id}
                   href={`/items/${item.id}`}
-                  className="group hover:bg-muted/50 flex items-center justify-between px-5 py-3 transition-colors"
+                  className="hover:bg-muted/50 group flex items-center justify-between px-5 py-3 transition-colors"
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-3">
                     <div
@@ -562,7 +562,7 @@ export default function DashboardPage() {
               <Link
                 key={item.id}
                 href={`/items/${item.id}`}
-                className="group hover:bg-muted/50 flex items-center justify-between px-5 py-3 transition-colors"
+                className="hover:bg-muted/50 group flex items-center justify-between px-5 py-3 transition-colors"
               >
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{item.name}</p>

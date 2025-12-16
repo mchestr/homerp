@@ -106,7 +106,7 @@ function QuickActionCard({
   const t = useTranslations("admin");
   return (
     <Link href={href} data-testid={testId}>
-      <div className="group bg-card hover:border-primary/50 flex h-full flex-col rounded-xl border p-4 transition-all hover:shadow-md sm:p-6">
+      <div className="bg-card hover:border-primary/50 group flex h-full flex-col rounded-xl border p-4 transition-all hover:shadow-md sm:p-6">
         <div className="flex items-start justify-between">
           <div className="bg-primary/10 rounded-lg p-2.5">
             <Icon className="text-primary h-5 w-5" />
