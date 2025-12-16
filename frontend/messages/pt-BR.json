@@ -530,6 +530,33 @@
     "manage": "Gerenciar",
     "recentActivity": "Atividade Recente",
     "noRecentActivity": "Nenhuma atividade recente",
+    "timeRange": {
+      "7d": "7 dias",
+      "30d": "30 dias",
+      "90d": "90 dias"
+    },
+    "charts": {
+      "revenueOverTime": "Receita ao Longo do Tempo",
+      "revenueByPack": "Receita por Pacote",
+      "userSignups": "Cadastros de Usuários",
+      "creditActivity": "Atividade de Créditos",
+      "purchases": "Compras",
+      "usage": "Uso",
+      "noData": "Sem dados para este período",
+      "revenue": "Receita",
+      "sales": "Vendas",
+      "ofTotal": "do total"
+    },
+    "activity": {
+      "filterAll": "Todos",
+      "filterSignups": "Cadastros",
+      "filterFeedback": "Feedback",
+      "filterPurchases": "Compras",
+      "page": "Página",
+      "previous": "Anterior",
+      "next": "Próximo",
+      "noActivity": "Nenhuma atividade encontrada"
+    },
     "stats": {
       "totalUsers": "Total de Usuários",
       "totalRevenue": "Receita Total",
@@ -540,7 +567,9 @@
       "activePacks": "Pacotes Ativos",
       "creditsPurchased": "Créditos Comprados",
       "pendingFeedback": "Feedback Pendente",
-      "active": "ativo"
+      "active": "ativo",
+      "inPeriod": "no período",
+      "newUsers": "novos usuários"
     },
     "apiKeys": {
       "title": "Chaves de API",

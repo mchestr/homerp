@@ -575,6 +575,33 @@
     "manage": "Manage",
     "recentActivity": "Recent Activity",
     "noRecentActivity": "No recent activity",
+    "timeRange": {
+      "7d": "7 days",
+      "30d": "30 days",
+      "90d": "90 days"
+    },
+    "charts": {
+      "revenueOverTime": "Revenue Over Time",
+      "revenueByPack": "Revenue by Pack",
+      "userSignups": "User Signups",
+      "creditActivity": "Credit Activity",
+      "purchases": "Purchases",
+      "usage": "Usage",
+      "noData": "No data for this period",
+      "revenue": "Revenue",
+      "sales": "Sales",
+      "ofTotal": "of total"
+    },
+    "activity": {
+      "filterAll": "All",
+      "filterSignups": "Signups",
+      "filterFeedback": "Feedback",
+      "filterPurchases": "Purchases",
+      "page": "Page",
+      "previous": "Previous",
+      "next": "Next",
+      "noActivity": "No activity found"
+    },
     "stats": {
       "totalUsers": "Total Users",
       "totalRevenue": "Total Revenue",
@@ -585,7 +612,9 @@
       "activePacks": "Active Packs",
       "creditsPurchased": "Credits Purchased",
       "pendingFeedback": "Pending Feedback",
-      "active": "active"
+      "active": "active",
+      "inPeriod": "in period",
+      "newUsers": "new users"
     },
     "apiKeys": {
       "title": "API Keys",

@@ -290,3 +290,215 @@ class TestGetStatsEndpoint:
         response = await authenticated_client.get("/api/v1/admin/stats")
 
         assert response.status_code == 403
+
+
+class TestRevenueOverTimeEndpoint:
+    """Tests for GET /api/v1/admin/stats/revenue."""
+
+    async def test_get_revenue_as_admin(self, admin_client: AsyncClient):
+        """Test getting revenue time series data as admin."""
+        response = await admin_client.get("/api/v1/admin/stats/revenue")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "data" in data
+        assert "total_revenue_cents" in data
+        assert "period_revenue_cents" in data
+        assert "period_label" in data
+        assert isinstance(data["data"], list)
+
+    async def test_get_revenue_with_time_range(self, admin_client: AsyncClient):
+        """Test getting revenue with different time ranges."""
+        for time_range in ["7d", "30d", "90d"]:
+            response = await admin_client.get(
+                f"/api/v1/admin/stats/revenue?time_range={time_range}"
+            )
+            assert response.status_code == 200
+
+    async def test_get_revenue_invalid_time_range(self, admin_client: AsyncClient):
+        """Test that invalid time range returns 422."""
+        response = await admin_client.get(
+            "/api/v1/admin/stats/revenue?time_range=invalid"
+        )
+        assert response.status_code == 422
+
+    async def test_get_revenue_as_non_admin(self, authenticated_client: AsyncClient):
+        """Test that non-admin gets 403."""
+        response = await authenticated_client.get("/api/v1/admin/stats/revenue")
+        assert response.status_code == 403
+
+    async def test_get_revenue_unauthenticated(
+        self, unauthenticated_client: AsyncClient
+    ):
+        """Test that unauthenticated request returns 401."""
+        response = await unauthenticated_client.get("/api/v1/admin/stats/revenue")
+        assert response.status_code == 401
+
+
+class TestSignupsOverTimeEndpoint:
+    """Tests for GET /api/v1/admin/stats/signups."""
+
+    async def test_get_signups_as_admin(self, admin_client: AsyncClient):
+        """Test getting signups time series data as admin."""
+        response = await admin_client.get("/api/v1/admin/stats/signups")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "data" in data
+        assert "total_users" in data
+        assert "period_signups" in data
+        assert "period_label" in data
+        assert isinstance(data["data"], list)
+
+    async def test_get_signups_with_time_range(self, admin_client: AsyncClient):
+        """Test getting signups with different time ranges."""
+        for time_range in ["7d", "30d", "90d"]:
+            response = await admin_client.get(
+                f"/api/v1/admin/stats/signups?time_range={time_range}"
+            )
+            assert response.status_code == 200
+
+    async def test_get_signups_as_non_admin(self, authenticated_client: AsyncClient):
+        """Test that non-admin gets 403."""
+        response = await authenticated_client.get("/api/v1/admin/stats/signups")
+        assert response.status_code == 403
+
+    async def test_get_signups_unauthenticated(
+        self, unauthenticated_client: AsyncClient
+    ):
+        """Test that unauthenticated request returns 401."""
+        response = await unauthenticated_client.get("/api/v1/admin/stats/signups")
+        assert response.status_code == 401
+
+
+class TestCreditActivityEndpoint:
+    """Tests for GET /api/v1/admin/stats/credits."""
+
+    async def test_get_credit_activity_as_admin(self, admin_client: AsyncClient):
+        """Test getting credit activity as admin."""
+        response = await admin_client.get("/api/v1/admin/stats/credits")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "data" in data
+        assert "total_purchased" in data
+        assert "total_used" in data
+        assert "period_purchased" in data
+        assert "period_used" in data
+        assert "period_label" in data
+        assert isinstance(data["data"], list)
+
+    async def test_get_credit_activity_with_time_range(self, admin_client: AsyncClient):
+        """Test getting credit activity with different time ranges."""
+        for time_range in ["7d", "30d", "90d"]:
+            response = await admin_client.get(
+                f"/api/v1/admin/stats/credits?time_range={time_range}"
+            )
+            assert response.status_code == 200
+
+    async def test_get_credit_activity_as_non_admin(
+        self, authenticated_client: AsyncClient
+    ):
+        """Test that non-admin gets 403."""
+        response = await authenticated_client.get("/api/v1/admin/stats/credits")
+        assert response.status_code == 403
+
+    async def test_get_credit_activity_unauthenticated(
+        self, unauthenticated_client: AsyncClient
+    ):
+        """Test that unauthenticated request returns 401."""
+        response = await unauthenticated_client.get("/api/v1/admin/stats/credits")
+        assert response.status_code == 401
+
+
+class TestPackBreakdownEndpoint:
+    """Tests for GET /api/v1/admin/stats/packs."""
+
+    async def test_get_pack_breakdown_as_admin(self, admin_client: AsyncClient):
+        """Test getting pack breakdown as admin."""
+        response = await admin_client.get("/api/v1/admin/stats/packs")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "packs" in data
+        assert "total_purchases" in data
+        assert "total_revenue_cents" in data
+        assert "period_label" in data
+        assert isinstance(data["packs"], list)
+
+    async def test_get_pack_breakdown_with_time_range(self, admin_client: AsyncClient):
+        """Test getting pack breakdown with different time ranges."""
+        for time_range in ["7d", "30d", "90d"]:
+            response = await admin_client.get(
+                f"/api/v1/admin/stats/packs?time_range={time_range}"
+            )
+            assert response.status_code == 200
+
+    async def test_get_pack_breakdown_as_non_admin(
+        self, authenticated_client: AsyncClient
+    ):
+        """Test that non-admin gets 403."""
+        response = await authenticated_client.get("/api/v1/admin/stats/packs")
+        assert response.status_code == 403
+
+    async def test_get_pack_breakdown_unauthenticated(
+        self, unauthenticated_client: AsyncClient
+    ):
+        """Test that unauthenticated request returns 401."""
+        response = await unauthenticated_client.get("/api/v1/admin/stats/packs")
+        assert response.status_code == 401
+
+
+class TestActivityFeedEndpoint:
+    """Tests for GET /api/v1/admin/activity."""
+
+    async def test_get_activity_feed_as_admin(self, admin_client: AsyncClient):
+        """Test getting activity feed as admin."""
+        response = await admin_client.get("/api/v1/admin/activity")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "items" in data
+        assert "total" in data
+        assert "page" in data
+        assert "limit" in data
+        assert "total_pages" in data
+        assert isinstance(data["items"], list)
+
+    async def test_get_activity_feed_with_pagination(self, admin_client: AsyncClient):
+        """Test activity feed pagination."""
+        response = await admin_client.get("/api/v1/admin/activity?page=1&limit=10")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["page"] == 1
+        assert data["limit"] == 10
+
+    async def test_get_activity_feed_with_filter(self, admin_client: AsyncClient):
+        """Test activity feed with type filter."""
+        for activity_type in ["signup", "feedback", "purchase"]:
+            response = await admin_client.get(
+                f"/api/v1/admin/activity?activity_type={activity_type}"
+            )
+            assert response.status_code == 200
+
+    async def test_get_activity_feed_invalid_filter(self, admin_client: AsyncClient):
+        """Test that invalid activity type returns 422."""
+        response = await admin_client.get(
+            "/api/v1/admin/activity?activity_type=invalid"
+        )
+        assert response.status_code == 422
+
+    async def test_get_activity_feed_as_non_admin(
+        self, authenticated_client: AsyncClient
+    ):
+        """Test that non-admin gets 403."""
+        response = await authenticated_client.get("/api/v1/admin/activity")
+        assert response.status_code == 403
+
+    async def test_get_activity_feed_unauthenticated(
+        self, unauthenticated_client: AsyncClient
+    ):
+        """Test that unauthenticated request returns 401."""
+        response = await unauthenticated_client.get("/api/v1/admin/activity")
+        assert response.status_code == 401

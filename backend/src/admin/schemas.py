@@ -146,3 +146,97 @@ class CreditAdjustmentResponse(BaseModel):
     new_balance: int
     new_free_credits: int
     reason: str
+
+
+# Time Series Schemas for Dashboard Charts
+class TimeSeriesDataPoint(BaseModel):
+    """A single data point in a time series."""
+
+    date: str  # ISO date string (YYYY-MM-DD)
+    value: int | float
+
+
+class RevenueTimeSeriesResponse(BaseModel):
+    """Revenue over time response."""
+
+    data: list[TimeSeriesDataPoint]
+    total_revenue_cents: int  # All-time total
+    period_revenue_cents: int  # Total for selected period
+    period_label: str  # e.g., "7 days", "30 days"
+
+
+class SignupsTimeSeriesResponse(BaseModel):
+    """User signups over time response."""
+
+    data: list[TimeSeriesDataPoint]
+    total_users: int  # All-time total
+    period_signups: int  # Signups in selected period
+    period_label: str
+
+
+class CreditActivityDataPoint(BaseModel):
+    """Credit activity data point with purchases and usage."""
+
+    date: str
+    purchases: int
+    usage: int
+
+
+class CreditActivityResponse(BaseModel):
+    """Credit purchases vs usage over time."""
+
+    data: list[CreditActivityDataPoint]
+    total_purchased: int
+    total_used: int
+    period_purchased: int
+    period_used: int
+    period_label: str
+
+
+class PackBreakdownItem(BaseModel):
+    """Credit pack sales breakdown item."""
+
+    pack_id: UUID
+    pack_name: str
+    credits: int
+    price_cents: int
+    purchase_count: int
+    total_revenue_cents: int
+    percentage: float  # Percentage of total sales
+
+
+class PackBreakdownResponse(BaseModel):
+    """Credit pack breakdown response."""
+
+    packs: list[PackBreakdownItem]
+    total_purchases: int
+    total_revenue_cents: int
+    period_label: str
+
+
+class PaginatedActivityResponse(BaseModel):
+    """Paginated activity feed response."""
+
+    items: list[RecentActivityItem]
+    total: int
+    page: int
+    limit: int
+    total_pages: int
+
+    @classmethod
+    def create(
+        cls,
+        items: list[RecentActivityItem],
+        total: int,
+        page: int,
+        limit: int,
+    ) -> "PaginatedActivityResponse":
+        """Create paginated response."""
+        total_pages = (total + limit - 1) // limit if limit > 0 else 0
+        return cls(
+            items=items,
+            total=total,
+            page=page,
+            limit=limit,
+            total_pages=total_pages,
+        )

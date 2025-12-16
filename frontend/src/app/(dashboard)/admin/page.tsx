@@ -1,12 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { adminApi, RecentActivityItem } from "@/lib/api/api-client";
-import { formatRelativeTime } from "@/lib/utils";
+import { adminApi, TimeRange } from "@/lib/api/api-client";
 import {
   Users,
   Package,
@@ -18,15 +18,19 @@ import {
   UserCog,
   MessageSquare,
   Webhook,
-  UserPlus,
   ArrowRight,
-  Clock,
-  AlertCircle,
-  ShoppingCart,
   Key,
 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import {
+  TimeRangeSelector,
+  RevenueChart,
+  SignupsChart,
+  CreditActivityChart,
+  PackBreakdownChart,
+  ActivityFeed,
+} from "./components";
 
 function formatPrice(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
@@ -106,9 +110,9 @@ function QuickActionCard({
   const t = useTranslations("admin");
   return (
     <Link href={href} data-testid={testId}>
-      <div className="bg-card hover:border-primary/50 group flex h-full flex-col rounded-xl border p-4 transition-all hover:shadow-md sm:p-6">
+      <div className="bg-card hover:border-primary/50 group flex h-full flex-col rounded-xl border p-4 transition-all hover:shadow-md">
         <div className="flex items-start justify-between">
-          <div className="bg-primary/10 rounded-lg p-2.5">
+          <div className="bg-primary/10 rounded-lg p-2">
             <Icon className="text-primary h-5 w-5" />
           </div>
           {badge !== undefined && (
@@ -120,86 +124,16 @@ function QuickActionCard({
             </Badge>
           )}
         </div>
-        <div className="mt-4 flex-1">
-          <h3 className="font-semibold">{title}</h3>
-          <p className="text-muted-foreground mt-1 text-sm">{description}</p>
+        <div className="mt-3 flex-1">
+          <h3 className="text-sm font-semibold">{title}</h3>
+          <p className="text-muted-foreground mt-1 text-xs">{description}</p>
         </div>
-        <div className="text-primary mt-4 flex items-center text-sm font-medium">
+        <div className="text-primary mt-3 flex items-center text-xs font-medium">
           <span>{t("manage")}</span>
-          <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+          <ArrowRight className="ml-1 h-3 w-3 transition-transform group-hover:translate-x-1" />
         </div>
       </div>
     </Link>
-  );
-}
-
-function ActivityItem({ activity }: { activity: RecentActivityItem }) {
-  const getIcon = () => {
-    switch (activity.type) {
-      case "signup":
-        return <UserPlus className="h-4 w-4 text-green-600" />;
-      case "feedback":
-        return <MessageSquare className="h-4 w-4 text-blue-600" />;
-      case "purchase":
-        return <ShoppingCart className="h-4 w-4 text-purple-600" />;
-      default:
-        return <Clock className="h-4 w-4 text-gray-600" />;
-    }
-  };
-
-  const getStatusBadge = () => {
-    if (activity.type === "feedback" && activity.metadata?.status) {
-      const status = activity.metadata.status as string;
-      const variants: Record<
-        string,
-        "default" | "secondary" | "destructive" | "outline"
-      > = {
-        pending: "outline",
-        in_progress: "secondary",
-        resolved: "default",
-        closed: "secondary",
-      };
-      return (
-        <Badge variant={variants[status] || "secondary"} className="text-xs">
-          {status.replace("_", " ")}
-        </Badge>
-      );
-    }
-    return null;
-  };
-
-  return (
-    <div className="hover:bg-muted/50 flex items-start gap-2 rounded-lg p-2 transition-colors sm:gap-3 sm:p-3">
-      <div className="bg-muted mt-0.5 shrink-0 rounded-full p-1 sm:p-1.5">
-        {getIcon()}
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <p className="truncate text-xs font-medium sm:text-sm">
-            {activity.title}
-          </p>
-          {getStatusBadge()}
-        </div>
-        {activity.description && (
-          <p className="text-muted-foreground truncate text-xs">
-            {activity.description}
-          </p>
-        )}
-        <div className="text-muted-foreground mt-1 flex flex-col gap-0.5 text-xs sm:flex-row sm:items-center sm:gap-2">
-          <span className="whitespace-nowrap">
-            {formatRelativeTime(activity.timestamp)}
-          </span>
-          {activity.user_email && (
-            <>
-              <span className="hidden sm:inline">·</span>
-              <span className="truncate text-xs opacity-75 sm:opacity-100">
-                {activity.user_email}
-              </span>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -208,9 +142,37 @@ export default function AdminPage() {
   const router = useRouter();
   const t = useTranslations();
 
+  const [timeRange, setTimeRange] = useState<TimeRange>("7d");
+
+  // Basic stats query
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["admin-stats"],
     queryFn: adminApi.getStats,
+    enabled: !!user?.is_admin,
+  });
+
+  // Time-series queries
+  const { data: revenueData, isLoading: revenueLoading } = useQuery({
+    queryKey: ["admin-revenue", timeRange],
+    queryFn: () => adminApi.getRevenueOverTime(timeRange),
+    enabled: !!user?.is_admin,
+  });
+
+  const { data: signupsData, isLoading: signupsLoading } = useQuery({
+    queryKey: ["admin-signups", timeRange],
+    queryFn: () => adminApi.getSignupsOverTime(timeRange),
+    enabled: !!user?.is_admin,
+  });
+
+  const { data: creditData, isLoading: creditLoading } = useQuery({
+    queryKey: ["admin-credits", timeRange],
+    queryFn: () => adminApi.getCreditActivity(timeRange),
+    enabled: !!user?.is_admin,
+  });
+
+  const { data: packData, isLoading: packLoading } = useQuery({
+    queryKey: ["admin-packs", timeRange],
+    queryFn: () => adminApi.getPackBreakdown(timeRange),
     enabled: !!user?.is_admin,
   });
 
@@ -230,14 +192,17 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-          {t("admin.title")}
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          {t("admin.dashboardSubtitle")}
-        </p>
+      {/* Header with Time Range Selector */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+            {t("admin.title")}
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            {t("admin.dashboardSubtitle")}
+          </p>
+        </div>
+        <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
       </div>
 
       {statsLoading ? (
@@ -270,21 +235,97 @@ export default function AdminPage() {
               title={t("admin.stats.totalRevenue")}
               value={formatPrice(stats.total_revenue_cents)}
               icon={DollarSign}
+              description={
+                revenueData
+                  ? `${formatPrice(revenueData.period_revenue_cents)} ${t("admin.stats.inPeriod")}`
+                  : undefined
+              }
               testId="stat-total-revenue"
             />
             <StatCard
               title={t("admin.stats.creditsUsed")}
-              value={`${stats.total_credits_used} / ${stats.total_credits_purchased}`}
+              value={`${stats.total_credits_used.toLocaleString()} / ${stats.total_credits_purchased.toLocaleString()}`}
               icon={Coins}
               description={t("admin.stats.usedOfPurchased")}
               testId="stat-credits-used"
             />
             <StatCard
               title={t("admin.stats.totalItems")}
-              value={stats.total_items}
+              value={stats.total_items.toLocaleString()}
               icon={Package}
               testId="stat-total-items"
             />
+          </div>
+
+          {/* Charts Row 1: Revenue */}
+          <div className="grid gap-6 lg:grid-cols-3">
+            {/* Revenue Over Time */}
+            <div className="bg-card rounded-xl border lg:col-span-2">
+              <div className="border-b px-5 py-4">
+                <h2 className="font-medium">
+                  {t("admin.charts.revenueOverTime")}
+                </h2>
+                <p className="text-muted-foreground text-sm">
+                  {revenueData?.period_label || timeRange}
+                </p>
+              </div>
+              <div className="p-5">
+                <RevenueChart data={revenueData} isLoading={revenueLoading} />
+              </div>
+            </div>
+
+            {/* Revenue by Pack */}
+            <div className="bg-card rounded-xl border">
+              <div className="border-b px-5 py-4">
+                <h2 className="font-medium">
+                  {t("admin.charts.revenueByPack")}
+                </h2>
+                <p className="text-muted-foreground text-sm">
+                  {packData?.period_label || timeRange}
+                </p>
+              </div>
+              <div className="p-5">
+                <PackBreakdownChart data={packData} isLoading={packLoading} />
+              </div>
+            </div>
+          </div>
+
+          {/* Charts Row 2: Users & Credits */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* User Signups */}
+            <div className="bg-card rounded-xl border">
+              <div className="border-b px-5 py-4">
+                <h2 className="font-medium">{t("admin.charts.userSignups")}</h2>
+                <p className="text-muted-foreground text-sm">
+                  {signupsData
+                    ? `${signupsData.period_signups} ${t("admin.stats.newUsers")} · ${signupsData.period_label}`
+                    : timeRange}
+                </p>
+              </div>
+              <div className="p-5">
+                <SignupsChart data={signupsData} isLoading={signupsLoading} />
+              </div>
+            </div>
+
+            {/* Credit Activity */}
+            <div className="bg-card rounded-xl border">
+              <div className="border-b px-5 py-4">
+                <h2 className="font-medium">
+                  {t("admin.charts.creditActivity")}
+                </h2>
+                <p className="text-muted-foreground text-sm">
+                  {creditData
+                    ? `${t("admin.charts.purchases")}: ${creditData.period_purchased} · ${t("admin.charts.usage")}: ${creditData.period_used}`
+                    : timeRange}
+                </p>
+              </div>
+              <div className="p-5">
+                <CreditActivityChart
+                  data={creditData}
+                  isLoading={creditLoading}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Quick Actions and Activity Feed */}
@@ -295,7 +336,7 @@ export default function AdminPage() {
                 {t("admin.quickActions")}
               </h2>
               <div
-                className="grid gap-3 sm:grid-cols-2 sm:gap-4"
+                className="grid gap-3 sm:grid-cols-3"
                 data-testid="quick-actions-grid"
               >
                 <QuickActionCard
@@ -348,33 +389,12 @@ export default function AdminPage() {
               </div>
             </div>
 
-            {/* Recent Activity */}
+            {/* Activity Feed */}
             <div className="order-first lg:order-none">
-              <h2 className="mb-3 text-base font-semibold sm:mb-4 sm:text-lg">
+              <h2 className="mb-4 text-lg font-semibold">
                 {t("admin.recentActivity")}
               </h2>
-              <div
-                className="bg-card rounded-xl border"
-                data-testid="recent-activity-feed"
-              >
-                {stats.recent_activity.length > 0 ? (
-                  <div className="max-h-[280px] divide-y overflow-y-auto sm:max-h-[400px]">
-                    {stats.recent_activity.map((activity) => (
-                      <ActivityItem key={activity.id} activity={activity} />
-                    ))}
-                  </div>
-                ) : (
-                  <div
-                    className="flex flex-col items-center justify-center p-6 text-center sm:p-8"
-                    data-testid="no-activity-message"
-                  >
-                    <AlertCircle className="text-muted-foreground mb-2 h-6 w-6 sm:h-8 sm:w-8" />
-                    <p className="text-muted-foreground text-sm">
-                      {t("admin.noRecentActivity")}
-                    </p>
-                  </div>
-                )}
-              </div>
+              <ActivityFeed />
             </div>
           </div>
 

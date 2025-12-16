@@ -9,13 +9,21 @@ from sqlalchemy import func, or_, select
 
 from src.admin.schemas import (
     AdminStatsResponse,
+    CreditActivityDataPoint,
+    CreditActivityResponse,
     CreditAdjustmentRequest,
     CreditAdjustmentResponse,
     CreditPackAdminResponse,
     CreditPackCreate,
     CreditPackUpdate,
+    PackBreakdownItem,
+    PackBreakdownResponse,
+    PaginatedActivityResponse,
     PaginatedUsersResponse,
     RecentActivityItem,
+    RevenueTimeSeriesResponse,
+    SignupsTimeSeriesResponse,
+    TimeSeriesDataPoint,
     UserAdminResponse,
     UserAdminUpdate,
 )
@@ -454,3 +462,397 @@ async def get_stats(
         pending_feedback_count=pending_feedback_count,
         recent_activity=recent_activity,
     )
+
+
+def _get_time_range_days(time_range: str) -> tuple[int, str]:
+    """Convert time range string to days and label."""
+    if time_range == "30d":
+        return 30, "30 days"
+    elif time_range == "90d":
+        return 90, "90 days"
+    return 7, "7 days"
+
+
+def _generate_date_range(days: int) -> list[str]:
+    """Generate list of date strings for the past N days."""
+    today = datetime.now(UTC).date()
+    return [(today - timedelta(days=i)).isoformat() for i in range(days - 1, -1, -1)]
+
+
+@router.get("/stats/revenue")
+async def get_revenue_over_time(
+    _admin: AdminUserDep,
+    session: AsyncSessionDep,
+    time_range: str = Query("7d", pattern="^(7d|30d|90d)$"),
+) -> RevenueTimeSeriesResponse:
+    """Get revenue aggregated by day for the specified time range."""
+    days, period_label = _get_time_range_days(time_range)
+    start_date = datetime.now(UTC) - timedelta(days=days)
+
+    # Get total revenue (all time)
+    total_query = (
+        select(func.sum(CreditPack.price_cents))
+        .select_from(CreditTransaction)
+        .join(CreditPack, CreditTransaction.credit_pack_id == CreditPack.id)
+        .where(
+            CreditTransaction.transaction_type == "purchase",
+            CreditTransaction.is_refunded == False,  # noqa: E712
+        )
+    )
+    total_result = await session.execute(total_query)
+    total_revenue_cents = total_result.scalar() or 0
+
+    # Get revenue by day for the period
+    date_trunc_expr = func.date_trunc("day", CreditTransaction.created_at)
+    revenue_by_day = await session.execute(
+        select(
+            date_trunc_expr.label("date"),
+            func.sum(CreditPack.price_cents).label("revenue"),
+        )
+        .select_from(CreditTransaction)
+        .join(CreditPack, CreditTransaction.credit_pack_id == CreditPack.id)
+        .where(
+            CreditTransaction.transaction_type == "purchase",
+            CreditTransaction.is_refunded == False,  # noqa: E712
+            CreditTransaction.created_at >= start_date,
+        )
+        .group_by(date_trunc_expr)
+        .order_by(date_trunc_expr)
+    )
+
+    # Convert to dict for easy lookup
+    revenue_dict = {
+        row.date.date().isoformat(): int(row.revenue) for row in revenue_by_day
+    }
+
+    # Generate complete date range with zeros for missing days
+    date_range = _generate_date_range(days)
+    data = [
+        TimeSeriesDataPoint(date=date, value=revenue_dict.get(date, 0))
+        for date in date_range
+    ]
+
+    period_revenue = sum(d.value for d in data)
+
+    return RevenueTimeSeriesResponse(
+        data=data,
+        total_revenue_cents=total_revenue_cents,
+        period_revenue_cents=int(period_revenue),
+        period_label=period_label,
+    )
+
+
+@router.get("/stats/signups")
+async def get_signups_over_time(
+    _admin: AdminUserDep,
+    session: AsyncSessionDep,
+    time_range: str = Query("7d", pattern="^(7d|30d|90d)$"),
+) -> SignupsTimeSeriesResponse:
+    """Get user signups aggregated by day for the specified time range."""
+    days, period_label = _get_time_range_days(time_range)
+    start_date = datetime.now(UTC) - timedelta(days=days)
+
+    # Get total users (all time)
+    total_result = await session.execute(select(func.count(User.id)))
+    total_users = total_result.scalar() or 0
+
+    # Get signups by day
+    date_trunc_expr = func.date_trunc("day", User.created_at)
+    signups_by_day = await session.execute(
+        select(
+            date_trunc_expr.label("date"),
+            func.count(User.id).label("count"),
+        )
+        .where(User.created_at >= start_date)
+        .group_by(date_trunc_expr)
+        .order_by(date_trunc_expr)
+    )
+
+    # Convert to dict
+    signups_dict = {row.date.date().isoformat(): row.count for row in signups_by_day}
+
+    # Generate complete date range
+    date_range = _generate_date_range(days)
+    data = [
+        TimeSeriesDataPoint(date=date, value=signups_dict.get(date, 0))
+        for date in date_range
+    ]
+
+    period_signups = sum(int(d.value) for d in data)
+
+    return SignupsTimeSeriesResponse(
+        data=data,
+        total_users=total_users,
+        period_signups=period_signups,
+        period_label=period_label,
+    )
+
+
+@router.get("/stats/credits")
+async def get_credit_activity(
+    _admin: AdminUserDep,
+    session: AsyncSessionDep,
+    time_range: str = Query("7d", pattern="^(7d|30d|90d)$"),
+) -> CreditActivityResponse:
+    """Get credit purchases vs usage over time."""
+    days, period_label = _get_time_range_days(time_range)
+    start_date = datetime.now(UTC) - timedelta(days=days)
+
+    # Get all-time totals
+    purchased_result = await session.execute(
+        select(func.sum(CreditTransaction.amount)).where(
+            CreditTransaction.transaction_type == "purchase",
+            CreditTransaction.is_refunded == False,  # noqa: E712
+        )
+    )
+    total_purchased = purchased_result.scalar() or 0
+
+    used_result = await session.execute(
+        select(func.sum(CreditTransaction.amount)).where(
+            CreditTransaction.transaction_type == "usage"
+        )
+    )
+    total_used = abs(used_result.scalar() or 0)
+
+    # Get purchases by day
+    date_trunc_expr = func.date_trunc("day", CreditTransaction.created_at)
+    purchases_by_day = await session.execute(
+        select(
+            date_trunc_expr.label("date"),
+            func.sum(CreditTransaction.amount).label("amount"),
+        )
+        .where(
+            CreditTransaction.transaction_type == "purchase",
+            CreditTransaction.is_refunded == False,  # noqa: E712
+            CreditTransaction.created_at >= start_date,
+        )
+        .group_by(date_trunc_expr)
+        .order_by(date_trunc_expr)
+    )
+    purchases_dict = {
+        row.date.date().isoformat(): int(row.amount) for row in purchases_by_day
+    }
+
+    # Get usage by day
+    usage_by_day = await session.execute(
+        select(
+            date_trunc_expr.label("date"),
+            func.sum(CreditTransaction.amount).label("amount"),
+        )
+        .where(
+            CreditTransaction.transaction_type == "usage",
+            CreditTransaction.created_at >= start_date,
+        )
+        .group_by(date_trunc_expr)
+        .order_by(date_trunc_expr)
+    )
+    usage_dict = {
+        row.date.date().isoformat(): abs(int(row.amount)) for row in usage_by_day
+    }
+
+    # Generate complete date range
+    date_range = _generate_date_range(days)
+    data = [
+        CreditActivityDataPoint(
+            date=date,
+            purchases=purchases_dict.get(date, 0),
+            usage=usage_dict.get(date, 0),
+        )
+        for date in date_range
+    ]
+
+    period_purchased = sum(d.purchases for d in data)
+    period_used = sum(d.usage for d in data)
+
+    return CreditActivityResponse(
+        data=data,
+        total_purchased=total_purchased,
+        total_used=total_used,
+        period_purchased=period_purchased,
+        period_used=period_used,
+        period_label=period_label,
+    )
+
+
+@router.get("/stats/packs")
+async def get_pack_breakdown(
+    _admin: AdminUserDep,
+    session: AsyncSessionDep,
+    time_range: str = Query("7d", pattern="^(7d|30d|90d)$"),
+) -> PackBreakdownResponse:
+    """Get breakdown of credit pack sales."""
+    days, period_label = _get_time_range_days(time_range)
+    start_date = datetime.now(UTC) - timedelta(days=days)
+
+    # Get pack sales in the period
+    pack_sales = await session.execute(
+        select(
+            CreditPack.id,
+            CreditPack.name,
+            CreditPack.credits,
+            CreditPack.price_cents,
+            func.count(CreditTransaction.id).label("purchase_count"),
+            func.sum(CreditPack.price_cents).label("total_revenue"),
+        )
+        .select_from(CreditTransaction)
+        .join(CreditPack, CreditTransaction.credit_pack_id == CreditPack.id)
+        .where(
+            CreditTransaction.transaction_type == "purchase",
+            CreditTransaction.is_refunded == False,  # noqa: E712
+            CreditTransaction.created_at >= start_date,
+        )
+        .group_by(
+            CreditPack.id, CreditPack.name, CreditPack.credits, CreditPack.price_cents
+        )
+        .order_by(func.sum(CreditPack.price_cents).desc())
+    )
+
+    rows = pack_sales.all()
+    total_purchases = sum(row.purchase_count for row in rows)
+    total_revenue = sum(row.total_revenue or 0 for row in rows)
+
+    packs = [
+        PackBreakdownItem(
+            pack_id=row.id,
+            pack_name=row.name,
+            credits=row.credits,
+            price_cents=row.price_cents,
+            purchase_count=row.purchase_count,
+            total_revenue_cents=int(row.total_revenue or 0),
+            percentage=round((row.total_revenue or 0) / total_revenue * 100, 1)
+            if total_revenue > 0
+            else 0.0,
+        )
+        for row in rows
+    ]
+
+    return PackBreakdownResponse(
+        packs=packs,
+        total_purchases=total_purchases,
+        total_revenue_cents=total_revenue,
+        period_label=period_label,
+    )
+
+
+@router.get("/activity")
+async def get_activity_feed(
+    _admin: AdminUserDep,
+    session: AsyncSessionDep,
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    activity_type: str | None = Query(None, pattern="^(signup|feedback|purchase)$"),
+) -> PaginatedActivityResponse:
+    """Get paginated, filterable activity feed."""
+    activities: list[RecentActivityItem] = []
+    total = 0
+
+    if activity_type is None or activity_type == "signup":
+        # Get signups
+        signups_query = select(User).order_by(User.created_at.desc())
+        if activity_type == "signup":
+            count_result = await session.execute(select(func.count(User.id)))
+            total = count_result.scalar() or 0
+            offset = (page - 1) * limit
+            signups_query = signups_query.offset(offset).limit(limit)
+        else:
+            signups_query = signups_query.limit(50)  # Limit for mixed feed
+
+        signups_result = await session.execute(signups_query)
+        for user in signups_result.scalars():
+            activities.append(
+                RecentActivityItem(
+                    id=user.id,
+                    type="signup",
+                    title="New user signup",
+                    description=user.name or user.email,
+                    user_email=user.email,
+                    user_name=user.name,
+                    timestamp=user.created_at,
+                )
+            )
+
+    if activity_type is None or activity_type == "feedback":
+        # Get feedback
+        feedback_query = (
+            select(Feedback, User)
+            .join(User, Feedback.user_id == User.id)
+            .order_by(Feedback.created_at.desc())
+        )
+        if activity_type == "feedback":
+            count_result = await session.execute(select(func.count(Feedback.id)))
+            total = count_result.scalar() or 0
+            offset = (page - 1) * limit
+            feedback_query = feedback_query.offset(offset).limit(limit)
+        else:
+            feedback_query = feedback_query.limit(50)
+
+        feedback_result = await session.execute(feedback_query)
+        for feedback, user in feedback_result:
+            activities.append(
+                RecentActivityItem(
+                    id=feedback.id,
+                    type="feedback",
+                    title=f"{feedback.feedback_type.replace('_', ' ').title()}: {feedback.subject}",
+                    description=feedback.message[:100] + "..."
+                    if len(feedback.message) > 100
+                    else feedback.message,
+                    user_email=user.email,
+                    user_name=user.name,
+                    timestamp=feedback.created_at,
+                    metadata={
+                        "status": feedback.status,
+                        "feedback_type": feedback.feedback_type,
+                    },
+                )
+            )
+
+    if activity_type is None or activity_type == "purchase":
+        # Get purchases
+        purchases_query = (
+            select(CreditTransaction, User, CreditPack)
+            .join(User, CreditTransaction.user_id == User.id)
+            .outerjoin(CreditPack, CreditTransaction.credit_pack_id == CreditPack.id)
+            .where(CreditTransaction.transaction_type == "purchase")
+            .order_by(CreditTransaction.created_at.desc())
+        )
+        if activity_type == "purchase":
+            count_result = await session.execute(
+                select(func.count(CreditTransaction.id)).where(
+                    CreditTransaction.transaction_type == "purchase"
+                )
+            )
+            total = count_result.scalar() or 0
+            offset = (page - 1) * limit
+            purchases_query = purchases_query.offset(offset).limit(limit)
+        else:
+            purchases_query = purchases_query.limit(50)
+
+        purchases_result = await session.execute(purchases_query)
+        for transaction, user, pack in purchases_result:
+            pack_name = pack.name if pack else "Credit Pack"
+            activities.append(
+                RecentActivityItem(
+                    id=transaction.id,
+                    type="purchase",
+                    title=f"Credit purchase: {pack_name}",
+                    description=f"{transaction.amount} credits",
+                    user_email=user.email,
+                    user_name=user.name,
+                    timestamp=transaction.created_at,
+                    metadata={
+                        "amount": transaction.amount,
+                        "pack_name": pack_name,
+                    },
+                )
+            )
+
+    # Sort by timestamp and paginate for mixed feed
+    activities.sort(key=lambda x: x.timestamp, reverse=True)
+
+    if activity_type is None:
+        # For mixed feed, count total and paginate
+        total = len(activities)
+        offset = (page - 1) * limit
+        activities = activities[offset : offset + limit]
+
+    return PaginatedActivityResponse.create(activities, total, page, limit)

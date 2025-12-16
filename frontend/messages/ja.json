@@ -530,6 +530,33 @@
     "manage": "管理",
     "recentActivity": "最近のアクティビティ",
     "noRecentActivity": "最近のアクティビティはありません",
+    "timeRange": {
+      "7d": "7日間",
+      "30d": "30日間",
+      "90d": "90日間"
+    },
+    "charts": {
+      "revenueOverTime": "時間経過に伴う収益",
+      "revenueByPack": "パック別収益",
+      "userSignups": "ユーザー登録",
+      "creditActivity": "クレジット活動",
+      "purchases": "購入",
+      "usage": "使用",
+      "noData": "この期間のデータはありません",
+      "revenue": "収益",
+      "sales": "売上",
+      "ofTotal": "全体の"
+    },
+    "activity": {
+      "filterAll": "すべて",
+      "filterSignups": "登録",
+      "filterFeedback": "フィードバック",
+      "filterPurchases": "購入",
+      "page": "ページ",
+      "previous": "前へ",
+      "next": "次へ",
+      "noActivity": "アクティビティが見つかりません"
+    },
     "stats": {
       "totalUsers": "総ユーザー数",
       "totalRevenue": "総収益",
@@ -540,7 +567,9 @@
       "activePacks": "アクティブなパック",
       "creditsPurchased": "購入済みクレジット",
       "pendingFeedback": "保留中のフィードバック",
-      "active": "アクティブ"
+      "active": "アクティブ",
+      "inPeriod": "期間中",
+      "newUsers": "新規ユーザー"
     },
     "apiKeys": {
       "title": "APIキー",
