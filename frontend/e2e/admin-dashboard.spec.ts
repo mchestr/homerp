@@ -30,16 +30,16 @@ test.describe("Admin Dashboard", () => {
       await expect(totalRevenueStat).toBeVisible();
       await expect(totalRevenueStat).toContainText("$2500.00");
 
-      // Check Credits Used stat
+      // Check Credits Used stat (numbers are formatted with thousands separator)
       const creditsUsedStat = page.getByTestId("stat-credits-used");
       await expect(creditsUsedStat).toBeVisible();
-      await expect(creditsUsedStat).toContainText("7500");
-      await expect(creditsUsedStat).toContainText("10000");
+      await expect(creditsUsedStat).toContainText("7,500");
+      await expect(creditsUsedStat).toContainText("10,000");
 
-      // Check Total Items stat
+      // Check Total Items stat (numbers are formatted with thousands separator)
       const totalItemsStat = page.getByTestId("stat-total-items");
       await expect(totalItemsStat).toBeVisible();
-      await expect(totalItemsStat).toContainText("5000");
+      await expect(totalItemsStat).toContainText("5,000");
     });
 
     test("displays quick action cards with correct badges", async ({
@@ -382,6 +382,21 @@ test.describe("Admin Dashboard", () => {
           status: 200,
           contentType: "application/json",
           body: JSON.stringify(emptyActivityStats),
+        });
+      });
+
+      // Override the activity endpoint with empty items
+      await page.route("**/api/v1/admin/activity*", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            items: [],
+            total: 0,
+            page: 1,
+            limit: 15,
+            total_pages: 0,
+          }),
         });
       });
 
