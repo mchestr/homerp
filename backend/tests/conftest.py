@@ -426,11 +426,13 @@ def mock_stripe_webhook_event(stripe_webhook_payload):
 @pytest.fixture
 async def authenticated_client(
     async_session: AsyncSession,
-    test_settings: Settings,  # noqa: ARG001
-    test_user: User,  # noqa: ARG001
+    test_settings: Settings,
+    test_user: User,
 ) -> AsyncGenerator[AsyncClient, None]:
     """Create an async HTTP client with authenticated user."""
     from src.auth.dependencies import get_current_user_id
+    from src.auth.service import AuthService, get_auth_service
+    from src.config import get_settings
     from src.database import get_session
     from src.main import app
 
@@ -439,6 +441,10 @@ async def authenticated_client(
 
     app.dependency_overrides[get_session] = override_session
     app.dependency_overrides[get_current_user_id] = lambda: test_user.id
+    app.dependency_overrides[get_settings] = lambda: test_settings
+    app.dependency_overrides[get_auth_service] = lambda: AuthService(
+        settings=test_settings
+    )
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
@@ -450,11 +456,13 @@ async def authenticated_client(
 @pytest.fixture
 async def admin_client(
     async_session: AsyncSession,
-    test_settings: Settings,  # noqa: ARG001
-    admin_user: User,  # noqa: ARG001
+    test_settings: Settings,
+    admin_user: User,
 ) -> AsyncGenerator[AsyncClient, None]:
     """Create an async HTTP client with admin user."""
     from src.auth.dependencies import get_current_user_id
+    from src.auth.service import AuthService, get_auth_service
+    from src.config import get_settings
     from src.database import get_session
     from src.main import app
 
@@ -463,6 +471,10 @@ async def admin_client(
 
     app.dependency_overrides[get_session] = override_session
     app.dependency_overrides[get_current_user_id] = lambda: admin_user.id
+    app.dependency_overrides[get_settings] = lambda: test_settings
+    app.dependency_overrides[get_auth_service] = lambda: AuthService(
+        settings=test_settings
+    )
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
@@ -474,9 +486,11 @@ async def admin_client(
 @pytest.fixture
 async def unauthenticated_client(
     async_session: AsyncSession,
-    test_settings: Settings,  # noqa: ARG001
+    test_settings: Settings,
 ) -> AsyncGenerator[AsyncClient, None]:
     """Create an async HTTP client without authentication."""
+    from src.auth.service import AuthService, get_auth_service
+    from src.config import get_settings
     from src.database import get_session
     from src.main import app
 
@@ -484,6 +498,10 @@ async def unauthenticated_client(
         yield async_session
 
     app.dependency_overrides[get_session] = override_session
+    app.dependency_overrides[get_settings] = lambda: test_settings
+    app.dependency_overrides[get_auth_service] = lambda: AuthService(
+        settings=test_settings
+    )
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
