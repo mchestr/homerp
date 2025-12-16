@@ -390,8 +390,28 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     });
   });
 
+  // QR code signed URL endpoint - returns a URL with a mock token
+  await page.route(
+    /\/api\/v1\/locations\/[^/]+\/qr\/signed-url/,
+    async (route) => {
+      const url = route.request().url();
+      const match = url.match(/\/locations\/([^/]+)\/qr\/signed-url/);
+      const locId = match?.[1] || "unknown";
+      const urlParams = new URL(url).searchParams;
+      const size = urlParams.get("size") || "10";
+
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          url: `http://localhost:8000/api/v1/locations/${locId}/qr?token=mock-token&size=${size}`,
+        }),
+      });
+    }
+  );
+
   // QR code endpoint - returns a small transparent PNG for testing
-  await page.route(/\/api\/v1\/locations\/[^/]+\/qr/, async (route) => {
+  await page.route(/\/api\/v1\/locations\/[^/]+\/qr(\?|$)/, async (route) => {
     // Return a 1x1 transparent PNG for testing
     const transparentPng = Buffer.from(
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",

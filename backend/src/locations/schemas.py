@@ -174,3 +174,9 @@ class ItemLocationSuggestionResponse(BaseModel):
     success: bool
     suggestions: list[LocationSuggestionItem] = Field(default_factory=list)
     error: str | None = None
+
+
+class LocationQrSignedUrlResponse(BaseModel):
+    """Schema for signed QR code URL response."""
+
+    url: str
