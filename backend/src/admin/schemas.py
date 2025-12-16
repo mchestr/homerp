@@ -240,3 +240,98 @@ class PaginatedActivityResponse(BaseModel):
             limit=limit,
             total_pages=total_pages,
         )
+
+
+# AI Usage Schemas
+class OperationBreakdown(BaseModel):
+    """Token usage breakdown by operation type."""
+
+    operation_type: str
+    total_calls: int
+    total_tokens: int
+    total_cost_usd: float
+
+
+class ModelBreakdown(BaseModel):
+    """Token usage breakdown by model."""
+
+    model: str
+    total_calls: int
+    total_tokens: int
+    total_cost_usd: float
+
+
+class AIUsageSummaryResponse(BaseModel):
+    """Summary of AI token usage."""
+
+    total_calls: int
+    total_prompt_tokens: int
+    total_completion_tokens: int
+    total_tokens: int
+    total_cost_usd: float
+    by_operation: list[OperationBreakdown]
+    by_model: list[ModelBreakdown]
+
+
+class AIUsageByUserResponse(BaseModel):
+    """AI usage aggregated by user."""
+
+    user_id: str
+    total_calls: int
+    total_tokens: int
+    total_cost_usd: float
+
+
+class AIUsageLogResponse(BaseModel):
+    """Individual AI usage log entry."""
+
+    id: UUID
+    user_id: UUID
+    credit_transaction_id: UUID | None
+    operation_type: str
+    model: str
+    prompt_tokens: int
+    completion_tokens: int
+    total_tokens: int
+    estimated_cost_usd: float
+    request_metadata: dict | None = Field(None, serialization_alias="metadata")
+    created_at: datetime
+
+    model_config = {"from_attributes": True, "populate_by_name": True}
+
+
+class PaginatedAIUsageLogsResponse(BaseModel):
+    """Paginated response for AI usage logs."""
+
+    items: list[AIUsageLogResponse]
+    total: int
+    page: int
+    limit: int
+    total_pages: int
+
+    @classmethod
+    def create(
+        cls,
+        items: list[AIUsageLogResponse],
+        total: int,
+        page: int,
+        limit: int,
+    ) -> "PaginatedAIUsageLogsResponse":
+        """Create paginated response."""
+        total_pages = (total + limit - 1) // limit if limit > 0 else 0
+        return cls(
+            items=items,
+            total=total,
+            page=page,
+            limit=limit,
+            total_pages=total_pages,
+        )
+
+
+class DailyUsageResponse(BaseModel):
+    """Daily AI usage for charts."""
+
+    date: str
+    total_calls: int
+    total_tokens: int
+    total_cost_usd: float

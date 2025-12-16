@@ -1,8 +1,23 @@
 from datetime import UTC, datetime
+from decimal import Decimal
 
 from pydantic import BaseModel, Field
 
 from src.common.ai_input_validator import ValidatedPrompt
+
+
+class TokenUsage(BaseModel):
+    """Token usage information from OpenAI API response."""
+
+    prompt_tokens: int = Field(..., description="Number of tokens in the prompt")
+    completion_tokens: int = Field(
+        ..., description="Number of tokens in the completion"
+    )
+    total_tokens: int = Field(..., description="Total tokens used")
+    model: str = Field(..., description="Model used for the request")
+    estimated_cost_usd: Decimal = Field(
+        ..., description="Estimated cost in USD based on token pricing"
+    )
 
 
 class AssistantQueryRequest(BaseModel):

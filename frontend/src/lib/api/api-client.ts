@@ -1223,6 +1223,46 @@ export const adminApi = {
         method: "POST",
       }
     ),
+
+  // AI Usage Analytics
+  getAIUsageSummary: (startDate?: string, endDate?: string) => {
+    const params = new URLSearchParams();
+    if (startDate) params.set("start_date", startDate);
+    if (endDate) params.set("end_date", endDate);
+    const query = params.toString();
+    return apiRequest<AIUsageSummary>(
+      `/api/v1/admin/ai-usage/summary${query ? `?${query}` : ""}`
+    );
+  },
+
+  getAIUsageByUser: (startDate?: string, endDate?: string, limit = 50) => {
+    const params = new URLSearchParams({ limit: limit.toString() });
+    if (startDate) params.set("start_date", startDate);
+    if (endDate) params.set("end_date", endDate);
+    return apiRequest<AIUsageByUser[]>(
+      `/api/v1/admin/ai-usage/by-user?${params}`
+    );
+  },
+
+  getAIUsageHistory: (
+    page = 1,
+    limit = 50,
+    operationType?: string,
+    userId?: string
+  ) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (operationType) params.set("operation_type", operationType);
+    if (userId) params.set("user_id", userId);
+    return apiRequest<PaginatedResponse<AIUsageLog>>(
+      `/api/v1/admin/ai-usage/history?${params}`
+    );
+  },
+
+  getAIUsageDaily: (days = 30) =>
+    apiRequest<DailyUsage[]>(`/api/v1/admin/ai-usage/daily?days=${days}`),
 };
 
 // Feedback Types
@@ -1789,4 +1829,57 @@ export const profileApi = {
     apiRequest<DeclutterCostResponse>(
       `/api/v1/profile/recommendations/cost?items_to_analyze=${itemsToAnalyze}`
     ),
+};
+
+// AI Usage Analytics Types
+export type OperationBreakdown = {
+  operation_type: string;
+  total_calls: number;
+  total_tokens: number;
+  total_cost_usd: number;
+};
+
+export type ModelBreakdown = {
+  model: string;
+  total_calls: number;
+  total_tokens: number;
+  total_cost_usd: number;
+};
+
+export type AIUsageSummary = {
+  total_calls: number;
+  total_prompt_tokens: number;
+  total_completion_tokens: number;
+  total_tokens: number;
+  total_cost_usd: number;
+  by_operation: OperationBreakdown[];
+  by_model: ModelBreakdown[];
+};
+
+export type AIUsageByUser = {
+  user_id: string;
+  total_calls: number;
+  total_tokens: number;
+  total_cost_usd: number;
+};
+
+export type AIUsageLog = {
+  id: string;
+  user_id: string;
+  credit_transaction_id: string | null;
+  operation_type: string;
+  model: string;
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+  estimated_cost_usd: number;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+};
+
+export type DailyUsage = {
+  date: string;
+  total_calls: number;
+  total_tokens: number;
+  total_cost_usd: number;
 };

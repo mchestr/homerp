@@ -16,6 +16,7 @@ from fastapi import (
 from fastapi.responses import FileResponse
 
 from src.ai.service import AIClassificationService, get_ai_service
+from src.ai.usage_service import AIUsageService, get_ai_usage_service
 from src.auth.dependencies import CurrentUserIdDep, InventoryContextDep
 from src.auth.service import AuthService, get_auth_service
 from src.billing.router import CreditServiceDep
@@ -200,6 +201,7 @@ async def classify_images(
     user_id: CurrentUserIdDep,
     storage: Annotated[LocalStorage, Depends(get_storage)],
     ai_service: Annotated[AIClassificationService, Depends(get_ai_service)],
+    ai_usage_service: Annotated[AIUsageService, Depends(get_ai_usage_service)],
     credit_service: CreditServiceDep,
 ) -> ClassificationResponse:
     """Classify one or more uploaded images using AI.
@@ -242,8 +244,8 @@ async def classify_images(
             image_data = await storage.read(image.storage_path)
             image_data_list.append((image_data, image.mime_type or "image/jpeg"))
 
-        # Classify all images together with AI
-        classification = await ai_service.classify_images(
+        # Classify all images together with AI (with token usage tracking)
+        classification, token_usage = await ai_service.classify_images_with_usage(
             image_data_list,
             custom_prompt=data.custom_prompt,
         )
@@ -254,6 +256,20 @@ async def classify_images(
             user_id,
             f"AI classification ({num_images} images): {', '.join(filenames[:3])}{'...' if len(filenames) > 3 else ''}",
             amount=num_images,
+        )
+
+        # Log token usage
+        await ai_usage_service.log_usage(
+            session=session,
+            user_id=user_id,
+            operation_type="image_classification",
+            token_usage=token_usage,
+            credit_transaction_id=None,  # deduct_credit returns bool, not transaction
+            metadata={
+                "image_count": num_images,
+                "image_ids": [str(img.id) for img in images],
+                "has_custom_prompt": data.custom_prompt is not None,
+            },
         )
 
         # Update all image records with AI result

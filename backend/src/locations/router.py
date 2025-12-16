@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import Response
 
 from src.ai.service import AIClassificationService, get_ai_service
+from src.ai.usage_service import AIUsageService, get_ai_usage_service
 from src.auth.dependencies import (
     CurrentUserIdDep,
     EditableInventoryContextDep,
@@ -64,6 +65,7 @@ async def analyze_location_image(
     inventory_owner_id: InventoryContextDep,
     storage: Annotated[LocalStorage, Depends(get_storage)],
     ai_service: Annotated[AIClassificationService, Depends(get_ai_service)],
+    ai_usage_service: Annotated[AIUsageService, Depends(get_ai_usage_service)],
     credit_service: CreditServiceDep,
 ) -> LocationAnalysisResponse:
     """Analyze an image to suggest location structure using AI.
@@ -90,8 +92,8 @@ async def analyze_location_image(
         # Read image data
         image_data = await storage.read(image.storage_path)
 
-        # Analyze with AI
-        result = await ai_service.analyze_location_image(
+        # Analyze with AI (with token usage tracking)
+        result, token_usage = await ai_service.analyze_location_image_with_usage(
             image_data,
             mime_type=image.mime_type or "image/jpeg",
         )
@@ -100,6 +102,19 @@ async def analyze_location_image(
         await credit_service.deduct_credit(
             user_id,
             f"Location analysis: {image.original_filename or 'image'}",
+        )
+
+        # Log token usage
+        await ai_usage_service.log_usage(
+            session=session,
+            user_id=user_id,
+            operation_type="location_analysis",
+            token_usage=token_usage,
+            credit_transaction_id=None,  # deduct_credit returns bool, not transaction
+            metadata={
+                "image_id": str(image.id),
+                "original_filename": image.original_filename,
+            },
         )
 
         return LocationAnalysisResponse(

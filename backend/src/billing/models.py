@@ -66,7 +66,11 @@ class CreditTransaction(Base):
     # Relationships
     user: Mapped["User"] = relationship(back_populates="credit_transactions")
     credit_pack: Mapped[CreditPack | None] = relationship(back_populates="transactions")
+    ai_usage_log: Mapped["AIUsageLog | None"] = relationship(
+        back_populates="credit_transaction"
+    )
 
 
 # Import at bottom to avoid circular imports
+from src.ai.models import AIUsageLog  # noqa: E402
 from src.users.models import User  # noqa: E402

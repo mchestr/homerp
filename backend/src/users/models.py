@@ -82,6 +82,9 @@ class User(Base):
     gridfinity_units: Mapped[list["GridfinityUnit"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    ai_usage_logs: Mapped[list["AIUsageLog"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
     # Collaboration relationships
     owned_collaborations: Mapped[list["InventoryCollaborator"]] = relationship(
         "InventoryCollaborator",
@@ -103,6 +106,7 @@ class User(Base):
 
 
 # Import at bottom to avoid circular imports
+from src.ai.models import AIUsageLog  # noqa: E402
 from src.apikeys.models import ApiKey  # noqa: E402
 from src.billing.models import CreditTransaction  # noqa: E402
 from src.categories.models import Category  # noqa: E402

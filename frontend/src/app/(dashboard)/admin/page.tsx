@@ -20,6 +20,7 @@ import {
   Webhook,
   ArrowRight,
   Key,
+  Activity,
 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -385,6 +386,13 @@ export default function AdminPage() {
                   icon={Key}
                   href="/admin/api-keys"
                   testId="quick-action-api-keys"
+                />
+                <QuickActionCard
+                  title={t("admin.aiUsage.title")}
+                  description={t("admin.aiUsage.description")}
+                  icon={Activity}
+                  href="/admin/ai-usage"
+                  testId="quick-action-ai-usage"
                 />
               </div>
             </div>
