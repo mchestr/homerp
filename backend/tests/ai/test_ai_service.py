@@ -7,6 +7,18 @@ import pytest
 from src.ai.service import AIClassificationService
 
 
+def create_mock_openai_response(content: str, model: str = "gpt-4o") -> MagicMock:
+    """Create a mock OpenAI response with proper usage data."""
+    mock_response = MagicMock()
+    mock_response.choices = [MagicMock(message=MagicMock(content=content))]
+    mock_response.model = model
+    mock_response.usage = MagicMock()
+    mock_response.usage.prompt_tokens = 100
+    mock_response.usage.completion_tokens = 50
+    mock_response.usage.total_tokens = 150
+    return mock_response
+
+
 class TestAIClassificationService:
     """Tests for the AIClassificationService class."""
 
@@ -45,16 +57,11 @@ class TestAIClassificationService:
     ):
         """Test classification without custom prompt uses default prompts."""
         # Mock the OpenAI response
-        mock_response = MagicMock()
-        mock_response.choices = [
-            MagicMock(
-                message=MagicMock(
-                    content='{"identified_name": "Test Item", "confidence": 0.95, '
-                    '"category_path": "Test > Category", "description": "A test item", '
-                    '"specifications": {}}'
-                )
-            )
-        ]
+        mock_response = create_mock_openai_response(
+            '{"identified_name": "Test Item", "confidence": 0.95, '
+            '"category_path": "Test > Category", "description": "A test item", '
+            '"specifications": {}}'
+        )
         service.client.chat.completions.create = AsyncMock(return_value=mock_response)
 
         # Call classify_image without custom_prompt
@@ -82,16 +89,11 @@ class TestAIClassificationService:
     ):
         """Test classification with custom prompt appends user context."""
         # Mock the OpenAI response
-        mock_response = MagicMock()
-        mock_response.choices = [
-            MagicMock(
-                message=MagicMock(
-                    content='{"identified_name": "Bin A1", "confidence": 0.92, '
-                    '"category_path": "Storage > Bins", "description": "A storage bin", '
-                    '"specifications": {"location": "A1"}}'
-                )
-            )
-        ]
+        mock_response = create_mock_openai_response(
+            '{"identified_name": "Bin A1", "confidence": 0.92, '
+            '"category_path": "Storage > Bins", "description": "A storage bin", '
+            '"specifications": {"location": "A1"}}'
+        )
         service.client.chat.completions.create = AsyncMock(return_value=mock_response)
 
         custom_prompt = "Label bins using the format Row-Column (e.g., A1, B3)"
@@ -117,15 +119,10 @@ class TestAIClassificationService:
     ):
         """Test classification with empty custom prompt behaves like no custom prompt."""
         # Mock the OpenAI response
-        mock_response = MagicMock()
-        mock_response.choices = [
-            MagicMock(
-                message=MagicMock(
-                    content='{"identified_name": "Test Item", "confidence": 0.9, '
-                    '"category_path": "Test", "description": "Item", "specifications": {}}'
-                )
-            )
-        ]
+        mock_response = create_mock_openai_response(
+            '{"identified_name": "Test Item", "confidence": 0.9, '
+            '"category_path": "Test", "description": "Item", "specifications": {}}'
+        )
         service.client.chat.completions.create = AsyncMock(return_value=mock_response)
 
         # Call with empty string
@@ -145,15 +142,10 @@ class TestAIClassificationService:
     ):
         """Test classification with None custom prompt behaves like no custom prompt."""
         # Mock the OpenAI response
-        mock_response = MagicMock()
-        mock_response.choices = [
-            MagicMock(
-                message=MagicMock(
-                    content='{"identified_name": "Test Item", "confidence": 0.9, '
-                    '"category_path": "Test", "description": "Item", "specifications": {}}'
-                )
-            )
-        ]
+        mock_response = create_mock_openai_response(
+            '{"identified_name": "Test Item", "confidence": 0.9, '
+            '"category_path": "Test", "description": "Item", "specifications": {}}'
+        )
         service.client.chat.completions.create = AsyncMock(return_value=mock_response)
 
         # Call with None (explicit)
@@ -173,16 +165,11 @@ class TestAIClassificationService:
     ):
         """Test that custom prompt is correctly included in the API call."""
         # Mock the OpenAI response
-        mock_response = MagicMock()
-        mock_response.choices = [
-            MagicMock(
-                message=MagicMock(
-                    content='{"identified_name": "Component", "confidence": 0.85, '
-                    '"category_path": "Electronics", "description": "Electronic component", '
-                    '"specifications": {}}'
-                )
-            )
-        ]
+        mock_response = create_mock_openai_response(
+            '{"identified_name": "Component", "confidence": 0.85, '
+            '"category_path": "Electronics", "description": "Electronic component", '
+            '"specifications": {}}'
+        )
         service.client.chat.completions.create = AsyncMock(return_value=mock_response)
 
         custom_prompt = "This is a custom electronic component from my PCB project"
@@ -219,10 +206,7 @@ class TestAIClassificationService:
     ):
         """Test that suggest_item_location passes context as keyword arguments."""
         # Mock the OpenAI response
-        mock_response = MagicMock()
-        mock_response.choices = [
-            MagicMock(message=MagicMock(content='{"suggestions": []}'))
-        ]
+        mock_response = create_mock_openai_response('{"suggestions": []}')
         service.client.chat.completions.create = AsyncMock(return_value=mock_response)
 
         # Call suggest_item_location
@@ -262,18 +246,13 @@ class TestAIClassificationService:
     ):
         """Test that suggest_item_location correctly parses AI suggestions."""
         # Mock the OpenAI response with valid suggestions
-        mock_response = MagicMock()
-        mock_response.choices = [
-            MagicMock(
-                message=MagicMock(
-                    content='{"suggestions": [{"location_id": '
-                    '"12345678-1234-1234-1234-123456789abc", '
-                    '"location_name": "Hardware Drawer", '
-                    '"confidence": 0.95, '
-                    '"reasoning": "Good match for fasteners"}]}'
-                )
-            )
-        ]
+        mock_response = create_mock_openai_response(
+            '{"suggestions": [{"location_id": '
+            '"12345678-1234-1234-1234-123456789abc", '
+            '"location_name": "Hardware Drawer", '
+            '"confidence": 0.95, '
+            '"reasoning": "Good match for fasteners"}]}'
+        )
         service.client.chat.completions.create = AsyncMock(return_value=mock_response)
 
         # Call suggest_item_location

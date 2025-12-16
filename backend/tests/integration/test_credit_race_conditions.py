@@ -47,7 +47,8 @@ class TestCreditDeductionRaceConditions:
         )
 
         # Only one should succeed due to SELECT FOR UPDATE locking
-        successful_deductions = sum(1 for r in results if r is True)
+        # deduct_credit returns CreditTransaction on success, None on failure
+        successful_deductions = sum(1 for r in results if r is not None)
 
         # Check final balance
         await async_session.refresh(user_with_one_credit)
@@ -93,13 +94,13 @@ class TestCreditDeductionRaceConditions:
         balance = await credit_service.get_balance(user.id)
         assert balance.total_credits == 3
 
-        # Sequential deductions should all succeed
-        assert await credit_service.deduct_credit(user.id, "Deduction 1")
-        assert await credit_service.deduct_credit(user.id, "Deduction 2")
-        assert await credit_service.deduct_credit(user.id, "Deduction 3")
+        # Sequential deductions should all succeed (return transaction)
+        assert await credit_service.deduct_credit(user.id, "Deduction 1") is not None
+        assert await credit_service.deduct_credit(user.id, "Deduction 2") is not None
+        assert await credit_service.deduct_credit(user.id, "Deduction 3") is not None
 
-        # Fourth deduction should fail
-        assert not await credit_service.deduct_credit(user.id, "Deduction 4")
+        # Fourth deduction should fail (return None)
+        assert await credit_service.deduct_credit(user.id, "Deduction 4") is None
 
         # Final balance should be 0
         balance = await credit_service.get_balance(user.id)
@@ -129,8 +130,8 @@ class TestCreditDeductionRaceConditions:
         # Now the original process tries to deduct - should fail
         result = await credit_service.deduct_credit(user_id, "Original deduction")
 
-        # This should fail since credit was already deducted
-        assert result is False
+        # This should fail since credit was already deducted (returns None)
+        assert result is None
 
     async def test_free_credits_used_before_purchased(
         self,
@@ -193,8 +194,11 @@ class TestCreditDeductionRaceConditions:
         # Admin should still "have" credits
         assert await credit_service.has_credits(admin_user.id)
 
-        # Deduction should succeed (but not actually deduct anything)
-        assert await credit_service.deduct_credit(admin_user.id, "Admin classification")
+        # Deduction returns None for admin (bypass - no transaction created)
+        result = await credit_service.deduct_credit(
+            admin_user.id, "Admin classification"
+        )
+        assert result is None  # Admin bypass - no transaction created
 
         # Balance should remain 0
         await async_session.refresh(admin_user)
@@ -275,10 +279,10 @@ class TestCreditTransactionIntegrity:
         initial_count = len(result.scalars().all())
 
         # Attempt failed deduction
-        success = await credit_service.deduct_credit(
+        transaction = await credit_service.deduct_credit(
             user_with_no_credits.id, "Should fail"
         )
-        assert success is False
+        assert transaction is None  # Returns None when insufficient credits
 
         # Count transactions again - should be the same
         result = await async_session.execute(

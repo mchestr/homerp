@@ -1,13 +1,38 @@
 """Tests for AI assistant service and router."""
 
+from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.ai.schemas import TokenUsage
 from src.ai.service import AIClassificationService
 from src.users.models import User
+
+
+def create_mock_openai_response(content: str, model: str = "gpt-4o") -> MagicMock:
+    """Create a mock OpenAI response with proper usage data."""
+    mock_response = MagicMock()
+    mock_response.choices = [MagicMock(message=MagicMock(content=content))]
+    mock_response.model = model
+    mock_response.usage = MagicMock()
+    mock_response.usage.prompt_tokens = 100
+    mock_response.usage.completion_tokens = 50
+    mock_response.usage.total_tokens = 150
+    return mock_response
+
+
+def create_mock_token_usage() -> TokenUsage:
+    """Create a mock token usage object."""
+    return TokenUsage(
+        prompt_tokens=100,
+        completion_tokens=50,
+        total_tokens=150,
+        model="gpt-4o",
+        estimated_cost_usd=Decimal("0.001"),
+    )
 
 
 class TestAIAssistantService:
@@ -43,14 +68,9 @@ class TestAIAssistantService:
 
     async def test_query_assistant_basic(self, service):
         """Test basic assistant query without context."""
-        mock_response = MagicMock()
-        mock_response.choices = [
-            MagicMock(
-                message=MagicMock(
-                    content="Here is a planting schedule for your seeds..."
-                )
-            )
-        ]
+        mock_response = create_mock_openai_response(
+            "Here is a planting schedule for your seeds..."
+        )
         service.client.chat.completions.create = AsyncMock(return_value=mock_response)
 
         result = await service.query_assistant(
@@ -62,14 +82,9 @@ class TestAIAssistantService:
 
     async def test_query_assistant_with_context(self, service, mock_template_manager):
         """Test assistant query with inventory context."""
-        mock_response = MagicMock()
-        mock_response.choices = [
-            MagicMock(
-                message=MagicMock(
-                    content="Based on your inventory of 10 tomato seeds and 5 pepper seeds..."
-                )
-            )
-        ]
+        mock_response = create_mock_openai_response(
+            "Based on your inventory of 10 tomato seeds and 5 pepper seeds..."
+        )
         service.client.chat.completions.create = AsyncMock(return_value=mock_response)
 
         inventory_context = {
@@ -105,8 +120,7 @@ class TestAIAssistantService:
 
     async def test_query_assistant_uses_correct_model(self, service, mock_settings):
         """Test that assistant uses the configured model."""
-        mock_response = MagicMock()
-        mock_response.choices = [MagicMock(message=MagicMock(content="Response"))]
+        mock_response = create_mock_openai_response("Response")
         service.client.chat.completions.create = AsyncMock(return_value=mock_response)
 
         await service.query_assistant(user_prompt="Test query")
@@ -116,8 +130,7 @@ class TestAIAssistantService:
 
     async def test_query_assistant_empty_response(self, service):
         """Test handling of empty response from AI."""
-        mock_response = MagicMock()
-        mock_response.choices = [MagicMock(message=MagicMock(content=""))]
+        mock_response = create_mock_openai_response("")
         service.client.chat.completions.create = AsyncMock(return_value=mock_response)
 
         result = await service.query_assistant(user_prompt="Test query")
@@ -126,8 +139,9 @@ class TestAIAssistantService:
 
     async def test_query_assistant_none_response(self, service):
         """Test handling of None response from AI."""
-        mock_response = MagicMock()
-        mock_response.choices = [MagicMock(message=MagicMock(content=None))]
+        mock_response = create_mock_openai_response("")
+        # Override content to be None
+        mock_response.choices[0].message.content = None
         service.client.chat.completions.create = AsyncMock(return_value=mock_response)
 
         result = await service.query_assistant(user_prompt="Test query")
@@ -173,18 +187,30 @@ class TestAIAssistantRouter:
     ):
         """Test successful assistant query."""
         from src.ai.service import get_ai_service
+        from src.ai.usage_service import get_ai_usage_service
         from src.main import app
 
         # Mock the AI service using dependency_overrides
         mock_service = MagicMock()
-        mock_service.query_assistant = AsyncMock(
-            return_value="Here is your planting schedule..."
+        mock_service.query_assistant_with_usage = AsyncMock(
+            return_value=(
+                "Here is your planting schedule...",
+                create_mock_token_usage(),
+            )
         )
+
+        # Mock the usage service
+        mock_usage_service = MagicMock()
+        mock_usage_service.log_usage = AsyncMock()
 
         def get_mock_ai_service():
             return mock_service
 
+        def get_mock_usage_service():
+            return mock_usage_service
+
         app.dependency_overrides[get_ai_service] = get_mock_ai_service
+        app.dependency_overrides[get_ai_usage_service] = get_mock_usage_service
 
         try:
             response = await authenticated_client.post(
@@ -202,6 +228,7 @@ class TestAIAssistantRouter:
             assert data["credits_used"] == 1
         finally:
             app.dependency_overrides.pop(get_ai_service, None)
+            app.dependency_overrides.pop(get_ai_usage_service, None)
 
     async def test_query_assistant_with_context(
         self,
@@ -210,15 +237,26 @@ class TestAIAssistantRouter:
     ):
         """Test assistant query includes inventory context."""
         from src.ai.service import get_ai_service
+        from src.ai.usage_service import get_ai_usage_service
         from src.main import app
 
         mock_service = MagicMock()
-        mock_service.query_assistant = AsyncMock(return_value="Based on your items...")
+        mock_service.query_assistant_with_usage = AsyncMock(
+            return_value=("Based on your items...", create_mock_token_usage())
+        )
+
+        # Mock the usage service
+        mock_usage_service = MagicMock()
+        mock_usage_service.log_usage = AsyncMock()
 
         def get_mock_ai_service():
             return mock_service
 
+        def get_mock_usage_service():
+            return mock_usage_service
+
         app.dependency_overrides[get_ai_service] = get_mock_ai_service
+        app.dependency_overrides[get_ai_usage_service] = get_mock_usage_service
 
         try:
             response = await authenticated_client.post(
@@ -236,6 +274,7 @@ class TestAIAssistantRouter:
             assert data["items_in_context"] >= 1
         finally:
             app.dependency_overrides.pop(get_ai_service, None)
+            app.dependency_overrides.pop(get_ai_usage_service, None)
 
     async def test_query_assistant_deducts_credit(
         self,
@@ -245,17 +284,28 @@ class TestAIAssistantRouter:
     ):
         """Test that successful query deducts one credit."""
         from src.ai.service import get_ai_service
+        from src.ai.usage_service import get_ai_usage_service
         from src.main import app
 
         initial_credits = test_user.free_credits_remaining
 
         mock_service = MagicMock()
-        mock_service.query_assistant = AsyncMock(return_value="Response")
+        mock_service.query_assistant_with_usage = AsyncMock(
+            return_value=("Response", create_mock_token_usage())
+        )
+
+        # Mock the usage service
+        mock_usage_service = MagicMock()
+        mock_usage_service.log_usage = AsyncMock()
 
         def get_mock_ai_service():
             return mock_service
 
+        def get_mock_usage_service():
+            return mock_usage_service
+
         app.dependency_overrides[get_ai_service] = get_mock_ai_service
+        app.dependency_overrides[get_ai_usage_service] = get_mock_usage_service
 
         try:
             response = await authenticated_client.post(
@@ -269,6 +319,7 @@ class TestAIAssistantRouter:
             assert test_user.free_credits_remaining == initial_credits - 1
         finally:
             app.dependency_overrides.pop(get_ai_service, None)
+            app.dependency_overrides.pop(get_ai_usage_service, None)
 
     async def test_query_assistant_validates_prompt(
         self, authenticated_client: AsyncClient
@@ -305,7 +356,7 @@ class TestAIAssistantRouter:
 
         # Create a mock service that raises an error
         mock_service = MagicMock(spec=AIClassificationService)
-        mock_service.query_assistant = AsyncMock(
+        mock_service.query_assistant_with_usage = AsyncMock(
             side_effect=Exception("OpenAI API error")
         )
 
@@ -348,6 +399,7 @@ class TestAIAssistantRouter:
     ):
         """Test that admin users bypass credit check."""
         from src.ai.service import get_ai_service
+        from src.ai.usage_service import get_ai_usage_service
         from src.main import app
 
         admin_user.free_credits_remaining = 0
@@ -355,12 +407,22 @@ class TestAIAssistantRouter:
         await async_session.commit()
 
         mock_service = MagicMock()
-        mock_service.query_assistant = AsyncMock(return_value="Admin response")
+        mock_service.query_assistant_with_usage = AsyncMock(
+            return_value=("Admin response", create_mock_token_usage())
+        )
+
+        # Mock the usage service
+        mock_usage_service = MagicMock()
+        mock_usage_service.log_usage = AsyncMock()
 
         def get_mock_ai_service():
             return mock_service
 
+        def get_mock_usage_service():
+            return mock_usage_service
+
         app.dependency_overrides[get_ai_service] = get_mock_ai_service
+        app.dependency_overrides[get_ai_usage_service] = get_mock_usage_service
 
         try:
             response = await admin_client.post(
@@ -373,3 +435,4 @@ class TestAIAssistantRouter:
             assert data["success"] is True
         finally:
             app.dependency_overrides.pop(get_ai_service, None)
+            app.dependency_overrides.pop(get_ai_usage_service, None)

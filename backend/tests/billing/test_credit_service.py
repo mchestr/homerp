@@ -166,9 +166,9 @@ class TestDeductCredit:
         await async_session.commit()
 
         service = CreditService(async_session, test_settings)
-        result = await service.deduct_credit(test_user.id, "Test deduction")
+        transaction = await service.deduct_credit(test_user.id, "Test deduction")
 
-        assert result is True
+        assert transaction is not None  # Transaction created on success
         await async_session.refresh(test_user)
         assert test_user.free_credits_remaining == 2  # Reduced by 1
         assert test_user.credit_balance == 10  # Unchanged
@@ -185,11 +185,11 @@ class TestDeductCredit:
         await async_session.commit()
 
         service = CreditService(async_session, test_settings)
-        result = await service.deduct_credit(
+        transaction = await service.deduct_credit(
             user_with_purchased_credits.id, "Test deduction"
         )
 
-        assert result is True
+        assert transaction is not None  # Transaction created on success
         await async_session.refresh(user_with_purchased_credits)
         assert user_with_purchased_credits.free_credits_remaining == 0
         assert user_with_purchased_credits.credit_balance == initial_balance - 1
@@ -202,9 +202,11 @@ class TestDeductCredit:
     ):
         """Test that deduction fails when user has no credits."""
         service = CreditService(async_session, test_settings)
-        result = await service.deduct_credit(user_with_no_credits.id, "Test deduction")
+        transaction = await service.deduct_credit(
+            user_with_no_credits.id, "Test deduction"
+        )
 
-        assert result is False
+        assert transaction is None  # No transaction when insufficient credits
 
     async def test_deduct_credit_creates_transaction(
         self,
@@ -241,33 +243,33 @@ class TestDeductCredit:
         await async_session.commit()
 
         service = CreditService(async_session, test_settings)
-        result = await service.deduct_credit(admin_user.id, "Test deduction")
+        transaction = await service.deduct_credit(admin_user.id, "Test deduction")
 
-        assert result is True
+        assert transaction is None  # Admin bypass - no transaction created
         await async_session.refresh(admin_user)
         # Balance should remain unchanged
         assert admin_user.free_credits_remaining == 0
         assert admin_user.credit_balance == 0
 
         # No transaction should be created for admin
-        result = await async_session.execute(
+        query_result = await async_session.execute(
             select(CreditTransaction).where(
                 CreditTransaction.user_id == admin_user.id,
                 CreditTransaction.transaction_type == "usage",
             )
         )
-        assert result.scalar_one_or_none() is None
+        assert query_result.scalar_one_or_none() is None
 
-    async def test_deduct_credit_nonexistent_user_returns_false(
+    async def test_deduct_credit_nonexistent_user_returns_none(
         self,
         async_session: AsyncSession,
         test_settings: Settings,
     ):
-        """Test that deducting from nonexistent user returns False."""
+        """Test that deducting from nonexistent user returns None."""
         service = CreditService(async_session, test_settings)
-        result = await service.deduct_credit(uuid.uuid4(), "Test deduction")
+        transaction = await service.deduct_credit(uuid.uuid4(), "Test deduction")
 
-        assert result is False
+        assert transaction is None  # No transaction for nonexistent user
 
     async def test_deduct_credit_multiple_times(
         self,
@@ -284,16 +286,18 @@ class TestDeductCredit:
 
         # Deduct 5 times (should use 2 free + 3 purchased)
         for i in range(5):
-            result = await service.deduct_credit(test_user.id, f"Deduction {i + 1}")
-            assert result is True
+            transaction = await service.deduct_credit(
+                test_user.id, f"Deduction {i + 1}"
+            )
+            assert transaction is not None
 
         await async_session.refresh(test_user)
         assert test_user.free_credits_remaining == 0
         assert test_user.credit_balance == 0
 
         # 6th deduction should fail
-        result = await service.deduct_credit(test_user.id, "Deduction 6")
-        assert result is False
+        transaction = await service.deduct_credit(test_user.id, "Deduction 6")
+        assert transaction is None
 
 
 class TestAddCredits:

@@ -9,6 +9,7 @@ from src.ai.schemas import (
     InventoryContextItem,
 )
 from src.ai.service import AIClassificationService, get_ai_service
+from src.ai.usage_service import AIUsageService, get_ai_usage_service
 from src.auth.dependencies import CurrentUserIdDep
 from src.billing.router import CreditServiceDep
 from src.common.rate_limiter import RATE_LIMIT_AI, limiter
@@ -79,6 +80,7 @@ async def query_assistant(
     session: AsyncSessionDep,
     user_id: CurrentUserIdDep,
     ai_service: Annotated[AIClassificationService, Depends(get_ai_service)],
+    ai_usage_service: Annotated[AIUsageService, Depends(get_ai_usage_service)],
     credit_service: CreditServiceDep,
 ) -> AssistantQueryResponse:
     """Query the AI assistant with a prompt.
@@ -110,17 +112,36 @@ async def query_assistant(
         }
 
     try:
-        # Query the AI assistant
-        response_text = await ai_service.query_assistant(
+        # Query the AI assistant (with token usage tracking)
+        response_text, token_usage = await ai_service.query_assistant_with_usage(
             user_prompt=data.prompt,
             inventory_context=inventory_context,
         )
 
         # Deduct credit after successful query
-        await credit_service.deduct_credit(
+        # Use commit=False to ensure atomicity with usage logging
+        credit_transaction = await credit_service.deduct_credit(
             user_id,
             f"AI Assistant query: {data.prompt[:50]}...",
+            commit=False,
         )
+
+        # Log token usage
+        await ai_usage_service.log_usage(
+            session=session,
+            user_id=user_id,
+            operation_type="assistant_query",
+            token_usage=token_usage,
+            credit_transaction_id=credit_transaction.id if credit_transaction else None,
+            metadata={
+                "prompt_length": len(data.prompt),
+                "include_inventory_context": data.include_inventory_context,
+                "items_in_context": items_in_context,
+            },
+        )
+
+        # Commit both credit deduction and usage logging together
+        await session.commit()
 
         return AssistantQueryResponse(
             success=True,

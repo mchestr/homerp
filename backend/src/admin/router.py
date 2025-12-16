@@ -9,6 +9,9 @@ from sqlalchemy import func, or_, select
 
 from src.admin.schemas import (
     AdminStatsResponse,
+    AIUsageByUserResponse,
+    AIUsageLogResponse,
+    AIUsageSummaryResponse,
     CreditActivityDataPoint,
     CreditActivityResponse,
     CreditAdjustmentRequest,
@@ -16,9 +19,11 @@ from src.admin.schemas import (
     CreditPackAdminResponse,
     CreditPackCreate,
     CreditPackUpdate,
+    DailyUsageResponse,
     PackBreakdownItem,
     PackBreakdownResponse,
     PaginatedActivityResponse,
+    PaginatedAIUsageLogsResponse,
     PaginatedUsersResponse,
     RecentActivityItem,
     RevenueTimeSeriesResponse,
@@ -27,6 +32,7 @@ from src.admin.schemas import (
     UserAdminResponse,
     UserAdminUpdate,
 )
+from src.ai.usage_service import AIUsageService, get_ai_usage_service
 from src.auth.dependencies import AdminUserDep
 from src.billing.models import CreditPack, CreditTransaction
 from src.config import Settings, get_settings
@@ -856,3 +862,81 @@ async def get_activity_feed(
         activities = activities[offset : offset + limit]
 
     return PaginatedActivityResponse.create(activities, total, page, limit)
+
+
+# ============================================================================
+# AI Usage Analytics
+# ============================================================================
+
+
+@router.get("/ai-usage/summary")
+async def get_ai_usage_summary(
+    _admin: AdminUserDep,
+    session: AsyncSessionDep,
+    ai_usage_service: Annotated[AIUsageService, Depends(get_ai_usage_service)],
+    start_date: datetime | None = Query(None, description="Start date filter"),
+    end_date: datetime | None = Query(None, description="End date filter"),
+) -> AIUsageSummaryResponse:
+    """Get AI token usage summary with breakdowns by operation and model."""
+    summary = await ai_usage_service.get_usage_summary(
+        session=session,
+        start_date=start_date,
+        end_date=end_date,
+    )
+    return AIUsageSummaryResponse(**summary)
+
+
+@router.get("/ai-usage/by-user")
+async def get_ai_usage_by_user(
+    _admin: AdminUserDep,
+    session: AsyncSessionDep,
+    ai_usage_service: Annotated[AIUsageService, Depends(get_ai_usage_service)],
+    start_date: datetime | None = Query(None, description="Start date filter"),
+    end_date: datetime | None = Query(None, description="End date filter"),
+    limit: int = Query(50, ge=1, le=100, description="Max users to return"),
+) -> list[AIUsageByUserResponse]:
+    """Get AI usage aggregated by user, ordered by total tokens."""
+    users = await ai_usage_service.get_usage_by_user(
+        session=session,
+        start_date=start_date,
+        end_date=end_date,
+        limit=limit,
+    )
+    return [AIUsageByUserResponse(**user) for user in users]
+
+
+@router.get("/ai-usage/history")
+async def get_ai_usage_history(
+    _admin: AdminUserDep,
+    session: AsyncSessionDep,
+    ai_usage_service: Annotated[AIUsageService, Depends(get_ai_usage_service)],
+    page: int = Query(1, ge=1),
+    limit: int = Query(50, ge=1, le=100),
+    operation_type: str | None = Query(None, description="Filter by operation type"),
+    user_id: UUID | None = Query(None, description="Filter by user ID"),
+) -> PaginatedAIUsageLogsResponse:
+    """Get paginated AI usage logs."""
+    logs, total = await ai_usage_service.get_usage_history(
+        session=session,
+        page=page,
+        limit=limit,
+        operation_type=operation_type,
+        user_id=user_id,
+    )
+    items = [AIUsageLogResponse.model_validate(log) for log in logs]
+    return PaginatedAIUsageLogsResponse.create(items, total, page, limit)
+
+
+@router.get("/ai-usage/daily")
+async def get_ai_usage_daily(
+    _admin: AdminUserDep,
+    session: AsyncSessionDep,
+    ai_usage_service: Annotated[AIUsageService, Depends(get_ai_usage_service)],
+    days: int = Query(30, ge=1, le=365, description="Number of days to include"),
+) -> list[DailyUsageResponse]:
+    """Get daily AI usage for charts."""
+    daily = await ai_usage_service.get_daily_usage(
+        session=session,
+        days=days,
+    )
+    return [DailyUsageResponse(**day) for day in daily]
