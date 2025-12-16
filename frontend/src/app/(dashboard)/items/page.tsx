@@ -314,7 +314,7 @@ export default function ItemsPage() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             {t("title")}
           </h1>
-          <p className="mt-1 text-muted-foreground">
+          <p className="text-muted-foreground mt-1">
             {t("itemCount", { count: itemsData?.total ?? 0 })}
           </p>
         </div>
@@ -364,7 +364,7 @@ export default function ItemsPage() {
 
       {/* Batch Update Panel */}
       {showBatchPanel && selectedItems.size > 0 && (
-        <div className="rounded-lg border bg-card p-4 shadow-sm">
+        <div className="bg-card rounded-lg border p-4 shadow-xs">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold">{t("batchUpdateTitle")}</h3>
             <Button
@@ -375,7 +375,7 @@ export default function ItemsPage() {
               <X className="h-4 w-4" />
             </Button>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-sm">
             {t("selectedCount", { count: selectedItems.size })}
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -388,7 +388,7 @@ export default function ItemsPage() {
                   if (e.target.value) setClearCategory(false);
                 }}
                 disabled={clearCategory}
-                className="h-9 w-full rounded-lg border bg-background px-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-9 w-full rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden disabled:opacity-50"
                 data-testid="batch-category-select"
               >
                 <option value="">-- {t("setCategory")} --</option>
@@ -406,7 +406,7 @@ export default function ItemsPage() {
                     setClearCategory(e.target.checked);
                     if (e.target.checked) setBatchCategoryId("");
                   }}
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  className="text-primary focus:ring-primary h-4 w-4 rounded border-gray-300"
                 />
                 {t("clearCategory")}
               </label>
@@ -420,7 +420,7 @@ export default function ItemsPage() {
                   if (e.target.value) setClearLocation(false);
                 }}
                 disabled={clearLocation}
-                className="h-9 w-full rounded-lg border bg-background px-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-9 w-full rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden disabled:opacity-50"
                 data-testid="batch-location-select"
               >
                 <option value="">-- {t("setLocation")} --</option>
@@ -438,7 +438,7 @@ export default function ItemsPage() {
                     setClearLocation(e.target.checked);
                     if (e.target.checked) setBatchLocationId("");
                   }}
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  className="text-primary focus:ring-primary h-4 w-4 rounded border-gray-300"
                 />
                 {t("clearLocation")}
               </label>
@@ -471,13 +471,13 @@ export default function ItemsPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <form onSubmit={handleSearch} className="flex flex-1 gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder={t("searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-10 w-full rounded-lg border bg-background pl-10 pr-4 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-10 w-full rounded-lg border pr-4 pl-10 text-sm transition-colors focus:ring-2 focus:outline-hidden"
               />
             </div>
             <Button type="submit" variant="secondary" className="shrink-0">
@@ -496,7 +496,7 @@ export default function ItemsPage() {
             <Filter className="h-4 w-4" />
             <span className="hidden sm:inline">{tCommon("filters")}</span>
             {hasActiveFilters && (
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+              <span className="bg-primary text-primary-foreground flex h-5 w-5 items-center justify-center rounded-full text-xs">
                 {
                   [
                     categoryId,
@@ -533,14 +533,14 @@ export default function ItemsPage() {
         </div>
 
         {showFilters && (
-          <div className="space-y-3 rounded-lg border bg-card p-4">
+          <div className="bg-card space-y-3 rounded-lg border p-4">
             <div className="flex flex-wrap items-center gap-3">
               <select
                 value={categoryId || ""}
                 onChange={(e) =>
                   updateFilters({ category_id: e.target.value || undefined })
                 }
-                className="h-9 rounded-lg border bg-background px-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-9 rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden"
               >
                 <option value="">{t("allCategories")}</option>
                 {categories?.map((cat) => (
@@ -555,7 +555,7 @@ export default function ItemsPage() {
                 onChange={(e) =>
                   updateFilters({ location_id: e.target.value || undefined })
                 }
-                className="h-9 rounded-lg border bg-background px-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-9 rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden"
               >
                 <option value="">{t("allLocations")}</option>
                 {locations?.map((loc) => (
@@ -567,7 +567,7 @@ export default function ItemsPage() {
 
               <label
                 className={cn(
-                  "flex cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm transition-colors hover:bg-muted",
+                  "bg-background hover:bg-muted flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors",
                   noCategory && "border-primary bg-primary/5"
                 )}
                 data-testid="filter-no-category"
@@ -582,15 +582,15 @@ export default function ItemsPage() {
                     })
                   }
                   disabled={!!categoryId}
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary disabled:opacity-50"
+                  className="text-primary focus:ring-primary h-4 w-4 rounded border-gray-300 disabled:opacity-50"
                 />
-                <FolderX className="h-4 w-4 text-muted-foreground" />
+                <FolderX className="text-muted-foreground h-4 w-4" />
                 {t("uncategorizedOnly")}
               </label>
 
               <label
                 className={cn(
-                  "flex cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm transition-colors hover:bg-muted",
+                  "bg-background hover:bg-muted flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors",
                   noLocation && "border-primary bg-primary/5"
                 )}
                 data-testid="filter-no-location"
@@ -605,13 +605,13 @@ export default function ItemsPage() {
                     })
                   }
                   disabled={!!locationId}
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary disabled:opacity-50"
+                  className="text-primary focus:ring-primary h-4 w-4 rounded border-gray-300 disabled:opacity-50"
                 />
-                <MapPinOff className="h-4 w-4 text-muted-foreground" />
+                <MapPinOff className="text-muted-foreground h-4 w-4" />
                 {t("noLocationOnly")}
               </label>
 
-              <label className="flex cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm transition-colors hover:bg-muted">
+              <label className="bg-background hover:bg-muted flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors">
                 <input
                   type="checkbox"
                   checked={lowStock}
@@ -620,7 +620,7 @@ export default function ItemsPage() {
                       low_stock: e.target.checked ? "true" : undefined,
                     })
                   }
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  className="text-primary focus:ring-primary h-4 w-4 rounded border-gray-300"
                 />
                 <AlertTriangle className="h-4 w-4 text-amber-500" />
                 {t("lowStockOnly")}
@@ -631,7 +631,7 @@ export default function ItemsPage() {
                   variant="ghost"
                   size="sm"
                   onClick={clearFilters}
-                  className="ml-auto gap-1 text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground ml-auto gap-1"
                 >
                   <X className="h-4 w-4" />
                   {tCommon("clearAll")}
@@ -657,7 +657,7 @@ export default function ItemsPage() {
             {/* Tag filter chips */}
             {allTags && allTags.length > 0 && !categoryId && (
               <div className="border-t pt-3">
-                <p className="mb-2 text-xs font-medium text-muted-foreground">
+                <p className="text-muted-foreground mb-2 text-xs font-medium">
                   {t("filterByTags")}
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -695,17 +695,17 @@ export default function ItemsPage() {
       {isLoading ? (
         <div className="flex items-center justify-center py-16">
           <div className="flex flex-col items-center gap-4">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            <p className="text-sm text-muted-foreground">{t("loadingItems")}</p>
+            <div className="border-primary h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
+            <p className="text-muted-foreground text-sm">{t("loadingItems")}</p>
           </div>
         </div>
       ) : itemsData?.items.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed py-16">
-          <div className="rounded-full bg-muted p-4">
-            <Package className="h-10 w-10 text-muted-foreground" />
+          <div className="bg-muted rounded-full p-4">
+            <Package className="text-muted-foreground h-10 w-10" />
           </div>
           <h3 className="mt-4 text-lg font-semibold">{t("noItemsFound")}</h3>
-          <p className="mt-1 text-center text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-center">
             {searchQuery || categoryId || locationId || lowStock
               ? t("tryAdjustingFilters")
               : t("getStartedAddItem")}
@@ -721,7 +721,7 @@ export default function ItemsPage() {
         <>
           {/* Select All toggle in selection mode */}
           {isSelectionMode && itemsData && itemsData.items.length > 0 && (
-            <div className="flex items-center gap-2 rounded-lg border bg-muted/50 px-4 py-2">
+            <div className="bg-muted/50 flex items-center gap-2 rounded-lg border px-4 py-2">
               <button
                 type="button"
                 onClick={toggleSelectAll}
@@ -730,7 +730,7 @@ export default function ItemsPage() {
               >
                 {itemsData.items.every((item) => selectedItems.has(item.id)) ? (
                   <>
-                    <CheckSquare className="h-4 w-4 text-primary" />
+                    <CheckSquare className="text-primary h-4 w-4" />
                     {t("deselectAll")}
                   </>
                 ) : (
@@ -740,7 +740,7 @@ export default function ItemsPage() {
                   </>
                 )}
               </button>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-muted-foreground text-sm">
                 ({t("selectedCount", { count: selectedItems.size })})
               </span>
             </div>
@@ -755,11 +755,11 @@ export default function ItemsPage() {
                 <div
                   key={item.id}
                   className={cn(
-                    "group relative overflow-hidden rounded-xl border bg-card transition-all",
+                    "group bg-card relative overflow-hidden rounded-xl border transition-all",
                     isSelectionMode
                       ? selectedItems.has(item.id)
-                        ? "border-primary ring-2 ring-primary/20"
-                        : "cursor-pointer hover:border-primary/50"
+                        ? "border-primary ring-primary/20 ring-2"
+                        : "hover:border-primary/50 cursor-pointer"
                       : "hover:border-primary/50 hover:shadow-lg"
                   )}
                   onClick={(e) =>
@@ -771,10 +771,10 @@ export default function ItemsPage() {
                 >
                   {/* Selection checkbox overlay */}
                   {isSelectionMode && (
-                    <div className="absolute left-2 top-2 z-10">
+                    <div className="absolute top-2 left-2 z-10">
                       <div
                         className={cn(
-                          "flex h-6 w-6 items-center justify-center rounded-md border-2 bg-background/80 backdrop-blur-sm",
+                          "bg-background/80 flex h-6 w-6 items-center justify-center rounded-md border-2 backdrop-blur-xs",
                           selectedItems.has(item.id)
                             ? "border-primary bg-primary text-primary-foreground"
                             : "border-muted-foreground/50"
@@ -789,7 +789,7 @@ export default function ItemsPage() {
 
                   {/* Wrap content in Link only when not in selection mode */}
                   {isSelectionMode ? (
-                    <div className="relative aspect-square bg-muted">
+                    <div className="bg-muted relative aspect-square">
                       {item.primary_image_url ? (
                         <AuthenticatedImage
                           imageId={item.primary_image_url.split("/").at(-2)!}
@@ -798,17 +798,17 @@ export default function ItemsPage() {
                           className="h-full w-full object-cover"
                           fallback={
                             <div className="flex h-full items-center justify-center">
-                              <Package className="h-16 w-16 text-muted-foreground/50" />
+                              <Package className="text-muted-foreground/50 h-16 w-16" />
                             </div>
                           }
                         />
                       ) : (
                         <div className="flex h-full items-center justify-center">
-                          <Package className="h-16 w-16 text-muted-foreground/50" />
+                          <Package className="text-muted-foreground/50 h-16 w-16" />
                         </div>
                       )}
                       {item.is_low_stock && (
-                        <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-medium text-white shadow-sm">
+                        <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-medium text-white shadow-xs">
                           <AlertTriangle className="h-3 w-3" />
                           {t("lowStock")}
                         </div>
@@ -816,7 +816,7 @@ export default function ItemsPage() {
                     </div>
                   ) : (
                     <Link href={`/items/${item.id}`}>
-                      <div className="relative aspect-square bg-muted">
+                      <div className="bg-muted relative aspect-square">
                         {item.primary_image_url ? (
                           <AuthenticatedImage
                             imageId={item.primary_image_url.split("/").at(-2)!}
@@ -825,17 +825,17 @@ export default function ItemsPage() {
                             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                             fallback={
                               <div className="flex h-full items-center justify-center">
-                                <Package className="h-16 w-16 text-muted-foreground/50" />
+                                <Package className="text-muted-foreground/50 h-16 w-16" />
                               </div>
                             }
                           />
                         ) : (
                           <div className="flex h-full items-center justify-center">
-                            <Package className="h-16 w-16 text-muted-foreground/50" />
+                            <Package className="text-muted-foreground/50 h-16 w-16" />
                           </div>
                         )}
                         {item.is_low_stock && (
-                          <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-medium text-white shadow-sm">
+                          <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-medium text-white shadow-xs">
                             <AlertTriangle className="h-3 w-3" />
                             {t("lowStock")}
                           </div>
@@ -847,16 +847,16 @@ export default function ItemsPage() {
                   {/* Item details section */}
                   <div className="p-4">
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="truncate font-semibold transition-colors group-hover:text-primary">
+                      <h3 className="group-hover:text-primary truncate font-semibold transition-colors">
                         {item.name}
                       </h3>
                       {item.price != null && (
-                        <span className="shrink-0 text-sm font-medium text-muted-foreground">
+                        <span className="text-muted-foreground shrink-0 text-sm font-medium">
                           {formatPrice(item.price, user?.currency)}
                         </span>
                       )}
                     </div>
-                    <p className="mt-0.5 truncate text-sm text-muted-foreground">
+                    <p className="text-muted-foreground mt-0.5 truncate text-sm">
                       {item.category?.icon}{" "}
                       {item.category?.name ?? t("uncategorized")}
                     </p>
@@ -913,7 +913,7 @@ export default function ItemsPage() {
                           <Plus className="h-4 w-4" />
                         </button>
                       </div>
-                      <span className="truncate text-xs text-muted-foreground">
+                      <span className="text-muted-foreground truncate text-xs">
                         {item.location?.name ?? t("noLocation")}
                       </span>
                     </div>
@@ -927,29 +927,29 @@ export default function ItemsPage() {
               data-testid="items-list-view"
             >
               <table className="w-full">
-                <thead className="border-b bg-muted/50">
+                <thead className="bg-muted/50 border-b">
                   <tr>
                     {isSelectionMode && (
-                      <th className="w-10 whitespace-nowrap px-2 py-3 text-center">
+                      <th className="w-10 px-2 py-3 text-center whitespace-nowrap">
                         <span className="sr-only">Select</span>
                       </th>
                     )}
-                    <th className="whitespace-nowrap px-4 py-3 text-left text-sm font-medium">
+                    <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">
                       {tCommon("name")}
                     </th>
-                    <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium sm:table-cell">
+                    <th className="hidden px-4 py-3 text-left text-sm font-medium whitespace-nowrap sm:table-cell">
                       {t("category")}
                     </th>
-                    <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium md:table-cell">
+                    <th className="hidden px-4 py-3 text-left text-sm font-medium whitespace-nowrap md:table-cell">
                       {t("location")}
                     </th>
-                    <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium lg:table-cell">
+                    <th className="hidden px-4 py-3 text-left text-sm font-medium whitespace-nowrap lg:table-cell">
                       {t("specifications")}
                     </th>
-                    <th className="whitespace-nowrap px-4 py-3 text-center text-sm font-medium">
+                    <th className="px-4 py-3 text-center text-sm font-medium whitespace-nowrap">
                       {t("quantity")}
                     </th>
-                    <th className="hidden whitespace-nowrap px-4 py-3 text-right text-sm font-medium lg:table-cell">
+                    <th className="hidden px-4 py-3 text-right text-sm font-medium whitespace-nowrap lg:table-cell">
                       {t("price")}
                     </th>
                   </tr>
@@ -963,7 +963,7 @@ export default function ItemsPage() {
                         isSelectionMode
                           ? selectedItems.has(item.id)
                             ? "bg-primary/5"
-                            : "cursor-pointer hover:bg-muted/50"
+                            : "hover:bg-muted/50 cursor-pointer"
                           : "hover:bg-muted/50"
                       )}
                       onClick={(e) =>
@@ -992,7 +992,7 @@ export default function ItemsPage() {
                       <td className="px-4 py-3">
                         {isSelectionMode ? (
                           <div className="flex items-center gap-3">
-                            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
+                            <div className="bg-muted relative h-10 w-10 shrink-0 overflow-hidden rounded-md">
                               {item.primary_image_url ? (
                                 <AuthenticatedImage
                                   imageId={
@@ -1003,13 +1003,13 @@ export default function ItemsPage() {
                                   className="h-full w-full object-cover"
                                   fallback={
                                     <div className="flex h-full items-center justify-center">
-                                      <Package className="h-5 w-5 text-muted-foreground/50" />
+                                      <Package className="text-muted-foreground/50 h-5 w-5" />
                                     </div>
                                   }
                                 />
                               ) : (
                                 <div className="flex h-full items-center justify-center">
-                                  <Package className="h-5 w-5 text-muted-foreground/50" />
+                                  <Package className="text-muted-foreground/50 h-5 w-5" />
                                 </div>
                               )}
                             </div>
@@ -1030,7 +1030,7 @@ export default function ItemsPage() {
                             href={`/items/${item.id}`}
                             className="flex items-center gap-3"
                           >
-                            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
+                            <div className="bg-muted relative h-10 w-10 shrink-0 overflow-hidden rounded-md">
                               {item.primary_image_url ? (
                                 <AuthenticatedImage
                                   imageId={
@@ -1041,18 +1041,18 @@ export default function ItemsPage() {
                                   className="h-full w-full object-cover"
                                   fallback={
                                     <div className="flex h-full items-center justify-center">
-                                      <Package className="h-5 w-5 text-muted-foreground/50" />
+                                      <Package className="text-muted-foreground/50 h-5 w-5" />
                                     </div>
                                   }
                                 />
                               ) : (
                                 <div className="flex h-full items-center justify-center">
-                                  <Package className="h-5 w-5 text-muted-foreground/50" />
+                                  <Package className="text-muted-foreground/50 h-5 w-5" />
                                 </div>
                               )}
                             </div>
                             <div className="min-w-0">
-                              <span className="block truncate font-medium transition-colors group-hover:text-primary">
+                              <span className="group-hover:text-primary block truncate font-medium transition-colors">
                                 {item.name}
                               </span>
                               {item.is_low_stock && (
@@ -1065,11 +1065,11 @@ export default function ItemsPage() {
                           </Link>
                         )}
                       </td>
-                      <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-muted-foreground sm:table-cell">
+                      <td className="text-muted-foreground hidden px-4 py-3 text-sm whitespace-nowrap sm:table-cell">
                         {item.category?.icon}{" "}
                         {item.category?.name ?? t("uncategorized")}
                       </td>
-                      <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-muted-foreground md:table-cell">
+                      <td className="text-muted-foreground hidden px-4 py-3 text-sm whitespace-nowrap md:table-cell">
                         {item.location?.name ?? t("noLocation")}
                       </td>
                       <td className="hidden px-4 py-3 lg:table-cell">
@@ -1140,7 +1140,7 @@ export default function ItemsPage() {
                           </button>
                         </div>
                       </td>
-                      <td className="hidden whitespace-nowrap px-4 py-3 text-right text-sm text-muted-foreground lg:table-cell">
+                      <td className="text-muted-foreground hidden px-4 py-3 text-right text-sm whitespace-nowrap lg:table-cell">
                         {item.price != null
                           ? formatPrice(item.price, user?.currency)
                           : "-"}
@@ -1164,11 +1164,11 @@ export default function ItemsPage() {
                 <ChevronLeft className="h-4 w-4" />
                 {tCommon("previous")}
               </Button>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-muted-foreground text-sm">
                 {tCommon("page")}{" "}
-                <span className="font-medium text-foreground">{page}</span>{" "}
+                <span className="text-foreground font-medium">{page}</span>{" "}
                 {tCommon("of")}{" "}
-                <span className="font-medium text-foreground">
+                <span className="text-foreground font-medium">
                   {itemsData.total_pages}
                 </span>
               </span>

@@ -409,51 +409,51 @@ export default function NewItemPage() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             {tItems("addNewItem")}
           </h1>
-          <p className="mt-1 text-muted-foreground">
+          <p className="text-muted-foreground mt-1">
             {tItems("uploadToIdentify")}
           </p>
         </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        <div className="flex items-center gap-3 rounded-xl border bg-card p-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <div className="bg-card flex items-center gap-3 rounded-xl border p-4">
+          <div className="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
             <Upload className="h-5 w-5" />
           </div>
           <div>
             <p className="font-medium">{tItems("step", { number: 1 })}</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {tImages("uploadImage")}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3 rounded-xl border bg-card p-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <div className="bg-card flex items-center gap-3 rounded-xl border p-4">
+          <div className="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
             <Sparkles className="h-5 w-5" />
           </div>
           <div>
             <p className="font-medium">{tItems("step", { number: 2 })}</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {tItems("autoIdentify")}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3 rounded-xl border bg-card p-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <div className="bg-card flex items-center gap-3 rounded-xl border p-4">
+          <div className="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
             <Package className="h-5 w-5" />
           </div>
           <div>
             <p className="font-medium">{tItems("step", { number: 3 })}</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {tItems("reviewAndSave")}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="rounded-xl border bg-card p-6">
+      <div className="bg-card rounded-xl border p-6">
         <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+          <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold">
             1
           </div>
           <h2 className="text-lg font-semibold">{tImages("uploadImage")}</h2>
@@ -504,7 +504,7 @@ export default function NewItemPage() {
                 </span>
               </div>
             </div>
-            <div className="rounded-lg bg-white/60 p-3 dark:bg-black/20 sm:col-span-2">
+            <div className="rounded-lg bg-white/60 p-3 sm:col-span-2 dark:bg-black/20">
               <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
                 {tItems("suggestedCategory")}
               </p>
@@ -533,7 +533,7 @@ export default function NewItemPage() {
               </div>
             </div>
             {Object.keys(classification.specifications).length > 0 && (
-              <div className="rounded-lg bg-white/60 p-3 dark:bg-black/20 sm:col-span-2">
+              <div className="rounded-lg bg-white/60 p-3 sm:col-span-2 dark:bg-black/20">
                 <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
                   {tItems("detectedSpecifications")}
                 </p>
@@ -638,9 +638,9 @@ export default function NewItemPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="rounded-xl border bg-card p-6">
+      <form onSubmit={handleSubmit} className="bg-card rounded-xl border p-6">
         <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+          <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold">
             2
           </div>
           <h2 className="text-lg font-semibold">{tItems("itemDetails")}</h2>
@@ -658,7 +658,7 @@ export default function NewItemPage() {
               value={formData.name}
               onChange={handleInputChange}
               required
-              className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
               placeholder={tItems("namePlaceholder")}
             />
           </div>
@@ -672,7 +672,7 @@ export default function NewItemPage() {
               value={formData.description || ""}
               onChange={handleInputChange}
               rows={3}
-              className="w-full rounded-lg border bg-background px-4 py-3 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="bg-background focus:border-primary focus:ring-primary/20 w-full rounded-lg border px-4 py-3 text-base transition-colors focus:ring-2 focus:outline-hidden"
               placeholder={tItems("descriptionPlaceholder")}
             />
           </div>
@@ -725,10 +725,10 @@ export default function NewItemPage() {
                 value={formData.quantity}
                 onChange={handleInputChange}
                 min={0}
-                className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
               />
               {quantityEstimateRaw && (
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="text-muted-foreground mt-1 text-xs">
                   {tItems("quantityEstimateFromAi", {
                     estimate: quantityEstimateRaw,
                   })}
@@ -746,7 +746,7 @@ export default function NewItemPage() {
                 data-testid="item-quantity-unit-input"
                 value={formData.quantity_unit}
                 onChange={handleInputChange}
-                className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
                 placeholder={tItems("unitPlaceholder")}
               />
             </div>
@@ -761,7 +761,7 @@ export default function NewItemPage() {
                 value={formData.min_quantity ?? ""}
                 onChange={handleInputChange}
                 min={0}
-                className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
                 placeholder={tItems("alertThreshold")}
               />
             </div>
@@ -777,7 +777,7 @@ export default function NewItemPage() {
                 onChange={handleInputChange}
                 min={0}
                 step={0.01}
-                className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
                 placeholder="0.00"
               />
             </div>
@@ -794,7 +794,7 @@ export default function NewItemPage() {
               suggestions={allTags?.map((t) => t.value) || []}
               placeholder={tItems("tagsPlaceholder")}
             />
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="text-muted-foreground mt-1 text-xs">
               {tItems("tagsHelp")}
             </p>
           </div>
@@ -852,7 +852,7 @@ export default function NewItemPage() {
             <AlertDialogDescription asChild>
               <div className="space-y-3">
                 <p>{tItems("categoryCreationDescription")}</p>
-                <ul className="list-inside list-disc space-y-1 rounded-lg bg-muted p-3 text-sm">
+                <ul className="bg-muted list-inside list-disc space-y-1 rounded-lg p-3 text-sm">
                   {classification?.category_path
                     .split(">")
                     .map((s) => s.trim())

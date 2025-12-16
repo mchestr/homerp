@@ -55,7 +55,7 @@ function getStatusIcon(status: string) {
     case "in_progress":
       return <Clock className="h-4 w-4 text-blue-500" />;
     default:
-      return <Clock className="h-4 w-4 text-muted-foreground" />;
+      return <Clock className="text-muted-foreground h-4 w-4" />;
   }
 }
 
@@ -128,12 +128,12 @@ export default function FeedbackPage() {
         <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
           {t("feedback.title")}
         </h1>
-        <p className="mt-1 text-muted-foreground">{t("feedback.subtitle")}</p>
+        <p className="text-muted-foreground mt-1">{t("feedback.subtitle")}</p>
       </div>
 
-      <div className="rounded-xl border bg-card p-6">
+      <div className="bg-card rounded-xl border p-6">
         <h2 className="font-semibold">{t("feedback.submitFeedback")}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-sm">
           {t("feedback.submitDescription")}
         </p>
 
@@ -182,7 +182,7 @@ export default function FeedbackPage() {
               rows={6}
               maxLength={5000}
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               {message.length}/5000
             </p>
           </div>
@@ -202,16 +202,16 @@ export default function FeedbackPage() {
         </form>
       </div>
 
-      <div className="rounded-xl border bg-card p-6">
+      <div className="bg-card rounded-xl border p-6">
         <h2 className="font-semibold">{t("feedback.myFeedback")}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-sm">
           {t("feedback.myFeedbackDescription")}
         </p>
 
         <div className="mt-4">
           {feedbackLoading ? (
             <div className="flex h-32 items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
             </div>
           ) : myFeedback && myFeedback.length > 0 ? (
             <div className="space-y-3">
@@ -224,16 +224,16 @@ export default function FeedbackPage() {
                 return (
                   <div
                     key={feedback.id}
-                    className="rounded-lg border bg-muted/30 p-4"
+                    className="bg-muted/30 rounded-lg border p-4"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-3">
-                        <div className="rounded-lg bg-primary/10 p-2">
-                          <TypeIconComponent className="h-4 w-4 text-primary" />
+                        <div className="bg-primary/10 rounded-lg p-2">
+                          <TypeIconComponent className="text-primary h-4 w-4" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="font-medium">{feedback.subject}</p>
-                          <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                          <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
                             {feedback.message}
                           </p>
                         </div>
@@ -243,7 +243,7 @@ export default function FeedbackPage() {
                           {getStatusIcon(feedback.status)}
                           <span>{getStatusLabel(feedback.status)}</span>
                         </div>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-muted-foreground text-xs">
                           {formatDate(feedback.created_at)}
                         </span>
                       </div>
@@ -254,8 +254,8 @@ export default function FeedbackPage() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-8 text-center">
-              <MessageSquare className="h-12 w-12 text-muted-foreground/50" />
-              <p className="mt-4 text-muted-foreground">
+              <MessageSquare className="text-muted-foreground/50 h-12 w-12" />
+              <p className="text-muted-foreground mt-4">
                 {t("feedback.noFeedbackYet")}
               </p>
             </div>

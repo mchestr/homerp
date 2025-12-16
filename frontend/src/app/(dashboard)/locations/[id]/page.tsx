@@ -52,8 +52,8 @@ export default function LocationDetailPage() {
     return (
       <div className="flex items-center justify-center py-16">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>
+          <div className="border-primary h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
+          <p className="text-muted-foreground text-sm">{tCommon("loading")}</p>
         </div>
       </div>
     );
@@ -62,9 +62,9 @@ export default function LocationDetailPage() {
   if (error || !locationData) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
-        <MapPin className="h-12 w-12 text-muted-foreground" />
+        <MapPin className="text-muted-foreground h-12 w-12" />
         <h2 className="mt-4 text-lg font-semibold">{t("notFound")}</h2>
-        <p className="mt-1 text-muted-foreground">{t("notFoundDescription")}</p>
+        <p className="text-muted-foreground mt-1">{t("notFoundDescription")}</p>
         <Button className="mt-4" onClick={() => router.push("/locations")}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           {t("backToLocations")}
@@ -92,7 +92,7 @@ export default function LocationDetailPage() {
   return (
     <div className="space-y-6">
       {/* Breadcrumb Navigation */}
-      <nav className="flex items-center gap-1 text-sm text-muted-foreground">
+      <nav className="text-muted-foreground flex items-center gap-1 text-sm">
         <Link href="/locations" className="hover:text-foreground">
           {t("title")}
         </Link>
@@ -108,7 +108,7 @@ export default function LocationDetailPage() {
           </div>
         ))}
         <ChevronRight className="h-4 w-4" />
-        <span className="font-medium text-foreground">{location.name}</span>
+        <span className="text-foreground font-medium">{location.name}</span>
       </nav>
 
       {/* Header */}
@@ -122,12 +122,12 @@ export default function LocationDetailPage() {
               {location.name}
             </h1>
             {location.description && (
-              <p className="mt-1 text-muted-foreground">
+              <p className="text-muted-foreground mt-1">
                 {location.description}
               </p>
             )}
             {location.location_type && (
-              <span className="mt-2 inline-block rounded-full bg-muted px-2 py-0.5 text-xs font-medium capitalize">
+              <span className="bg-muted mt-2 inline-block rounded-full px-2 py-0.5 text-xs font-medium capitalize">
                 {location.location_type}
               </span>
             )}
@@ -167,7 +167,7 @@ export default function LocationDetailPage() {
       </div>
 
       {/* Items in Location */}
-      <div className="rounded-xl border bg-card p-4">
+      <div className="bg-card rounded-xl border p-4">
         <ItemsPanel
           locationId={location.id}
           title={t("itemsInLocation")}

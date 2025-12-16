@@ -47,12 +47,12 @@ function CreditPackCard({
     <div
       className={`relative rounded-xl border p-6 ${
         pack.is_best_value
-          ? "border-primary bg-primary/5 ring-2 ring-primary"
+          ? "border-primary bg-primary/5 ring-primary ring-2"
           : "bg-card"
       }`}
     >
       {pack.is_best_value && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+        <div className="bg-primary text-primary-foreground absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-xs font-medium">
           Best Value
         </div>
       )}
@@ -63,10 +63,10 @@ function CreditPackCard({
             {formatPrice(pack.price_cents)}
           </span>
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-sm">
           {pack.credits} credits
         </p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           {pricePerCredit}c per credit
         </p>
       </div>
@@ -103,10 +103,10 @@ function TransactionRow({ transaction }: { transaction: CreditTransaction }) {
           {typeLabels[transaction.transaction_type] ||
             transaction.transaction_type}
         </p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           {transaction.description}
         </p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           {formatDate(transaction.created_at)}
         </p>
       </div>
@@ -116,7 +116,7 @@ function TransactionRow({ transaction }: { transaction: CreditTransaction }) {
         {isPositive ? "+" : ""}
         {transaction.amount}
         {transaction.is_refunded && (
-          <span className="ml-2 text-xs text-muted-foreground">(refunded)</span>
+          <span className="text-muted-foreground ml-2 text-xs">(refunded)</span>
         )}
       </div>
     </div>
@@ -128,53 +128,53 @@ function CreditsInfoCard() {
   const t = useTranslations("billing");
 
   return (
-    <div className="rounded-xl border bg-card">
+    <div className="bg-card rounded-xl border">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="flex w-full items-center justify-between p-6 text-left"
       >
         <div className="flex items-center gap-2">
-          <HelpCircle className="h-5 w-5 text-primary" />
+          <HelpCircle className="text-primary h-5 w-5" />
           <h2 className="font-semibold">{t("howCreditsWork")}</h2>
         </div>
         {isExpanded ? (
-          <ChevronUp className="h-5 w-5 text-muted-foreground" />
+          <ChevronUp className="text-muted-foreground h-5 w-5" />
         ) : (
-          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+          <ChevronDown className="text-muted-foreground h-5 w-5" />
         )}
       </button>
       {isExpanded && (
-        <div className="border-t px-6 pb-6 pt-4">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-t px-6 pt-4 pb-6">
+          <p className="text-muted-foreground text-sm">
             {t("creditsExplanation")}
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-lg bg-muted/50 p-4">
+            <div className="bg-muted/50 rounded-lg p-4">
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-primary" />
+                <Calendar className="text-primary h-4 w-4" />
                 <h3 className="text-sm font-medium">{t("freeCreditsInfo")}</h3>
               </div>
-              <p className="mt-2 text-xs text-muted-foreground">
+              <p className="text-muted-foreground mt-2 text-xs">
                 {t("freeCreditsDescription")}
               </p>
             </div>
-            <div className="rounded-lg bg-muted/50 p-4">
+            <div className="bg-muted/50 rounded-lg p-4">
               <div className="flex items-center gap-2">
-                <ShoppingBag className="h-4 w-4 text-primary" />
+                <ShoppingBag className="text-primary h-4 w-4" />
                 <h3 className="text-sm font-medium">
                   {t("purchasedCreditsInfo")}
                 </h3>
               </div>
-              <p className="mt-2 text-xs text-muted-foreground">
+              <p className="text-muted-foreground mt-2 text-xs">
                 {t("purchasedCreditsDescription")}
               </p>
             </div>
-            <div className="rounded-lg bg-muted/50 p-4">
+            <div className="bg-muted/50 rounded-lg p-4">
               <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-primary" />
+                <Zap className="text-primary h-4 w-4" />
                 <h3 className="text-sm font-medium">{t("creditCostInfo")}</h3>
               </div>
-              <p className="mt-2 text-xs text-muted-foreground">
+              <p className="text-muted-foreground mt-2 text-xs">
                 {t("creditCostDescription")}
               </p>
             </div>
@@ -240,7 +240,7 @@ export default function BillingSettingsPage() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             Billing & Credits
           </h1>
-          <p className="mt-1 text-muted-foreground">
+          <p className="text-muted-foreground mt-1">
             Manage your AI credits and billing
           </p>
         </div>
@@ -250,10 +250,10 @@ export default function BillingSettingsPage() {
       <CreditsInfoCard />
 
       {/* Current Balance */}
-      <div className="rounded-xl border bg-card p-6">
+      <div className="bg-card rounded-xl border p-6">
         <div className="flex items-center justify-between">
           <h2 className="flex items-center gap-2 font-semibold">
-            <Coins className="h-5 w-5 text-primary" />
+            <Coins className="text-primary h-5 w-5" />
             Credit Balance
           </h2>
           <Button variant="ghost" size="sm" onClick={handleRefreshCredits}>
@@ -261,25 +261,25 @@ export default function BillingSettingsPage() {
           </Button>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-lg bg-muted/50 p-4 text-center">
-            <p className="text-3xl font-bold text-primary">
+          <div className="bg-muted/50 rounded-lg p-4 text-center">
+            <p className="text-primary text-3xl font-bold">
               {creditBalance?.total_credits ?? 0}
             </p>
-            <p className="text-sm text-muted-foreground">Total Available</p>
+            <p className="text-muted-foreground text-sm">Total Available</p>
           </div>
-          <div className="rounded-lg bg-muted/50 p-4 text-center">
+          <div className="bg-muted/50 rounded-lg p-4 text-center">
             <p className="text-2xl font-semibold">
               {creditBalance?.purchased_credits ?? 0}
             </p>
-            <p className="text-sm text-muted-foreground">Purchased</p>
+            <p className="text-muted-foreground text-sm">Purchased</p>
           </div>
-          <div className="rounded-lg bg-muted/50 p-4 text-center">
+          <div className="bg-muted/50 rounded-lg p-4 text-center">
             <p className="text-2xl font-semibold">
               {creditBalance?.free_credits ?? 0}
             </p>
-            <p className="text-sm text-muted-foreground">Free (Monthly)</p>
+            <p className="text-muted-foreground text-sm">Free (Monthly)</p>
             {creditBalance?.next_free_reset_at && (
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="text-muted-foreground mt-1 text-xs">
                 Resets {formatDate(creditBalance.next_free_reset_at)}
               </p>
             )}
@@ -288,19 +288,19 @@ export default function BillingSettingsPage() {
       </div>
 
       {/* Purchase Credits */}
-      <div className="rounded-xl border bg-card p-6">
+      <div className="bg-card rounded-xl border p-6">
         <h2 className="flex items-center gap-2 font-semibold">
-          <Sparkles className="h-5 w-5 text-primary" />
+          <Sparkles className="text-primary h-5 w-5" />
           Purchase Credits
         </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-sm">
           This is a hobbyist project, and credit purchases help cover the costs
           of AI token usage and site maintenance. Credits are used for
           AI-powered image classification and never expire.
         </p>
         {packsLoading ? (
           <div className="mt-6 flex justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
           </div>
         ) : (
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -317,14 +317,14 @@ export default function BillingSettingsPage() {
       </div>
 
       {/* Transaction History */}
-      <div className="rounded-xl border bg-card p-6">
+      <div className="bg-card rounded-xl border p-6">
         <h2 className="font-semibold">Transaction History</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-sm">
           Your recent credit transactions
         </p>
         {transactionsLoading ? (
           <div className="mt-4 flex justify-center">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
           </div>
         ) : transactionsData?.items?.length ? (
           <div className="mt-4">
@@ -333,16 +333,16 @@ export default function BillingSettingsPage() {
             ))}
           </div>
         ) : (
-          <p className="mt-4 py-4 text-center text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-4 py-4 text-center text-sm">
             No transactions yet
           </p>
         )}
       </div>
 
       {/* Manage Billing */}
-      <div className="rounded-xl border bg-card p-6">
+      <div className="bg-card rounded-xl border p-6">
         <h2 className="font-semibold">Manage Billing</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-sm">
           View invoices and manage payment methods
         </p>
         <Button

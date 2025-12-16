@@ -8,13 +8,13 @@ export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="flex items-center rounded-lg border bg-muted/50 p-1">
+    <div className="bg-muted/50 flex items-center rounded-lg border p-1">
       <button
         onClick={() => setTheme("light")}
         className={cn(
           "rounded-md p-1.5 transition-colors",
           theme === "light"
-            ? "bg-background text-foreground shadow-sm"
+            ? "bg-background text-foreground shadow-xs"
             : "text-muted-foreground hover:text-foreground"
         )}
         title="Light mode"
@@ -26,7 +26,7 @@ export function ThemeToggle() {
         className={cn(
           "rounded-md p-1.5 transition-colors",
           theme === "dark"
-            ? "bg-background text-foreground shadow-sm"
+            ? "bg-background text-foreground shadow-xs"
             : "text-muted-foreground hover:text-foreground"
         )}
         title="Dark mode"
@@ -38,7 +38,7 @@ export function ThemeToggle() {
         className={cn(
           "rounded-md p-1.5 transition-colors",
           theme === "system"
-            ? "bg-background text-foreground shadow-sm"
+            ? "bg-background text-foreground shadow-xs"
             : "text-muted-foreground hover:text-foreground"
         )}
         title="System preference"

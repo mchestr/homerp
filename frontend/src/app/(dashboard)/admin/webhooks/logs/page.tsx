@@ -97,7 +97,7 @@ export default function WebhookLogsPage() {
   if (authLoading || !user?.is_admin) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -114,7 +114,7 @@ export default function WebhookLogsPage() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             {t("webhooks.executionLogs")}
           </h1>
-          <p className="mt-1 text-muted-foreground">
+          <p className="text-muted-foreground mt-1">
             {t("webhooks.description")}
           </p>
         </div>
@@ -144,14 +144,14 @@ export default function WebhookLogsPage() {
 
       {executionsLoading ? (
         <div className="flex h-32 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
         </div>
       ) : executionsData && executionsData.items.length > 0 ? (
         <>
-          <div className="rounded-xl border bg-card">
+          <div className="bg-card rounded-xl border">
             <table className="w-full">
               <thead>
-                <tr className="border-b text-left text-sm text-muted-foreground">
+                <tr className="text-muted-foreground border-b text-left text-sm">
                   <th className="px-4 py-3 font-medium">
                     {t("webhooks.eventType")}
                   </th>
@@ -181,7 +181,7 @@ export default function WebhookLogsPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="max-w-xs truncate text-sm text-muted-foreground">
+                        <span className="text-muted-foreground max-w-xs truncate text-sm">
                           {execution.request_url}
                         </span>
                       </td>
@@ -196,7 +196,7 @@ export default function WebhookLogsPage() {
                       <td className="px-4 py-3 text-sm">
                         {execution.attempt_number}
                       </td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                      <td className="text-muted-foreground px-4 py-3 text-sm">
                         {formatDateTimeWithSeconds(execution.executed_at)}
                       </td>
                       <td className="px-4 py-3">
@@ -221,7 +221,7 @@ export default function WebhookLogsPage() {
           {/* Pagination */}
           {executionsData.total_pages > 1 && (
             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Page {executionsData.page} of {executionsData.total_pages} (
                 {executionsData.total} items)
               </p>
@@ -251,14 +251,14 @@ export default function WebhookLogsPage() {
           )}
         </>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-xl border bg-card p-12 text-center">
-          <div className="rounded-full bg-muted p-4">
-            <Clock className="h-8 w-8 text-muted-foreground" />
+        <div className="bg-card flex flex-col items-center justify-center rounded-xl border p-12 text-center">
+          <div className="bg-muted rounded-full p-4">
+            <Clock className="text-muted-foreground h-8 w-8" />
           </div>
           <h3 className="mt-4 text-lg font-medium">
             {t("webhooks.noExecutions")}
           </h3>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-2 text-sm">
             {t("webhooks.noExecutionsDescription")}
           </p>
         </div>
@@ -288,7 +288,7 @@ export default function WebhookLogsPage() {
                 >
                   {t(`webhooks.status.${selectedExecution.status}`)}
                 </Badge>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-muted-foreground text-sm">
                   ({t("webhooks.attempt")} {selectedExecution.attempt_number})
                 </span>
               </div>
@@ -297,7 +297,7 @@ export default function WebhookLogsPage() {
               {selectedExecution.error_message && (
                 <div className="space-y-1">
                   <Label>{t("webhooks.errorMessage")}</Label>
-                  <p className="break-words rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+                  <p className="bg-destructive/10 text-destructive rounded-lg p-3 text-sm wrap-break-word">
                     {selectedExecution.error_message}
                   </p>
                 </div>
@@ -306,7 +306,7 @@ export default function WebhookLogsPage() {
               {/* Request URL */}
               <div className="space-y-1">
                 <Label>{t("webhooks.requestUrl")}</Label>
-                <p className="break-all rounded-lg bg-muted p-3 font-mono text-sm">
+                <p className="bg-muted rounded-lg p-3 font-mono text-sm break-all">
                   {selectedExecution.request_url}
                 </p>
               </div>
@@ -314,7 +314,7 @@ export default function WebhookLogsPage() {
               {/* Request Headers */}
               <div className="space-y-1">
                 <Label>{t("webhooks.requestHeaders")}</Label>
-                <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap break-words rounded-lg bg-muted p-3 text-xs">
+                <pre className="bg-muted max-h-40 overflow-y-auto rounded-lg p-3 text-xs wrap-break-word whitespace-pre-wrap">
                   {JSON.stringify(selectedExecution.request_headers, null, 2)}
                 </pre>
               </div>
@@ -322,7 +322,7 @@ export default function WebhookLogsPage() {
               {/* Request Body */}
               <div className="space-y-1">
                 <Label>{t("webhooks.requestBody")}</Label>
-                <pre className="max-h-60 overflow-y-auto whitespace-pre-wrap break-words rounded-lg bg-muted p-3 text-xs">
+                <pre className="bg-muted max-h-60 overflow-y-auto rounded-lg p-3 text-xs wrap-break-word whitespace-pre-wrap">
                   {selectedExecution.request_body}
                 </pre>
               </div>
@@ -341,7 +341,7 @@ export default function WebhookLogsPage() {
               {selectedExecution.response_body && (
                 <div className="space-y-1">
                   <Label>{t("webhooks.responseBody")}</Label>
-                  <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap break-words rounded-lg bg-muted p-3 text-xs">
+                  <pre className="bg-muted max-h-40 overflow-y-auto rounded-lg p-3 text-xs wrap-break-word whitespace-pre-wrap">
                     {selectedExecution.response_body}
                   </pre>
                 </div>
@@ -350,7 +350,7 @@ export default function WebhookLogsPage() {
               {/* Event Payload */}
               <div className="space-y-1">
                 <Label>{t("webhooks.eventPayload")}</Label>
-                <pre className="max-h-60 overflow-y-auto whitespace-pre-wrap break-words rounded-lg bg-muted p-3 text-xs">
+                <pre className="bg-muted max-h-60 overflow-y-auto rounded-lg p-3 text-xs wrap-break-word whitespace-pre-wrap">
                   {JSON.stringify(selectedExecution.event_payload, null, 2)}
                 </pre>
               </div>

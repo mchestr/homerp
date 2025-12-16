@@ -52,15 +52,15 @@ function StatCard({
   const content = (
     <div
       data-testid={testId}
-      className="rounded-xl border bg-card p-4 transition-colors hover:bg-accent/50 sm:p-6"
+      className="bg-card hover:bg-accent/50 rounded-xl border p-4 transition-colors sm:p-6"
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-primary/10 p-2">
-            <Icon className="h-5 w-5 text-primary" />
+          <div className="bg-primary/10 rounded-lg p-2">
+            <Icon className="text-primary h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">{title}</p>
+            <p className="text-muted-foreground text-sm">{title}</p>
             <p className="text-xl font-bold sm:text-2xl">{value}</p>
           </div>
         </div>
@@ -75,7 +75,7 @@ function StatCard({
         )}
       </div>
       {description && (
-        <p className="mt-2 text-xs text-muted-foreground">{description}</p>
+        <p className="text-muted-foreground mt-2 text-xs">{description}</p>
       )}
     </div>
   );
@@ -106,11 +106,11 @@ function QuickActionCard({
   const t = useTranslations("admin");
   return (
     <Link href={href} data-testid={testId}>
-      <div className="group flex h-full flex-col rounded-xl border bg-card p-3 transition-all hover:border-primary/50 hover:shadow-md sm:p-4 md:p-6">
+      <div className="group bg-card hover:border-primary/50 flex h-full flex-col rounded-xl border p-3 transition-all hover:shadow-md sm:p-4 md:p-6">
         <div className="flex items-center gap-3 sm:flex-col sm:items-start sm:gap-0">
           <div className="flex w-full items-start justify-between sm:mb-4">
-            <div className="rounded-lg bg-primary/10 p-2 sm:p-2.5">
-              <Icon className="h-4 w-4 text-primary sm:h-5 sm:w-5" />
+            <div className="bg-primary/10 rounded-lg p-2 sm:p-2.5">
+              <Icon className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
             </div>
             {badge !== undefined && (
               <Badge
@@ -127,14 +127,14 @@ function QuickActionCard({
               <h3 className="truncate text-sm font-semibold sm:text-base">
                 {title}
               </h3>
-              <ArrowRight className="ml-2 h-4 w-4 shrink-0 text-primary sm:hidden" />
+              <ArrowRight className="text-primary ml-2 h-4 w-4 shrink-0 sm:hidden" />
             </div>
-            <p className="mt-1 hidden text-sm text-muted-foreground sm:block">
+            <p className="text-muted-foreground mt-1 hidden text-sm sm:block">
               {description}
             </p>
           </div>
         </div>
-        <div className="mt-4 hidden items-center text-sm font-medium text-primary sm:flex">
+        <div className="text-primary mt-4 hidden items-center text-sm font-medium sm:flex">
           <span>{t("manage")}</span>
           <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
         </div>
@@ -179,8 +179,8 @@ function ActivityItem({ activity }: { activity: RecentActivityItem }) {
   };
 
   return (
-    <div className="flex items-start gap-2 rounded-lg p-2 transition-colors hover:bg-muted/50 sm:gap-3 sm:p-3">
-      <div className="mt-0.5 shrink-0 rounded-full bg-muted p-1 sm:p-1.5">
+    <div className="hover:bg-muted/50 flex items-start gap-2 rounded-lg p-2 transition-colors sm:gap-3 sm:p-3">
+      <div className="bg-muted mt-0.5 shrink-0 rounded-full p-1 sm:p-1.5">
         {getIcon()}
       </div>
       <div className="min-w-0 flex-1">
@@ -191,11 +191,11 @@ function ActivityItem({ activity }: { activity: RecentActivityItem }) {
           {getStatusBadge()}
         </div>
         {activity.description && (
-          <p className="truncate text-xs text-muted-foreground">
+          <p className="text-muted-foreground truncate text-xs">
             {activity.description}
           </p>
         )}
-        <div className="mt-1 flex flex-col gap-0.5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:gap-2">
+        <div className="text-muted-foreground mt-1 flex flex-col gap-0.5 text-xs sm:flex-row sm:items-center sm:gap-2">
           <span className="whitespace-nowrap">
             {formatRelativeTime(activity.timestamp)}
           </span>
@@ -233,7 +233,7 @@ export default function AdminPage() {
   if (authLoading || !user?.is_admin) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -245,14 +245,14 @@ export default function AdminPage() {
         <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
           {t("admin.title")}
         </h1>
-        <p className="mt-1 text-muted-foreground">
+        <p className="text-muted-foreground mt-1">
           {t("admin.dashboardSubtitle")}
         </p>
       </div>
 
       {statsLoading ? (
         <div className="flex h-64 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
         </div>
       ) : stats ? (
         <>
@@ -364,7 +364,7 @@ export default function AdminPage() {
                 {t("admin.recentActivity")}
               </h2>
               <div
-                className="rounded-xl border bg-card"
+                className="bg-card rounded-xl border"
                 data-testid="recent-activity-feed"
               >
                 {stats.recent_activity.length > 0 ? (
@@ -378,8 +378,8 @@ export default function AdminPage() {
                     className="flex flex-col items-center justify-center p-6 text-center sm:p-8"
                     data-testid="no-activity-message"
                   >
-                    <AlertCircle className="mb-2 h-6 w-6 text-muted-foreground sm:h-8 sm:w-8" />
-                    <p className="text-sm text-muted-foreground">
+                    <AlertCircle className="text-muted-foreground mb-2 h-6 w-6 sm:h-8 sm:w-8" />
+                    <p className="text-muted-foreground text-sm">
                       {t("admin.noRecentActivity")}
                     </p>
                   </div>

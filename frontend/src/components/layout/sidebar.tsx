@@ -168,28 +168,28 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     <>
       {open && (
         <div
-          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden"
+          className="bg-background/80 fixed inset-0 z-40 backdrop-blur-xs md:hidden"
           onClick={onClose}
         />
       )}
 
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r bg-card transition-transform duration-300 ease-in-out md:static md:translate-x-0",
+          "bg-card fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r transition-transform duration-300 ease-in-out md:static md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Header */}
         <div className="flex h-16 items-center justify-between border-b px-5">
           <Link href="/dashboard" className="group flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary shadow-sm transition-transform group-hover:scale-105">
-              <Package className="h-4 w-4 text-primary-foreground" />
+            <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg shadow-xs transition-transform group-hover:scale-105">
+              <Package className="text-primary-foreground h-4 w-4" />
             </div>
             <span className="text-lg font-semibold tracking-tight">HomERP</span>
           </Link>
           <button
             onClick={onClose}
-            className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground md:hidden"
+            className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-md p-1.5 md:hidden"
           >
             <X className="h-5 w-5" />
           </button>
@@ -225,7 +225,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                 <div key={section.label}>
                   <h3
                     className={cn(
-                      "mb-2 px-3 text-[11px] font-medium uppercase tracking-wider",
+                      "mb-2 px-3 text-[11px] font-medium tracking-wider uppercase",
                       isSharedDataSection
                         ? "text-blue-600 dark:text-blue-400"
                         : "text-muted-foreground"
@@ -293,7 +293,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
         {/* Footer */}
         <div className="border-t px-5 py-4">
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-muted-foreground text-[11px]">
             {t("app.tagline")}
           </p>
         </div>

@@ -237,7 +237,7 @@ export default function DeclutterSuggestionsPage() {
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -247,14 +247,14 @@ export default function DeclutterSuggestionsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-primary/10 p-3">
-            <Sparkles className="h-8 w-8 text-primary" />
+          <div className="bg-primary/10 rounded-lg p-3">
+            <Sparkles className="text-primary h-8 w-8" />
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
               {t("title")}
             </h1>
-            <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
+            <p className="text-muted-foreground mt-1">{t("subtitle")}</p>
           </div>
         </div>
       </div>
@@ -264,7 +264,7 @@ export default function DeclutterSuggestionsPage() {
         <Card data-testid="cost-info-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
+              <Sparkles className="text-primary h-5 w-5" />
               {t("generateTitle")}
             </CardTitle>
             <CardDescription>{t("generateDescription")}</CardDescription>
@@ -276,7 +276,7 @@ export default function DeclutterSuggestionsPage() {
                 <label className="text-sm font-medium">
                   {t("itemsToAnalyze")}
                 </label>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-muted-foreground text-sm">
                   {itemsToAnalyze} {t("items")}
                 </span>
               </div>
@@ -289,7 +289,7 @@ export default function DeclutterSuggestionsPage() {
                 className="w-full"
                 data-testid="items-slider"
               />
-              <div className="flex justify-between text-xs text-muted-foreground">
+              <div className="text-muted-foreground flex justify-between text-xs">
                 <span>10</span>
                 <span>{Math.max(10, Math.min(200, costInfo.total_items))}</span>
               </div>
@@ -299,7 +299,7 @@ export default function DeclutterSuggestionsPage() {
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-lg border p-4 text-center">
                 <div className="text-2xl font-bold">{costInfo.total_items}</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-muted-foreground text-sm">
                   {t("totalItems")}
                 </div>
               </div>
@@ -310,7 +310,7 @@ export default function DeclutterSuggestionsPage() {
                     {costInfo.credits_required}
                   </span>
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-muted-foreground text-sm">
                   {t("creditsRequired")}
                 </div>
               </div>
@@ -318,13 +318,13 @@ export default function DeclutterSuggestionsPage() {
                 <div className="text-2xl font-bold">
                   {costInfo.user_credit_balance}
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-muted-foreground text-sm">
                   {t("yourCredits")}
                 </div>
               </div>
             </div>
 
-            <div className="text-sm text-muted-foreground">
+            <div className="text-muted-foreground text-sm">
               {t("costExplanation", {
                 itemsPerCredit: costInfo.items_per_credit,
               })}
@@ -339,7 +339,7 @@ export default function DeclutterSuggestionsPage() {
                     <p className="font-medium">{t("configureProfileFirst")}</p>
                     <Link
                       href="/settings/profile"
-                      className="text-sm text-primary hover:underline"
+                      className="text-primary text-sm hover:underline"
                     >
                       <span className="inline-flex items-center gap-1">
                         <Settings className="h-3 w-3" />
@@ -357,7 +357,7 @@ export default function DeclutterSuggestionsPage() {
                   <AlertCircle className="h-6 w-6 text-red-600" />
                   <div className="flex-1">
                     <p className="font-medium">{t("insufficientCredits")}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {t("needMoreCredits", {
                         needed: costInfo.credits_required,
                         have: costInfo.user_credit_balance,
@@ -365,7 +365,7 @@ export default function DeclutterSuggestionsPage() {
                     </p>
                     <Link
                       href="/settings/billing"
-                      className="text-sm text-primary hover:underline"
+                      className="text-primary text-sm hover:underline"
                     >
                       {t("buyCredits")}
                     </Link>
@@ -382,7 +382,7 @@ export default function DeclutterSuggestionsPage() {
                     <p className="font-medium">{t("noItems")}</p>
                     <Link
                       href="/items/new"
-                      className="text-sm text-primary hover:underline"
+                      className="text-primary text-sm hover:underline"
                     >
                       {t("addFirstItem")}
                     </Link>
@@ -431,7 +431,7 @@ export default function DeclutterSuggestionsPage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-semibold">{t("resultsTitle")}</h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 {t("resultsDescription", { count: recommendations.length })}
               </p>
             </div>
@@ -477,7 +477,7 @@ export default function DeclutterSuggestionsPage() {
                             value={rec.confidence * 100}
                             className="h-2 w-16"
                           />
-                          <span className="text-sm text-muted-foreground">
+                          <span className="text-muted-foreground text-sm">
                             {Math.round(rec.confidence * 100)}%
                           </span>
                         </div>
@@ -490,7 +490,7 @@ export default function DeclutterSuggestionsPage() {
                     <div className="mb-1 text-sm font-medium">
                       {t("reason")}
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {rec.reason}
                     </p>
                   </div>
@@ -504,7 +504,7 @@ export default function DeclutterSuggestionsPage() {
                     </div>
                   )}
 
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="text-muted-foreground flex items-center gap-2 text-sm">
                     <Clock className="h-4 w-4" />
                     <span>
                       {rec.last_used_at
@@ -573,11 +573,11 @@ export default function DeclutterSuggestionsPage() {
       {recommendations.length === 0 && costInfo?.has_profile && (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <Sparkles className="h-12 w-12 text-muted-foreground/50" />
+            <Sparkles className="text-muted-foreground/50 h-12 w-12" />
             <h3 className="mt-4 text-lg font-semibold">
               {t("noRecommendations")}
             </h3>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-2 text-sm">
               {t("noRecommendationsDescription")}
             </p>
           </CardContent>

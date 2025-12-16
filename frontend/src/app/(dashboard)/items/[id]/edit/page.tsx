@@ -179,8 +179,8 @@ export default function EditItemPage() {
     return (
       <div className="flex items-center justify-center py-16">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground">Loading item...</p>
+          <div className="border-primary h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
+          <p className="text-muted-foreground text-sm">Loading item...</p>
         </div>
       </div>
     );
@@ -189,11 +189,11 @@ export default function EditItemPage() {
   if (!item) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
-        <div className="rounded-full bg-muted p-4">
-          <Package className="h-10 w-10 text-muted-foreground" />
+        <div className="bg-muted rounded-full p-4">
+          <Package className="text-muted-foreground h-10 w-10" />
         </div>
         <h2 className="mt-4 text-xl font-semibold">Item not found</h2>
-        <p className="mt-1 text-muted-foreground">
+        <p className="text-muted-foreground mt-1">
           This item may have been deleted
         </p>
         <Link href="/items" className="mt-6">
@@ -218,13 +218,13 @@ export default function EditItemPage() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             Edit Item
           </h1>
-          <p className="mt-1 text-muted-foreground">
+          <p className="text-muted-foreground mt-1">
             Update the details for {item.name}
           </p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="rounded-xl border bg-card p-6">
+      <form onSubmit={handleSubmit} className="bg-card rounded-xl border p-6">
         <div className="space-y-5">
           <div>
             <label className="mb-2 block text-sm font-medium">
@@ -236,7 +236,7 @@ export default function EditItemPage() {
               value={formData.name}
               onChange={handleInputChange}
               required
-              className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
               placeholder="e.g., M3x16mm Pan Head Screws"
             />
           </div>
@@ -250,7 +250,7 @@ export default function EditItemPage() {
               value={formData.description || ""}
               onChange={handleInputChange}
               rows={3}
-              className="w-full rounded-lg border bg-background px-4 py-3 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="bg-background focus:border-primary focus:ring-primary/20 w-full rounded-lg border px-4 py-3 text-base transition-colors focus:ring-2 focus:outline-hidden"
               placeholder="Optional description of the item"
             />
           </div>
@@ -296,7 +296,7 @@ export default function EditItemPage() {
                 value={formData.quantity}
                 onChange={handleInputChange}
                 min={0}
-                className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
               />
             </div>
 
@@ -307,7 +307,7 @@ export default function EditItemPage() {
                 name="quantity_unit"
                 value={formData.quantity_unit}
                 onChange={handleInputChange}
-                className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
                 placeholder="pcs, meters, etc."
               />
             </div>
@@ -322,7 +322,7 @@ export default function EditItemPage() {
                 value={formData.min_quantity ?? ""}
                 onChange={handleInputChange}
                 min={0}
-                className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
                 placeholder="Alert threshold"
               />
             </div>
@@ -336,7 +336,7 @@ export default function EditItemPage() {
                 onChange={handleInputChange}
                 min={0}
                 step={0.01}
-                className="h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
                 placeholder="0.00"
               />
             </div>

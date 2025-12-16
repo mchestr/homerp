@@ -97,10 +97,10 @@ export function ItemsPanel({
   if (!hasSelection) {
     return (
       <div className="flex h-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center">
-        <div className="rounded-full bg-muted p-4">
-          <MousePointerClick className="h-8 w-8 text-muted-foreground" />
+        <div className="bg-muted rounded-full p-4">
+          <MousePointerClick className="text-muted-foreground h-8 w-8" />
         </div>
-        <p className="mt-4 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-4 text-sm">
           {noSelectionMessage}
         </p>
       </div>
@@ -111,8 +111,8 @@ export function ItemsPanel({
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground">Loading items...</p>
+          <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
+          <p className="text-muted-foreground text-sm">Loading items...</p>
         </div>
       </div>
     );
@@ -121,10 +121,10 @@ export function ItemsPanel({
   if (!itemsData?.items.length) {
     return (
       <div className="flex h-64 flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center">
-        <div className="rounded-full bg-muted p-4">
-          <Package className="h-8 w-8 text-muted-foreground" />
+        <div className="bg-muted rounded-full p-4">
+          <Package className="text-muted-foreground h-8 w-8" />
         </div>
-        <p className="mt-4 text-sm text-muted-foreground">{emptyMessage}</p>
+        <p className="text-muted-foreground mt-4 text-sm">{emptyMessage}</p>
       </div>
     );
   }
@@ -133,7 +133,7 @@ export function ItemsPanel({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold">{title}</h3>
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground text-sm">
           {itemsData.total} item{itemsData.total !== 1 ? "s" : ""}
         </span>
       </div>
@@ -143,9 +143,9 @@ export function ItemsPanel({
           <Link
             key={item.id}
             href={`/items/${item.id}`}
-            className="group flex gap-3 overflow-hidden rounded-lg border bg-card p-3 transition-all hover:border-primary/50 hover:shadow-md"
+            className="group bg-card hover:border-primary/50 flex gap-3 overflow-hidden rounded-lg border p-3 transition-all hover:shadow-md"
           >
-            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-muted">
+            <div className="bg-muted relative h-16 w-16 shrink-0 overflow-hidden rounded-md">
               {item.primary_image_url ? (
                 <AuthenticatedImage
                   imageId={item.primary_image_url.split("/").at(-2)!}
@@ -154,17 +154,17 @@ export function ItemsPanel({
                   className="h-full w-full object-cover"
                   fallback={
                     <div className="flex h-full items-center justify-center">
-                      <Package className="h-6 w-6 text-muted-foreground/50" />
+                      <Package className="text-muted-foreground/50 h-6 w-6" />
                     </div>
                   }
                 />
               ) : (
                 <div className="flex h-full items-center justify-center">
-                  <Package className="h-6 w-6 text-muted-foreground/50" />
+                  <Package className="text-muted-foreground/50 h-6 w-6" />
                 </div>
               )}
               {item.is_low_stock && (
-                <div className="absolute -right-1 -top-1 rounded-full bg-amber-500 p-1">
+                <div className="absolute -top-1 -right-1 rounded-full bg-amber-500 p-1">
                   <AlertTriangle className="h-3 w-3 text-white" />
                 </div>
               )}
@@ -173,16 +173,16 @@ export function ItemsPanel({
             <div className="flex min-w-0 flex-1 flex-col justify-between">
               <div>
                 <div className="flex items-start justify-between gap-1">
-                  <h4 className="truncate text-sm font-medium group-hover:text-primary">
+                  <h4 className="group-hover:text-primary truncate text-sm font-medium">
                     {item.name}
                   </h4>
                   {item.price != null && (
-                    <span className="shrink-0 text-xs text-muted-foreground">
+                    <span className="text-muted-foreground shrink-0 text-xs">
                       {formatPrice(item.price, user?.currency)}
                     </span>
                   )}
                 </div>
-                <p className="truncate text-xs text-muted-foreground">
+                <p className="text-muted-foreground truncate text-xs">
                   {item.category?.icon} {item.category?.name ?? "Uncategorized"}
                 </p>
               </div>
@@ -245,7 +245,7 @@ export function ItemsPanel({
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-muted-foreground text-xs">
             {page} / {itemsData.total_pages}
           </span>
           <Button

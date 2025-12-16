@@ -94,15 +94,15 @@ export function TagInput({
     <div ref={containerRef} className={cn("relative", className)}>
       <div
         className={cn(
-          "flex min-h-[44px] flex-wrap gap-2 rounded-lg border bg-background p-2",
-          "transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20"
+          "bg-background flex min-h-[44px] flex-wrap gap-2 rounded-lg border p-2",
+          "focus-within:border-primary focus-within:ring-primary/20 transition-colors focus-within:ring-2"
         )}
         onClick={() => inputRef.current?.focus()}
       >
         {value.map((tag) => (
           <span
             key={tag}
-            className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary"
+            className="bg-primary/10 text-primary inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium"
           >
             {tag}
             <button
@@ -111,7 +111,7 @@ export function TagInput({
                 e.stopPropagation();
                 removeTag(tag);
               }}
-              className="rounded-full p-0.5 hover:bg-primary/20"
+              className="hover:bg-primary/20 rounded-full p-0.5"
             >
               <X className="h-3 w-3" />
             </button>
@@ -126,20 +126,20 @@ export function TagInput({
             onKeyDown={handleKeyDown}
             onFocus={() => setShowSuggestions(true)}
             placeholder={value.length === 0 ? placeholder : ""}
-            className="min-w-[120px] flex-1 bg-transparent text-sm outline-none"
+            className="min-w-[120px] flex-1 bg-transparent text-sm outline-hidden"
           />
         )}
       </div>
 
       {/* Suggestions dropdown */}
       {showSuggestions && filteredSuggestions.length > 0 && inputValue && (
-        <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-48 overflow-auto rounded-lg border bg-popover shadow-lg">
+        <div className="bg-popover absolute top-full right-0 left-0 z-20 mt-1 max-h-48 overflow-auto rounded-lg border shadow-lg">
           {filteredSuggestions.map((suggestion, index) => (
             <button
               key={suggestion}
               type="button"
               className={cn(
-                "w-full px-4 py-2 text-left text-sm hover:bg-accent",
+                "hover:bg-accent w-full px-4 py-2 text-left text-sm",
                 index === selectedSuggestionIndex && "bg-accent"
               )}
               onClick={() => addTag(suggestion)}
@@ -151,7 +151,7 @@ export function TagInput({
       )}
 
       {value.length >= maxTags && (
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-xs">
           Maximum {maxTags} tags allowed
         </p>
       )}

@@ -202,10 +202,10 @@ export default function GridfinityPage() {
       </div>
 
       {/* Info Box */}
-      <div className="flex items-start gap-3 rounded-lg bg-muted/50 p-4">
-        <Info className="mt-0.5 h-5 w-5 text-muted-foreground" />
-        <div className="text-sm text-muted-foreground">
-          <p className="font-medium text-foreground">{t("whatIsGridfinity")}</p>
+      <div className="bg-muted/50 flex items-start gap-3 rounded-lg p-4">
+        <Info className="text-muted-foreground mt-0.5 h-5 w-5" />
+        <div className="text-muted-foreground text-sm">
+          <p className="text-foreground font-medium">{t("whatIsGridfinity")}</p>
           <p>{t("gridfinityDescription")}</p>
         </div>
       </div>
@@ -213,7 +213,7 @@ export default function GridfinityPage() {
       {/* Units Grid/List */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
         </div>
       ) : units && units.length > 0 ? (
         viewMode === "grid" ? (
@@ -236,18 +236,18 @@ export default function GridfinityPage() {
             data-testid="gridfinity-list-view"
           >
             <table className="w-full">
-              <thead className="border-b bg-muted/50">
+              <thead className="bg-muted/50 border-b">
                 <tr>
-                  <th className="whitespace-nowrap px-4 py-3 text-left text-sm font-medium">
+                  <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">
                     {tCommon("name")}
                   </th>
-                  <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium sm:table-cell">
+                  <th className="hidden px-4 py-3 text-left text-sm font-medium whitespace-nowrap sm:table-cell">
                     {t("gridSize")}
                   </th>
-                  <th className="hidden whitespace-nowrap px-4 py-3 text-left text-sm font-medium md:table-cell">
+                  <th className="hidden px-4 py-3 text-left text-sm font-medium whitespace-nowrap md:table-cell">
                     {t("location")}
                   </th>
-                  <th className="whitespace-nowrap px-4 py-3 text-right text-sm font-medium">
+                  <th className="px-4 py-3 text-right text-sm font-medium whitespace-nowrap">
                     {tCommon("actions")}
                   </th>
                 </tr>
@@ -256,7 +256,7 @@ export default function GridfinityPage() {
                 {units.map((unit) => (
                   <tr
                     key={unit.id}
-                    className="group transition-colors hover:bg-muted/50"
+                    className="group hover:bg-muted/50 transition-colors"
                     data-testid={`gridfinity-unit-row-${unit.id}`}
                   >
                     <td className="px-4 py-3">
@@ -265,20 +265,20 @@ export default function GridfinityPage() {
                           {unit.name}
                         </span>
                         {unit.description && (
-                          <span className="block truncate text-sm text-muted-foreground">
+                          <span className="text-muted-foreground block truncate text-sm">
                             {unit.description}
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-muted-foreground sm:table-cell">
+                    <td className="text-muted-foreground hidden px-4 py-3 text-sm whitespace-nowrap sm:table-cell">
                       {unit.grid_columns} x {unit.grid_rows} (
                       {unit.grid_columns * unit.grid_rows} {t("cells")})
                     </td>
-                    <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-muted-foreground md:table-cell">
+                    <td className="text-muted-foreground hidden px-4 py-3 text-sm whitespace-nowrap md:table-cell">
                       {unit.container_width_mm} x {unit.container_depth_mm} mm
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-right">
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1">
                         <Button
                           variant="ghost"
@@ -312,9 +312,9 @@ export default function GridfinityPage() {
         )
       ) : (
         <div className="py-12 text-center">
-          <Grid3X3 className="mx-auto h-12 w-12 text-muted-foreground/50" />
+          <Grid3X3 className="text-muted-foreground/50 mx-auto h-12 w-12" />
           <h3 className="mt-4 text-lg font-semibold">{t("noUnits")}</h3>
-          <p className="mt-1 text-muted-foreground">{t("createFirst")}</p>
+          <p className="text-muted-foreground mt-1">{t("createFirst")}</p>
           <Button
             className="mt-4"
             onClick={() => setIsCreateWizardOpen(true)}
@@ -438,10 +438,10 @@ export default function GridfinityPage() {
             </div>
 
             {/* Grid preview */}
-            <div className="rounded-lg bg-muted/50 p-3">
-              <div className="text-sm text-muted-foreground">
+            <div className="bg-muted/50 rounded-lg p-3">
+              <div className="text-muted-foreground text-sm">
                 {t("gridSize")}:{" "}
-                <span className="font-medium text-foreground">
+                <span className="text-foreground font-medium">
                   {editGrid.columns} x {editGrid.rows}
                 </span>{" "}
                 ({editGrid.columns * editGrid.rows} {t("cells")})
@@ -455,14 +455,14 @@ export default function GridfinityPage() {
                       }).map((_, j) => (
                         <div
                           key={j}
-                          className="h-3 w-3 rounded-sm border border-primary/30 bg-primary/20"
+                          className="border-primary/30 bg-primary/20 h-3 w-3 rounded-sm border"
                         />
                       ))}
                     </div>
                   )
                 )}
                 {editGrid.columns > 8 && (
-                  <div className="flex items-center text-xs text-muted-foreground">
+                  <div className="text-muted-foreground flex items-center text-xs">
                     ...
                   </div>
                 )}
@@ -526,14 +526,14 @@ function UnitCard({
 
   return (
     <div
-      className="rounded-lg border p-4 transition-colors hover:border-primary/50"
+      className="hover:border-primary/50 rounded-lg border p-4 transition-colors"
       data-testid={`gridfinity-unit-card-${unit.id}`}
     >
       <div className="flex items-start justify-between">
         <div>
           <h3 className="font-semibold">{unit.name}</h3>
           {unit.description && (
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-1 text-sm">
               {unit.description}
             </p>
           )}
@@ -565,19 +565,19 @@ function UnitCard({
             {Array.from({ length: Math.min(unit.grid_rows, 6) }).map((_, j) => (
               <div
                 key={j}
-                className="h-4 w-4 rounded-sm border border-border bg-muted"
+                className="border-border bg-muted h-4 w-4 rounded-sm border"
               />
             ))}
           </div>
         ))}
         {unit.grid_columns > 6 && (
-          <div className="flex items-center text-xs text-muted-foreground">
+          <div className="text-muted-foreground flex items-center text-xs">
             ...
           </div>
         )}
       </div>
 
-      <div className="mt-3 flex items-center justify-between text-sm text-muted-foreground">
+      <div className="text-muted-foreground mt-3 flex items-center justify-between text-sm">
         <span>
           {unit.grid_columns} x {unit.grid_rows} (
           {unit.grid_columns * unit.grid_rows} {t("cells")})
@@ -588,7 +588,7 @@ function UnitCard({
       </div>
 
       <div className="mt-3 flex items-center justify-between border-t pt-3">
-        <span className="text-xs text-muted-foreground">
+        <span className="text-muted-foreground text-xs">
           {formatDate(unit.created_at)}
         </span>
         <Link href={`/gridfinity/${unit.id}`}>

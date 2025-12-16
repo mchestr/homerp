@@ -75,7 +75,7 @@ export function FacetedFilter({
           <button
             type="button"
             onClick={clearAllFilters}
-            className="text-xs text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground text-xs"
           >
             Clear all
           </button>
@@ -88,13 +88,13 @@ export function FacetedFilter({
           {Object.entries(selectedFilters).map(([key, value]) => (
             <span
               key={key}
-              className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
+              className="bg-primary/10 text-primary inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium"
             >
               {key}: {value}
               <button
                 type="button"
                 onClick={() => handleFilterSelect(key, value)}
-                className="rounded-full p-0.5 hover:bg-primary/20"
+                className="hover:bg-primary/20 rounded-full p-0.5"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -149,7 +149,7 @@ export function FacetedFilter({
                   )}
                 >
                   <span>#{tag.value}</span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-muted-foreground text-xs">
                     {tag.count}
                   </span>
                 </button>
@@ -190,7 +190,7 @@ export function FacetedFilter({
                   )}
                 >
                   <span className="truncate">{fv.value}</span>
-                  <span className="ml-2 text-xs text-muted-foreground">
+                  <span className="text-muted-foreground ml-2 text-xs">
                     {fv.count}
                   </span>
                 </button>
@@ -245,8 +245,8 @@ export function InlineFacetedFilter({
             }
           }}
           className={cn(
-            "h-9 rounded-lg border bg-background px-3 text-sm transition-colors",
-            "focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20",
+            "bg-background h-9 rounded-lg border px-3 text-sm transition-colors",
+            "focus:border-primary focus:ring-primary/20 focus:ring-2 focus:outline-hidden",
             selectedFilters[facet.name] && "border-primary text-primary"
           )}
         >

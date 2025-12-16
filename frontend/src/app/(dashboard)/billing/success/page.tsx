@@ -20,7 +20,7 @@ export default function BillingSuccessPage() {
         <CheckCircle className="h-12 w-12 text-green-600 dark:text-green-400" />
       </div>
       <h1 className="mt-6 text-2xl font-bold">Payment Successful!</h1>
-      <p className="mt-2 text-muted-foreground">
+      <p className="text-muted-foreground mt-2">
         Your credits have been added to your account.
       </p>
       <div className="mt-8 flex gap-4">

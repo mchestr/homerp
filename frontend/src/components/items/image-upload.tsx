@@ -218,14 +218,14 @@ export function ImageUpload({
 
       {currentImage ? (
         // Show uploaded image as the main focus
-        <div className="group relative overflow-hidden rounded-xl border bg-muted">
+        <div className="group bg-muted relative overflow-hidden rounded-xl border">
           <img
             src={currentImage.url}
             alt={currentImage.filename}
             className="aspect-video w-full bg-black/5 object-contain"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-4">
+          <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
+          <div className="absolute right-0 bottom-0 left-0 p-4">
             <p className="truncate text-sm font-medium text-white">
               {currentImage.filename}
             </p>
@@ -233,14 +233,14 @@ export function ImageUpload({
           <button
             type="button"
             onClick={() => onRemoveImage(currentImage.id)}
-            className="absolute right-2 top-2 rounded-full bg-black/50 p-2 text-white transition-opacity hover:bg-black/70"
+            className="absolute top-2 right-2 rounded-full bg-black/50 p-2 text-white transition-opacity hover:bg-black/70"
             title="Remove image"
           >
             <X className="h-4 w-4" />
           </button>
           {currentImage.aiProcessed ||
           classifiedImageIds.has(currentImage.id) ? (
-            <div className="absolute bottom-4 right-4 flex items-center gap-2">
+            <div className="absolute right-4 bottom-4 flex items-center gap-2">
               <div className="flex items-center gap-1.5 rounded-md bg-emerald-500 px-3 py-1.5 text-sm font-medium text-white shadow-lg">
                 <CheckCircle2 className="h-4 w-4" />
                 {tImages("identified")}
@@ -273,7 +273,7 @@ export function ImageUpload({
               onClick={() => handleClassify(currentImage.id)}
               disabled={isClassifying}
               size="sm"
-              className="absolute bottom-4 right-4 gap-2 shadow-lg"
+              className="absolute right-4 bottom-4 gap-2 shadow-lg"
               data-testid="classify-button"
             >
               {isClassifying && classifyingImageId === currentImage.id ? (
@@ -314,25 +314,25 @@ export function ImageUpload({
           <div className="text-center">
             {isUploading ? (
               <div className="flex flex-col items-center">
-                <div className="rounded-full bg-primary/10 p-4">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <div className="bg-primary/10 rounded-full p-4">
+                  <Loader2 className="text-primary h-8 w-8 animate-spin" />
                 </div>
                 <p className="mt-4 font-medium">Uploading...</p>
               </div>
             ) : (
               <div className="flex flex-col items-center">
-                <div className="rounded-full bg-muted p-4">
-                  <ImagePlus className="h-8 w-8 text-muted-foreground" />
+                <div className="bg-muted rounded-full p-4">
+                  <ImagePlus className="text-muted-foreground h-8 w-8" />
                 </div>
                 <p className="mt-4 font-medium">
                   {isDragging ? "Drop image here" : "Click or drag to upload"}
                 </p>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="text-muted-foreground mt-1 text-sm">
                   PNG, JPG up to 10MB
                 </p>
                 <Link
                   href="/images/classified"
-                  className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+                  className="text-primary mt-3 inline-flex items-center gap-1.5 text-sm hover:underline"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <History className="h-4 w-4" />
@@ -346,24 +346,24 @@ export function ImageUpload({
 
       {/* Custom prompt section - show when image is present for classification or re-classification */}
       {currentImage && (
-        <div className="rounded-lg border bg-card">
+        <div className="bg-card rounded-lg border">
           <button
             type="button"
             onClick={() => setIsPromptExpanded(!isPromptExpanded)}
-            className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium hover:bg-muted/50"
+            className="hover:bg-muted/50 flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium"
             data-testid="custom-prompt-toggle"
             aria-expanded={isPromptExpanded}
           >
             <span>{tImages("customPrompt.title")}</span>
             {isPromptExpanded ? (
-              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              <ChevronUp className="text-muted-foreground h-4 w-4" />
             ) : (
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              <ChevronDown className="text-muted-foreground h-4 w-4" />
             )}
           </button>
           {isPromptExpanded && (
-            <div className="border-t px-4 pb-4 pt-3">
-              <p className="mb-2 text-xs text-muted-foreground">
+            <div className="border-t px-4 pt-3 pb-4">
+              <p className="text-muted-foreground mb-2 text-xs">
                 {tImages("customPrompt.description")}
               </p>
               <Textarea
@@ -379,7 +379,7 @@ export function ImageUpload({
       )}
 
       {error && (
-        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+        <div className="border-destructive/50 bg-destructive/10 text-destructive rounded-lg border p-4 text-sm">
           {error}
         </div>
       )}

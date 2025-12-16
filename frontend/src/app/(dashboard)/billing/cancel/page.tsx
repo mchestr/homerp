@@ -7,11 +7,11 @@ import Link from "next/link";
 export default function BillingCancelPage() {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
-      <div className="rounded-full bg-muted p-4">
-        <XCircle className="h-12 w-12 text-muted-foreground" />
+      <div className="bg-muted rounded-full p-4">
+        <XCircle className="text-muted-foreground h-12 w-12" />
       </div>
       <h1 className="mt-6 text-2xl font-bold">Payment Cancelled</h1>
-      <p className="mt-2 text-muted-foreground">
+      <p className="text-muted-foreground mt-2">
         Your payment was cancelled. No charges were made.
       </p>
       <div className="mt-8">

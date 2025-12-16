@@ -137,7 +137,7 @@ export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -145,18 +145,18 @@ export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
     >
       <div
         ref={modalRef}
-        className="animate-in fade-in-0 zoom-in-95 w-full max-w-md rounded-xl bg-background shadow-2xl duration-200"
+        className="animate-in fade-in-0 zoom-in-95 bg-background w-full max-w-md rounded-xl shadow-2xl duration-200"
       >
         <div className="flex items-center justify-between border-b p-4">
           <div className="flex items-center gap-2">
-            <QrCode className="h-5 w-5 text-primary" />
+            <QrCode className="text-primary h-5 w-5" />
             <h2 id="qr-modal-title" className="text-lg font-semibold">
               {t("qrCode")}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-1 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -165,13 +165,13 @@ export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
         <div className="p-6">
           <div className="mb-4 text-center">
             <p className="font-medium">{location.name}</p>
-            <p className="text-sm text-muted-foreground">{t("scanToView")}</p>
+            <p className="text-muted-foreground text-sm">{t("scanToView")}</p>
           </div>
 
           <div className="mb-4 flex min-h-[200px] items-center justify-center rounded-lg border bg-white p-4">
             {isLoading ? (
               <Loader2
-                className="h-8 w-8 animate-spin text-muted-foreground"
+                className="text-muted-foreground h-8 w-8 animate-spin"
                 data-testid="qr-loading"
               />
             ) : error ? (
@@ -206,7 +206,7 @@ export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
                   )}
                 >
                   <div className="font-medium">{t(option.labelKey)}</div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-muted-foreground text-xs">
                     {option.pixels}
                   </div>
                 </button>
@@ -215,7 +215,7 @@ export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
           </div>
         </div>
 
-        <div className="flex gap-3 border-t bg-muted/30 px-6 py-4">
+        <div className="bg-muted/30 flex gap-3 border-t px-6 py-4">
           <Button
             variant="outline"
             className="flex-1"
