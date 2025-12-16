@@ -13,6 +13,7 @@ import {
   FolderPlus,
   Check,
   AlertCircle,
+  MapPin,
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -103,6 +104,8 @@ export default function NewItemPage() {
   const [locationSuggestionError, setLocationSuggestionError] = useState<
     string | null
   >(null);
+  const [locationSuggestionSearched, setLocationSuggestionSearched] =
+    useState(false);
 
   const [formData, setFormData] = useState<ItemCreate>({
     name: "",
@@ -301,6 +304,7 @@ export default function NewItemPage() {
     setIsLoadingLocationSuggestions(true);
     setLocationSuggestionError(null);
     setLocationSuggestions([]);
+    setLocationSuggestionSearched(false);
     try {
       const response = await itemsApi.suggestLocation({
         item_name: result.identified_name,
@@ -318,6 +322,7 @@ export default function NewItemPage() {
       setLocationSuggestionError("Failed to get location suggestions");
     } finally {
       setIsLoadingLocationSuggestions(false);
+      setLocationSuggestionSearched(true);
     }
   };
 
@@ -606,11 +611,12 @@ export default function NewItemPage() {
         </div>
       )}
 
-      {/* Button to get location suggestions - shown after classification if no suggestions yet */}
+      {/* Button to get location suggestions - shown after classification if not searched yet */}
       {classification &&
         !isLoadingLocationSuggestions &&
         locationSuggestions.length === 0 &&
-        !locationSuggestionError && (
+        !locationSuggestionError &&
+        !locationSuggestionSearched && (
           <div className="flex items-center justify-center rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-800 dark:bg-violet-950/30">
             <Button
               type="button"
@@ -625,6 +631,30 @@ export default function NewItemPage() {
                 ({t("billing.creditCost")})
               </span>
             </Button>
+          </div>
+        )}
+
+      {/* No suggestions found message - shown after search completed with empty results */}
+      {classification &&
+        !isLoadingLocationSuggestions &&
+        locationSuggestions.length === 0 &&
+        !locationSuggestionError &&
+        locationSuggestionSearched && (
+          <div
+            className="flex items-center gap-3 rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-800 dark:bg-violet-950/30"
+            data-testid="no-location-suggestions"
+          >
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-200 dark:bg-violet-800">
+              <MapPin className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-violet-800 dark:text-violet-300">
+                {t("locationSuggestion.noSuggestionsFound")}
+              </p>
+              <p className="text-sm text-violet-600 dark:text-violet-400">
+                {t("locationSuggestion.createLocationsFirst")}
+              </p>
+            </div>
           </div>
         )}
 
