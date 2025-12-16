@@ -167,19 +167,21 @@ export function LocationPhoto({
   // If there's a photo, display it
   if (primaryImage) {
     return (
-      <div className="group relative overflow-hidden rounded-xl">
+      <div
+        className="group relative overflow-hidden rounded-xl"
+        data-testid="location-photo"
+      >
         <AuthenticatedImage
           imageId={primaryImage.id}
           alt={locationName}
           className="h-48 w-full object-cover"
-          data-testid="location-photo"
         />
         {editable && (
           <Button
             type="button"
             variant="destructive"
             size="icon"
-            className="absolute right-2 top-2 h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
+            className="absolute top-2 right-2 h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
             onClick={handleRemove}
             disabled={removeMutation.isPending}
             data-testid="remove-location-photo"

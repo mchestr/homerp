@@ -540,15 +540,85 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
   });
 
   await page.route(/\/api\/v1\/images\/[^/]+\/signed-url$/, async (route) => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    // Return a valid data URL to avoid img onError
+    // This is a small transparent PNG that the browser can actually load
+    const dataUrl =
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
     await route.fulfill({
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({
-        url: `${apiUrl}/uploads/mock-signed-url.jpg?token=mock-token`,
+        url: dataUrl,
       }),
     });
   });
+
+  // Location images endpoints
+  // Track location images state for mocking
+  let locationImages: (typeof fixtures.testLocationImage)[] = [];
+
+  await page.route(/\/api\/v1\/images\/location\/[^/]+$/, async (route) => {
+    const url = route.request().url();
+    const locationId = url.split("/").pop();
+    const imagesForLocation = locationImages.filter(
+      (img) => img.location_id === locationId
+    );
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(imagesForLocation),
+    });
+  });
+
+  await page.route(
+    /\/api\/v1\/images\/[^/]+\/attach-location\/[^/]+$/,
+    async (route) => {
+      const url = route.request().url();
+      const parts = url.split("/");
+      const locationId = parts.pop();
+      parts.pop(); // "attach-location"
+      const imageId = parts.pop();
+
+      const newImage = {
+        ...fixtures.testImageUpload,
+        id: imageId,
+        location_id: locationId,
+        item_id: null,
+        is_primary: true,
+      };
+      locationImages = locationImages.filter((img) => img.id !== imageId);
+      locationImages.push(newImage as typeof fixtures.testLocationImage);
+
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(newImage),
+      });
+    }
+  );
+
+  await page.route(
+    /\/api\/v1\/images\/[^/]+\/detach-location$/,
+    async (route) => {
+      const url = route.request().url();
+      const parts = url.split("/");
+      parts.pop(); // "detach-location"
+      const imageId = parts.pop();
+
+      const image = locationImages.find((img) => img.id === imageId);
+      locationImages = locationImages.filter((img) => img.id !== imageId);
+
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ...image,
+          location_id: null,
+          is_primary: false,
+        }),
+      });
+    }
+  );
 
   // Admin endpoints (will be restricted to admin users in tests)
   await page.route("**/api/v1/admin/stats", async (route) => {
