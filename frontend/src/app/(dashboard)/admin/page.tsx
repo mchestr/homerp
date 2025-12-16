@@ -103,28 +103,39 @@ function QuickActionCard({
   badgeVariant?: "default" | "secondary" | "destructive" | "outline";
   testId?: string;
 }) {
+  const t = useTranslations("admin");
   return (
     <Link href={href} data-testid={testId}>
-      <div className="group flex h-full flex-col rounded-xl border bg-card p-4 transition-all hover:border-primary/50 hover:shadow-md sm:p-6">
-        <div className="flex items-start justify-between">
-          <div className="rounded-lg bg-primary/10 p-2.5">
-            <Icon className="h-5 w-5 text-primary" />
+      <div className="group flex h-full flex-col rounded-xl border bg-card p-3 transition-all hover:border-primary/50 hover:shadow-md sm:p-4 md:p-6">
+        <div className="flex items-center gap-3 sm:flex-col sm:items-start sm:gap-0">
+          <div className="flex w-full items-start justify-between sm:mb-4">
+            <div className="rounded-lg bg-primary/10 p-2 sm:p-2.5">
+              <Icon className="h-4 w-4 text-primary sm:h-5 sm:w-5" />
+            </div>
+            {badge !== undefined && (
+              <Badge
+                variant={badgeVariant}
+                data-testid={testId ? `${testId}-badge` : undefined}
+                className="text-xs"
+              >
+                {badge}
+              </Badge>
+            )}
           </div>
-          {badge !== undefined && (
-            <Badge
-              variant={badgeVariant}
-              data-testid={testId ? `${testId}-badge` : undefined}
-            >
-              {badge}
-            </Badge>
-          )}
+          <div className="min-w-0 flex-1 sm:w-full">
+            <div className="flex items-center justify-between">
+              <h3 className="truncate text-sm font-semibold sm:text-base">
+                {title}
+              </h3>
+              <ArrowRight className="ml-2 h-4 w-4 shrink-0 text-primary sm:hidden" />
+            </div>
+            <p className="mt-1 hidden text-sm text-muted-foreground sm:block">
+              {description}
+            </p>
+          </div>
         </div>
-        <div className="mt-4 flex-1">
-          <h3 className="font-semibold">{title}</h3>
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-        </div>
-        <div className="mt-4 flex items-center text-sm font-medium text-primary">
-          <span>Manage</span>
+        <div className="mt-4 hidden items-center text-sm font-medium text-primary sm:flex">
+          <span>{t("manage")}</span>
           <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
         </div>
       </div>
@@ -168,11 +179,15 @@ function ActivityItem({ activity }: { activity: RecentActivityItem }) {
   };
 
   return (
-    <div className="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-muted/50">
-      <div className="mt-0.5 rounded-full bg-muted p-1.5">{getIcon()}</div>
+    <div className="flex items-start gap-2 rounded-lg p-2 transition-colors hover:bg-muted/50 sm:gap-3 sm:p-3">
+      <div className="mt-0.5 shrink-0 rounded-full bg-muted p-1 sm:p-1.5">
+        {getIcon()}
+      </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <p className="truncate text-sm font-medium">{activity.title}</p>
+          <p className="truncate text-xs font-medium sm:text-sm">
+            {activity.title}
+          </p>
           {getStatusBadge()}
         </div>
         {activity.description && (
@@ -180,14 +195,18 @@ function ActivityItem({ activity }: { activity: RecentActivityItem }) {
             {activity.description}
           </p>
         )}
-        <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-          {activity.user_email && (
-            <span className="truncate">{activity.user_email}</span>
-          )}
-          <span>·</span>
+        <div className="mt-1 flex flex-col gap-0.5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:gap-2">
           <span className="whitespace-nowrap">
             {formatRelativeTime(activity.timestamp)}
           </span>
+          {activity.user_email && (
+            <>
+              <span className="hidden sm:inline">·</span>
+              <span className="truncate text-xs opacity-75 sm:opacity-100">
+                {activity.user_email}
+              </span>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -340,8 +359,8 @@ export default function AdminPage() {
             </div>
 
             {/* Recent Activity */}
-            <div>
-              <h2 className="mb-4 text-lg font-semibold">
+            <div className="order-first lg:order-none">
+              <h2 className="mb-3 text-base font-semibold sm:mb-4 sm:text-lg">
                 {t("admin.recentActivity")}
               </h2>
               <div
@@ -349,17 +368,17 @@ export default function AdminPage() {
                 data-testid="recent-activity-feed"
               >
                 {stats.recent_activity.length > 0 ? (
-                  <div className="max-h-[400px] divide-y overflow-y-auto">
+                  <div className="max-h-[280px] divide-y overflow-y-auto sm:max-h-[400px]">
                     {stats.recent_activity.map((activity) => (
                       <ActivityItem key={activity.id} activity={activity} />
                     ))}
                   </div>
                 ) : (
                   <div
-                    className="flex flex-col items-center justify-center p-8 text-center"
+                    className="flex flex-col items-center justify-center p-6 text-center sm:p-8"
                     data-testid="no-activity-message"
                   >
-                    <AlertCircle className="mb-2 h-8 w-8 text-muted-foreground" />
+                    <AlertCircle className="mb-2 h-6 w-6 text-muted-foreground sm:h-8 sm:w-8" />
                     <p className="text-sm text-muted-foreground">
                       {t("admin.noRecentActivity")}
                     </p>

@@ -306,82 +306,159 @@ export default function AdminWebhooksPage() {
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       ) : webhooks && webhooks.length > 0 ? (
-        <div className="rounded-xl border bg-card">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b text-left text-sm text-muted-foreground">
-                <th className="px-4 py-3 font-medium">
-                  {t("webhooks.eventType")}
-                </th>
-                <th className="px-4 py-3 font-medium">{t("webhooks.url")}</th>
-                <th className="px-4 py-3 font-medium">
-                  {t("webhooks.httpMethod")}
-                </th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 text-right font-medium">
-                  {t("common.actions")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {webhooks.map((webhook) => (
-                <tr key={webhook.id} className="border-b last:border-0">
-                  <td className="px-4 py-3">
-                    <span className="font-mono text-sm">
-                      {webhook.event_type}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="max-w-xs truncate text-sm text-muted-foreground">
-                      {webhook.url}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge variant="outline">{webhook.http_method}</Badge>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge variant={getStatusBadgeVariant(webhook.is_active)}>
-                      {webhook.is_active ? t("webhooks.isActive") : "Inactive"}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setTestingWebhook(webhook);
-                          setTestResult(null);
-                          testMutation.mutate(webhook.id);
-                        }}
-                        disabled={testMutation.isPending}
-                      >
-                        <Play className="mr-1 h-4 w-4" />
-                        {t("webhooks.test")}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => openEditDialog(webhook)}
-                      >
-                        <Edit className="mr-1 h-4 w-4" />
-                        {t("common.edit")}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDeleteConfirm(webhook)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </td>
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden rounded-xl border bg-card md:block">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b text-left text-sm text-muted-foreground">
+                  <th className="px-4 py-3 font-medium">
+                    {t("webhooks.eventType")}
+                  </th>
+                  <th className="px-4 py-3 font-medium">{t("webhooks.url")}</th>
+                  <th className="px-4 py-3 font-medium">
+                    {t("webhooks.httpMethod")}
+                  </th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 text-right font-medium">
+                    {t("common.actions")}
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {webhooks.map((webhook) => (
+                  <tr
+                    key={webhook.id}
+                    className="border-b last:border-0"
+                    data-testid={`webhook-row-${webhook.id}`}
+                  >
+                    <td className="px-4 py-3">
+                      <span className="font-mono text-sm">
+                        {webhook.event_type}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="max-w-xs truncate text-sm text-muted-foreground">
+                        {webhook.url}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge variant="outline">{webhook.http_method}</Badge>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge variant={getStatusBadgeVariant(webhook.is_active)}>
+                        {webhook.is_active
+                          ? t("webhooks.isActive")
+                          : t("webhooks.isInactive")}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setTestingWebhook(webhook);
+                            setTestResult(null);
+                            testMutation.mutate(webhook.id);
+                          }}
+                          disabled={testMutation.isPending}
+                          data-testid={`test-webhook-${webhook.id}`}
+                        >
+                          <Play className="mr-1 h-4 w-4" />
+                          {t("webhooks.test")}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openEditDialog(webhook)}
+                          data-testid={`edit-webhook-${webhook.id}`}
+                        >
+                          <Edit className="mr-1 h-4 w-4" />
+                          {t("common.edit")}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDeleteConfirm(webhook)}
+                          className="text-destructive hover:text-destructive"
+                          data-testid={`delete-webhook-${webhook.id}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="space-y-3 md:hidden">
+            {webhooks.map((webhook) => (
+              <div
+                key={webhook.id}
+                className="rounded-xl border bg-card p-4"
+                data-testid={`webhook-card-${webhook.id}`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-mono text-sm font-medium">
+                      {webhook.event_type}
+                    </p>
+                    <p className="mt-1 truncate text-xs text-muted-foreground">
+                      {webhook.url}
+                    </p>
+                  </div>
+                  <Badge variant={getStatusBadgeVariant(webhook.is_active)}>
+                    {webhook.is_active
+                      ? t("webhooks.isActive")
+                      : t("webhooks.isInactive")}
+                  </Badge>
+                </div>
+                <div className="mt-2">
+                  <Badge variant="outline" className="text-xs">
+                    {webhook.http_method}
+                  </Badge>
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => {
+                      setTestingWebhook(webhook);
+                      setTestResult(null);
+                      testMutation.mutate(webhook.id);
+                    }}
+                    disabled={testMutation.isPending}
+                  >
+                    <Play className="mr-1 h-4 w-4" />
+                    {t("webhooks.test")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => openEditDialog(webhook)}
+                  >
+                    <Edit className="mr-1 h-4 w-4" />
+                    {t("common.edit")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setDeleteConfirm(webhook)}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       ) : (
         <div className="flex flex-col items-center justify-center rounded-xl border bg-card p-12 text-center">
           <div className="rounded-full bg-muted p-4">
