@@ -5,6 +5,7 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "success": "Success",
+    "error": "Error",
     "edit": "Edit",
     "create": "Create",
     "update": "Update",
@@ -435,7 +436,8 @@
     "creditTooltipPurchased": "Purchased: {count}",
     "creditTooltipFree": "Free: {count}",
     "creditTooltipResets": "Free credits reset: {date}",
-    "manageCredits": "Manage Credits"
+    "manageCredits": "Manage Credits",
+    "creditCost": "1 credit"
   },
   "settings": {
     "title": "Settings",

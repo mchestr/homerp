@@ -5,6 +5,7 @@
     "cancel": "Abbrechen",
     "delete": "Löschen",
     "success": "Erfolg",
+    "error": "Fehler",
     "edit": "Bearbeiten",
     "create": "Erstellen",
     "update": "Aktualisieren",
@@ -433,7 +434,8 @@
     "creditTooltipPurchased": "Gekauft: {count}",
     "creditTooltipFree": "Kostenlos: {count}",
     "creditTooltipResets": "Kostenlose Credits zurückgesetzt: {date}",
-    "manageCredits": "Credits verwalten"
+    "manageCredits": "Credits verwalten",
+    "creditCost": "1 Credit"
   },
   "settings": {
     "title": "Einstellungen",
