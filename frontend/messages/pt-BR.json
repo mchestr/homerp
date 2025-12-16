@@ -259,7 +259,20 @@
     "addItem": "Adicionar Item",
     "notFound": "Local não encontrado",
     "notFoundDescription": "Este local pode ter sido excluído ou você não tem acesso.",
-    "backToLocations": "Voltar para Locais"
+    "backToLocations": "Voltar para Locais",
+    "locationPhoto": "Foto do Local",
+    "noPhoto": "Sem foto",
+    "addPhoto": "Clique ou arraste para adicionar uma foto",
+    "dropPhotoHere": "Solte a foto aqui",
+    "uploadingPhoto": "Enviando...",
+    "photoUploaded": "Foto enviada",
+    "photoUploadedDescription": "A foto do local foi atualizada.",
+    "photoRemoved": "Foto removida",
+    "photoRemovedDescription": "A foto do local foi removida.",
+    "photoUploadFailed": "Falha ao enviar a foto. Tente novamente.",
+    "photoRemoveFailed": "Falha ao remover a foto. Tente novamente.",
+    "invalidImageType": "Por favor, selecione um arquivo de imagem",
+    "imageTooLarge": "A imagem deve ter menos de 10MB"
   },
   "images": {
     "title": "Imagens",

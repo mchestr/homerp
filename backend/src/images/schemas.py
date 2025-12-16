@@ -23,6 +23,7 @@ class ImageResponse(ImageUploadResponse):
     """Schema for image response."""
 
     item_id: UUID | None
+    location_id: UUID | None
     is_primary: bool
     ai_processed: bool
     ai_result: dict[str, Any] | None

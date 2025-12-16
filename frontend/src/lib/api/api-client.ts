@@ -479,6 +479,30 @@ export const imagesApi = {
 
   detach: (imageId: string) =>
     apiRequest<Image>(`/api/v1/images/${imageId}/detach`, { method: "POST" }),
+
+  // Location image methods
+  getByLocation: (locationId: string) =>
+    apiRequest<Image[]>(`/api/v1/images/location/${locationId}`),
+
+  attachToLocation: (
+    imageId: string,
+    locationId: string,
+    isPrimary?: boolean
+  ) =>
+    apiRequest<Image>(
+      `/api/v1/images/${imageId}/attach-location/${locationId}${isPrimary ? "?is_primary=true" : ""}`,
+      { method: "POST" }
+    ),
+
+  setPrimaryForLocation: (imageId: string) =>
+    apiRequest<Image>(`/api/v1/images/${imageId}/set-primary-location`, {
+      method: "POST",
+    }),
+
+  detachFromLocation: (imageId: string) =>
+    apiRequest<Image>(`/api/v1/images/${imageId}/detach-location`, {
+      method: "POST",
+    }),
 };
 
 // Types
@@ -818,6 +842,7 @@ export type ImageUpload = {
 
 export type Image = ImageUpload & {
   item_id: string | null;
+  location_id: string | null;
   is_primary: boolean;
   ai_processed: boolean;
   ai_result: Record<string, unknown> | null;

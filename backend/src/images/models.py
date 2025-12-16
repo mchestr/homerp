@@ -19,6 +19,9 @@ class Image(Base):
     item_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("items.id", ondelete="CASCADE"), index=True
     )
+    location_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("locations.id", ondelete="CASCADE"), index=True
+    )
     user_id: Mapped[UUID] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
@@ -40,9 +43,11 @@ class Image(Base):
 
     # Relationships
     item: Mapped["Item | None"] = relationship(back_populates="images")
+    location: Mapped["Location | None"] = relationship(back_populates="images")
     user: Mapped["User"] = relationship(back_populates="images")
 
 
 # Import at bottom to avoid circular imports
 from src.items.models import Item  # noqa: E402, F811
+from src.locations.models import Location  # noqa: E402, F811
 from src.users.models import User  # noqa: E402, F811

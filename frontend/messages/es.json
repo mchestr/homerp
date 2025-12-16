@@ -259,7 +259,20 @@
     "addItem": "Añadir Artículo",
     "notFound": "Ubicación no encontrada",
     "notFoundDescription": "Esta ubicación puede haber sido eliminada o no tienes acceso.",
-    "backToLocations": "Volver a Ubicaciones"
+    "backToLocations": "Volver a Ubicaciones",
+    "locationPhoto": "Foto de Ubicación",
+    "noPhoto": "Sin foto",
+    "addPhoto": "Haz clic o arrastra para añadir una foto",
+    "dropPhotoHere": "Suelta la foto aquí",
+    "uploadingPhoto": "Subiendo...",
+    "photoUploaded": "Foto subida",
+    "photoUploadedDescription": "La foto de ubicación ha sido actualizada.",
+    "photoRemoved": "Foto eliminada",
+    "photoRemovedDescription": "La foto de ubicación ha sido eliminada.",
+    "photoUploadFailed": "Error al subir la foto. Inténtalo de nuevo.",
+    "photoRemoveFailed": "Error al eliminar la foto. Inténtalo de nuevo.",
+    "invalidImageType": "Por favor selecciona un archivo de imagen",
+    "imageTooLarge": "La imagen debe ser menor de 10MB"
   },
   "images": {
     "title": "Imágenes",

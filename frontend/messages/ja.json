@@ -259,7 +259,20 @@
     "addItem": "アイテムを追加",
     "notFound": "ロケーションが見つかりません",
     "notFoundDescription": "このロケーションは削除されたか、アクセス権がない可能性があります。",
-    "backToLocations": "ロケーションに戻る"
+    "backToLocations": "ロケーションに戻る",
+    "locationPhoto": "ロケーションの写真",
+    "noPhoto": "写真なし",
+    "addPhoto": "クリックまたはドラッグで写真を追加",
+    "dropPhotoHere": "ここに写真をドロップ",
+    "uploadingPhoto": "アップロード中...",
+    "photoUploaded": "写真をアップロードしました",
+    "photoUploadedDescription": "ロケーションの写真が更新されました。",
+    "photoRemoved": "写真を削除しました",
+    "photoRemovedDescription": "ロケーションの写真が削除されました。",
+    "photoUploadFailed": "写真のアップロードに失敗しました。もう一度お試しください。",
+    "photoRemoveFailed": "写真の削除に失敗しました。もう一度お試しください。",
+    "invalidImageType": "画像ファイルを選択してください",
+    "imageTooLarge": "画像は10MB以下である必要があります"
   },
   "images": {
     "title": "画像",

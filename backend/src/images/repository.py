@@ -35,6 +35,18 @@ class ImageRepository:
         )
         return list(result.scalars().all())
 
+    async def get_by_location(self, location_id: UUID) -> list[Image]:
+        """Get all images for a location."""
+        result = await self.session.execute(
+            select(Image)
+            .where(
+                Image.location_id == location_id,
+                Image.user_id == self.user_id,
+            )
+            .order_by(Image.is_primary.desc(), Image.created_at)
+        )
+        return list(result.scalars().all())
+
     async def get_by_content_hash(self, content_hash: str) -> Image | None:
         """Get an image by content hash for this user."""
         result = await self.session.execute(
@@ -136,6 +148,38 @@ class ImageRepository:
         """Attach an image to an item."""
         image.item_id = item_id
         image.is_primary = is_primary
+        await self.session.commit()
+        await self.session.refresh(image)
+        return image
+
+    async def attach_to_location(
+        self, image: Image, location_id: UUID, is_primary: bool = False
+    ) -> Image:
+        """Attach an image to a location."""
+        image.location_id = location_id
+        image.is_primary = is_primary
+        await self.session.commit()
+        await self.session.refresh(image)
+        return image
+
+    async def set_primary_for_location(self, image: Image) -> Image:
+        """Set an image as the primary image for its location."""
+        if image.location_id:
+            # Unset other primary images for this location
+            other_images = await self.get_by_location(image.location_id)
+            for other in other_images:
+                if other.id != image.id and other.is_primary:
+                    other.is_primary = False
+
+        image.is_primary = True
+        await self.session.commit()
+        await self.session.refresh(image)
+        return image
+
+    async def detach_from_location(self, image: Image) -> Image:
+        """Detach an image from its location."""
+        image.location_id = None
+        image.is_primary = False
         await self.session.commit()
         await self.session.refresh(image)
         return image
