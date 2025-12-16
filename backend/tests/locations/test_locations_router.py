@@ -2,9 +2,13 @@
 
 import uuid
 
+import pytest
 from httpx import AsyncClient
 
+from src.auth.service import AuthService
+from src.config import Settings
 from src.locations.models import Location
+from src.users.models import User
 
 
 class TestListLocationsEndpoint:
@@ -288,27 +292,152 @@ class TestMoveLocationEndpoint:
         assert response.status_code == 404
 
 
+class TestGetLocationQRSignedUrlEndpoint:
+    """Tests for GET /api/v1/locations/{location_id}/qr/signed-url."""
+
+    async def test_get_qr_signed_url(
+        self, authenticated_client: AsyncClient, test_location: Location
+    ):
+        """Test getting signed URL for QR code."""
+        response = await authenticated_client.get(
+            f"/api/v1/locations/{test_location.id}/qr/signed-url"
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "url" in data
+        assert f"/locations/{test_location.id}/qr" in data["url"]
+        assert "token=" in data["url"]
+
+    async def test_get_qr_signed_url_with_size(
+        self, authenticated_client: AsyncClient, test_location: Location
+    ):
+        """Test getting signed URL with custom size."""
+        response = await authenticated_client.get(
+            f"/api/v1/locations/{test_location.id}/qr/signed-url?size=20"
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "size=20" in data["url"]
+
+    async def test_get_qr_signed_url_not_found(self, authenticated_client: AsyncClient):
+        """Test getting signed URL for non-existent location."""
+        response = await authenticated_client.get(
+            f"/api/v1/locations/{uuid.uuid4()}/qr/signed-url"
+        )
+
+        assert response.status_code == 404
+
+    async def test_get_qr_signed_url_unauthenticated(
+        self, unauthenticated_client: AsyncClient, test_location: Location
+    ):
+        """Test that unauthenticated request returns 401."""
+        response = await unauthenticated_client.get(
+            f"/api/v1/locations/{test_location.id}/qr/signed-url"
+        )
+
+        assert response.status_code == 401
+
+
 class TestGetLocationQREndpoint:
     """Tests for GET /api/v1/locations/{location_id}/qr."""
 
-    async def test_get_location_qr(
-        self, authenticated_client: AsyncClient, test_location: Location
+    @pytest.fixture
+    def auth_service(self, test_settings: Settings) -> AuthService:
+        """Create an AuthService with test settings."""
+        return AuthService(settings=test_settings)
+
+    async def test_get_location_qr_with_valid_token(
+        self,
+        unauthenticated_client: AsyncClient,
+        test_location: Location,
+        test_user: User,
+        auth_service: AuthService,
     ):
-        """Test getting QR code for a location."""
-        response = await authenticated_client.get(
-            f"/api/v1/locations/{test_location.id}/qr"
+        """Test getting QR code with a valid token."""
+        token = auth_service.create_location_token(test_user.id, test_location.id)
+
+        response = await unauthenticated_client.get(
+            f"/api/v1/locations/{test_location.id}/qr?token={token}"
         )
 
         assert response.status_code == 200
         assert response.headers["content-type"] == "image/png"
 
-    async def test_get_location_qr_not_found(self, authenticated_client: AsyncClient):
-        """Test getting QR for non-existent location."""
-        response = await authenticated_client.get(
-            f"/api/v1/locations/{uuid.uuid4()}/qr"
+    async def test_get_location_qr_without_token(
+        self, unauthenticated_client: AsyncClient, test_location: Location
+    ):
+        """Test getting QR code without token returns 401."""
+        response = await unauthenticated_client.get(
+            f"/api/v1/locations/{test_location.id}/qr"
+        )
+
+        assert response.status_code == 401
+        assert response.json()["detail"] == "Token required"
+
+    async def test_get_location_qr_with_invalid_token(
+        self, unauthenticated_client: AsyncClient, test_location: Location
+    ):
+        """Test getting QR code with invalid token returns 401."""
+        response = await unauthenticated_client.get(
+            f"/api/v1/locations/{test_location.id}/qr?token=invalid-token"
+        )
+
+        assert response.status_code == 401
+        assert response.json()["detail"] == "Invalid or expired token"
+
+    async def test_get_location_qr_with_wrong_location_token(
+        self,
+        unauthenticated_client: AsyncClient,
+        test_location: Location,
+        test_user: User,
+        auth_service: AuthService,
+    ):
+        """Test getting QR code with token for different location returns 401."""
+        # Create token for a different location
+        other_location_id = uuid.uuid4()
+        token = auth_service.create_location_token(test_user.id, other_location_id)
+
+        response = await unauthenticated_client.get(
+            f"/api/v1/locations/{test_location.id}/qr?token={token}"
+        )
+
+        assert response.status_code == 401
+        assert response.json()["detail"] == "Invalid or expired token"
+
+    async def test_get_location_qr_not_found_with_valid_token(
+        self,
+        unauthenticated_client: AsyncClient,
+        test_user: User,
+        auth_service: AuthService,
+    ):
+        """Test getting QR for non-existent location with valid token."""
+        non_existent_id = uuid.uuid4()
+        token = auth_service.create_location_token(test_user.id, non_existent_id)
+
+        response = await unauthenticated_client.get(
+            f"/api/v1/locations/{non_existent_id}/qr?token={token}"
         )
 
         assert response.status_code == 404
+
+    async def test_get_location_qr_with_size_parameter(
+        self,
+        unauthenticated_client: AsyncClient,
+        test_location: Location,
+        test_user: User,
+        auth_service: AuthService,
+    ):
+        """Test getting QR code with custom size."""
+        token = auth_service.create_location_token(test_user.id, test_location.id)
+
+        response = await unauthenticated_client.get(
+            f"/api/v1/locations/{test_location.id}/qr?token={token}&size=20"
+        )
+
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "image/png"
 
 
 class TestDeleteLocationEndpoint:

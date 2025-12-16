@@ -395,10 +395,10 @@ export const locationsApi = {
   getWithAncestors: (id: string) =>
     apiRequest<LocationWithAncestors>(`/api/v1/locations/${id}/with-ancestors`),
 
-  getQrCodeUrl: (id: string, size?: number) => {
-    const params = size ? `?size=${size}` : "";
-    return `${getApiBaseUrl()}/api/v1/locations/${id}/qr${params}`;
-  },
+  getQrSignedUrl: (id: string, size?: number) =>
+    apiRequest<{ url: string }>(
+      `/api/v1/locations/${id}/qr/signed-url${size ? `?size=${size}` : ""}`
+    ),
 
   getDescendants: (id: string) =>
     apiRequest<Location[]>(`/api/v1/locations/${id}/descendants`),

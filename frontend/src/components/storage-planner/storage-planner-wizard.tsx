@@ -230,7 +230,7 @@ export function StoragePlannerWizard({
               <p className="text-muted-foreground">
                 {t("selectType.description")}
               </p>
-              <p className="text-sm text-muted-foreground/80">
+              <p className="text-muted-foreground/80 text-sm">
                 {t("selectType.helpText")}
               </p>
             </div>
@@ -246,7 +246,7 @@ export function StoragePlannerWizard({
                   className={cn(
                     "group relative flex flex-col rounded-xl border-2 p-6 text-left transition-all",
                     type.isComingSoon
-                      ? "cursor-not-allowed border-border opacity-60"
+                      ? "border-border cursor-not-allowed opacity-60"
                       : selectedType === type.id
                         ? "border-primary bg-primary/5"
                         : "border-border hover:border-primary/50"
@@ -254,8 +254,8 @@ export function StoragePlannerWizard({
                 >
                   {/* Selected indicator */}
                   {selectedType === type.id && (
-                    <div className="absolute right-3 top-3">
-                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                    <div className="absolute top-3 right-3">
+                      <div className="bg-primary text-primary-foreground flex h-6 w-6 items-center justify-center rounded-full">
                         <Check className="h-4 w-4" />
                       </div>
                     </div>
@@ -279,7 +279,7 @@ export function StoragePlannerWizard({
                   </h3>
 
                   {/* Description */}
-                  <p className="mb-4 text-sm text-muted-foreground">
+                  <p className="text-muted-foreground mb-4 text-sm">
                     {t(`${type.id}.description`)}
                   </p>
 
@@ -288,9 +288,9 @@ export function StoragePlannerWizard({
                     {type.features.map((feature, index) => (
                       <li
                         key={index}
-                        className="flex items-start gap-2 text-xs text-muted-foreground"
+                        className="text-muted-foreground flex items-start gap-2 text-xs"
                       >
-                        <Check className="mt-0.5 h-3 w-3 flex-shrink-0 text-primary" />
+                        <Check className="text-primary mt-0.5 h-3 w-3 shrink-0" />
                         <span>{feature}</span>
                       </li>
                     ))}
@@ -439,12 +439,12 @@ export function StoragePlannerWizard({
 
                 {/* Grid preview */}
                 <div
-                  className="rounded-lg bg-muted/50 p-4"
+                  className="bg-muted/50 rounded-lg p-4"
                   data-testid="gridfinity-grid-preview"
                 >
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-muted-foreground text-sm">
                     {tGridfinity("gridSize")}:{" "}
-                    <span className="font-medium text-foreground">
+                    <span className="text-foreground font-medium">
                       {gridfinityGrid.columns} x {gridfinityGrid.rows}
                     </span>{" "}
                     ({gridfinityGrid.columns * gridfinityGrid.rows}{" "}
@@ -460,13 +460,13 @@ export function StoragePlannerWizard({
                         }).map((_, j) => (
                           <div
                             key={j}
-                            className="h-4 w-4 rounded-sm border border-primary/30 bg-primary/20"
+                            className="border-primary/30 bg-primary/20 h-4 w-4 rounded-sm border"
                           />
                         ))}
                       </div>
                     ))}
                     {gridfinityGrid.columns > 8 && (
-                      <div className="flex items-center text-xs text-muted-foreground">
+                      <div className="text-muted-foreground flex items-center text-xs">
                         ...
                       </div>
                     )}
@@ -484,7 +484,7 @@ export function StoragePlannerWizard({
                 <h3 className="mb-2 text-lg font-semibold">
                   {t("multiboard.comingSoonTitle")}
                 </h3>
-                <p className="max-w-md text-muted-foreground">
+                <p className="text-muted-foreground max-w-md">
                   {t("multiboard.comingSoonDescription")}
                 </p>
               </div>
@@ -499,7 +499,7 @@ export function StoragePlannerWizard({
                 <h3 className="mb-2 text-lg font-semibold">
                   {t("toteRack.comingSoonTitle")}
                 </h3>
-                <p className="max-w-md text-muted-foreground">
+                <p className="text-muted-foreground max-w-md">
                   {t("toteRack.comingSoonDescription")}
                 </p>
               </div>
@@ -516,14 +516,14 @@ export function StoragePlannerWizard({
             </div>
 
             {selectedType === "gridfinity" && (
-              <div className="rounded-xl border bg-card p-6">
+              <div className="bg-card rounded-xl border p-6">
                 <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <div className="bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-lg">
                     <Grid3X3 className="h-5 w-5" />
                   </div>
                   <div>
                     <h3 className="font-semibold">{gridfinityData.name}</h3>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {t("gridfinity.title")}
                     </p>
                   </div>
@@ -532,14 +532,14 @@ export function StoragePlannerWizard({
                 <dl className="grid gap-4 md:grid-cols-2">
                   {gridfinityData.description && (
                     <div className="md:col-span-2">
-                      <dt className="text-sm font-medium text-muted-foreground">
+                      <dt className="text-muted-foreground text-sm font-medium">
                         {tCommon("description")}
                       </dt>
                       <dd className="mt-1">{gridfinityData.description}</dd>
                     </div>
                   )}
                   <div>
-                    <dt className="text-sm font-medium text-muted-foreground">
+                    <dt className="text-muted-foreground text-sm font-medium">
                       {t("review.dimensions")}
                     </dt>
                     <dd className="mt-1">
@@ -549,7 +549,7 @@ export function StoragePlannerWizard({
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-sm font-medium text-muted-foreground">
+                    <dt className="text-muted-foreground text-sm font-medium">
                       {tGridfinity("gridSize")}
                     </dt>
                     <dd className="mt-1">
@@ -570,7 +570,7 @@ export function StoragePlannerWizard({
                 <h3 className="mb-2 text-lg font-semibold">
                   {t("review.comingSoon")}
                 </h3>
-                <p className="max-w-md text-muted-foreground">
+                <p className="text-muted-foreground max-w-md">
                   {t("review.comingSoonDescription")}
                 </p>
               </div>

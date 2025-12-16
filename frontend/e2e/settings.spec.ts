@@ -12,7 +12,10 @@ test.describe("Settings", () => {
     await expect(
       page.getByRole("heading", { name: /settings/i })
     ).toBeVisible();
-    await expect(page.getByText(fixtures.testUser.email)).toBeVisible();
+    // Scope to main content to avoid matching sidebar user profile email
+    await expect(
+      page.getByRole("main").getByText(fixtures.testUser.email)
+    ).toBeVisible();
   });
 
   test("can navigate to billing settings", async ({ page }) => {

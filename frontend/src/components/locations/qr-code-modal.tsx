@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Download, Printer, X, QrCode } from "lucide-react";
+import { Download, Printer, X, QrCode, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -22,10 +22,39 @@ const SIZE_OPTIONS = [
 export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
   const t = useTranslations("locations");
   const [size, setSize] = useState(10);
+  const [qrUrl, setQrUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
 
-  const qrUrl = locationsApi.getQrCodeUrl(location.id, size);
+  // Fetch signed URL when modal opens or size changes
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let cancelled = false;
+    setIsLoading(true);
+    setError(null);
+
+    locationsApi
+      .getQrSignedUrl(location.id, size)
+      .then((response) => {
+        if (!cancelled) {
+          setQrUrl(response.url);
+          setIsLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err?.message || "Failed to load QR code");
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, location.id, size]);
 
   // Handle escape key and focus management
   useEffect(() => {
@@ -64,6 +93,7 @@ export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
   if (!isOpen) return null;
 
   const handleDownload = () => {
+    if (!qrUrl) return;
     const link = document.createElement("a");
     link.href = qrUrl;
     link.download = `${location.name.replace(/\s+/g, "-").toLowerCase()}-qr.png`;
@@ -71,6 +101,7 @@ export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
   };
 
   const handlePrint = () => {
+    if (!qrUrl) return;
     const printWindow = window.open("", "_blank");
     if (printWindow) {
       printWindow.document.write(`
@@ -106,7 +137,7 @@ export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -114,18 +145,18 @@ export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
     >
       <div
         ref={modalRef}
-        className="animate-in fade-in-0 zoom-in-95 w-full max-w-md rounded-xl bg-background shadow-2xl duration-200"
+        className="animate-in fade-in-0 zoom-in-95 bg-background w-full max-w-md rounded-xl shadow-2xl duration-200"
       >
         <div className="flex items-center justify-between border-b p-4">
           <div className="flex items-center gap-2">
-            <QrCode className="h-5 w-5 text-primary" />
+            <QrCode className="text-primary h-5 w-5" />
             <h2 id="qr-modal-title" className="text-lg font-semibold">
               {t("qrCode")}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-1 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -134,16 +165,27 @@ export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
         <div className="p-6">
           <div className="mb-4 text-center">
             <p className="font-medium">{location.name}</p>
-            <p className="text-sm text-muted-foreground">{t("scanToView")}</p>
+            <p className="text-muted-foreground text-sm">{t("scanToView")}</p>
           </div>
 
-          <div className="mb-4 flex justify-center rounded-lg border bg-white p-4">
-            <img
-              src={qrUrl}
-              alt={`QR code for ${location.name}`}
-              className="max-w-full"
-              data-testid="qr-code-image"
-            />
+          <div className="mb-4 flex min-h-[200px] items-center justify-center rounded-lg border bg-white p-4">
+            {isLoading ? (
+              <Loader2
+                className="text-muted-foreground h-8 w-8 animate-spin"
+                data-testid="qr-loading"
+              />
+            ) : error ? (
+              <p className="text-destructive" data-testid="qr-error">
+                {error}
+              </p>
+            ) : qrUrl ? (
+              <img
+                src={qrUrl}
+                alt={`QR code for ${location.name}`}
+                className="max-w-full"
+                data-testid="qr-code-image"
+              />
+            ) : null}
           </div>
 
           <div className="mb-4">
@@ -164,7 +206,7 @@ export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
                   )}
                 >
                   <div className="font-medium">{t(option.labelKey)}</div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-muted-foreground text-xs">
                     {option.pixels}
                   </div>
                 </button>
@@ -173,12 +215,22 @@ export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
           </div>
         </div>
 
-        <div className="flex gap-3 border-t bg-muted/30 px-6 py-4">
-          <Button variant="outline" className="flex-1" onClick={handleDownload}>
+        <div className="bg-muted/30 flex gap-3 border-t px-6 py-4">
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={handleDownload}
+            disabled={!qrUrl || isLoading}
+          >
             <Download className="mr-2 h-4 w-4" />
             {t("download")}
           </Button>
-          <Button variant="outline" className="flex-1" onClick={handlePrint}>
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={handlePrint}
+            disabled={!qrUrl || isLoading}
+          >
             <Printer className="mr-2 h-4 w-4" />
             {t("print")}
           </Button>

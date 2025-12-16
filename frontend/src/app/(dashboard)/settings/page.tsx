@@ -77,26 +77,26 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
           {t("settings.title")}
         </h1>
-        <p className="mt-1 text-muted-foreground">{t("settings.subtitle")}</p>
+        <p className="text-muted-foreground mt-1">{t("settings.subtitle")}</p>
       </div>
 
-      <div className="rounded-xl border bg-card p-6">
+      <div className="bg-card rounded-xl border p-6">
         <h2 className="font-semibold">{t("settings.profile")}</h2>
         <div className="mt-4 flex items-center gap-5">
           {user?.avatar_url ? (
             <img
               src={user.avatar_url}
               alt={user.name || "User"}
-              className="h-20 w-20 rounded-full ring-4 ring-muted"
+              className="ring-muted h-20 w-20 rounded-full ring-4"
             />
           ) : (
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted ring-4 ring-border">
-              <User className="h-10 w-10 text-muted-foreground" />
+            <div className="bg-muted ring-border flex h-20 w-20 items-center justify-center rounded-full ring-4">
+              <User className="text-muted-foreground h-10 w-10" />
             </div>
           )}
           <div>
             <p className="text-xl font-semibold">{user?.name || "User"}</p>
-            <p className="mt-1 flex items-center gap-2 text-muted-foreground">
+            <p className="text-muted-foreground mt-1 flex items-center gap-2">
               <Mail className="h-4 w-4" />
               {user?.email}
             </p>
@@ -104,20 +104,20 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border bg-card p-6">
+      <div className="bg-card rounded-xl border p-6">
         <h2 className="font-semibold">{t("settings.preferences")}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-sm">
           {t("settings.customizeExperience")}
         </p>
         <div className="mt-4 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-primary/10 p-2">
-                <DollarSign className="h-4 w-4 text-primary" />
+              <div className="bg-primary/10 rounded-lg p-2">
+                <DollarSign className="text-primary h-4 w-4" />
               </div>
               <div>
                 <p className="font-medium">{t("settings.currency")}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {t("settings.currencyDescription")}
                 </p>
               </div>
@@ -141,12 +141,12 @@ export default function SettingsPage() {
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-primary/10 p-2">
-                <Globe className="h-4 w-4 text-primary" />
+              <div className="bg-primary/10 rounded-lg p-2">
+                <Globe className="text-primary h-4 w-4" />
               </div>
               <div>
                 <p className="font-medium">{t("settings.language")}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {t("settings.languageDescription")}
                 </p>
               </div>
@@ -171,15 +171,15 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border bg-card p-6">
+      <div className="bg-card rounded-xl border p-6">
         <h2 className="font-semibold">{t("settings.appearance")}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-sm">
           {t("settings.appearanceDescription")}
         </p>
         <div className="mt-4 flex items-center justify-between">
           <div>
             <p className="font-medium">{t("settings.theme")}</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {t("settings.themeDescription")}
             </p>
           </div>
@@ -193,22 +193,22 @@ export default function SettingsPage() {
         className="block"
         data-testid="system-profile-link"
       >
-        <div className="rounded-xl border bg-card p-6 transition-colors hover:border-primary/50">
+        <div className="bg-card hover:border-primary/50 rounded-xl border p-6 transition-colors">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-primary/10 p-2">
-                <Brain className="h-5 w-5 text-primary" />
+              <div className="bg-primary/10 rounded-lg p-2">
+                <Brain className="text-primary h-5 w-5" />
               </div>
               <div>
                 <h2 className="font-semibold">
                   {t("settings.aiSystemProfile")}
                 </h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {t("settings.aiSystemProfileDescription")}
                 </p>
               </div>
             </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            <ChevronRight className="text-muted-foreground h-5 w-5" />
           </div>
         </div>
       </Link>
@@ -219,20 +219,20 @@ export default function SettingsPage() {
         className="block"
         data-testid="collaboration-link"
       >
-        <div className="rounded-xl border bg-card p-6 transition-colors hover:border-primary/50">
+        <div className="bg-card hover:border-primary/50 rounded-xl border p-6 transition-colors">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-primary/10 p-2">
-                <Users className="h-5 w-5 text-primary" />
+              <div className="bg-primary/10 rounded-lg p-2">
+                <Users className="text-primary h-5 w-5" />
               </div>
               <div>
                 <h2 className="font-semibold">{t("settings.collaboration")}</h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {t("settings.collaborationDescription")}
                 </p>
               </div>
             </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            <ChevronRight className="text-muted-foreground h-5 w-5" />
           </div>
         </div>
       </Link>
@@ -243,17 +243,17 @@ export default function SettingsPage() {
         className="block"
         data-testid="billing-link"
       >
-        <div className="rounded-xl border bg-card p-6 transition-colors hover:border-primary/50">
+        <div className="bg-card hover:border-primary/50 rounded-xl border p-6 transition-colors">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-primary/10 p-2">
-                <Coins className="h-5 w-5 text-primary" />
+              <div className="bg-primary/10 rounded-lg p-2">
+                <Coins className="text-primary h-5 w-5" />
               </div>
               <div>
                 <h2 className="font-semibold">
                   {t("settings.billingAndCredits")}
                 </h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {creditBalance
                     ? t("settings.creditsAvailable", {
                         count: creditBalance.total_credits,
@@ -262,32 +262,32 @@ export default function SettingsPage() {
                 </p>
               </div>
             </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            <ChevronRight className="text-muted-foreground h-5 w-5" />
           </div>
         </div>
       </Link>
 
-      <div className="rounded-xl border bg-card p-6">
+      <div className="bg-card rounded-xl border p-6">
         <h2 className="font-semibold">{t("settings.account")}</h2>
         <div className="mt-4 space-y-4">
-          <div className="flex items-start gap-4 rounded-lg bg-muted/50 p-4">
-            <div className="rounded-lg bg-primary/10 p-2">
-              <Shield className="h-5 w-5 text-primary" />
+          <div className="bg-muted/50 flex items-start gap-4 rounded-lg p-4">
+            <div className="bg-primary/10 rounded-lg p-2">
+              <Shield className="text-primary h-5 w-5" />
             </div>
             <div>
               <p className="font-medium">{t("settings.authentication")}</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 {t("settings.signedInViaGoogle")}
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-4 rounded-lg bg-muted/50 p-4">
-            <div className="rounded-lg bg-primary/10 p-2">
-              <Calendar className="h-5 w-5 text-primary" />
+          <div className="bg-muted/50 flex items-start gap-4 rounded-lg p-4">
+            <div className="bg-primary/10 rounded-lg p-2">
+              <Calendar className="text-primary h-5 w-5" />
             </div>
             <div>
               <p className="font-medium">{t("settings.memberSince")}</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 {user?.created_at
                   ? new Date(user.created_at).toLocaleDateString(
                       currentLocale,

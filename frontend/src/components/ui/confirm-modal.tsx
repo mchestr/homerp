@@ -83,7 +83,7 @@ export function ConfirmModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -92,7 +92,7 @@ export function ConfirmModal({
       <div
         ref={modalRef}
         className={cn(
-          "w-full max-w-md rounded-xl bg-background shadow-2xl",
+          "bg-background w-full max-w-md rounded-xl shadow-2xl",
           "animate-in fade-in-0 zoom-in-95 duration-200"
         )}
       >
@@ -104,18 +104,18 @@ export function ConfirmModal({
             <h2 id="modal-title" className="text-lg font-semibold">
               {title}
             </h2>
-            <p className="mt-2 text-sm text-muted-foreground">{message}</p>
+            <p className="text-muted-foreground mt-2 text-sm">{message}</p>
           </div>
           <button
             onClick={onClose}
             disabled={isLoading}
-            className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
+            className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-1 transition-colors disabled:opacity-50"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="flex justify-end gap-3 border-t bg-muted/30 px-6 py-4">
+        <div className="bg-muted/30 flex justify-end gap-3 border-t px-6 py-4">
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
             {cancelLabel}
           </Button>

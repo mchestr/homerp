@@ -45,7 +45,7 @@ export function DynamicAttributeForm({
 
   return (
     <div className={cn("space-y-4", className)}>
-      <h3 className="text-sm font-medium text-muted-foreground">
+      <h3 className="text-muted-foreground text-sm font-medium">
         Category Attributes
       </h3>
       <div className="grid gap-4 sm:grid-cols-2">
@@ -70,7 +70,7 @@ interface FieldRendererProps {
 
 function FieldRenderer({ field, value, onChange }: FieldRendererProps) {
   const inputClasses =
-    "h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20";
+    "h-11 w-full rounded-lg border bg-background px-4 text-base transition-colors focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20";
 
   const labelClasses = "mb-1.5 block text-sm font-medium";
 
@@ -80,7 +80,7 @@ function FieldRenderer({ field, value, onChange }: FieldRendererProps) {
         <div>
           <label className={labelClasses}>
             {field.label}
-            {field.required && <span className="ml-1 text-destructive">*</span>}
+            {field.required && <span className="text-destructive ml-1">*</span>}
           </label>
           <div className="relative">
             <input
@@ -92,7 +92,7 @@ function FieldRenderer({ field, value, onChange }: FieldRendererProps) {
               className={cn(inputClasses, field.unit && "pr-12")}
             />
             {field.unit && (
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+              <span className="text-muted-foreground absolute top-1/2 right-4 -translate-y-1/2 text-sm">
                 {field.unit}
               </span>
             )}
@@ -105,7 +105,7 @@ function FieldRenderer({ field, value, onChange }: FieldRendererProps) {
         <div>
           <label className={labelClasses}>
             {field.label}
-            {field.required && <span className="ml-1 text-destructive">*</span>}
+            {field.required && <span className="text-destructive ml-1">*</span>}
           </label>
           <div className="relative">
             <input
@@ -119,7 +119,7 @@ function FieldRenderer({ field, value, onChange }: FieldRendererProps) {
               className={cn(inputClasses, field.unit && "pr-12")}
             />
             {field.unit && (
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+              <span className="text-muted-foreground absolute top-1/2 right-4 -translate-y-1/2 text-sm">
                 {field.unit}
               </span>
             )}
@@ -132,7 +132,7 @@ function FieldRenderer({ field, value, onChange }: FieldRendererProps) {
         <div>
           <label className={labelClasses}>
             {field.label}
-            {field.required && <span className="ml-1 text-destructive">*</span>}
+            {field.required && <span className="text-destructive ml-1">*</span>}
           </label>
           <select
             value={(value as string) ?? ""}
@@ -158,7 +158,7 @@ function FieldRenderer({ field, value, onChange }: FieldRendererProps) {
             id={`attr-${field.name}`}
             checked={(value as boolean) ?? false}
             onChange={(e) => onChange(e.target.checked)}
-            className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
+            className="text-primary focus:ring-primary h-5 w-5 rounded border-gray-300"
           />
           <label htmlFor={`attr-${field.name}`} className="text-sm font-medium">
             {field.label}
@@ -223,14 +223,14 @@ export function AttributeTemplateEditor({
         <button
           type="button"
           onClick={addField}
-          className="text-sm text-primary hover:underline"
+          className="text-primary text-sm hover:underline"
         >
           + Add Field
         </button>
       </div>
 
       {fields.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           No attribute fields defined. Items in this category will only have
           standard fields.
         </p>
@@ -239,7 +239,7 @@ export function AttributeTemplateEditor({
           {fields.map((field, index) => (
             <div
               key={index}
-              className="space-y-3 rounded-lg border bg-card p-4"
+              className="bg-card space-y-3 rounded-lg border p-4"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="grid flex-1 gap-3 sm:grid-cols-2">
@@ -255,7 +255,7 @@ export function AttributeTemplateEditor({
                       updateField(index, { label, name });
                     }}
                     placeholder="Field label"
-                    className="h-9 rounded border bg-background px-3 text-sm"
+                    className="bg-background h-9 rounded border px-3 text-sm"
                   />
                   <select
                     value={field.type}
@@ -265,7 +265,7 @@ export function AttributeTemplateEditor({
                         options: e.target.value === "select" ? [""] : undefined,
                       })
                     }
-                    className="h-9 rounded border bg-background px-3 text-sm"
+                    className="bg-background h-9 rounded border px-3 text-sm"
                   >
                     <option value="text">Text</option>
                     <option value="number">Number</option>
@@ -278,7 +278,7 @@ export function AttributeTemplateEditor({
                     type="button"
                     onClick={() => moveField(index, "up")}
                     disabled={index === 0}
-                    className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                    className="text-muted-foreground hover:text-foreground p-1 disabled:opacity-30"
                   >
                     <svg
                       className="h-4 w-4"
@@ -298,7 +298,7 @@ export function AttributeTemplateEditor({
                     type="button"
                     onClick={() => moveField(index, "down")}
                     disabled={index === fields.length - 1}
-                    className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                    className="text-muted-foreground hover:text-foreground p-1 disabled:opacity-30"
                   >
                     <svg
                       className="h-4 w-4"
@@ -317,7 +317,7 @@ export function AttributeTemplateEditor({
                   <button
                     type="button"
                     onClick={() => removeField(index)}
-                    className="p-1 text-destructive hover:text-destructive/80"
+                    className="text-destructive hover:text-destructive/80 p-1"
                   >
                     <svg
                       className="h-4 w-4"
@@ -357,14 +357,14 @@ export function AttributeTemplateEditor({
                       updateField(index, { unit: e.target.value || undefined })
                     }
                     placeholder="Unit (e.g., mm, kg)"
-                    className="h-8 w-28 rounded border bg-background px-2 text-sm"
+                    className="bg-background h-8 w-28 rounded border px-2 text-sm"
                   />
                 )}
               </div>
 
               {field.type === "select" && (
                 <div>
-                  <label className="text-xs text-muted-foreground">
+                  <label className="text-muted-foreground text-xs">
                     Options (comma-separated)
                   </label>
                   <input
@@ -379,7 +379,7 @@ export function AttributeTemplateEditor({
                       })
                     }
                     placeholder="Option 1, Option 2, Option 3"
-                    className="mt-1 h-9 w-full rounded border bg-background px-3 text-sm"
+                    className="bg-background mt-1 h-9 w-full rounded border px-3 text-sm"
                   />
                 </div>
               )}

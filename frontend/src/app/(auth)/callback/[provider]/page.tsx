@@ -51,13 +51,13 @@ function CallbackContent() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center p-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-destructive">
+          <h1 className="text-destructive text-2xl font-bold">
             Authentication Failed
           </h1>
-          <p className="mt-2 text-muted-foreground">{error}</p>
+          <p className="text-muted-foreground mt-2">{error}</p>
           <button
             onClick={() => router.push("/login")}
-            className="mt-4 text-primary underline"
+            className="text-primary mt-4 underline"
           >
             Back to Login
           </button>
@@ -69,7 +69,7 @@ function CallbackContent() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="text-center">
-        <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
         <p className="text-muted-foreground">Completing sign in...</p>
       </div>
     </div>
@@ -82,7 +82,7 @@ export default function OAuthCallbackPage() {
       fallback={
         <div className="flex min-h-screen items-center justify-center">
           <div className="text-center">
-            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
             <p className="text-muted-foreground">Loading...</p>
           </div>
         </div>

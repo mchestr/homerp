@@ -537,6 +537,55 @@ export const testSimilarItems = {
   total_searched: 50,
 };
 
+// Declutter test data
+export const testDeclutterCost = {
+  total_items: 25,
+  items_to_analyze: 25,
+  credits_required: 1,
+  items_per_credit: 50,
+  has_sufficient_credits: true,
+  user_credit_balance: 15,
+  has_profile: true,
+};
+
+export const testDeclutterCostFewItems = {
+  total_items: 15,
+  items_to_analyze: 15,
+  credits_required: 1,
+  items_per_credit: 50,
+  has_sufficient_credits: true,
+  user_credit_balance: 15,
+  has_profile: true,
+};
+
+export const testDeclutterRecommendations = [
+  {
+    id: "rec-1",
+    user_id: "test-user-123",
+    item_id: "item-2",
+    reason:
+      "You have 100 of these resistors but haven't used them in over 6 months.",
+    confidence: 0.85,
+    factors: {
+      unused_duration: true,
+      high_quantity: true,
+      low_value: true,
+      not_matching_interests: false,
+    },
+    status: "pending",
+    user_feedback: null,
+    created_at: "2024-06-01T00:00:00Z",
+    resolved_at: null,
+    item_name: "Resistor 10k",
+    item_quantity: 100,
+    item_quantity_unit: "pcs",
+    item_price: 0.01,
+    item_category_name: "Components",
+    item_location_name: "Shelf A",
+    last_used_at: null,
+  },
+];
+
 // Gridfinity test data
 export const testGridfinityUnits = [
   {

@@ -68,7 +68,7 @@ export function InsufficientCreditsModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -77,7 +77,7 @@ export function InsufficientCreditsModal({
       <div
         ref={modalRef}
         className={cn(
-          "w-full max-w-md rounded-xl bg-background shadow-2xl",
+          "bg-background w-full max-w-md rounded-xl shadow-2xl",
           "animate-in fade-in-0 zoom-in-95 duration-200"
         )}
       >
@@ -89,7 +89,7 @@ export function InsufficientCreditsModal({
             <h2 id="modal-title" className="text-lg font-semibold">
               Insufficient Credits
             </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-2 text-sm">
               You don&apos;t have enough credits to use AI classification.
               Credit purchases help cover the costs of AI tokens and site
               maintenance for this hobbyist project.
@@ -97,13 +97,13 @@ export function InsufficientCreditsModal({
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-1 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="flex justify-end gap-3 border-t bg-muted/30 px-6 py-4">
+        <div className="bg-muted/30 flex justify-end gap-3 border-t px-6 py-4">
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>

@@ -10,6 +10,10 @@ import { defineConfig, devices } from "@playwright/test";
  * - API mocks are set up per-test for isolation
  * - Mobile viewport testing included for responsive validation
  */
+
+const baseURL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
+const port = new URL(baseURL).port || "3000";
+
 export default defineConfig({
   testDir: "./e2e",
 
@@ -33,7 +37,7 @@ export default defineConfig({
   /* Shared settings for all projects */
   use: {
     /* Base URL for navigation */
-    baseURL: "http://localhost:3000",
+    baseURL,
 
     /* Collect trace when retrying failed tests */
     trace: "on-first-retry",
@@ -61,8 +65,8 @@ export default defineConfig({
 
   /* Development server configuration */
   webServer: {
-    command: "pnpm dev",
-    url: "http://localhost:3000",
+    command: `pnpm dev --port ${port}`,
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },

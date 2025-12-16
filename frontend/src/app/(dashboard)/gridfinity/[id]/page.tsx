@@ -413,7 +413,7 @@ export default function GridfinityEditorPage() {
   if (unitLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -421,8 +421,8 @@ export default function GridfinityEditorPage() {
   if (unitError) {
     return (
       <div className="py-12 text-center">
-        <AlertCircle className="mx-auto h-12 w-12 text-destructive" />
-        <p className="mt-4 text-muted-foreground">
+        <AlertCircle className="text-destructive mx-auto h-12 w-12" />
+        <p className="text-muted-foreground mt-4">
           {t("loadError", {
             error:
               unitError instanceof Error
@@ -471,7 +471,7 @@ export default function GridfinityEditorPage() {
             </Link>
             <div>
               <h1 className="text-xl font-semibold">{unit.name}</h1>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 {unit.grid_columns} x {unit.grid_rows} {t("grid")} (
                 {unit.container_width_mm} x {unit.container_depth_mm} mm)
               </p>
@@ -497,9 +497,9 @@ export default function GridfinityEditorPage() {
 
         {/* Error message */}
         {errorMessage && (
-          <div className="flex items-center gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-3">
-            <AlertCircle className="h-5 w-5 text-destructive" />
-            <p className="flex-1 text-sm text-destructive">{errorMessage}</p>
+          <div className="border-destructive/50 bg-destructive/10 flex items-center gap-3 rounded-lg border p-3">
+            <AlertCircle className="text-destructive h-5 w-5" />
+            <p className="text-destructive flex-1 text-sm">{errorMessage}</p>
             <Button
               variant="ghost"
               size="icon"
@@ -521,7 +521,7 @@ export default function GridfinityEditorPage() {
           {/* Grid editor */}
           <div className="flex-1 overflow-auto">
             <div
-              className="inline-grid gap-1 rounded-lg bg-muted/30 p-4"
+              className="bg-muted/30 inline-grid gap-1 rounded-lg p-4"
               style={{
                 gridTemplateColumns: `repeat(${unit.grid_columns}, minmax(48px, 1fr))`,
               }}
@@ -567,17 +567,17 @@ export default function GridfinityEditorPage() {
               <div className="flex items-center gap-2">
                 <h2 className="font-semibold">{t("availableItems")}</h2>
                 {recommendationsLoading && (
-                  <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                  <Loader2 className="text-muted-foreground h-3 w-3 animate-spin" />
                 )}
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {t("dragToPlace")}
               </p>
             </div>
 
             <div className="py-3">
               <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
                 <Input
                   placeholder={tCommon("search")}
                   value={itemSearch}
@@ -589,7 +589,7 @@ export default function GridfinityEditorPage() {
 
             <div className="flex-1 space-y-1 overflow-auto">
               {availableItems.length === 0 ? (
-                <p className="py-4 text-center text-sm text-muted-foreground">
+                <p className="text-muted-foreground py-4 text-center text-sm">
                   {t("noAvailableItems")}
                 </p>
               ) : (
@@ -604,7 +604,7 @@ export default function GridfinityEditorPage() {
             </div>
 
             {/* Placed items count */}
-            <div className="border-t pt-3 text-sm text-muted-foreground">
+            <div className="text-muted-foreground border-t pt-3 text-sm">
               {t("placedItems", { count: unit.placements?.length || 0 })}
             </div>
           </div>
@@ -614,7 +614,7 @@ export default function GridfinityEditorPage() {
       {/* Drag overlay */}
       <DragOverlay>
         {activeItem && (
-          <div className="rounded bg-primary px-3 py-2 text-sm font-medium text-primary-foreground shadow-lg">
+          <div className="bg-primary text-primary-foreground rounded px-3 py-2 text-sm font-medium shadow-lg">
             {activeItem.type === "item"
               ? activeItem.item?.name
               : activeItem.placement
@@ -642,12 +642,12 @@ export default function GridfinityEditorPage() {
             <div className="space-y-4">
               {/* Recommendation info */}
               {pendingPlacement.recommendation && (
-                <div className="rounded-lg bg-muted p-3">
+                <div className="bg-muted rounded-lg p-3">
                   <div className="flex items-center gap-2 text-sm font-medium">
                     <Grid3X3 className="h-4 w-4" />
                     {t("placementDialog.recommended")}
                   </div>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="text-muted-foreground mt-1 text-sm">
                     {pendingPlacement.recommendation.reasoning}
                   </p>
                 </div>
@@ -706,7 +706,7 @@ export default function GridfinityEditorPage() {
                       >
                         {preset.label}
                         {isRecommended && (
-                          <span className="absolute -right-1 -top-1 flex h-3 w-3 items-center justify-center rounded-full bg-primary text-[8px] text-primary-foreground">
+                          <span className="bg-primary text-primary-foreground absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full text-[8px]">
                             ✓
                           </span>
                         )}
@@ -743,7 +743,7 @@ export default function GridfinityEditorPage() {
                     }}
                   />
                 </div>
-                <X className="mt-6 h-4 w-4 text-muted-foreground" />
+                <X className="text-muted-foreground mt-6 h-4 w-4" />
                 <div className="flex-1">
                   <Label>{t("placementDialog.depth")}</Label>
                   <Input
@@ -773,7 +773,7 @@ export default function GridfinityEditorPage() {
 
               {/* Preview */}
               <div className="rounded-lg border p-3">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {t("placementDialog.preview", {
                     width: pendingPlacement.widthUnits,
                     depth: pendingPlacement.depthUnits,
@@ -793,9 +793,9 @@ export default function GridfinityEditorPage() {
                 pendingPlacement.widthUnits,
                 pendingPlacement.depthUnits
               ) && (
-                <div className="flex items-center gap-2 rounded-lg border border-destructive bg-destructive/10 p-3">
-                  <AlertCircle className="h-4 w-4 text-destructive" />
-                  <p className="text-sm text-destructive">
+                <div className="border-destructive bg-destructive/10 flex items-center gap-2 rounded-lg border p-3">
+                  <AlertCircle className="text-destructive h-4 w-4" />
+                  <p className="text-destructive text-sm">
                     {t("placementDialog.overlapWarning")}
                   </p>
                 </div>
@@ -922,7 +922,7 @@ export default function GridfinityEditorPage() {
                     }}
                   />
                 </div>
-                <X className="mt-6 h-4 w-4 text-muted-foreground" />
+                <X className="text-muted-foreground mt-6 h-4 w-4" />
                 <div className="flex-1">
                   <Label>{t("placementDialog.depth")}</Label>
                   <Input
@@ -955,7 +955,7 @@ export default function GridfinityEditorPage() {
 
               {/* Preview */}
               <div className="rounded-lg border p-3">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {t("placementDialog.preview", {
                     width: editingPlacement.widthUnits,
                     depth: editingPlacement.depthUnits,
@@ -976,9 +976,9 @@ export default function GridfinityEditorPage() {
                 editingPlacement.depthUnits,
                 editingPlacement.placement.id
               ) && (
-                <div className="flex items-center gap-2 rounded-lg border border-destructive bg-destructive/10 p-3">
-                  <AlertCircle className="h-4 w-4 text-destructive" />
-                  <p className="text-sm text-destructive">
+                <div className="border-destructive bg-destructive/10 flex items-center gap-2 rounded-lg border p-3">
+                  <AlertCircle className="text-destructive h-4 w-4" />
+                  <p className="text-destructive text-sm">
                     {t("editPlacementDialog.overlapWarning")}
                   </p>
                 </div>
@@ -1058,7 +1058,7 @@ function GridCell({
       className={cn(
         "h-12 w-12 rounded border-2 border-dashed transition-colors",
         isOccupied
-          ? "border-transparent bg-muted"
+          ? "bg-muted border-transparent"
           : isOver
             ? "border-primary bg-primary/10"
             : "border-muted-foreground/20 hover:border-muted-foreground/40"
@@ -1088,7 +1088,7 @@ function DraggablePlacement({
     <div
       ref={setNodeRef}
       className={cn(
-        "group relative flex h-12 w-12 items-center justify-center rounded border-2 border-primary bg-primary/20",
+        "group border-primary bg-primary/20 relative flex h-12 w-12 items-center justify-center rounded border-2",
         isDragging && "opacity-50"
       )}
       style={{
@@ -1114,14 +1114,14 @@ function DraggablePlacement({
         </span>
       </div>
       {/* Action buttons */}
-      <div className="absolute -right-1 -top-1 flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+      <div className="absolute -top-1 -right-1 flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
         {onEdit && (
           <button
             onClick={(e) => {
               e.stopPropagation();
               onEdit();
             }}
-            className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground"
+            className="bg-primary text-primary-foreground flex h-5 w-5 items-center justify-center rounded-full"
             data-testid="placement-edit-button"
             aria-label="Resize placement"
           >
@@ -1134,7 +1134,7 @@ function DraggablePlacement({
               e.stopPropagation();
               onDelete();
             }}
-            className="flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground"
+            className="bg-destructive text-destructive-foreground flex h-5 w-5 items-center justify-center rounded-full"
             data-testid="placement-delete-button"
             aria-label="Remove placement"
           >
@@ -1163,24 +1163,24 @@ function DraggableItemCard({
     <div
       ref={setNodeRef}
       className={cn(
-        "flex cursor-grab items-center gap-2 rounded border p-2 hover:bg-muted/50 active:cursor-grabbing",
+        "hover:bg-muted/50 flex cursor-grab items-center gap-2 rounded border p-2 active:cursor-grabbing",
         isDragging && "opacity-50"
       )}
       {...attributes}
       {...listeners}
       data-testid={`item-card-${item.id}`}
     >
-      <GripVertical className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+      <GripVertical className="text-muted-foreground h-4 w-4 shrink-0" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{item.name}</p>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="text-muted-foreground flex items-center gap-2 text-xs">
           {item.location && (
             <span className="truncate">{item.location.name}</span>
           )}
           {recommendation && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="inline-flex items-center gap-1 rounded bg-primary/10 px-1.5 py-0.5 text-primary">
+                <span className="bg-primary/10 text-primary inline-flex items-center gap-1 rounded px-1.5 py-0.5">
                   <Grid3X3 className="h-3 w-3" />
                   {recommendation.recommended_width_units}×
                   {recommendation.recommended_depth_units}

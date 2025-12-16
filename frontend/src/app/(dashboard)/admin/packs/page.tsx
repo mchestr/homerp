@@ -185,7 +185,7 @@ function PackFormDialog({
                   }
                   required
                 />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   {formatPrice(parseInt(formData.price_cents) || 0)}
                 </p>
               </div>
@@ -201,7 +201,7 @@ function PackFormDialog({
                 placeholder="price_..."
                 required
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Get this from your Stripe Dashboard under Products
               </p>
             </div>
@@ -298,7 +298,7 @@ export default function AdminPacksPage() {
   if (authLoading || !user?.is_admin) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -331,7 +331,7 @@ export default function AdminPacksPage() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             Credit Packs
           </h1>
-          <p className="mt-1 text-muted-foreground">
+          <p className="text-muted-foreground mt-1">
             Manage credit pack options available for purchase
           </p>
         </div>
@@ -343,16 +343,16 @@ export default function AdminPacksPage() {
 
       {packsLoading ? (
         <div className="flex h-32 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
         </div>
       ) : (
         <>
           {/* Desktop Table View */}
-          <div className="hidden rounded-xl border bg-card md:block">
+          <div className="bg-card hidden rounded-xl border md:block">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b text-left text-sm text-muted-foreground">
+                  <tr className="text-muted-foreground border-b text-left text-sm">
                     <th className="px-4 py-3 font-medium">Name</th>
                     <th className="px-4 py-3 font-medium">Credits</th>
                     <th className="px-4 py-3 font-medium">Price</th>
@@ -372,7 +372,7 @@ export default function AdminPacksPage() {
                       <td className="px-4 py-3">
                         {formatPrice(pack.price_cents)}
                       </td>
-                      <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                      <td className="text-muted-foreground px-4 py-3 font-mono text-xs">
                         {pack.stripe_price_id}
                       </td>
                       <td className="px-4 py-3">
@@ -401,7 +401,7 @@ export default function AdminPacksPage() {
                             size="icon"
                             onClick={() => setDeletePackId(pack.id)}
                           >
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <Trash2 className="text-destructive h-4 w-4" />
                           </Button>
                         </div>
                       </td>
@@ -411,7 +411,7 @@ export default function AdminPacksPage() {
                     <tr>
                       <td
                         colSpan={7}
-                        className="px-4 py-8 text-center text-muted-foreground"
+                        className="text-muted-foreground px-4 py-8 text-center"
                       >
                         No credit packs yet. Create one to get started.
                       </td>
@@ -425,11 +425,11 @@ export default function AdminPacksPage() {
           {/* Mobile Card View */}
           <div className="space-y-3 md:hidden">
             {packs?.map((pack) => (
-              <div key={pack.id} className="rounded-xl border bg-card p-4">
+              <div key={pack.id} className="bg-card rounded-xl border p-4">
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="font-medium">{pack.name}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {pack.credits} credits · {formatPrice(pack.price_cents)}
                     </p>
                   </div>
@@ -444,7 +444,7 @@ export default function AdminPacksPage() {
                   )}
                 </div>
                 <div className="mt-2">
-                  <p className="truncate font-mono text-xs text-muted-foreground">
+                  <p className="text-muted-foreground truncate font-mono text-xs">
                     {pack.stripe_price_id}
                   </p>
                 </div>
@@ -470,7 +470,7 @@ export default function AdminPacksPage() {
               </div>
             ))}
             {(!packs || packs.length === 0) && (
-              <div className="rounded-xl border bg-card p-8 text-center text-muted-foreground">
+              <div className="bg-card text-muted-foreground rounded-xl border p-8 text-center">
                 No credit packs yet. Create one to get started.
               </div>
             )}

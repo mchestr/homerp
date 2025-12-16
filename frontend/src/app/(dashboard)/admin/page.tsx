@@ -52,15 +52,15 @@ function StatCard({
   const content = (
     <div
       data-testid={testId}
-      className="rounded-xl border bg-card p-4 transition-colors hover:bg-accent/50 sm:p-6"
+      className="bg-card hover:bg-accent/50 rounded-xl border p-4 transition-colors sm:p-6"
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-primary/10 p-2">
-            <Icon className="h-5 w-5 text-primary" />
+          <div className="bg-primary/10 rounded-lg p-2">
+            <Icon className="text-primary h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">{title}</p>
+            <p className="text-muted-foreground text-sm">{title}</p>
             <p className="text-xl font-bold sm:text-2xl">{value}</p>
           </div>
         </div>
@@ -75,7 +75,7 @@ function StatCard({
         )}
       </div>
       {description && (
-        <p className="mt-2 text-xs text-muted-foreground">{description}</p>
+        <p className="text-muted-foreground mt-2 text-xs">{description}</p>
       )}
     </div>
   );
@@ -103,12 +103,13 @@ function QuickActionCard({
   badgeVariant?: "default" | "secondary" | "destructive" | "outline";
   testId?: string;
 }) {
+  const t = useTranslations("admin");
   return (
     <Link href={href} data-testid={testId}>
-      <div className="group flex h-full flex-col rounded-xl border bg-card p-4 transition-all hover:border-primary/50 hover:shadow-md sm:p-6">
+      <div className="group bg-card hover:border-primary/50 flex h-full flex-col rounded-xl border p-4 transition-all hover:shadow-md sm:p-6">
         <div className="flex items-start justify-between">
-          <div className="rounded-lg bg-primary/10 p-2.5">
-            <Icon className="h-5 w-5 text-primary" />
+          <div className="bg-primary/10 rounded-lg p-2.5">
+            <Icon className="text-primary h-5 w-5" />
           </div>
           {badge !== undefined && (
             <Badge
@@ -121,10 +122,10 @@ function QuickActionCard({
         </div>
         <div className="mt-4 flex-1">
           <h3 className="font-semibold">{title}</h3>
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+          <p className="text-muted-foreground mt-1 text-sm">{description}</p>
         </div>
-        <div className="mt-4 flex items-center text-sm font-medium text-primary">
-          <span>Manage</span>
+        <div className="text-primary mt-4 flex items-center text-sm font-medium">
+          <span>{t("manage")}</span>
           <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
         </div>
       </div>
@@ -168,26 +169,34 @@ function ActivityItem({ activity }: { activity: RecentActivityItem }) {
   };
 
   return (
-    <div className="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-muted/50">
-      <div className="mt-0.5 rounded-full bg-muted p-1.5">{getIcon()}</div>
+    <div className="hover:bg-muted/50 flex items-start gap-2 rounded-lg p-2 transition-colors sm:gap-3 sm:p-3">
+      <div className="bg-muted mt-0.5 shrink-0 rounded-full p-1 sm:p-1.5">
+        {getIcon()}
+      </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <p className="truncate text-sm font-medium">{activity.title}</p>
+          <p className="truncate text-xs font-medium sm:text-sm">
+            {activity.title}
+          </p>
           {getStatusBadge()}
         </div>
         {activity.description && (
-          <p className="truncate text-xs text-muted-foreground">
+          <p className="text-muted-foreground truncate text-xs">
             {activity.description}
           </p>
         )}
-        <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-          {activity.user_email && (
-            <span className="truncate">{activity.user_email}</span>
-          )}
-          <span>·</span>
+        <div className="text-muted-foreground mt-1 flex flex-col gap-0.5 text-xs sm:flex-row sm:items-center sm:gap-2">
           <span className="whitespace-nowrap">
             {formatRelativeTime(activity.timestamp)}
           </span>
+          {activity.user_email && (
+            <>
+              <span className="hidden sm:inline">·</span>
+              <span className="truncate text-xs opacity-75 sm:opacity-100">
+                {activity.user_email}
+              </span>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -214,7 +223,7 @@ export default function AdminPage() {
   if (authLoading || !user?.is_admin) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -226,14 +235,14 @@ export default function AdminPage() {
         <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
           {t("admin.title")}
         </h1>
-        <p className="mt-1 text-muted-foreground">
+        <p className="text-muted-foreground mt-1">
           {t("admin.dashboardSubtitle")}
         </p>
       </div>
 
       {statsLoading ? (
         <div className="flex h-64 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
         </div>
       ) : stats ? (
         <>
@@ -340,27 +349,27 @@ export default function AdminPage() {
             </div>
 
             {/* Recent Activity */}
-            <div>
-              <h2 className="mb-4 text-lg font-semibold">
+            <div className="order-first lg:order-none">
+              <h2 className="mb-3 text-base font-semibold sm:mb-4 sm:text-lg">
                 {t("admin.recentActivity")}
               </h2>
               <div
-                className="rounded-xl border bg-card"
+                className="bg-card rounded-xl border"
                 data-testid="recent-activity-feed"
               >
                 {stats.recent_activity.length > 0 ? (
-                  <div className="max-h-[400px] divide-y overflow-y-auto">
+                  <div className="max-h-[280px] divide-y overflow-y-auto sm:max-h-[400px]">
                     {stats.recent_activity.map((activity) => (
                       <ActivityItem key={activity.id} activity={activity} />
                     ))}
                   </div>
                 ) : (
                   <div
-                    className="flex flex-col items-center justify-center p-8 text-center"
+                    className="flex flex-col items-center justify-center p-6 text-center sm:p-8"
                     data-testid="no-activity-message"
                   >
-                    <AlertCircle className="mb-2 h-8 w-8 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">
+                    <AlertCircle className="text-muted-foreground mb-2 h-6 w-6 sm:h-8 sm:w-8" />
+                    <p className="text-muted-foreground text-sm">
                       {t("admin.noRecentActivity")}
                     </p>
                   </div>

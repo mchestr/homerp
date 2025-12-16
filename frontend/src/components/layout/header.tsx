@@ -66,17 +66,17 @@ export function Header({ onMenuClick }: HeaderProps) {
     tInventory("sharedInventory");
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-card/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-card/60 md:px-6">
+    <header className="bg-card/95 supports-backdrop-filter:bg-card/60 sticky top-0 z-30 flex h-16 items-center justify-between border-b px-4 backdrop-blur-sm md:px-6">
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
-          className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground md:hidden"
+          className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2 md:hidden"
         >
           <Menu className="h-5 w-5" />
         </button>
         <Link href="/dashboard" className="flex items-center gap-2 md:hidden">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <Package className="h-4 w-4 text-primary-foreground" />
+          <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
+            <Package className="text-primary-foreground h-4 w-4" />
           </div>
           <span className="font-semibold">HomERP</span>
         </Link>
@@ -89,10 +89,10 @@ export function Header({ onMenuClick }: HeaderProps) {
           className="flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm dark:border-blue-800 dark:bg-blue-950"
         >
           <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-          <span className="hidden text-blue-700 dark:text-blue-300 sm:inline">
+          <span className="hidden text-blue-700 sm:inline dark:text-blue-300">
             {tInventory("viewingInventoryOf", { name: ownerName })}
           </span>
-          <span className="text-blue-700 dark:text-blue-300 sm:hidden">
+          <span className="text-blue-700 sm:hidden dark:text-blue-300">
             {ownerName}
           </span>
           <Badge
@@ -113,7 +113,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               <TooltipTrigger asChild>
                 <Link
                   href="/settings/billing"
-                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors hover:bg-muted ${
+                  className={`hover:bg-muted flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors ${
                     creditBalance.total_credits <= 5
                       ? "text-amber-600 dark:text-amber-400"
                       : "text-muted-foreground"
@@ -145,7 +145,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                       </p>
                     )}
                   </div>
-                  <p className="pt-1 text-xs text-primary">
+                  <p className="text-primary pt-1 text-xs">
                     {t("manageCredits")}
                   </p>
                 </div>
@@ -162,10 +162,10 @@ export function Header({ onMenuClick }: HeaderProps) {
               <img
                 src={user.avatar_url}
                 alt={user.name || "User"}
-                className="h-8 w-8 rounded-full ring-2 ring-border"
+                className="ring-border h-8 w-8 rounded-full ring-2"
               />
             ) : (
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted ring-2 ring-border">
+              <div className="bg-muted ring-border flex h-8 w-8 items-center justify-center rounded-full ring-2">
                 <User className="h-4 w-4" />
               </div>
             )}

@@ -175,8 +175,8 @@ export default function ItemDetailPage() {
     return (
       <div className="flex items-center justify-center py-16">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground">
+          <div className="border-primary h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
+          <p className="text-muted-foreground text-sm">
             {tItems("loadingItem")}
           </p>
         </div>
@@ -187,11 +187,11 @@ export default function ItemDetailPage() {
   if (!item) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
-        <div className="rounded-full bg-muted p-4">
-          <Package className="h-10 w-10 text-muted-foreground" />
+        <div className="bg-muted rounded-full p-4">
+          <Package className="text-muted-foreground h-10 w-10" />
         </div>
         <h2 className="mt-4 text-xl font-semibold">{tItems("itemNotFound")}</h2>
-        <p className="mt-1 text-muted-foreground">
+        <p className="text-muted-foreground mt-1">
           {tItems("itemNotFoundDescription")}
         </p>
         <Link href="/items" className="mt-6">
@@ -221,7 +221,7 @@ export default function ItemDetailPage() {
             <h1 className="truncate text-2xl font-bold tracking-tight md:text-3xl">
               {item.name}
             </h1>
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+            <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-2 text-sm">
               <span className="flex items-center gap-1">
                 <Calendar className="h-3.5 w-3.5" />
                 Added {new Date(item.created_at).toLocaleDateString()}
@@ -269,16 +269,16 @@ export default function ItemDetailPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="overflow-hidden rounded-xl border bg-card p-4">
+        <div className="bg-card overflow-hidden rounded-xl border p-4">
           <ImageGallery images={item.images || []} />
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-xl border bg-card p-5">
+          <div className="bg-card rounded-xl border p-5">
             <div className="flex items-center justify-between">
               <h2 className="font-semibold">{tItems("quantity")}</h2>
               {item.min_quantity != null && (
-                <span className="text-sm text-muted-foreground">
+                <span className="text-muted-foreground text-sm">
                   {tItems("minQuantity")}: {String(item.min_quantity)}{" "}
                   {item.quantity_unit}
                 </span>
@@ -305,7 +305,7 @@ export default function ItemDetailPage() {
                 >
                   {item.quantity}
                 </span>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {item.quantity_unit}
                 </p>
               </div>
@@ -327,15 +327,15 @@ export default function ItemDetailPage() {
             )}
           </div>
 
-          <div className="rounded-xl border bg-card p-5">
+          <div className="bg-card rounded-xl border p-5">
             <h2 className="font-semibold">{tItems("organization")}</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <div className="flex items-start gap-3 rounded-lg bg-muted/50 p-3">
+              <div className="bg-muted/50 flex items-start gap-3 rounded-lg p-3">
                 <div className="rounded-lg bg-emerald-500/10 p-2 dark:bg-emerald-400/10">
                   <FolderOpen className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     {tItems("category")}
                   </p>
                   <p className="truncate font-medium">
@@ -344,12 +344,12 @@ export default function ItemDetailPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 rounded-lg bg-muted/50 p-3">
+              <div className="bg-muted/50 flex items-start gap-3 rounded-lg p-3">
                 <div className="rounded-lg bg-violet-500/10 p-2 dark:bg-violet-400/10">
                   <MapPin className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     {tItems("location")}
                   </p>
                   <p className="truncate font-medium">
@@ -361,13 +361,13 @@ export default function ItemDetailPage() {
           </div>
 
           {item.price != null && (
-            <div className="rounded-xl border bg-card p-5">
+            <div className="bg-card rounded-xl border p-5">
               <div className="flex items-center gap-3">
                 <div className="rounded-lg bg-green-500/10 p-2 dark:bg-green-400/10">
                   <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     {tItems("price")}
                   </p>
                   <p className="text-2xl font-bold tabular-nums">
@@ -379,9 +379,9 @@ export default function ItemDetailPage() {
           )}
 
           {item.description && (
-            <div className="rounded-xl border bg-card p-5">
+            <div className="bg-card rounded-xl border p-5">
               <h2 className="font-semibold">{tCommon("description")}</h2>
-              <p className="mt-2 leading-relaxed text-muted-foreground">
+              <p className="text-muted-foreground mt-2 leading-relaxed">
                 {item.description}
               </p>
             </div>
@@ -395,18 +395,18 @@ export default function ItemDetailPage() {
             const entries = Object.entries(specs as Record<string, unknown>);
             if (entries.length === 0) return null;
             return (
-              <div className="rounded-xl border bg-card p-5">
+              <div className="bg-card rounded-xl border p-5">
                 <div className="flex items-center gap-2">
-                  <Tag className="h-4 w-4 text-muted-foreground" />
+                  <Tag className="text-muted-foreground h-4 w-4" />
                   <h2 className="font-semibold">{tItems("specifications")}</h2>
                 </div>
                 <dl className="mt-4 space-y-3">
                   {entries.map(([key, value]) => (
                     <div
                       key={key}
-                      className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2"
+                      className="bg-muted/50 flex items-center justify-between rounded-lg px-3 py-2"
                     >
-                      <dt className="text-sm capitalize text-muted-foreground">
+                      <dt className="text-muted-foreground text-sm capitalize">
                         {key.replace(/_/g, " ")}
                       </dt>
                       <dd className="text-sm font-medium">
@@ -422,14 +422,14 @@ export default function ItemDetailPage() {
           })()}
 
           {/* Check-in/out Card */}
-          <div className="rounded-xl border bg-card p-5">
+          <div className="bg-card rounded-xl border p-5">
             <div className="flex items-center gap-2">
-              <LogOut className="h-4 w-4 text-muted-foreground" />
+              <LogOut className="text-muted-foreground h-4 w-4" />
               <h2 className="font-semibold">{t("checkInOut")}</h2>
             </div>
             <div className="mt-4 space-y-4">
               <div className="flex items-center gap-2">
-                <label className="w-20 text-sm text-muted-foreground">
+                <label className="text-muted-foreground w-20 text-sm">
                   {t("quantity")}
                 </label>
                 <Input
@@ -445,7 +445,7 @@ export default function ItemDetailPage() {
                 />
               </div>
               <div className="flex items-center gap-2">
-                <label className="w-20 text-sm text-muted-foreground">
+                <label className="text-muted-foreground w-20 text-sm">
                   {t("notes")}
                 </label>
                 <Input
@@ -555,30 +555,30 @@ export default function ItemDetailPage() {
 
           {/* Usage Stats Card */}
           {usageStats && (
-            <div className="rounded-xl border bg-card p-5">
+            <div className="bg-card rounded-xl border p-5">
               <div className="flex items-center gap-2">
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                <BarChart3 className="text-muted-foreground h-4 w-4" />
                 <h2 className="font-semibold">{t("usageStats")}</h2>
               </div>
               <div className="mt-4 grid grid-cols-2 gap-4">
-                <div className="rounded-lg bg-muted/50 p-3">
-                  <p className="text-xs text-muted-foreground">
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-muted-foreground text-xs">
                     {t("totalCheckOuts")}
                   </p>
                   <p className="text-2xl font-bold tabular-nums">
                     {usageStats.total_check_outs}
                   </p>
                 </div>
-                <div className="rounded-lg bg-muted/50 p-3">
-                  <p className="text-xs text-muted-foreground">
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-muted-foreground text-xs">
                     {t("totalCheckIns")}
                   </p>
                   <p className="text-2xl font-bold tabular-nums">
                     {usageStats.total_check_ins}
                   </p>
                 </div>
-                <div className="rounded-lg bg-muted/50 p-3">
-                  <p className="text-xs text-muted-foreground">
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-muted-foreground text-xs">
                     {t("currentlyOut")}
                   </p>
                   <p
@@ -591,8 +591,8 @@ export default function ItemDetailPage() {
                     {usageStats.currently_checked_out}
                   </p>
                 </div>
-                <div className="rounded-lg bg-muted/50 p-3">
-                  <p className="text-xs text-muted-foreground">
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-muted-foreground text-xs">
                     {t("lastUsed")}
                   </p>
                   <p className="text-sm font-medium">
@@ -607,16 +607,16 @@ export default function ItemDetailPage() {
 
           {/* History Card */}
           {historyData && historyData.items.length > 0 && (
-            <div className="rounded-xl border bg-card p-5">
+            <div className="bg-card rounded-xl border p-5">
               <div className="flex items-center gap-2">
-                <History className="h-4 w-4 text-muted-foreground" />
+                <History className="text-muted-foreground h-4 w-4" />
                 <h2 className="font-semibold">{t("history")}</h2>
               </div>
               <div className="mt-4 space-y-3">
                 {historyData.items.map((record) => (
                   <div
                     key={record.id}
-                    className="flex items-start gap-3 rounded-lg bg-muted/50 p-3"
+                    className="bg-muted/50 flex items-start gap-3 rounded-lg p-3"
                   >
                     <div
                       className={cn(
@@ -652,11 +652,11 @@ export default function ItemDetailPage() {
                         </span>
                       </p>
                       {record.notes && (
-                        <p className="truncate text-xs text-muted-foreground">
+                        <p className="text-muted-foreground truncate text-xs">
                           {record.notes}
                         </p>
                       )}
-                      <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                      <p className="text-muted-foreground mt-1 flex items-center gap-1 text-xs">
                         <Clock className="h-3 w-3" />
                         {new Date(record.occurred_at).toLocaleString()}
                       </p>
@@ -664,7 +664,7 @@ export default function ItemDetailPage() {
                   </div>
                 ))}
                 {historyData.total > 5 && (
-                  <p className="text-center text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-center text-xs">
                     {t("showingRecentHistory", { count: historyData.total })}
                   </p>
                 )}

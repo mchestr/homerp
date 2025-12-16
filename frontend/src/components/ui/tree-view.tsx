@@ -49,8 +49,8 @@ function TreeItem<T extends TreeNode>({
       <div
         className={cn(
           "group flex items-center gap-1 rounded-lg px-2 py-1.5 transition-colors",
-          "cursor-pointer hover:bg-accent",
-          isSelected && "border-l-2 border-primary bg-accent"
+          "hover:bg-accent cursor-pointer",
+          isSelected && "border-primary bg-accent border-l-2"
         )}
         style={{ paddingLeft: `${level * 20 + 8}px` }}
         onClick={() => onSelect?.(node)}
@@ -69,7 +69,7 @@ function TreeItem<T extends TreeNode>({
         >
           <ChevronRight
             className={cn(
-              "h-4 w-4 text-muted-foreground transition-transform",
+              "text-muted-foreground h-4 w-4 transition-transform",
               expanded && "rotate-90"
             )}
           />
@@ -84,7 +84,7 @@ function TreeItem<T extends TreeNode>({
         {/* Stats badges */}
         <div className="flex items-center gap-1.5">
           {typeof node.item_count === "number" && node.item_count > 0 && (
-            <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+            <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
               {node.item_count}
             </span>
           )}
@@ -138,7 +138,7 @@ export function TreeView<T extends TreeNode>({
 }: TreeViewProps<T>) {
   if (nodes.length === 0) {
     return (
-      <div className={cn("py-8 text-center text-muted-foreground", className)}>
+      <div className={cn("text-muted-foreground py-8 text-center", className)}>
         {emptyMessage}
       </div>
     );
@@ -204,8 +204,8 @@ export function TreeSelect<T extends TreeNode>({
       <button
         type="button"
         className={cn(
-          "flex h-11 w-full items-center justify-between rounded-lg border bg-background px-4 text-left text-base",
-          "transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20",
+          "bg-background flex h-11 w-full items-center justify-between rounded-lg border px-4 text-left text-base",
+          "focus:border-primary focus:ring-primary/20 transition-colors focus:ring-2 focus:outline-hidden",
           !selectedNode && "text-muted-foreground"
         )}
         onClick={() => setIsOpen(!isOpen)}
@@ -222,7 +222,7 @@ export function TreeSelect<T extends TreeNode>({
         </span>
         <ChevronRight
           className={cn(
-            "h-4 w-4 text-muted-foreground transition-transform",
+            "text-muted-foreground h-4 w-4 transition-transform",
             isOpen && "rotate-90"
           )}
         />
@@ -237,11 +237,11 @@ export function TreeSelect<T extends TreeNode>({
           />
 
           {/* Dropdown */}
-          <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-64 overflow-auto rounded-lg border bg-popover shadow-lg">
+          <div className="bg-popover absolute top-full right-0 left-0 z-20 mt-1 max-h-64 overflow-auto rounded-lg border shadow-lg">
             {allowClear && value && (
               <button
                 type="button"
-                className="w-full px-4 py-2 text-left text-sm text-muted-foreground hover:bg-accent"
+                className="text-muted-foreground hover:bg-accent w-full px-4 py-2 text-left text-sm"
                 onClick={() => {
                   onChange(null);
                   setIsOpen(false);
@@ -255,7 +255,7 @@ export function TreeSelect<T extends TreeNode>({
                 key={node.id}
                 type="button"
                 className={cn(
-                  "flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-accent",
+                  "hover:bg-accent flex w-full items-center gap-2 px-4 py-2 text-left text-sm",
                   node.id === value && "bg-accent"
                 )}
                 style={{ paddingLeft: `${node.level * 16 + 16}px` }}
@@ -269,7 +269,7 @@ export function TreeSelect<T extends TreeNode>({
               </button>
             ))}
             {flatNodes.length === 0 && (
-              <div className="px-4 py-2 text-sm text-muted-foreground">
+              <div className="text-muted-foreground px-4 py-2 text-sm">
                 No options available
               </div>
             )}

@@ -18,6 +18,7 @@ import {
   MessageSquare,
   Bot,
   ArrowRightFromLine,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -133,6 +134,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
   const adminSection: NavSection = {
     label: t("nav.admin"),
+    usesOwnData: true,
     items: [
       {
         title: t("sidebar.adminPanel"),
@@ -145,6 +147,12 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const allSections = user?.is_admin
     ? [...navSections, adminSection]
     : navSections;
+
+  // When viewing shared inventory, hide sections that use own data
+  // (AI Tools, Account, Admin) to avoid confusion
+  const visibleSections = isViewingSharedInventory
+    ? allSections.filter((section) => !section.usesOwnData)
+    : allSections;
 
   const isItemActive = (href: string) => {
     if (href === "/settings" && pathname === "/settings/billing") return false;
@@ -160,28 +168,28 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     <>
       {open && (
         <div
-          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden"
+          className="bg-background/80 fixed inset-0 z-40 backdrop-blur-xs md:hidden"
           onClick={onClose}
         />
       )}
 
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r bg-card transition-transform duration-300 ease-in-out md:static md:translate-x-0",
+          "bg-card fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r transition-transform duration-300 ease-in-out md:static md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Header */}
         <div className="flex h-16 items-center justify-between border-b px-5">
           <Link href="/dashboard" className="group flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary shadow-sm transition-transform group-hover:scale-105">
-              <Package className="h-4 w-4 text-primary-foreground" />
+            <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg shadow-xs transition-transform group-hover:scale-105">
+              <Package className="text-primary-foreground h-4 w-4" />
             </div>
             <span className="text-lg font-semibold tracking-tight">HomERP</span>
           </Link>
           <button
             onClick={onClose}
-            className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground md:hidden"
+            className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-md p-1.5 md:hidden"
           >
             <X className="h-5 w-5" />
           </button>
@@ -207,7 +215,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         {/* Navigation */}
         <div className="flex-1 overflow-auto px-3 pb-4">
           <nav className="space-y-6">
-            {allSections.map((section) => {
+            {visibleSections.map((section) => {
               // When viewing shared inventory, sections that DON'T use own data
               // (i.e., show the shared user's inventory) should be highlighted blue
               const isSharedDataSection =
@@ -217,7 +225,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                 <div key={section.label}>
                   <h3
                     className={cn(
-                      "mb-2 px-3 text-[11px] font-medium uppercase tracking-wider",
+                      "mb-2 px-3 text-[11px] font-medium tracking-wider uppercase",
                       isSharedDataSection
                         ? "text-blue-600 dark:text-blue-400"
                         : "text-muted-foreground"
@@ -256,9 +264,36 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           </nav>
         </div>
 
+        {/* User Profile */}
+        <div className="border-t px-4 py-3" data-testid="sidebar-user-profile">
+          <div className="flex items-center gap-3">
+            {user?.avatar_url ? (
+              <img
+                src={user.avatar_url}
+                alt={user.name || "User"}
+                className="ring-border h-8 w-8 rounded-full ring-2"
+              />
+            ) : (
+              <div className="bg-muted ring-border flex h-8 w-8 items-center justify-center rounded-full ring-2">
+                <User className="h-4 w-4" />
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium">
+                {user?.name || user?.email}
+              </p>
+              {user?.name && (
+                <p className="text-muted-foreground truncate text-xs">
+                  {user?.email}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Footer */}
         <div className="border-t px-5 py-4">
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-muted-foreground text-[11px]">
             {t("app.tagline")}
           </p>
         </div>

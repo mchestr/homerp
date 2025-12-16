@@ -10,7 +10,9 @@ from src.auth.dependencies import (
     EditableInventoryContextDep,
     InventoryContextDep,
 )
+from src.auth.service import AuthService, get_auth_service
 from src.billing.router import CreditServiceDep
+from src.config import Settings, get_settings
 from src.database import AsyncSessionDep
 from src.images.repository import ImageRepository
 from src.images.storage import LocalStorage, get_storage
@@ -22,6 +24,7 @@ from src.locations.schemas import (
     LocationBulkCreateResponse,
     LocationCreate,
     LocationMoveRequest,
+    LocationQrSignedUrlResponse,
     LocationResponse,
     LocationTreeNode,
     LocationUpdate,
@@ -345,19 +348,64 @@ async def get_location_with_ancestors(
     )
 
 
+@router.get("/{location_id}/qr/signed-url")
+async def get_location_qr_signed_url(
+    location_id: UUID,
+    session: AsyncSessionDep,
+    inventory_owner_id: InventoryContextDep,
+    settings: Annotated[Settings, Depends(get_settings)],
+    auth_service: Annotated[AuthService, Depends(get_auth_service)],
+    size: int = Query(10, ge=1, le=40, description="Scale factor (1-40)"),
+) -> LocationQrSignedUrlResponse:
+    """Get a signed URL for accessing a location's QR code.
+
+    This generates a short-lived token that can be used in browser <img> tags
+    where Authorization headers cannot be sent.
+    """
+    service = LocationService(session, inventory_owner_id)
+    location = await service.get_by_id(location_id)
+    if not location:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Location not found",
+        )
+
+    token = auth_service.create_location_token(inventory_owner_id, location_id)
+    base_url = settings.api_base_url or ""
+    url = f"{base_url}/api/v1/locations/{location_id}/qr?token={token}&size={size}"
+
+    return LocationQrSignedUrlResponse(url=url)
+
+
 @router.get("/{location_id}/qr")
 async def get_location_qr_code(
     location_id: UUID,
     session: AsyncSessionDep,
-    inventory_owner_id: InventoryContextDep,
     qr_service: Annotated[QRCodeService, Depends(get_qr_service)],
+    auth_service: Annotated[AuthService, Depends(get_auth_service)],
+    token: Annotated[str | None, Query()] = None,
     size: int = Query(10, ge=1, le=40, description="Scale factor (1-40)"),
 ) -> Response:
     """Generate a QR code PNG for a location.
 
     The QR code contains the location's URL for scanning.
+    Requires a valid signed token query parameter for authentication.
+    Use GET /{location_id}/qr/signed-url to obtain a token.
     """
-    service = LocationService(session, inventory_owner_id)
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token required",
+        )
+
+    user_id = auth_service.verify_location_token(token, location_id)
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+        )
+
+    service = LocationService(session, user_id)
     location = await service.get_by_id(location_id)
     if not location:
         raise HTTPException(

@@ -266,7 +266,7 @@ export default function AdminWebhooksPage() {
   if (authLoading || !user?.is_admin) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -283,7 +283,7 @@ export default function AdminWebhooksPage() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             {t("webhooks.title")}
           </h1>
-          <p className="mt-1 text-muted-foreground">
+          <p className="text-muted-foreground mt-1">
             {t("webhooks.description")}
           </p>
         </div>
@@ -303,94 +303,171 @@ export default function AdminWebhooksPage() {
 
       {webhooksLoading ? (
         <div className="flex h-32 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
         </div>
       ) : webhooks && webhooks.length > 0 ? (
-        <div className="rounded-xl border bg-card">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b text-left text-sm text-muted-foreground">
-                <th className="px-4 py-3 font-medium">
-                  {t("webhooks.eventType")}
-                </th>
-                <th className="px-4 py-3 font-medium">{t("webhooks.url")}</th>
-                <th className="px-4 py-3 font-medium">
-                  {t("webhooks.httpMethod")}
-                </th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 text-right font-medium">
-                  {t("common.actions")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {webhooks.map((webhook) => (
-                <tr key={webhook.id} className="border-b last:border-0">
-                  <td className="px-4 py-3">
-                    <span className="font-mono text-sm">
-                      {webhook.event_type}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="max-w-xs truncate text-sm text-muted-foreground">
-                      {webhook.url}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge variant="outline">{webhook.http_method}</Badge>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge variant={getStatusBadgeVariant(webhook.is_active)}>
-                      {webhook.is_active ? t("webhooks.isActive") : "Inactive"}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setTestingWebhook(webhook);
-                          setTestResult(null);
-                          testMutation.mutate(webhook.id);
-                        }}
-                        disabled={testMutation.isPending}
-                      >
-                        <Play className="mr-1 h-4 w-4" />
-                        {t("webhooks.test")}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => openEditDialog(webhook)}
-                      >
-                        <Edit className="mr-1 h-4 w-4" />
-                        {t("common.edit")}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDeleteConfirm(webhook)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </td>
+        <>
+          {/* Desktop Table View */}
+          <div className="bg-card hidden rounded-xl border md:block">
+            <table className="w-full">
+              <thead>
+                <tr className="text-muted-foreground border-b text-left text-sm">
+                  <th className="px-4 py-3 font-medium">
+                    {t("webhooks.eventType")}
+                  </th>
+                  <th className="px-4 py-3 font-medium">{t("webhooks.url")}</th>
+                  <th className="px-4 py-3 font-medium">
+                    {t("webhooks.httpMethod")}
+                  </th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 text-right font-medium">
+                    {t("common.actions")}
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {webhooks.map((webhook) => (
+                  <tr
+                    key={webhook.id}
+                    className="border-b last:border-0"
+                    data-testid={`webhook-row-${webhook.id}`}
+                  >
+                    <td className="px-4 py-3">
+                      <span className="font-mono text-sm">
+                        {webhook.event_type}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="text-muted-foreground max-w-xs truncate text-sm">
+                        {webhook.url}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge variant="outline">{webhook.http_method}</Badge>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge variant={getStatusBadgeVariant(webhook.is_active)}>
+                        {webhook.is_active
+                          ? t("webhooks.isActive")
+                          : t("webhooks.isInactive")}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setTestingWebhook(webhook);
+                            setTestResult(null);
+                            testMutation.mutate(webhook.id);
+                          }}
+                          disabled={testMutation.isPending}
+                          data-testid={`test-webhook-${webhook.id}`}
+                        >
+                          <Play className="mr-1 h-4 w-4" />
+                          {t("webhooks.test")}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openEditDialog(webhook)}
+                          data-testid={`edit-webhook-${webhook.id}`}
+                        >
+                          <Edit className="mr-1 h-4 w-4" />
+                          {t("common.edit")}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDeleteConfirm(webhook)}
+                          className="text-destructive hover:text-destructive"
+                          data-testid={`delete-webhook-${webhook.id}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="space-y-3 md:hidden">
+            {webhooks.map((webhook) => (
+              <div
+                key={webhook.id}
+                className="bg-card rounded-xl border p-4"
+                data-testid={`webhook-card-${webhook.id}`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-mono text-sm font-medium">
+                      {webhook.event_type}
+                    </p>
+                    <p className="text-muted-foreground mt-1 truncate text-xs">
+                      {webhook.url}
+                    </p>
+                  </div>
+                  <Badge variant={getStatusBadgeVariant(webhook.is_active)}>
+                    {webhook.is_active
+                      ? t("webhooks.isActive")
+                      : t("webhooks.isInactive")}
+                  </Badge>
+                </div>
+                <div className="mt-2">
+                  <Badge variant="outline" className="text-xs">
+                    {webhook.http_method}
+                  </Badge>
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => {
+                      setTestingWebhook(webhook);
+                      setTestResult(null);
+                      testMutation.mutate(webhook.id);
+                    }}
+                    disabled={testMutation.isPending}
+                  >
+                    <Play className="mr-1 h-4 w-4" />
+                    {t("webhooks.test")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => openEditDialog(webhook)}
+                  >
+                    <Edit className="mr-1 h-4 w-4" />
+                    {t("common.edit")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setDeleteConfirm(webhook)}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-xl border bg-card p-12 text-center">
-          <div className="rounded-full bg-muted p-4">
-            <History className="h-8 w-8 text-muted-foreground" />
+        <div className="bg-card flex flex-col items-center justify-center rounded-xl border p-12 text-center">
+          <div className="bg-muted rounded-full p-4">
+            <History className="text-muted-foreground h-8 w-8" />
           </div>
           <h3 className="mt-4 text-lg font-medium">
             {t("webhooks.noWebhooks")}
           </h3>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-2 text-sm">
             {t("webhooks.noWebhooksDescription")}
           </p>
           <Button className="mt-4" onClick={openCreateDialog}>
@@ -443,7 +520,7 @@ export default function AdminWebhooksPage() {
 
             {/* Available Variables */}
             {selectedEventType && (
-              <div className="rounded-lg bg-muted/50 p-3">
+              <div className="bg-muted/50 rounded-lg p-3">
                 <p className="text-sm font-medium">
                   {t("webhooks.availableVariables")}
                 </p>
@@ -508,7 +585,7 @@ export default function AdminWebhooksPage() {
                   {t("webhooks.addHeader")}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {t("webhooks.headersHelp")}
               </p>
               {formHeaders.map((header, index) => (
@@ -552,7 +629,7 @@ export default function AdminWebhooksPage() {
                 rows={4}
                 className="font-mono text-sm"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {t("webhooks.bodyTemplateHelp")}
               </p>
             </div>
@@ -582,7 +659,7 @@ export default function AdminWebhooksPage() {
                   setFormRetryCount(parseInt(e.target.value) || 0)
                 }
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {t("webhooks.retryCountHelp")}
               </p>
             </div>
@@ -598,7 +675,7 @@ export default function AdminWebhooksPage() {
                 value={formTimeout}
                 onChange={(e) => setFormTimeout(parseInt(e.target.value) || 30)}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {t("webhooks.timeoutHelp")}
               </p>
             </div>
@@ -649,7 +726,7 @@ export default function AdminWebhooksPage() {
           <div className="py-4">
             {testMutation.isPending ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
               </div>
             ) : testResult ? (
               <div className="space-y-4">
@@ -663,8 +740,8 @@ export default function AdminWebhooksPage() {
                     </>
                   ) : (
                     <>
-                      <X className="h-5 w-5 text-destructive" />
-                      <span className="font-medium text-destructive">
+                      <X className="text-destructive h-5 w-5" />
+                      <span className="text-destructive font-medium">
                         {t("webhooks.testFailed")}
                       </span>
                     </>
@@ -681,7 +758,7 @@ export default function AdminWebhooksPage() {
                 {testResult.error && (
                   <div>
                     <Label>{t("webhooks.errorMessage")}</Label>
-                    <p className="text-sm text-destructive">
+                    <p className="text-destructive text-sm">
                       {testResult.error}
                     </p>
                   </div>
@@ -689,7 +766,7 @@ export default function AdminWebhooksPage() {
                 {testResult.response_body && (
                   <div>
                     <Label>{t("webhooks.responseBody")}</Label>
-                    <pre className="max-h-40 overflow-auto rounded-lg bg-muted p-2 text-xs">
+                    <pre className="bg-muted max-h-40 overflow-auto rounded-lg p-2 text-xs">
                       {testResult.response_body}
                     </pre>
                   </div>

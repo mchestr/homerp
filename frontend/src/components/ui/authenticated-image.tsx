@@ -55,7 +55,7 @@ export function AuthenticatedImage({
   }
 
   if (!src) {
-    return <div className={cn("animate-pulse bg-muted", className)} />;
+    return <div className={cn("bg-muted animate-pulse", className)} />;
   }
 
   return (

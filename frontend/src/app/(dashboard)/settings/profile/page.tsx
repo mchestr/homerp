@@ -160,7 +160,7 @@ export default function SystemProfilePage() {
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -177,19 +177,19 @@ export default function SystemProfilePage() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             {t("title")}
           </h1>
-          <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
+          <p className="text-muted-foreground mt-1">{t("subtitle")}</p>
         </div>
       </div>
 
       {/* Hobby Types */}
-      <div className="rounded-xl border bg-card p-6">
+      <div className="bg-card rounded-xl border p-6">
         <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-primary/10 p-2">
-            <Sparkles className="h-5 w-5 text-primary" />
+          <div className="bg-primary/10 rounded-lg p-2">
+            <Sparkles className="text-primary h-5 w-5" />
           </div>
           <div>
             <h2 className="font-semibold">{t("hobbyTypes")}</h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {t("hobbyTypesDescription")}
             </p>
           </div>
@@ -211,9 +211,9 @@ export default function SystemProfilePage() {
 
       {/* Interest Categories */}
       {categories.length > 0 && (
-        <div className="rounded-xl border bg-card p-6">
+        <div className="bg-card rounded-xl border p-6">
           <h2 className="font-semibold">{t("interestCategories")}</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             {t("interestCategoriesDescription")}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -238,14 +238,14 @@ export default function SystemProfilePage() {
       )}
 
       {/* Retention Settings */}
-      <div className="rounded-xl border bg-card p-6">
+      <div className="bg-card rounded-xl border p-6">
         <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-primary/10 p-2">
-            <Brain className="h-5 w-5 text-primary" />
+          <div className="bg-primary/10 rounded-lg p-2">
+            <Brain className="text-primary h-5 w-5" />
           </div>
           <div>
             <h2 className="font-semibold">{t("retentionMonths")}</h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {t("retentionMonthsDescription")}
             </p>
           </div>
@@ -260,16 +260,16 @@ export default function SystemProfilePage() {
             className="w-24"
             data-testid="retention-months-input"
           />
-          <span className="text-sm text-muted-foreground">
+          <span className="text-muted-foreground text-sm">
             {t("retentionMonthsUnit")}
           </span>
         </div>
       </div>
 
       {/* Quantity Threshold */}
-      <div className="rounded-xl border bg-card p-6">
+      <div className="bg-card rounded-xl border p-6">
         <h2 className="font-semibold">{t("quantityThreshold")}</h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           {t("quantityThresholdDescription")}
         </p>
         <div className="mt-4">
@@ -288,9 +288,9 @@ export default function SystemProfilePage() {
       </div>
 
       {/* Minimum Value to Keep */}
-      <div className="rounded-xl border bg-card p-6">
+      <div className="bg-card rounded-xl border p-6">
         <h2 className="font-semibold">{t("minValueKeep")}</h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           {t("minValueKeepDescription")}
         </p>
         <div className="mt-4 flex items-center gap-2">
@@ -309,11 +309,11 @@ export default function SystemProfilePage() {
       </div>
 
       {/* Profile Description */}
-      <div className="rounded-xl border bg-card p-6">
+      <div className="bg-card rounded-xl border p-6">
         <Label htmlFor="profile-description" className="font-semibold">
           {t("profileDescription")}
         </Label>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           {t("profileDescriptionDescription")}
         </p>
         <Textarea
@@ -329,9 +329,9 @@ export default function SystemProfilePage() {
       </div>
 
       {/* Purge Aggressiveness */}
-      <div className="rounded-xl border bg-card p-6">
+      <div className="bg-card rounded-xl border p-6">
         <h2 className="font-semibold">{t("purgeAggressiveness")}</h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           {t("purgeAggressivenessDescription")}
         </p>
         <div className="mt-4">
@@ -353,7 +353,7 @@ export default function SystemProfilePage() {
                   <div className="font-medium">
                     {t("aggressivenessConservative")}
                   </div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-muted-foreground text-xs">
                     {t("aggressivenessConservativeDescription")}
                   </div>
                 </div>
@@ -363,7 +363,7 @@ export default function SystemProfilePage() {
                   <div className="font-medium">
                     {t("aggressivenessModerate")}
                   </div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-muted-foreground text-xs">
                     {t("aggressivenessModerateDescription")}
                   </div>
                 </div>
@@ -373,7 +373,7 @@ export default function SystemProfilePage() {
                   <div className="font-medium">
                     {t("aggressivenessAggressive")}
                   </div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-muted-foreground text-xs">
                     {t("aggressivenessAggressiveDescription")}
                   </div>
                 </div>
