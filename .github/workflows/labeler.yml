@@ -1,4 +1,4 @@
-name: Issue Labeler
+name: (Claude) Issue Labeler
 
 on:
   issues:

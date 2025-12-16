@@ -1,4 +1,4 @@
-name: (Claude)Issue Deduplication
+name: (Claude) Issue Deduplication
 
 on:
   issues:
