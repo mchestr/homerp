@@ -69,7 +69,8 @@
     "settings": "Einstellungen",
     "feedback": "Feedback",
     "adminPanel": "Admin-Bereich",
-    "newItem": "Neuer Artikel"
+    "newItem": "Neuer Artikel",
+    "batchUpload": "Stapel-Upload"
   },
   "auth": {
     "welcomeBack": "Willkommen zurück",
@@ -223,6 +224,25 @@
     "attributeCount": "{count} Attribut",
     "attributeCountPlural": "{count} Attribute",
     "in": "in"
+  },
+  "batch": {
+    "title": "Stapel-Foto-Upload",
+    "description": "Laden Sie mehrere Fotos gleichzeitig hoch, um schnell Artikel zu Ihrem Inventar hinzuzufügen",
+    "uploadPhotos": "Fotos hochladen",
+    "classifyAll": "Alle klassifizieren",
+    "reviewAndCreate": "Überprüfen & erstellen",
+    "dropPhotos": "Fotos hier ablegen oder klicken zum Durchsuchen",
+    "selectMultiple": "Wählen Sie mehrere Fotos zum Hochladen aus",
+    "selectAll": "Alle auswählen",
+    "selectedCount": "{count} ausgewählt",
+    "classifyAllItems": "Alle klassifizieren ({count})",
+    "addMore": "Mehr hinzufügen",
+    "clearAll": "Alle löschen",
+    "itemCount": "{count} Fotos hochgeladen",
+    "createItems": "{count} Artikel erstellen",
+    "itemsCreated": "Artikel erstellt",
+    "itemsCreatedDescription": "{count} Artikel wurden zu Ihrem Inventar hinzugefügt",
+    "createFailed": "Artikel konnten nicht erstellt werden. Bitte versuchen Sie es erneut."
   },
   "locations": {
     "title": "Standorte",

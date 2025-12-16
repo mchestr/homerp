@@ -1176,6 +1176,233 @@ class TestBatchUpdateItemsEndpoint:
         assert response.status_code == 401
 
 
+class TestBatchCreateItemsEndpoint:
+    """Tests for POST /api/v1/items/batch."""
+
+    async def test_batch_create_single_item(
+        self,
+        authenticated_client: AsyncClient,
+        test_category: Category,
+        test_location: Location,
+    ):
+        """Test batch creating a single item."""
+        response = await authenticated_client.post(
+            "/api/v1/items/batch",
+            json={
+                "items": [
+                    {
+                        "name": "Test Item",
+                        "description": "A test item",
+                        "quantity": 5,
+                        "category_id": str(test_category.id),
+                        "location_id": str(test_location.id),
+                    }
+                ]
+            },
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["created_count"] == 1
+        assert data["failed_count"] == 0
+        assert len(data["results"]) == 1
+        assert data["results"][0]["success"] is True
+        assert data["results"][0]["name"] == "Test Item"
+        assert data["results"][0]["item_id"] is not None
+
+    async def test_batch_create_multiple_items(
+        self,
+        authenticated_client: AsyncClient,
+        test_category: Category,
+        test_location: Location,
+    ):
+        """Test batch creating multiple items at once."""
+        response = await authenticated_client.post(
+            "/api/v1/items/batch",
+            json={
+                "items": [
+                    {"name": "Item 1", "quantity": 1},
+                    {"name": "Item 2", "quantity": 2},
+                    {"name": "Item 3", "quantity": 3},
+                ]
+            },
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["created_count"] == 3
+        assert data["failed_count"] == 0
+        assert len(data["results"]) == 3
+        for i, result in enumerate(data["results"]):
+            assert result["success"] is True
+            assert result["name"] == f"Item {i + 1}"
+
+    async def test_batch_create_preserves_order(
+        self,
+        authenticated_client: AsyncClient,
+    ):
+        """Test that batch create returns results in the same order as input."""
+        items = [
+            {"name": "Alpha", "quantity": 1},
+            {"name": "Beta", "quantity": 1},
+            {"name": "Gamma", "quantity": 1},
+            {"name": "Delta", "quantity": 1},
+        ]
+
+        response = await authenticated_client.post(
+            "/api/v1/items/batch",
+            json={"items": items},
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["created_count"] == 4
+        # Verify order is preserved
+        for i, result in enumerate(data["results"]):
+            assert result["name"] == items[i]["name"]
+
+    async def test_batch_create_with_attributes_and_tags(
+        self,
+        authenticated_client: AsyncClient,
+    ):
+        """Test batch creating items with attributes and tags."""
+        response = await authenticated_client.post(
+            "/api/v1/items/batch",
+            json={
+                "items": [
+                    {
+                        "name": "Item with Attrs",
+                        "quantity": 1,
+                        "attributes": {"color": "red", "size": "large"},
+                        "tags": ["important", "electronics"],
+                    }
+                ]
+            },
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["created_count"] == 1
+        assert data["results"][0]["success"] is True
+
+        # Verify the item was created correctly
+        item_id = data["results"][0]["item_id"]
+        item_response = await authenticated_client.get(f"/api/v1/items/{item_id}")
+        item_data = item_response.json()
+        assert item_data["attributes"]["color"] == "red"
+        assert "important" in item_data["tags"]
+
+    async def test_batch_create_empty_list(
+        self,
+        authenticated_client: AsyncClient,
+    ):
+        """Test batch create with empty items list returns validation error."""
+        response = await authenticated_client.post(
+            "/api/v1/items/batch",
+            json={"items": []},
+        )
+
+        assert response.status_code == 422
+
+    async def test_batch_create_exceeds_max_items(
+        self,
+        authenticated_client: AsyncClient,
+    ):
+        """Test batch create with more than 50 items returns validation error."""
+        items = [{"name": f"Item {i}", "quantity": 1} for i in range(51)]
+
+        response = await authenticated_client.post(
+            "/api/v1/items/batch",
+            json={"items": items},
+        )
+
+        assert response.status_code == 422
+
+    async def test_batch_create_validation_error_in_item(
+        self,
+        authenticated_client: AsyncClient,
+    ):
+        """Test batch create with invalid item data returns validation error."""
+        response = await authenticated_client.post(
+            "/api/v1/items/batch",
+            json={
+                "items": [
+                    {"name": "", "quantity": 1},  # Empty name is invalid
+                ]
+            },
+        )
+
+        assert response.status_code == 422
+
+    async def test_batch_create_unauthenticated(
+        self,
+        unauthenticated_client: AsyncClient,
+    ):
+        """Test that unauthenticated request returns 401."""
+        response = await unauthenticated_client.post(
+            "/api/v1/items/batch",
+            json={"items": [{"name": "Test", "quantity": 1}]},
+        )
+
+        assert response.status_code == 401
+
+    async def test_batch_create_with_optional_fields(
+        self,
+        authenticated_client: AsyncClient,
+    ):
+        """Test batch create with all optional fields."""
+        response = await authenticated_client.post(
+            "/api/v1/items/batch",
+            json={
+                "items": [
+                    {
+                        "name": "Full Item",
+                        "description": "Complete description",
+                        "quantity": 10,
+                        "quantity_unit": "kg",
+                        "min_quantity": 5,
+                        "price": "19.99",
+                        "attributes": {"weight": "500g"},
+                        "tags": ["heavy", "metal"],
+                    }
+                ]
+            },
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["created_count"] == 1
+
+        # Verify the item was created with all fields
+        item_id = data["results"][0]["item_id"]
+        item_response = await authenticated_client.get(f"/api/v1/items/{item_id}")
+        item_data = item_response.json()
+        assert item_data["name"] == "Full Item"
+        assert item_data["description"] == "Complete description"
+        assert item_data["quantity"] == 10
+        assert item_data["quantity_unit"] == "kg"
+        assert item_data["min_quantity"] == 5
+        assert float(item_data["price"]) == 19.99
+
+    async def test_batch_create_max_allowed_items(
+        self,
+        authenticated_client: AsyncClient,
+    ):
+        """Test batch create with exactly 50 items (the maximum allowed)."""
+        items = [{"name": f"Item {i}", "quantity": 1} for i in range(50)]
+
+        response = await authenticated_client.post(
+            "/api/v1/items/batch",
+            json={"items": items},
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["created_count"] == 50
+        assert data["failed_count"] == 0
+        assert len(data["results"]) == 50
+
+
 class TestSuggestLocationEndpoint:
     """Tests for POST /api/v1/items/suggest-location."""
 

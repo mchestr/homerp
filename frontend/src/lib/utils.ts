@@ -325,3 +325,20 @@ export function formatPrice(
 
   return `${symbol}${numericPrice.toFixed(decimals)}`;
 }
+
+// ============================================================================
+// API Error Utilities
+// ============================================================================
+
+/**
+ * Check if an error is an insufficient credits error (HTTP 402)
+ * Used for handling payment-required responses from AI features
+ */
+export function isInsufficientCreditsError(err: unknown): boolean {
+  return (
+    err != null &&
+    typeof err === "object" &&
+    "status" in err &&
+    (err as { status: number }).status === 402
+  );
+}

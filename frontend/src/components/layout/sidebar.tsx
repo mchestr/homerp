@@ -20,10 +20,18 @@ import {
   ArrowRightFromLine,
   User,
   Users,
+  ChevronDown,
+  ImagePlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/auth-context";
 import { useInventory } from "@/context/inventory-context";
 import { InventorySwitcher } from "@/components/layout/inventory-switcher";
@@ -233,12 +241,43 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         {/* Quick Action - only show if user can edit */}
         {canEdit && (
           <div className="border-b px-3 pb-4">
-            <Link href="/items/new" onClick={onClose}>
-              <Button size="sm" className="w-full gap-2">
-                <Plus className="h-4 w-4" />
-                {t("sidebar.newItem")}
-              </Button>
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  size="sm"
+                  className="w-full gap-2"
+                  data-testid="new-item-dropdown"
+                >
+                  <Plus className="h-4 w-4" />
+                  {t("sidebar.newItem")}
+                  <ChevronDown className="ml-auto h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-[200px]">
+                <DropdownMenuItem asChild>
+                  <Link
+                    href="/items/new"
+                    onClick={onClose}
+                    className="flex items-center gap-2"
+                    data-testid="new-single-item-link"
+                  >
+                    <Package className="h-4 w-4" />
+                    {t("sidebar.newItem")}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link
+                    href="/items/batch-upload"
+                    onClick={onClose}
+                    className="flex items-center gap-2"
+                    data-testid="batch-upload-link"
+                  >
+                    <ImagePlus className="h-4 w-4" />
+                    {t("sidebar.batchUpload")}
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
 

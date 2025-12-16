@@ -335,6 +335,12 @@ export const itemsApi = {
       body: data,
     }),
 
+  batchCreate: (data: BatchCreateRequest) =>
+    apiRequest<BatchCreateResponse>("/api/v1/items/batch", {
+      method: "POST",
+      body: data,
+    }),
+
   suggestLocation: (data: ItemLocationSuggestionRequest) =>
     apiRequest<ItemLocationSuggestionResponse>(
       "/api/v1/items/suggest-location",
@@ -691,6 +697,37 @@ export type BatchUpdateRequest = {
 export type BatchUpdateResponse = {
   updated_count: number;
   item_ids: string[];
+};
+
+export type BatchItemCreate = {
+  name: string;
+  description?: string;
+  category_id?: string;
+  location_id?: string;
+  quantity?: number;
+  quantity_unit?: string;
+  min_quantity?: number;
+  price?: number;
+  attributes?: Record<string, unknown>;
+  tags?: string[];
+  image_ids?: string[];
+};
+
+export type BatchCreateRequest = {
+  items: BatchItemCreate[];
+};
+
+export type BatchItemResult = {
+  success: boolean;
+  item_id: string | null;
+  name: string;
+  error: string | null;
+};
+
+export type BatchCreateResponse = {
+  created_count: number;
+  failed_count: number;
+  results: BatchItemResult[];
 };
 
 export type FacetValue = {
