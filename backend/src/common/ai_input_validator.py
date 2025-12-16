@@ -68,6 +68,11 @@ def check_injection_patterns(text: str, context: str = "input") -> None:
 
     This function does NOT block the input - it only logs for monitoring.
     Blocking legitimate user input due to false positives would harm UX.
+
+    IMPORTANT: Pattern-based detection is inherently limited and cannot catch
+    all prompt injection attempts. This is a defense-in-depth measure that
+    provides monitoring/alerting, not a security boundary. The primary
+    defense is proper prompt construction with clear system/user separation.
     """
     for pattern in INJECTION_PATTERNS:
         if re.search(pattern, text):

@@ -22,7 +22,14 @@ def get_client_identifier(request: Request) -> str:
         return f"user:{request.state.user.id}"
 
     # Fall back to IP address
-    return get_remote_address(request)
+    # Log when using IP-based limiting on authenticated endpoints for monitoring
+    # This can indicate auth middleware issues or proxy/NAT collisions
+    ip_address = get_remote_address(request)
+    path = str(request.url.path)
+    if path.startswith("/api/v1/") and not path.startswith("/api/v1/auth"):
+        logger.debug(f"Rate limiting by IP on API endpoint: {path} from {ip_address}")
+
+    return ip_address
 
 
 # Module-level limiter - starts with in-memory storage
@@ -75,6 +82,12 @@ def configure_rate_limiting(app) -> None:
             logger.info(f"Rate limiting configured with Redis storage: {safe_url}")
         except Exception as e:
             logger.error(f"Failed to configure Redis for rate limiting: {e}")
+            # In production, fail fast rather than silently degrading
+            if settings.environment.lower() in ("production", "prod"):
+                raise RuntimeError(
+                    "Redis rate limiting required but failed to connect. "
+                    "Set REDIS_URL to a valid Redis instance or remove it for single-instance mode."
+                ) from e
             logger.warning(
                 "Falling back to in-memory storage (not suitable for multi-instance)"
             )

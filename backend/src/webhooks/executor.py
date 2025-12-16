@@ -136,6 +136,20 @@ class WebhookExecutor:
                 # Exponential backoff: 2^attempt seconds (2, 4, 8...)
                 await asyncio.sleep(2**attempt)
 
+            # Re-validate URL before each attempt to protect against DNS rebinding
+            # DNS records could change between validation and execution
+            try:
+                validate_webhook_url(config.url)
+            except SSRFValidationError as e:
+                execution.error_message = f"URL validation failed on attempt {attempt}: {e}"
+                logger.error(
+                    f"Webhook URL re-validation failed on attempt {attempt}: {e}"
+                )
+                execution.status = "failed"
+                execution.completed_at = datetime.now(UTC)
+                await self.repository.update_execution(execution)
+                return
+
             try:
                 async with httpx.AsyncClient(timeout=config.timeout_seconds) as client:
                     response = await client.request(

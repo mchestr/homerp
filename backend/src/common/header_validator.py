@@ -9,6 +9,10 @@ HEADER_NAME_PATTERN = re.compile(r"^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$")
 # CRLF and other control characters that could enable header injection
 CRLF_PATTERN = re.compile(r"[\r\n\x00]")
 
+# Maximum lengths to prevent DoS via excessive header sizes
+MAX_HEADER_NAME_LENGTH = 256
+MAX_HEADER_VALUE_LENGTH = 8192  # 8KB - reasonable limit for header values
+
 
 class HeaderValidationError(ValueError):
     """Raised when header validation fails."""
@@ -32,6 +36,11 @@ def validate_header_name(name: str) -> str:
     if not name:
         raise HeaderValidationError("Header name cannot be empty")
 
+    if len(name) > MAX_HEADER_NAME_LENGTH:
+        raise HeaderValidationError(
+            f"Header name exceeds maximum length of {MAX_HEADER_NAME_LENGTH} characters"
+        )
+
     if not HEADER_NAME_PATTERN.match(name):
         raise HeaderValidationError(
             f"Invalid header name '{name}': must contain only valid token characters"
@@ -42,7 +51,7 @@ def validate_header_name(name: str) -> str:
 
 def validate_header_value(value: str, header_name: str = "") -> str:
     """
-    Validate an HTTP header value for CRLF injection.
+    Validate an HTTP header value for CRLF injection and length.
 
     Args:
         value: The header value to validate
@@ -52,10 +61,18 @@ def validate_header_value(value: str, header_name: str = "") -> str:
         The validated header value
 
     Raises:
-        HeaderValidationError: If the header value contains CRLF or null bytes
+        HeaderValidationError: If the header value contains CRLF or null bytes,
+            or exceeds the maximum length
     """
+    header_context = f" for header '{header_name}'" if header_name else ""
+
+    if len(value) > MAX_HEADER_VALUE_LENGTH:
+        raise HeaderValidationError(
+            f"Header value{header_context} exceeds maximum length of "
+            f"{MAX_HEADER_VALUE_LENGTH} characters"
+        )
+
     if CRLF_PATTERN.search(value):
-        header_context = f" for header '{header_name}'" if header_name else ""
         raise HeaderValidationError(
             f"Invalid header value{header_context}: "
             "contains forbidden characters (CR, LF, or null byte)"

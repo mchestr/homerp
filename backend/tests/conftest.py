@@ -11,6 +11,10 @@ import os
 # Must be set before importing modules that use url_validator
 os.environ["WEBHOOK_SKIP_DNS_RESOLUTION"] = "true"
 
+# Enable debug mode to allow weak JWT secrets in tests
+# Must be set before importing src.config which validates JWT secrets
+os.environ["DEBUG"] = "true"
+
 import uuid
 from collections.abc import AsyncGenerator
 from datetime import UTC, datetime, timedelta

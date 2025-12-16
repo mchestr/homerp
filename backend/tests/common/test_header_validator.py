@@ -3,6 +3,8 @@
 import pytest
 
 from src.common.header_validator import (
+    MAX_HEADER_NAME_LENGTH,
+    MAX_HEADER_VALUE_LENGTH,
     HeaderValidationError,
     validate_header_name,
     validate_header_value,
@@ -47,6 +49,17 @@ class TestValidateHeaderName:
         with pytest.raises(HeaderValidationError, match="Invalid header name"):
             validate_header_name("Header\r\nName")
 
+    def test_header_name_at_max_length_accepted(self):
+        """Header name at exactly max length should be accepted."""
+        name = "X" * MAX_HEADER_NAME_LENGTH
+        assert validate_header_name(name) == name
+
+    def test_header_name_exceeding_max_length_rejected(self):
+        """Header name exceeding max length should be rejected."""
+        name = "X" * (MAX_HEADER_NAME_LENGTH + 1)
+        with pytest.raises(HeaderValidationError, match="exceeds maximum length"):
+            validate_header_name(name)
+
 
 class TestValidateHeaderValue:
     """Tests for header value validation."""
@@ -87,6 +100,23 @@ class TestValidateHeaderValue:
         """Error message should include header name when provided."""
         with pytest.raises(HeaderValidationError, match="for header 'X-Test'"):
             validate_header_value("bad\r\nvalue", "X-Test")
+
+    def test_header_value_at_max_length_accepted(self):
+        """Header value at exactly max length should be accepted."""
+        value = "x" * MAX_HEADER_VALUE_LENGTH
+        assert validate_header_value(value) == value
+
+    def test_header_value_exceeding_max_length_rejected(self):
+        """Header value exceeding max length should be rejected."""
+        value = "x" * (MAX_HEADER_VALUE_LENGTH + 1)
+        with pytest.raises(HeaderValidationError, match="exceeds maximum length"):
+            validate_header_value(value)
+
+    def test_header_value_length_error_includes_header_name(self):
+        """Length error message should include header name when provided."""
+        value = "x" * (MAX_HEADER_VALUE_LENGTH + 1)
+        with pytest.raises(HeaderValidationError, match="for header 'X-Test'"):
+            validate_header_value(value, "X-Test")
 
 
 class TestValidateHeaders:
