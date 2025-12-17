@@ -85,6 +85,12 @@ class User(Base):
     ai_usage_logs: Mapped[list["AIUsageLog"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    notification_preferences: Mapped["NotificationPreferences | None"] = relationship(
+        back_populates="user", cascade="all, delete-orphan", uselist=False
+    )
+    alert_history: Mapped[list["AlertHistory"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
     # Collaboration relationships
     owned_collaborations: Mapped[list["InventoryCollaborator"]] = relationship(
         "InventoryCollaborator",
@@ -116,4 +122,5 @@ from src.gridfinity.models import GridfinityUnit  # noqa: E402
 from src.images.models import Image  # noqa: E402
 from src.items.models import Item, ItemCheckInOut  # noqa: E402
 from src.locations.models import Location  # noqa: E402
+from src.notifications.models import AlertHistory, NotificationPreferences  # noqa: E402
 from src.profile.models import PurgeRecommendation, UserSystemProfile  # noqa: E402

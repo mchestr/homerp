@@ -58,6 +58,9 @@ class Item(Base):
     gridfinity_placements: Mapped[list["GridfinityPlacement"]] = relationship(
         back_populates="item", cascade="all, delete-orphan"
     )
+    alert_history: Mapped[list["AlertHistory"]] = relationship(
+        back_populates="item", cascade="all, delete-orphan"
+    )
 
     @property
     def is_low_stock(self) -> bool:
@@ -101,5 +104,6 @@ from src.categories.models import Category  # noqa: E402, F811
 from src.gridfinity.models import GridfinityPlacement  # noqa: E402, F811
 from src.images.models import Image  # noqa: E402, F811
 from src.locations.models import Location  # noqa: E402, F811
+from src.notifications.models import AlertHistory  # noqa: E402, F811
 from src.profile.models import PurgeRecommendation  # noqa: E402, F811
 from src.users.models import User  # noqa: E402, F811

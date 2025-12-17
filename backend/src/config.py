@@ -75,6 +75,15 @@ class Settings(BaseSettings):
     # Redis (for distributed rate limiting)
     redis_url: str | None = None  # e.g., "redis://localhost:6379"
 
+    # Email/SMTP settings
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_username: str = ""
+    smtp_password: str = ""
+    smtp_use_tls: bool = True
+    smtp_from_email: str = ""
+    smtp_from_name: str = "HomERP"
+
     # SSRF allowlist - comma-separated CIDR ranges to exempt from blocked networks
     # WARNING: This bypasses SSRF protection. Only use for trusted internal services.
     # Networks must use proper CIDR notation (e.g., 10.0.1.0/24, not 10.0.1.5/24).

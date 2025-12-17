@@ -1,0 +1,17 @@
+LOW STOCK ALERT
+
+Hi {{ user_name }},
+
+One of your inventory items has fallen below its minimum quantity threshold:
+
+ITEM: {{ item_name }}
+Current Quantity: {{ item_quantity }} {{ item_quantity_unit }}
+Minimum Required: {{ item_min_quantity }} {{ item_quantity_unit }}
+
+Consider restocking soon to ensure you have enough on hand.
+
+View item: {{ item_url }}
+
+---
+You're receiving this email because you have low stock alerts enabled in HomERP.
+Manage notification preferences: {{ preferences_url }}

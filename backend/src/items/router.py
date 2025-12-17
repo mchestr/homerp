@@ -1,11 +1,12 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from fastapi.responses import Response
 
 from src.ai.service import AIClassificationService, get_ai_service
 from src.auth.dependencies import (
+    CurrentUserDep,
     CurrentUserIdDep,
     EditableInventoryContextDep,
     InventoryContextDep,
@@ -43,6 +44,7 @@ from src.locations.schemas import (
     ItemLocationSuggestionResponse,
 )
 from src.locations.service import LocationService
+from src.notifications.alert_service import AlertService
 
 router = APIRouter()
 
@@ -710,11 +712,17 @@ async def check_out_item(
     data: CheckInOutCreate,
     session: AsyncSessionDep,
     inventory_owner_id: EditableInventoryContextDep,
+    user: CurrentUserDep,
+    background_tasks: BackgroundTasks,
 ) -> CheckInOutResponse:
     """Record a check-out event for an item.
 
     Uses row-level locking to prevent race conditions where concurrent
     check-outs could exceed the available quantity.
+
+    If the item falls below its minimum quantity threshold after check-out,
+    a low stock alert email will be sent (subject to user preferences and
+    24-hour deduplication).
     """
     repo = ItemRepository(session, inventory_owner_id)
 
@@ -744,6 +752,18 @@ async def check_out_item(
         )
 
     record = await repo.create_check_in_out(item_id, "check_out", data)
+
+    # Check for low stock and trigger alert if needed
+    # Refresh item to get updated state after check-out record is created
+    item = await repo.get_by_id(item_id)
+    if item and item.is_low_stock:
+        alert_service = AlertService(session, inventory_owner_id)
+        await alert_service.check_and_send_low_stock_alert(
+            item=item,
+            user=user,
+            background_tasks=background_tasks,
+        )
+
     return CheckInOutResponse.model_validate(record)
 
 
