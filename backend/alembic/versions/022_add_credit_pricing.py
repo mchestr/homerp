@@ -1,7 +1,7 @@
 """Add credit pricing table for configurable operation costs
 
-Revision ID: 021
-Revises: 020
+Revision ID: 022
+Revises: 021
 Create Date: 2025-12-16
 
 """
@@ -13,8 +13,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "021"
-down_revision: str | None = "020"
+revision: str = "022"
+down_revision: str | None = "021"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
