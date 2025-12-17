@@ -28,7 +28,7 @@ import {
   ClassificationResult,
   BatchItemCreate,
   LocationTreeNode,
-} from "@/lib/api/api-client";
+} from "@/lib/api/api";
 import {
   cn,
   parseQuantityEstimate,
@@ -55,7 +55,7 @@ function addIconsToLocationTree(
   return nodes.map((node) => ({
     ...node,
     icon: LOCATION_TYPES[node.location_type || ""] || "map-pin",
-    children: addIconsToLocationTree(node.children),
+    children: addIconsToLocationTree(node.children ?? []),
   }));
 }
 

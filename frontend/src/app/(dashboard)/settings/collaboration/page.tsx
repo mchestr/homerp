@@ -33,7 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
-import { apiRequest } from "@/lib/api/api-client";
+import { apiRequest } from "@/lib/api/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 type CollaboratorRole = "viewer" | "editor";

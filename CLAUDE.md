@@ -166,8 +166,11 @@ pnpm generate-api                # Regenerate OpenAPI client from backend
 - `.env` file for local development
 
 ### API Client
-- Frontend uses auto-generated TypeScript client from OpenAPI spec
+- Frontend uses auto-generated TypeScript client from OpenAPI spec (@hey-api/openapi-ts)
+- Generated SDK in `lib/api/sdk.gen.ts` and types in `lib/api/types.gen.ts`
+- Ergonomic wrapper functions in `lib/api/api.ts` (e.g., `itemsApi.list()`, `categoriesApi.tree()`)
 - Run `mise run api:generate` after backend API changes
+- Always use wrapper functions from `api.ts`, never call SDK functions directly
 - Provides full type safety between frontend and backend
 
 ### State Management
@@ -237,10 +240,12 @@ Core tables:
 
 ## API Client & Data Fetching
 
-### Generated vs Hand-Written Client
-- Auto-generated client in `lib/api/` from OpenAPI spec (`pnpm generate-api`)
-- Hand-written wrapper functions in `lib/api/api-client.ts`
-- Use hand-written functions (`itemsApi.list()`, `categoriesApi.tree()`) for most operations
+### Generated SDK with Wrapper Functions
+- Auto-generated SDK from OpenAPI spec using @hey-api/openapi-ts (`pnpm generate-api`)
+- Generated files: `lib/api/sdk.gen.ts` (functions) and `lib/api/types.gen.ts` (types)
+- Wrapper module: `lib/api/api.ts` provides ergonomic API (e.g., `itemsApi.list()`)
+- **Always use wrapper functions from `api.ts`** - never import from `sdk.gen.ts` directly
+- Client configuration in `lib/api/client-setup.ts` (base URL, auth headers, inventory context)
 
 ### React Query Patterns
 ```tsx
@@ -448,7 +453,7 @@ These files change frequently and may need regeneration or special attention:
 | File | Why It Changes | Action |
 |------|---------------|--------|
 | `frontend/messages/en.json` | New UI strings | Add translations to all locale files |
-| `frontend/src/lib/api/api-client.ts` | Backend API changes | Run `mise run api:generate` after backend changes |
+| `frontend/src/lib/api/sdk.gen.ts`, `types.gen.ts` | Backend API changes | Run `mise run api:generate` after backend changes |
 | `frontend/e2e/mocks/api-handlers.ts` | API changes | Update mocks when API responses change |
 
 ### Known Complexity Areas

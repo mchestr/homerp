@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import { useAuth } from "@/context/auth-context";
-import { apiRequest } from "@/lib/api/api-client";
+import { apiRequest } from "@/lib/api/api";
 import { setInventoryContext as setApiInventoryContext } from "@/lib/api/client-setup";
 
 type CollaboratorRole = "viewer" | "editor";
@@ -118,9 +118,9 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
       if (!selectedInventory && user) {
         selectedInventory = {
           id: user.id,
-          name: user.name,
+          name: user.name ?? null,
           email: user.email,
-          avatar_url: user.avatar_url,
+          avatar_url: user.avatar_url ?? null,
           isOwn: true,
         };
       }
@@ -143,9 +143,9 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
         setState({
           selectedInventory: {
             id: user.id,
-            name: user.name,
+            name: user.name ?? null,
             email: user.email,
-            avatar_url: user.avatar_url,
+            avatar_url: user.avatar_url ?? null,
             isOwn: true,
           },
           sharedInventories: [],
@@ -171,9 +171,9 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
     if (user) {
       const ownInventory: SelectedInventory = {
         id: user.id,
-        name: user.name,
+        name: user.name ?? null,
         email: user.email,
-        avatar_url: user.avatar_url,
+        avatar_url: user.avatar_url ?? null,
         isOwn: true,
       };
       if (typeof window !== "undefined") {
@@ -214,9 +214,9 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
         ...prev,
         selectedInventory: {
           id: user.id,
-          name: user.name,
+          name: user.name ?? null,
           email: user.email,
-          avatar_url: user.avatar_url,
+          avatar_url: user.avatar_url ?? null,
           isOwn: true,
         },
       }));

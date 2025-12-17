@@ -13,7 +13,7 @@ import {
   CreditBalance,
   User,
   UserSettingsUpdate,
-} from "@/lib/api/api-client";
+} from "@/lib/api/api";
 
 type AuthState = {
   user: User | null;

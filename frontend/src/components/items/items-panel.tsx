@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
-import { itemsApi } from "@/lib/api/api-client";
+import { itemsApi } from "@/lib/api/api";
 import { cn, formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 

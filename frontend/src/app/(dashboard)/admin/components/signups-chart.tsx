@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Loader2, Users } from "lucide-react";
-import { SignupsTimeSeriesResponse } from "@/lib/api/api-client";
+import { SignupsTimeSeriesResponse } from "@/lib/api/api";
 import { formatDateShort } from "@/lib/utils";
 
 interface SignupsChartProps {

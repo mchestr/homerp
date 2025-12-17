@@ -12,7 +12,7 @@ import {
   Legend,
 } from "recharts";
 import { Loader2, Coins } from "lucide-react";
-import { CreditActivityResponse } from "@/lib/api/api-client";
+import { CreditActivityResponse } from "@/lib/api/api";
 import { formatDateShort } from "@/lib/utils";
 
 interface CreditActivityChartProps {

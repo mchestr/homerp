@@ -6,7 +6,7 @@ import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { adminApi, TimeRange } from "@/lib/api/api-client";
+import { adminApi, TimeRange } from "@/lib/api/api";
 import {
   Users,
   Package,

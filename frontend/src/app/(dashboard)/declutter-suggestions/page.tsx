@@ -32,7 +32,7 @@ import {
   profileApi,
   PurgeRecommendationWithItem,
   DeclutterCostResponse,
-} from "@/lib/api/api-client";
+} from "@/lib/api/api";
 
 export default function DeclutterSuggestionsPage() {
   const t = useTranslations("declutterSuggestions");
@@ -216,7 +216,9 @@ export default function DeclutterSuggestionsPage() {
     }
   };
 
-  const renderFactors = (factors: Record<string, boolean>) => {
+  const renderFactors = (factors: { [key: string]: unknown } | undefined) => {
+    if (!factors) return null;
+
     const factorLabels: Record<string, string> = {
       unused_duration: t("factorUnusedDuration"),
       high_quantity: t("factorHighQuantity"),
@@ -225,7 +227,7 @@ export default function DeclutterSuggestionsPage() {
     };
 
     const activeFactors = Object.entries(factors)
-      .filter(([, value]) => value)
+      .filter(([, value]) => value === true)
       .map(([key]) => factorLabels[key] || key);
 
     if (activeFactors.length === 0) return null;
@@ -333,7 +335,7 @@ export default function DeclutterSuggestionsPage() {
 
             <div className="text-muted-foreground text-sm">
               {t("costExplanation", {
-                itemsPerCredit: costInfo.items_per_credit,
+                itemsPerCredit: costInfo.items_per_credit ?? 0,
               })}
             </div>
 
@@ -459,7 +461,8 @@ export default function DeclutterSuggestionsPage() {
                         </span>
                         {rec.item_price && (
                           <span>
-                            {t("value")}: ${rec.item_price.toFixed(2)}
+                            {t("value")}: $
+                            {parseFloat(rec.item_price).toFixed(2)}
                           </span>
                         )}
                         {rec.item_category_name && (
@@ -481,11 +484,11 @@ export default function DeclutterSuggestionsPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           <Progress
-                            value={rec.confidence * 100}
+                            value={parseFloat(rec.confidence) * 100}
                             className="h-2 w-16"
                           />
                           <span className="text-muted-foreground text-sm">
-                            {Math.round(rec.confidence * 100)}%
+                            {Math.round(parseFloat(rec.confidence) * 100)}%
                           </span>
                         </div>
                       </div>

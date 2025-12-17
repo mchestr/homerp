@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Package, AlertTriangle, ExternalLink, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
-import { SimilarItemMatch } from "@/lib/api/api-client";
+import { SimilarItemMatch } from "@/lib/api/api";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 

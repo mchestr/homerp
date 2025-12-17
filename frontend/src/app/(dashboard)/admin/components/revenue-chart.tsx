@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Loader2, DollarSign } from "lucide-react";
-import { RevenueTimeSeriesResponse } from "@/lib/api/api-client";
+import { RevenueTimeSeriesResponse } from "@/lib/api/api";
 import { formatDateShort } from "@/lib/utils";
 
 interface RevenueChartProps {

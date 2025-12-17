@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { TimeRange } from "@/lib/api/api-client";
+import { TimeRange } from "@/lib/api/api";
 
 interface TimeRangeSelectorProps {
   value: TimeRange;

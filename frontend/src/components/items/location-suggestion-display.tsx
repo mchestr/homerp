@@ -3,7 +3,7 @@
 import { MapPin, ChevronDown, ChevronUp, Sparkles, Check } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LocationSuggestionItem } from "@/lib/api/api-client";
+import { LocationSuggestionItem } from "@/lib/api/api";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 

@@ -10,7 +10,7 @@ import {
   WebhookConfig,
   WebhookConfigCreate,
   WebhookConfigUpdate,
-} from "@/lib/api/api-client";
+} from "@/lib/api/api";
 import {
   ArrowLeft,
   Loader2,

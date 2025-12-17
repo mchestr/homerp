@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import type { AttributeField } from "@/lib/api/api-client";
+import type { AttributeField } from "@/lib/api/api";
 import { cn } from "@/lib/utils";
 
 interface DynamicAttributeFormProps {

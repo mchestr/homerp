@@ -13,11 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/context/auth-context";
-import {
-  adminApi,
-  CreditPricing,
-  CreditPricingUpdate,
-} from "@/lib/api/api-client";
+import { adminApi, CreditPricing, CreditPricingUpdate } from "@/lib/api/api";
 import { formatDateTime } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

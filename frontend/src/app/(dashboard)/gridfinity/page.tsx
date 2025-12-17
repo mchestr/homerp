@@ -33,8 +33,9 @@ import {
   locationsApi,
   GridfinityUnit,
   GridfinityUnitCreate,
+  GridfinityUnitUpdate,
   LocationTreeNode,
-} from "@/lib/api/api-client";
+} from "@/lib/api/api";
 import { formatDate } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { StoragePlannerWizard } from "@/components/storage-planner/storage-planner-wizard";
@@ -82,7 +83,7 @@ export default function GridfinityPage() {
 
   // Update mutation (for editing existing units)
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: GridfinityUnitCreate }) =>
+    mutationFn: ({ id, data }: { id: string; data: GridfinityUnitUpdate }) =>
       gridfinityApi.updateUnit(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["gridfinity", "units"] });
@@ -156,7 +157,7 @@ export default function GridfinityPage() {
     return nodes.map((node) => ({
       id: node.id,
       name: node.name,
-      children: convertToTreeSelectNodes(node.children),
+      children: convertToTreeSelectNodes(node.children ?? []),
     }));
   };
 

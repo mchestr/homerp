@@ -23,7 +23,7 @@ import {
   UserSystemProfile,
   UserSystemProfileCreate,
   Category,
-} from "@/lib/api/api-client";
+} from "@/lib/api/api";
 
 // Hobby type display labels
 const HOBBY_LABELS: Record<string, string> = {
@@ -85,18 +85,23 @@ export default function SystemProfilePage() {
           profileApi.getProfile(),
         ]);
 
-        setHobbyTypes(hobbyTypesRes.hobby_types);
+        setHobbyTypes(hobbyTypesRes.hobby_types ?? []);
         setCategories(categoriesRes);
 
         if (profileRes) {
           setProfile(profileRes);
           setSelectedHobbies(profileRes.hobby_types || []);
           setSelectedCategories(profileRes.interest_category_ids || []);
-          setRetentionMonths(profileRes.retention_months);
-          setQuantityThreshold(profileRes.min_quantity_threshold);
+          setRetentionMonths(profileRes.retention_months ?? 12);
+          setQuantityThreshold(profileRes.min_quantity_threshold ?? 5);
           setMinValueKeep(profileRes.min_value_keep?.toString() || "");
           setProfileDescription(profileRes.profile_description || "");
-          setPurgeAggressiveness(profileRes.purge_aggressiveness);
+          setPurgeAggressiveness(
+            (profileRes.purge_aggressiveness as
+              | "conservative"
+              | "moderate"
+              | "aggressive") ?? "moderate"
+          );
         }
       } catch {
         toast({

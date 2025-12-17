@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import ReactMarkdown from "react-markdown";
-import { aiApi, AssistantQueryRequest } from "@/lib/api/api-client";
+import { aiApi, AssistantQueryRequest } from "@/lib/api/api";
 import {
   Bot,
   Send,

@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { ImagePlus, Loader2, X, MapPin } from "lucide-react";
-import { imagesApi, Image } from "@/lib/api/api-client";
+import { imagesApi, Image } from "@/lib/api/api";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";

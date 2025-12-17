@@ -14,7 +14,7 @@ import {
   LocationAnalysisResult,
   LocationSuggestion,
   LocationCreate,
-} from "@/lib/api/api-client";
+} from "@/lib/api/api";
 import { cn } from "@/lib/utils";
 
 const LOCATION_TYPES = [
@@ -49,7 +49,7 @@ export function LocationSuggestionPreview({
     id: "parent",
   });
   const [children, setChildren] = useState<EditableSuggestion[]>(
-    result.children.map((child, index) => ({
+    (result.children ?? []).map((child, index) => ({
       ...child,
       id: `child-${index}`,
     }))

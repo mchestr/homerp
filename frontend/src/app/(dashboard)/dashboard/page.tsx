@@ -28,7 +28,7 @@ import {
   Bar,
 } from "recharts";
 import { Button } from "@/components/ui/button";
-import { itemsApi, categoriesApi, locationsApi } from "@/lib/api/api-client";
+import { itemsApi, categoriesApi, locationsApi } from "@/lib/api/api";
 import { formatDateShort, formatDate } from "@/lib/utils";
 
 export default function DashboardPage() {

@@ -28,7 +28,7 @@ import { InlineFacetedFilter } from "@/components/items/faceted-filter";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
 import { SpecificationTags } from "@/components/items/specification-tags";
 import { ViewModeToggle } from "@/components/ui/view-mode-toggle";
-import { itemsApi, categoriesApi, locationsApi } from "@/lib/api/api-client";
+import { itemsApi, categoriesApi, locationsApi } from "@/lib/api/api";
 import { cn, formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import { useViewMode, VIEW_MODES, type ViewMode } from "@/hooks/use-view-mode";
