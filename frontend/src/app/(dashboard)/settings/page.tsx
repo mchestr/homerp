@@ -13,6 +13,7 @@ import {
   DollarSign,
   Brain,
   Users,
+  Bell,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
@@ -22,10 +23,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { locales, localeNames, type Locale } from "@/i18n/config";
 import { setLocaleCookie } from "@/i18n/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  notificationsApi,
+  type NotificationPreferencesUpdate,
+} from "@/lib/api/api-client";
+import { useToast } from "@/hooks/use-toast";
 
 const CURRENCIES = [
   { code: "USD", label: "US Dollar ($)" },
@@ -47,6 +55,36 @@ export default function SettingsPage() {
   const [isUpdating, setIsUpdating] = useState(false);
   const t = useTranslations();
   const currentLocale = useLocale();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  // Notification preferences
+  const { data: notificationPrefs } = useQuery({
+    queryKey: ["notificationPreferences"],
+    queryFn: notificationsApi.getPreferences,
+  });
+
+  const updateNotificationsMutation = useMutation({
+    mutationFn: (data: NotificationPreferencesUpdate) =>
+      notificationsApi.updatePreferences(data),
+    onSuccess: (data) => {
+      queryClient.setQueryData(["notificationPreferences"], data);
+    },
+    onError: () => {
+      toast({
+        title: t("common.error"),
+        description: t("settings.notificationUpdateFailed"),
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleNotificationChange = (
+    key: keyof NotificationPreferencesUpdate,
+    value: boolean
+  ) => {
+    updateNotificationsMutation.mutate({ [key]: value });
+  };
 
   const handleCurrencyChange = async (currency: string) => {
     setIsUpdating(true);
@@ -184,6 +222,60 @@ export default function SettingsPage() {
             </p>
           </div>
           <ThemeToggle />
+        </div>
+      </div>
+
+      {/* Notifications */}
+      <div className="bg-card rounded-xl border p-6">
+        <h2 className="font-semibold">{t("settings.notifications")}</h2>
+        <p className="text-muted-foreground mt-1 text-sm">
+          {t("settings.notificationsDescription")}
+        </p>
+        <div className="mt-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/10 rounded-lg p-2">
+                <Bell className="text-primary h-4 w-4" />
+              </div>
+              <div>
+                <p className="font-medium">
+                  {t("settings.emailNotifications")}
+                </p>
+                <p className="text-muted-foreground text-sm">
+                  {t("settings.emailNotificationsDescription")}
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={notificationPrefs?.email_notifications_enabled ?? false}
+              onCheckedChange={(checked) =>
+                handleNotificationChange("email_notifications_enabled", checked)
+              }
+              disabled={updateNotificationsMutation.isPending}
+              data-testid="email-notifications-switch"
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 pl-11">
+              <div>
+                <p className="font-medium">{t("settings.lowStockAlerts")}</p>
+                <p className="text-muted-foreground text-sm">
+                  {t("settings.lowStockAlertsDescription")}
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={notificationPrefs?.low_stock_email_enabled ?? false}
+              onCheckedChange={(checked) =>
+                handleNotificationChange("low_stock_email_enabled", checked)
+              }
+              disabled={
+                updateNotificationsMutation.isPending ||
+                !notificationPrefs?.email_notifications_enabled
+              }
+              data-testid="low-stock-alerts-switch"
+            />
+          </div>
         </div>
       </div>
 

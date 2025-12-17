@@ -473,7 +473,14 @@
     "manageAiCredits": "Manage your AI credits",
     "authentication": "Authentication",
     "signedInViaGoogle": "Signed in via Google OAuth",
-    "memberSince": "Member since"
+    "memberSince": "Member since",
+    "notifications": "Notifications",
+    "notificationsDescription": "Manage how you receive alerts",
+    "emailNotifications": "Email Notifications",
+    "emailNotificationsDescription": "Receive alerts via email",
+    "lowStockAlerts": "Low Stock Alerts",
+    "lowStockAlertsDescription": "Get notified when items fall below minimum quantity",
+    "notificationUpdateFailed": "Failed to update notification settings"
   },
   "systemProfile": {
     "title": "System Profile",
