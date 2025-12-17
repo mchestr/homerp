@@ -10,7 +10,13 @@ export type OperationType =
   | "assistant_query"
   | "location_suggestion";
 
-// Default costs as fallback (matching backend defaults)
+/**
+ * Default costs as fallback while loading or if fetch fails.
+ *
+ * SYNC WARNING: These values must match the backend database defaults in
+ * `backend/src/billing/pricing_service.py`. If pricing changes in production,
+ * update these fallbacks to minimize incorrect cost display during initial load.
+ */
 const DEFAULT_COSTS: Record<OperationType, number> = {
   image_classification: 1,
   location_analysis: 1,
@@ -21,12 +27,21 @@ const DEFAULT_COSTS: Record<OperationType, number> = {
 /**
  * Hook to fetch and cache operation costs from the backend.
  * Returns the cost for each operation type and helper functions.
+ *
+ * Cache Strategy:
+ * - staleTime (5 min): How long data is considered fresh. Within this window,
+ *   React Query returns cached data without refetching.
+ * - gcTime (30 min): How long unused data stays in cache before garbage collection.
+ * - Backend also sets Cache-Control: max-age=300 (5 min) for HTTP-level caching.
+ *
+ * Rationale: Pricing rarely changes, so aggressive caching reduces API calls.
+ * The 5-minute stale time balances freshness with performance.
  */
 export function useOperationCosts() {
   const { data, isLoading, error } = useQuery({
     ...getOperationCostsApiV1BillingCostsGetOptions(),
-    staleTime: 5 * 60 * 1000, // Consider fresh for 5 minutes
-    gcTime: 30 * 60 * 1000, // Keep in cache for 30 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes - matches backend Cache-Control max-age
+    gcTime: 30 * 60 * 1000, // 30 minutes - keep in cache longer for background tabs
   });
 
   /**

@@ -4,8 +4,84 @@ import uuid
 
 from httpx import AsyncClient
 
-from src.billing.models import CreditPack
+from src.billing.models import CreditPack, CreditPricing
 from src.users.models import User
+
+
+class TestGetOperationCostsEndpoint:
+    """Tests for GET /api/v1/billing/costs."""
+
+    async def test_get_costs_returns_pricing_data(
+        self,
+        unauthenticated_client: AsyncClient,
+        credit_pricing_list: list[CreditPricing],
+    ):
+        """Test getting operation costs (public endpoint)."""
+        response = await unauthenticated_client.get("/api/v1/billing/costs")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "costs" in data
+        assert "items" in data
+        # Check that costs dict has operation types
+        assert isinstance(data["costs"], dict)
+        # Check active pricing is included
+        active_types = [p.operation_type for p in credit_pricing_list if p.is_active]
+        for op_type in active_types:
+            assert op_type in data["costs"]
+
+    async def test_get_costs_returns_cache_headers(
+        self, unauthenticated_client: AsyncClient, credit_pricing: CreditPricing
+    ):
+        """Test that costs endpoint returns cache headers."""
+        response = await unauthenticated_client.get("/api/v1/billing/costs")
+
+        assert response.status_code == 200
+        assert "cache-control" in response.headers
+        assert "public" in response.headers["cache-control"]
+        assert "max-age=300" in response.headers["cache-control"]
+
+    async def test_get_costs_items_include_display_name(
+        self, unauthenticated_client: AsyncClient, credit_pricing: CreditPricing
+    ):
+        """Test that costs items include display name."""
+        response = await unauthenticated_client.get("/api/v1/billing/costs")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["items"]) > 0
+        for item in data["items"]:
+            assert "operation_type" in item
+            assert "credits" in item
+            assert "display_name" in item
+
+    async def test_get_costs_without_pricing_returns_empty(
+        self, unauthenticated_client: AsyncClient
+    ):
+        """Test costs endpoint with no pricing configured."""
+        response = await unauthenticated_client.get("/api/v1/billing/costs")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["costs"] == {}
+        assert data["items"] == []
+
+    async def test_get_costs_excludes_inactive_pricing(
+        self,
+        unauthenticated_client: AsyncClient,
+        credit_pricing_list: list[CreditPricing],
+    ):
+        """Test that inactive pricing is excluded from costs."""
+        response = await unauthenticated_client.get("/api/v1/billing/costs")
+
+        assert response.status_code == 200
+        data = response.json()
+        # location_suggestion is inactive in the fixture
+        inactive_types = [
+            p.operation_type for p in credit_pricing_list if not p.is_active
+        ]
+        for op_type in inactive_types:
+            assert op_type not in data["costs"]
 
 
 class TestGetBalanceEndpoint:
