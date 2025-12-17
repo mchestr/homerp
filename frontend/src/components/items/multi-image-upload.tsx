@@ -77,8 +77,8 @@ export function MultiImageUpload({
     unclassifiedImages.length > 0 &&
     uploadedImages.length > 0;
   const creditCost =
-    isCostsLoading || classificationCostPerImage === undefined
-      ? "..."
+    classificationCostPerImage === undefined
+      ? undefined
       : uploadedImages.length * classificationCostPerImage;
 
   const handleFileChange = useCallback(
@@ -305,7 +305,9 @@ export function MultiImageUpload({
               ) : (
                 <>
                   <Sparkles className="h-4 w-4" />
-                  {t("identifyItemCostMultiple", { count: creditCost })}
+                  {isCostsLoading || creditCost === undefined
+                    ? "..."
+                    : t("identifyItemCostMultiple", { count: creditCost })}
                 </>
               )}
             </Button>

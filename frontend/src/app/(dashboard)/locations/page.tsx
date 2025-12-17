@@ -109,7 +109,6 @@ export default function LocationsPage() {
   const tLabels = useTranslations("labels");
   const { getCost, isLoading: isCostsLoading } = useOperationCosts();
   const locationAnalysisCost = getCost("location_analysis");
-  const costDisplay = isCostsLoading ? "..." : (locationAnalysisCost ?? "...");
 
   const { data: locations, isLoading } = useQuery({
     queryKey: ["locations"],
@@ -493,9 +492,11 @@ export default function LocationsPage() {
                         ) : (
                           <>
                             <Sparkles className="h-4 w-4" />
-                            {t("analyzeWithAiCredit", {
-                              cost: costDisplay,
-                            })}
+                            {isCostsLoading
+                              ? "..."
+                              : t("analyzeWithAiCredit", {
+                                  cost: locationAnalysisCost ?? 1,
+                                })}
                           </>
                         )}
                       </Button>

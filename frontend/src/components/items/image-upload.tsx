@@ -60,7 +60,6 @@ export function ImageUpload({
   const tImages = useTranslations("images");
   const { getCost, isLoading: isCostsLoading } = useOperationCosts();
   const classificationCost = getCost("image_classification");
-  const costDisplay = isCostsLoading ? "..." : (classificationCost ?? "...");
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -266,7 +265,9 @@ export function ImageUpload({
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4" />
-                    {t("reclassifyCost", { cost: costDisplay })}
+                    {isCostsLoading
+                      ? "..."
+                      : t("reclassifyCost", { cost: classificationCost ?? 1 })}
                   </>
                 )}
               </Button>
@@ -288,7 +289,9 @@ export function ImageUpload({
               ) : (
                 <>
                   <Sparkles className="h-4 w-4" />
-                  {t("identifyItemCost", { cost: costDisplay })}
+                  {isCostsLoading
+                    ? "..."
+                    : t("identifyItemCost", { cost: classificationCost ?? 1 })}
                 </>
               )}
             </Button>
