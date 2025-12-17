@@ -8,9 +8,12 @@ uv = "latest"
 VIRTUAL_ENV = "{{config_root}}/backend/.venv"
 _.file = ["frontend/.env", "backend/.env"]
 
+# =============================================================================
+# Install
+# =============================================================================
 [tasks.install]
 description = "Install all dependencies"
-run = ["mise run install:backend", "mise run install:frontend"]
+depends = ["install:backend", "install:frontend"]
 
 [tasks."install:backend"]
 description = "Install backend dependencies"
@@ -22,23 +25,29 @@ description = "Install frontend dependencies"
 dir = "frontend"
 run = "pnpm install"
 
+# =============================================================================
+# Development
+# =============================================================================
 [tasks.dev]
-description = "Start all services for development"
+description = "Start all services (Docker)"
 run = "docker compose up"
 
 [tasks."dev:backend"]
-description = "Start backend dev server (without Docker)"
+description = "Start backend dev server"
 dir = "backend"
 run = "uv run uvicorn src.main:app --reload"
 
 [tasks."dev:frontend"]
-description = "Start frontend dev server (without Docker)"
+description = "Start frontend dev server"
 dir = "frontend"
 run = "pnpm dev"
 
+# =============================================================================
+# Build
+# =============================================================================
 [tasks.build]
 description = "Build all Docker images"
-run = ["mise run build:backend", "mise run build:frontend"]
+depends = ["build:backend", "build:frontend"]
 
 [tasks."build:backend"]
 description = "Build backend Docker image"
@@ -49,65 +58,70 @@ description = "Build frontend Docker image"
 run = "docker compose build frontend"
 
 [tasks."build:frontend:local"]
-description = "Build frontend locally (Next.js production build)"
+description = "Build frontend locally"
 dir = "frontend"
 run = "pnpm build"
 
+# =============================================================================
+# Lint
+# =============================================================================
 [tasks.lint]
 description = "Lint all code"
-run = ["mise run lint:backend", "mise run lint:frontend"]
+depends = ["lint:backend", "lint:frontend"]
 
 [tasks."lint:backend"]
-description = "Lint backend code"
+description = "Lint backend"
 dir = "backend"
 run = "uv run ruff check ."
 
 [tasks."lint:backend:fix"]
-description = "Lint and fix backend code"
+description = "Lint and fix backend"
 dir = "backend"
 run = "uv run ruff check --fix ."
 
 [tasks."lint:frontend"]
-description = "Lint frontend code"
+description = "Lint frontend"
 dir = "frontend"
 run = "pnpm lint"
 
 [tasks."lint:frontend:fix"]
-description = "Lint and fix frontend code"
+description = "Lint and fix frontend"
 dir = "frontend"
 run = "pnpm lint:fix"
 
+# =============================================================================
+# Format
+# =============================================================================
 [tasks.format]
 description = "Format all code"
-run = ["mise run format:backend", "mise run format:frontend"]
+depends = ["format:backend", "format:frontend"]
 
 [tasks."format:backend"]
-description = "Format backend code"
 dir = "backend"
 run = "uv run ruff format ."
 
 [tasks."format:frontend"]
-description = "Format frontend code"
 dir = "frontend"
 run = "pnpm format"
 
 [tasks."format:check"]
-description = "Check formatting for all code (CI)"
-run = ["mise run format:check:backend", "mise run format:check:frontend"]
+description = "Check formatting (CI)"
+depends = ["format:check:backend", "format:check:frontend"]
 
 [tasks."format:check:backend"]
-description = "Check backend code formatting (CI)"
 dir = "backend"
 run = "uv run ruff format --check ."
 
 [tasks."format:check:frontend"]
-description = "Check frontend code formatting (CI)"
 dir = "frontend"
 run = "pnpm format:check"
 
+# =============================================================================
+# Test
+# =============================================================================
 [tasks.test]
 description = "Run all tests"
-run = ["mise run test:backend", "mise run test:frontend"]
+depends = ["test:backend", "test:frontend"]
 
 [tasks."test:backend"]
 description = "Run backend tests"
@@ -115,98 +129,88 @@ dir = "backend"
 run = "uv run pytest"
 
 [tasks."test:backend:unit"]
-description = "Run backend unit tests only (excludes integration)"
+description = "Backend unit tests only"
 dir = "backend"
 run = "uv run pytest --ignore=tests/integration"
 
 [tasks."test:integration"]
-description = "Run backend integration tests (security-critical tests)"
+description = "Backend integration tests"
 dir = "backend"
 run = "uv run pytest tests/integration -v"
 
 [tasks."test:frontend"]
-description = "Run frontend unit tests (vitest)"
+description = "Run frontend unit tests"
 dir = "frontend"
 run = "pnpm test"
 
 [tasks."test:frontend:watch"]
-description = "Run frontend unit tests in watch mode"
+description = "Frontend tests (watch mode)"
 dir = "frontend"
 run = "pnpm test:watch"
 
 [tasks."test:e2e"]
-description = "Run frontend e2e tests (playwright)"
+description = "Run e2e tests"
 dir = "frontend"
 run = "pnpm test:e2e"
 
 [tasks."test:e2e:ui"]
-description = "Run frontend e2e tests with Playwright UI"
+description = "E2e tests with Playwright UI"
 dir = "frontend"
 run = "pnpm test:e2e:ui"
 
 [tasks."test:e2e:headed"]
-description = "Run frontend e2e tests in headed browser mode"
+description = "E2e tests in headed mode"
 dir = "frontend"
 run = "pnpm test:e2e:headed"
 
 [tasks."test:e2e:debug"]
-description = "Run frontend e2e tests in debug mode"
+description = "E2e tests in debug mode"
 dir = "frontend"
 run = "pnpm test:e2e:debug"
 
+# =============================================================================
+# Database
+# =============================================================================
 [tasks."db:migrate"]
-description = "Run database migrations"
+description = "Run migrations"
 dir = "backend"
 run = "uv run alembic upgrade head"
-
-[tasks."db:reset"]
-description = "Reset database (drop all tables and re-run migrations)"
-run = [
-  "docker compose exec db psql -U homerp -d homerp -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'",
-  "mise run db:migrate",
-]
 
 [tasks."db:migration"]
 description = "Create a new migration"
 dir = "backend"
 run = "uv run alembic revision --autogenerate -m"
 
+[tasks."db:reset"]
+description = "Reset database"
+run = [
+  "docker compose exec db psql -U homerp -d homerp -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'",
+  "mise run db:migrate",
+]
+
+# =============================================================================
+# API & Utilities
+# =============================================================================
 [tasks."api:generate"]
-description = "Generate frontend API client from OpenAPI spec"
+description = "Generate API client from OpenAPI"
 dir = "frontend"
 run = "pnpm generate-api"
 
 [tasks.clean]
 description = "Clean build artifacts"
-run = [
-  "rm -rf backend/.venv",
-  "rm -rf frontend/node_modules",
-  "rm -rf frontend/.next",
-]
+run = "rm -rf backend/.venv frontend/node_modules frontend/.next"
 
+# =============================================================================
+# CI Checks
+# =============================================================================
 [tasks.check]
-description = "Run all CI checks (lint, format, tests, build)"
-run = [
-  "mise run lint",
-  "mise run format:check",
-  "mise run test:backend",
-  "mise run test:frontend",
-  "mise run build:frontend:local",
-]
+description = "Run all CI checks"
+depends = ["lint", "format:check", "test:backend", "test:frontend", "build:frontend:local"]
 
 [tasks."check:backend"]
-description = "Run backend CI checks (lint, format, tests)"
-run = [
-  "mise run lint:backend",
-  "mise run format:check:backend",
-  "mise run test:backend",
-]
+description = "Run backend CI checks"
+depends = ["lint:backend", "format:check:backend", "test:backend"]
 
 [tasks."check:frontend"]
-description = "Run frontend CI checks (lint, format, tests, build)"
-run = [
-  "mise run lint:frontend",
-  "mise run format:check:frontend",
-  "mise run test:frontend",
-  "mise run build:frontend:local",
-]
+description = "Run frontend CI checks"
+depends = ["lint:frontend", "format:check:frontend", "test:frontend", "build:frontend:local"]
