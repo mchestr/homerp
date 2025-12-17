@@ -2,12 +2,14 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from slowapi.middleware import SlowAPIMiddleware
+from sqlalchemy import text
 
 from src.common.rate_limiter import configure_rate_limiting
 from src.common.security_headers import SecurityHeadersMiddleware
 from src.config import get_settings
-from src.database import close_db, init_db
+from src.database import close_db, get_session, init_db
 
 
 @asynccontextmanager
@@ -46,10 +48,27 @@ def create_app() -> FastAPI:
     configure_rate_limiting(app)
     app.add_middleware(SlowAPIMiddleware)
 
-    # Health check endpoint
+    # Health check endpoint for Kubernetes probes
     @app.get("/health")
     async def health_check():
-        return {"status": "healthy"}
+        """
+        Health check endpoint for Kubernetes liveness/readiness probes.
+
+        Returns 200 if healthy, 503 if database is unavailable.
+        """
+        health = {"status": "healthy", "database": "connected"}
+
+        # Check database connectivity
+        try:
+            async for session in get_session():
+                await session.execute(text("SELECT 1"))
+                break
+        except Exception:
+            health["status"] = "unhealthy"
+            health["database"] = "disconnected"
+            return JSONResponse(status_code=503, content=health)
+
+        return health
 
     # Include routers
     from src.admin.router import router as admin_router
