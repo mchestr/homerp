@@ -1888,6 +1888,8 @@ export type AIUsageSummary = {
 
 export type AIUsageByUser = {
   user_id: string;
+  user_email: string;
+  user_name: string | null;
   total_calls: number;
   total_tokens: number;
   total_cost_usd: number;
@@ -1896,6 +1898,8 @@ export type AIUsageByUser = {
 export type AIUsageLog = {
   id: string;
   user_id: string;
+  user_email: string | null;
+  user_name: string | null;
   credit_transaction_id: string | null;
   operation_type: string;
   model: string;

@@ -23,9 +23,15 @@ import type {
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostData,
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostErrors,
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostResponses,
+  AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostData,
+  AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostErrors,
+  AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostResponses,
   AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostData,
   AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostErrors,
   AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostResponses,
+  BatchCreateItemsApiV1ItemsBatchPostData,
+  BatchCreateItemsApiV1ItemsBatchPostErrors,
+  BatchCreateItemsApiV1ItemsBatchPostResponses,
   BatchUpdateItemsApiV1ItemsBatchPatchData,
   BatchUpdateItemsApiV1ItemsBatchPatchErrors,
   BatchUpdateItemsApiV1ItemsBatchPatchResponses,
@@ -38,9 +44,9 @@ import type {
   CheckOutItemApiV1ItemsItemIdCheckOutPostData,
   CheckOutItemApiV1ItemsItemIdCheckOutPostErrors,
   CheckOutItemApiV1ItemsItemIdCheckOutPostResponses,
-  ClassifyImageApiV1ImagesClassifyPostData,
-  ClassifyImageApiV1ImagesClassifyPostErrors,
-  ClassifyImageApiV1ImagesClassifyPostResponses,
+  ClassifyImagesApiV1ImagesClassifyPostData,
+  ClassifyImagesApiV1ImagesClassifyPostErrors,
+  ClassifyImagesApiV1ImagesClassifyPostResponses,
   CreateApiKeyApiV1AdminApikeysPostData,
   CreateApiKeyApiV1AdminApikeysPostErrors,
   CreateApiKeyApiV1AdminApikeysPostResponses,
@@ -116,6 +122,12 @@ import type {
   DeleteUnitApiV1GridfinityUnitsUnitIdDeleteData,
   DeleteUnitApiV1GridfinityUnitsUnitIdDeleteErrors,
   DeleteUnitApiV1GridfinityUnitsUnitIdDeleteResponses,
+  DetachImageFromItemApiV1ImagesImageIdDetachPostData,
+  DetachImageFromItemApiV1ImagesImageIdDetachPostErrors,
+  DetachImageFromItemApiV1ImagesImageIdDetachPostResponses,
+  DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostData,
+  DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostErrors,
+  DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostResponses,
   DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteData,
   DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteErrors,
   DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteResponses,
@@ -125,6 +137,24 @@ import type {
   GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostData,
   GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostErrors,
   GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostResponses,
+  GetActivityFeedApiV1AdminActivityGetData,
+  GetActivityFeedApiV1AdminActivityGetErrors,
+  GetActivityFeedApiV1AdminActivityGetResponses,
+  GetAiUsageByUserApiV1AdminAiUsageByUserGetData,
+  GetAiUsageByUserApiV1AdminAiUsageByUserGetErrors,
+  GetAiUsageByUserApiV1AdminAiUsageByUserGetResponses,
+  GetAiUsageDailyApiV1AdminAiUsageDailyGetData,
+  GetAiUsageDailyApiV1AdminAiUsageDailyGetErrors,
+  GetAiUsageDailyApiV1AdminAiUsageDailyGetResponses,
+  GetAiUsageHistoryApiV1AdminAiUsageHistoryGetData,
+  GetAiUsageHistoryApiV1AdminAiUsageHistoryGetErrors,
+  GetAiUsageHistoryApiV1AdminAiUsageHistoryGetResponses,
+  GetAiUsageSummaryApiV1AdminAiUsageSummaryGetData,
+  GetAiUsageSummaryApiV1AdminAiUsageSummaryGetErrors,
+  GetAiUsageSummaryApiV1AdminAiUsageSummaryGetResponses,
+  GetAlertHistoryApiV1NotificationsHistoryGetData,
+  GetAlertHistoryApiV1NotificationsHistoryGetErrors,
+  GetAlertHistoryApiV1NotificationsHistoryGetResponses,
   GetAllTagsApiV1ItemsTagsGetData,
   GetAllTagsApiV1ItemsTagsGetErrors,
   GetAllTagsApiV1ItemsTagsGetResponses,
@@ -152,6 +182,9 @@ import type {
   GetConfigApiV1WebhooksConfigsConfigIdGetData,
   GetConfigApiV1WebhooksConfigsConfigIdGetErrors,
   GetConfigApiV1WebhooksConfigsConfigIdGetResponses,
+  GetCreditActivityApiV1AdminStatsCreditsGetData,
+  GetCreditActivityApiV1AdminStatsCreditsGetErrors,
+  GetCreditActivityApiV1AdminStatsCreditsGetResponses,
   GetCurrentUserInfoApiV1AuthMeGetData,
   GetCurrentUserInfoApiV1AuthMeGetErrors,
   GetCurrentUserInfoApiV1AuthMeGetResponses,
@@ -169,6 +202,9 @@ import type {
   GetImageFileApiV1ImagesImageIdFileGetData,
   GetImageFileApiV1ImagesImageIdFileGetErrors,
   GetImageFileApiV1ImagesImageIdFileGetResponses,
+  GetImagesByLocationApiV1ImagesLocationLocationIdGetData,
+  GetImagesByLocationApiV1ImagesLocationLocationIdGetErrors,
+  GetImagesByLocationApiV1ImagesLocationLocationIdGetResponses,
   GetImageSignedUrlApiV1ImagesImageIdSignedUrlGetData,
   GetImageSignedUrlApiV1ImagesImageIdSignedUrlGetErrors,
   GetImageSignedUrlApiV1ImagesImageIdSignedUrlGetResponses,
@@ -202,6 +238,9 @@ import type {
   GetLocationQrCodeApiV1LocationsLocationIdQrGetData,
   GetLocationQrCodeApiV1LocationsLocationIdQrGetErrors,
   GetLocationQrCodeApiV1LocationsLocationIdQrGetResponses,
+  GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetData,
+  GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetErrors,
+  GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetResponses,
   GetLocationTreeApiV1LocationsTreeGetData,
   GetLocationTreeApiV1LocationsTreeGetErrors,
   GetLocationTreeApiV1LocationsTreeGetResponses,
@@ -214,9 +253,18 @@ import type {
   GetMyProfileApiV1ProfileMeGetData,
   GetMyProfileApiV1ProfileMeGetErrors,
   GetMyProfileApiV1ProfileMeGetResponses,
+  GetNotificationPreferencesApiV1NotificationsPreferencesGetData,
+  GetNotificationPreferencesApiV1NotificationsPreferencesGetErrors,
+  GetNotificationPreferencesApiV1NotificationsPreferencesGetResponses,
   GetPackApiV1AdminPacksPackIdGetData,
   GetPackApiV1AdminPacksPackIdGetErrors,
   GetPackApiV1AdminPacksPackIdGetResponses,
+  GetPackBreakdownApiV1AdminStatsPacksGetData,
+  GetPackBreakdownApiV1AdminStatsPacksGetErrors,
+  GetPackBreakdownApiV1AdminStatsPacksGetResponses,
+  GetPricingApiV1AdminPricingPricingIdGetData,
+  GetPricingApiV1AdminPricingPricingIdGetErrors,
+  GetPricingApiV1AdminPricingPricingIdGetResponses,
   GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetData,
   GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetErrors,
   GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetResponses,
@@ -226,6 +274,12 @@ import type {
   GetRecommendationsCostApiV1ProfileRecommendationsCostGetData,
   GetRecommendationsCostApiV1ProfileRecommendationsCostGetErrors,
   GetRecommendationsCostApiV1ProfileRecommendationsCostGetResponses,
+  GetRevenueOverTimeApiV1AdminStatsRevenueGetData,
+  GetRevenueOverTimeApiV1AdminStatsRevenueGetErrors,
+  GetRevenueOverTimeApiV1AdminStatsRevenueGetResponses,
+  GetSignupsOverTimeApiV1AdminStatsSignupsGetData,
+  GetSignupsOverTimeApiV1AdminStatsSignupsGetErrors,
+  GetSignupsOverTimeApiV1AdminStatsSignupsGetResponses,
   GetStatsApiV1AdminStatsGetData,
   GetStatsApiV1AdminStatsGetErrors,
   GetStatsApiV1AdminStatsGetResponses,
@@ -290,6 +344,9 @@ import type {
   ListPacksApiV1AdminPacksGetResponses,
   ListPacksApiV1BillingPacksGetData,
   ListPacksApiV1BillingPacksGetResponses,
+  ListPricingApiV1AdminPricingGetData,
+  ListPricingApiV1AdminPricingGetErrors,
+  ListPricingApiV1AdminPricingGetResponses,
   ListProvidersApiV1AuthProvidersGetData,
   ListProvidersApiV1AuthProvidersGetResponses,
   ListTransactionsApiV1BillingTransactionsGetData,
@@ -334,12 +391,21 @@ import type {
   SearchItemsApiV1ItemsSearchGetData,
   SearchItemsApiV1ItemsSearchGetErrors,
   SearchItemsApiV1ItemsSearchGetResponses,
+  SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostData,
+  SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostErrors,
+  SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostResponses,
+  SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostData,
+  SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostErrors,
+  SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostResponses,
   SuggestItemLocationApiV1ItemsSuggestLocationPostData,
   SuggestItemLocationApiV1ItemsSuggestLocationPostErrors,
   SuggestItemLocationApiV1ItemsSuggestLocationPostResponses,
   TestConfigApiV1WebhooksConfigsConfigIdTestPostData,
   TestConfigApiV1WebhooksConfigsConfigIdTestPostErrors,
   TestConfigApiV1WebhooksConfigsConfigIdTestPostResponses,
+  TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostData,
+  TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostErrors,
+  TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostResponses,
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchData,
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchErrors,
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponses,
@@ -367,12 +433,18 @@ import type {
   UpdateMyProfileApiV1ProfileMePatchData,
   UpdateMyProfileApiV1ProfileMePatchErrors,
   UpdateMyProfileApiV1ProfileMePatchResponses,
+  UpdateNotificationPreferencesApiV1NotificationsPreferencesPutData,
+  UpdateNotificationPreferencesApiV1NotificationsPreferencesPutErrors,
+  UpdateNotificationPreferencesApiV1NotificationsPreferencesPutResponses,
   UpdatePackApiV1AdminPacksPackIdPutData,
   UpdatePackApiV1AdminPacksPackIdPutErrors,
   UpdatePackApiV1AdminPacksPackIdPutResponses,
   UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutData,
   UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutErrors,
   UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutResponses,
+  UpdatePricingApiV1AdminPricingPricingIdPutData,
+  UpdatePricingApiV1AdminPricingPricingIdPutErrors,
+  UpdatePricingApiV1AdminPricingPricingIdPutResponses,
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchData,
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchErrors,
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponses,
@@ -528,6 +600,70 @@ export const updatePackApiV1AdminPacksPackIdPut = <
   });
 
 /**
+ * List Pricing
+ *
+ * List all credit pricing configurations.
+ */
+export const listPricingApiV1AdminPricingGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<ListPricingApiV1AdminPricingGetData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    ListPricingApiV1AdminPricingGetResponses,
+    ListPricingApiV1AdminPricingGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/pricing",
+    ...options,
+  });
+
+/**
+ * Get Pricing
+ *
+ * Get a specific credit pricing configuration.
+ */
+export const getPricingApiV1AdminPricingPricingIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetPricingApiV1AdminPricingPricingIdGetData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    GetPricingApiV1AdminPricingPricingIdGetResponses,
+    GetPricingApiV1AdminPricingPricingIdGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/pricing/{pricing_id}",
+    ...options,
+  });
+
+/**
+ * Update Pricing
+ *
+ * Update a credit pricing configuration.
+ */
+export const updatePricingApiV1AdminPricingPricingIdPut = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UpdatePricingApiV1AdminPricingPricingIdPutData, ThrowOnError>
+) =>
+  (options.client ?? client).put<
+    UpdatePricingApiV1AdminPricingPricingIdPutResponses,
+    UpdatePricingApiV1AdminPricingPricingIdPutErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/pricing/{pricing_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * List Users
  *
  * List all users with pagination.
@@ -639,6 +775,204 @@ export const getStatsApiV1AdminStatsGet = <
   });
 
 /**
+ * Get Revenue Over Time
+ *
+ * Get revenue aggregated by day for the specified time range.
+ */
+export const getRevenueOverTimeApiV1AdminStatsRevenueGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    GetRevenueOverTimeApiV1AdminStatsRevenueGetData,
+    ThrowOnError
+  >
+) =>
+  (options?.client ?? client).get<
+    GetRevenueOverTimeApiV1AdminStatsRevenueGetResponses,
+    GetRevenueOverTimeApiV1AdminStatsRevenueGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/stats/revenue",
+    ...options,
+  });
+
+/**
+ * Get Signups Over Time
+ *
+ * Get user signups aggregated by day for the specified time range.
+ */
+export const getSignupsOverTimeApiV1AdminStatsSignupsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    GetSignupsOverTimeApiV1AdminStatsSignupsGetData,
+    ThrowOnError
+  >
+) =>
+  (options?.client ?? client).get<
+    GetSignupsOverTimeApiV1AdminStatsSignupsGetResponses,
+    GetSignupsOverTimeApiV1AdminStatsSignupsGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/stats/signups",
+    ...options,
+  });
+
+/**
+ * Get Credit Activity
+ *
+ * Get credit purchases vs usage over time.
+ */
+export const getCreditActivityApiV1AdminStatsCreditsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    GetCreditActivityApiV1AdminStatsCreditsGetData,
+    ThrowOnError
+  >
+) =>
+  (options?.client ?? client).get<
+    GetCreditActivityApiV1AdminStatsCreditsGetResponses,
+    GetCreditActivityApiV1AdminStatsCreditsGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/stats/credits",
+    ...options,
+  });
+
+/**
+ * Get Pack Breakdown
+ *
+ * Get breakdown of credit pack sales.
+ */
+export const getPackBreakdownApiV1AdminStatsPacksGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<GetPackBreakdownApiV1AdminStatsPacksGetData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetPackBreakdownApiV1AdminStatsPacksGetResponses,
+    GetPackBreakdownApiV1AdminStatsPacksGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/stats/packs",
+    ...options,
+  });
+
+/**
+ * Get Activity Feed
+ *
+ * Get paginated, filterable activity feed.
+ */
+export const getActivityFeedApiV1AdminActivityGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<GetActivityFeedApiV1AdminActivityGetData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetActivityFeedApiV1AdminActivityGetResponses,
+    GetActivityFeedApiV1AdminActivityGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/activity",
+    ...options,
+  });
+
+/**
+ * Get Ai Usage Summary
+ *
+ * Get AI token usage summary with breakdowns by operation and model.
+ */
+export const getAiUsageSummaryApiV1AdminAiUsageSummaryGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    GetAiUsageSummaryApiV1AdminAiUsageSummaryGetData,
+    ThrowOnError
+  >
+) =>
+  (options?.client ?? client).get<
+    GetAiUsageSummaryApiV1AdminAiUsageSummaryGetResponses,
+    GetAiUsageSummaryApiV1AdminAiUsageSummaryGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/ai-usage/summary",
+    ...options,
+  });
+
+/**
+ * Get Ai Usage By User
+ *
+ * Get AI usage aggregated by user, ordered by total tokens.
+ */
+export const getAiUsageByUserApiV1AdminAiUsageByUserGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    GetAiUsageByUserApiV1AdminAiUsageByUserGetData,
+    ThrowOnError
+  >
+) =>
+  (options?.client ?? client).get<
+    GetAiUsageByUserApiV1AdminAiUsageByUserGetResponses,
+    GetAiUsageByUserApiV1AdminAiUsageByUserGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/ai-usage/by-user",
+    ...options,
+  });
+
+/**
+ * Get Ai Usage History
+ *
+ * Get paginated AI usage logs with user information.
+ */
+export const getAiUsageHistoryApiV1AdminAiUsageHistoryGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    GetAiUsageHistoryApiV1AdminAiUsageHistoryGetData,
+    ThrowOnError
+  >
+) =>
+  (options?.client ?? client).get<
+    GetAiUsageHistoryApiV1AdminAiUsageHistoryGetResponses,
+    GetAiUsageHistoryApiV1AdminAiUsageHistoryGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/ai-usage/history",
+    ...options,
+  });
+
+/**
+ * Get Ai Usage Daily
+ *
+ * Get daily AI usage for charts.
+ */
+export const getAiUsageDailyApiV1AdminAiUsageDailyGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<GetAiUsageDailyApiV1AdminAiUsageDailyGetData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetAiUsageDailyApiV1AdminAiUsageDailyGetResponses,
+    GetAiUsageDailyApiV1AdminAiUsageDailyGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/ai-usage/daily",
+    ...options,
+  });
+
+/**
  * Query Assistant
  *
  * Query the AI assistant with a prompt.
@@ -646,7 +980,7 @@ export const getStatsApiV1AdminStatsGet = <
  * The assistant can provide personalized suggestions based on your inventory,
  * such as planting schedules, craft project ideas, organization tips, and more.
  *
- * Consumes 1 credit per query.
+ * Consumes credits based on configured pricing.
  */
 export const queryAssistantApiV1AiQueryPost = <
   ThrowOnError extends boolean = false,
@@ -1304,6 +1638,37 @@ export const batchUpdateItemsApiV1ItemsBatchPatch = <
   });
 
 /**
+ * Batch Create Items
+ *
+ * Batch create multiple items at once.
+ *
+ * Creates up to 50 items in a single request. Each item is processed independently,
+ * so if one fails, others may still succeed. The response includes the status
+ * for each item.
+ *
+ * This endpoint is optimized for the batch photo upload workflow where multiple
+ * photos have been classified and the user wants to create items from all of them.
+ */
+export const batchCreateItemsApiV1ItemsBatchPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<BatchCreateItemsApiV1ItemsBatchPostData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    BatchCreateItemsApiV1ItemsBatchPostResponses,
+    BatchCreateItemsApiV1ItemsBatchPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/items/batch",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Get Dashboard Stats
  *
  * Get dashboard statistics including time series data.
@@ -1427,7 +1792,7 @@ export const findSimilarItemsApiV1ItemsFindSimilarPost = <
  * Analyzes the item's characteristics and the user's existing locations
  * with their stored items to recommend suitable storage places.
  *
- * Consumes 1 credit on successful suggestion.
+ * Consumes credits based on configured pricing.
  */
 export const suggestItemLocationApiV1ItemsSuggestLocationPost = <
   ThrowOnError extends boolean = false,
@@ -1638,6 +2003,10 @@ export const updateItemQuantityApiV1ItemsItemIdQuantityPatch = <
  *
  * Uses row-level locking to prevent race conditions where concurrent
  * check-outs could exceed the available quantity.
+ *
+ * If the item falls below its minimum quantity threshold after check-out,
+ * a low stock alert email will be sent (subject to user preferences and
+ * 24-hour deduplication).
  */
 export const checkOutItemApiV1ItemsItemIdCheckOutPost = <
   ThrowOnError extends boolean = false,
@@ -2034,7 +2403,7 @@ export const getLocationTreeApiV1LocationsTreeGet = <
  *
  * Analyze an image to suggest location structure using AI.
  *
- * Consumes 1 credit on successful analysis.
+ * Consumes credits based on configured pricing.
  */
 export const analyzeLocationImageApiV1LocationsAnalyzeImagePost = <
   ThrowOnError extends boolean = false,
@@ -2222,11 +2591,39 @@ export const getLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGet =
     });
 
 /**
+ * Get Location Qr Signed Url
+ *
+ * Get a signed URL for accessing a location's QR code.
+ *
+ * This generates a short-lived token that can be used in browser <img> tags
+ * where Authorization headers cannot be sent.
+ */
+export const getLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).get<
+    GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetResponses,
+    GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/locations/{location_id}/qr/signed-url",
+    ...options,
+  });
+
+/**
  * Get Location Qr Code
  *
  * Generate a QR code PNG for a location.
  *
  * The QR code contains the location's URL for scanning.
+ * Requires a valid signed token query parameter for authentication.
+ * Use GET /{location_id}/qr/signed-url to obtain a token.
  */
 export const getLocationQrCodeApiV1LocationsLocationIdQrGet = <
   ThrowOnError extends boolean = false,
@@ -2241,7 +2638,6 @@ export const getLocationQrCodeApiV1LocationsLocationIdQrGet = <
     GetLocationQrCodeApiV1LocationsLocationIdQrGetErrors,
     ThrowOnError
   >({
-    security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/locations/{location_id}/qr",
     ...options,
     headers: {
@@ -2562,18 +2958,23 @@ export const uploadImageApiV1ImagesUploadPost = <
   });
 
 /**
- * Classify Image
+ * Classify Images
  *
- * Classify an uploaded image using AI.
+ * Classify one or more uploaded images using AI.
+ *
+ * Multiple images are sent together in a single request, allowing the AI
+ * to see different angles/views of the same item for better identification.
+ *
+ * Charges credits per image based on configured pricing.
  */
-export const classifyImageApiV1ImagesClassifyPost = <
+export const classifyImagesApiV1ImagesClassifyPost = <
   ThrowOnError extends boolean = false,
 >(
-  options: Options<ClassifyImageApiV1ImagesClassifyPostData, ThrowOnError>
+  options: Options<ClassifyImagesApiV1ImagesClassifyPostData, ThrowOnError>
 ) =>
   (options.client ?? client).post<
-    ClassifyImageApiV1ImagesClassifyPostResponses,
-    ClassifyImageApiV1ImagesClassifyPostErrors,
+    ClassifyImagesApiV1ImagesClassifyPostResponses,
+    ClassifyImagesApiV1ImagesClassifyPostErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
@@ -2724,6 +3125,32 @@ export const getImageThumbnailApiV1ImagesImageIdThumbnailGet = <
   >({ url: "/api/v1/images/{image_id}/thumbnail", ...options });
 
 /**
+ * Get Images By Location
+ *
+ * Get all images for a location.
+ *
+ * Supports collaboration: when viewing a shared inventory, returns
+ * images for the inventory owner's location.
+ */
+export const getImagesByLocationApiV1ImagesLocationLocationIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetImagesByLocationApiV1ImagesLocationLocationIdGetData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).get<
+    GetImagesByLocationApiV1ImagesLocationLocationIdGetResponses,
+    GetImagesByLocationApiV1ImagesLocationLocationIdGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/images/location/{location_id}",
+    ...options,
+  });
+
+/**
  * Attach Image To Item
  *
  * Attach an image to an item.
@@ -2743,6 +3170,129 @@ export const attachImageToItemApiV1ImagesImageIdAttachItemIdPost = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/images/{image_id}/attach/{item_id}",
+    ...options,
+  });
+
+/**
+ * Set Image As Primary
+ *
+ * Set an image as the primary image for its item.
+ *
+ * The image must already be attached to an item.
+ * Other images for the same item will be marked as non-primary.
+ */
+export const setImageAsPrimaryApiV1ImagesImageIdSetPrimaryPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).post<
+    SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostResponses,
+    SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/images/{image_id}/set-primary",
+    ...options,
+  });
+
+/**
+ * Detach Image From Item
+ *
+ * Detach an image from its item.
+ *
+ * The image is not deleted, just unassociated from the item.
+ */
+export const detachImageFromItemApiV1ImagesImageIdDetachPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    DetachImageFromItemApiV1ImagesImageIdDetachPostData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).post<
+    DetachImageFromItemApiV1ImagesImageIdDetachPostResponses,
+    DetachImageFromItemApiV1ImagesImageIdDetachPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/images/{image_id}/detach",
+    ...options,
+  });
+
+/**
+ * Attach Image To Location
+ *
+ * Attach an image to a location.
+ */
+export const attachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPost =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostData,
+      ThrowOnError
+    >
+  ) =>
+    (options.client ?? client).post<
+      AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostResponses,
+      AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostErrors,
+      ThrowOnError
+    >({
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/images/{image_id}/attach-location/{location_id}",
+      ...options,
+    });
+
+/**
+ * Set Image As Primary For Location
+ *
+ * Set an image as the primary image for its location.
+ *
+ * The image must already be attached to a location.
+ * Other images for the same location will be marked as non-primary.
+ */
+export const setImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPost =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostData,
+      ThrowOnError
+    >
+  ) =>
+    (options.client ?? client).post<
+      SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostResponses,
+      SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostErrors,
+      ThrowOnError
+    >({
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/images/{image_id}/set-primary-location",
+      ...options,
+    });
+
+/**
+ * Detach Image From Location
+ *
+ * Detach an image from its location.
+ *
+ * The image is not deleted, just unassociated from the location.
+ */
+export const detachImageFromLocationApiV1ImagesImageIdDetachLocationPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).post<
+    DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostResponses,
+    DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/images/{image_id}/detach-location",
     ...options,
   });
 
@@ -3349,5 +3899,109 @@ export const leaveSharedInventoryApiV1CollaborationSharedOwnerIdDelete = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/collaboration/shared/{owner_id}",
+    ...options,
+  });
+
+/**
+ * Get Notification Preferences
+ *
+ * Get current user's notification preferences.
+ */
+export const getNotificationPreferencesApiV1NotificationsPreferencesGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    GetNotificationPreferencesApiV1NotificationsPreferencesGetData,
+    ThrowOnError
+  >
+) =>
+  (options?.client ?? client).get<
+    GetNotificationPreferencesApiV1NotificationsPreferencesGetResponses,
+    GetNotificationPreferencesApiV1NotificationsPreferencesGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/notifications/preferences",
+    ...options,
+  });
+
+/**
+ * Update Notification Preferences
+ *
+ * Update notification preferences.
+ */
+export const updateNotificationPreferencesApiV1NotificationsPreferencesPut = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    UpdateNotificationPreferencesApiV1NotificationsPreferencesPutData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).put<
+    UpdateNotificationPreferencesApiV1NotificationsPreferencesPutResponses,
+    UpdateNotificationPreferencesApiV1NotificationsPreferencesPutErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/notifications/preferences",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Trigger Low Stock Alerts
+ *
+ * Manually trigger low stock alerts for specified items or all low stock items.
+ *
+ * If item_ids is not provided, alerts will be sent for all items that are
+ * currently below their minimum quantity threshold and haven't been alerted
+ * in the last 24 hours.
+ */
+export const triggerLowStockAlertsApiV1NotificationsLowStockTriggerPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostData,
+    ThrowOnError
+  >
+) =>
+  (options?.client ?? client).post<
+    TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostResponses,
+    TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/notifications/low-stock/trigger",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Get Alert History
+ *
+ * Get alert history for the current user.
+ */
+export const getAlertHistoryApiV1NotificationsHistoryGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    GetAlertHistoryApiV1NotificationsHistoryGetData,
+    ThrowOnError
+  >
+) =>
+  (options?.client ?? client).get<
+    GetAlertHistoryApiV1NotificationsHistoryGetResponses,
+    GetAlertHistoryApiV1NotificationsHistoryGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/notifications/history",
     ...options,
   });

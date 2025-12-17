@@ -971,7 +971,7 @@ async def get_ai_usage_history(
     operation_type: str | None = Query(None, description="Filter by operation type"),
     user_id: UUID | None = Query(None, description="Filter by user ID"),
 ) -> PaginatedAIUsageLogsResponse:
-    """Get paginated AI usage logs."""
+    """Get paginated AI usage logs with user information."""
     logs, total = await ai_usage_service.get_usage_history(
         session=session,
         page=page,
@@ -979,7 +979,7 @@ async def get_ai_usage_history(
         operation_type=operation_type,
         user_id=user_id,
     )
-    items = [AIUsageLogResponse.model_validate(log) for log in logs]
+    items = [AIUsageLogResponse(**log) for log in logs]
     return PaginatedAIUsageLogsResponse.create(items, total, page, limit)
 
 

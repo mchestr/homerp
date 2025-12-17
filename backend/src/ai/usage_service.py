@@ -6,9 +6,11 @@ from uuid import UUID
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from src.ai.models import AIUsageLog
 from src.ai.schemas import TokenUsage
+from src.users.models import User
 
 
 class AIUsageService:
@@ -170,11 +172,14 @@ class AIUsageService:
         query = (
             select(
                 AIUsageLog.user_id,
+                User.email.label("user_email"),
+                User.name.label("user_name"),
                 func.count(AIUsageLog.id).label("total_calls"),
                 func.sum(AIUsageLog.total_tokens).label("total_tokens"),
                 func.sum(AIUsageLog.estimated_cost_usd).label("total_cost_usd"),
             )
-            .group_by(AIUsageLog.user_id)
+            .join(User, AIUsageLog.user_id == User.id)
+            .group_by(AIUsageLog.user_id, User.email, User.name)
             .order_by(func.sum(AIUsageLog.total_tokens).desc())
             .limit(limit)
         )
@@ -188,6 +193,8 @@ class AIUsageService:
         return [
             {
                 "user_id": str(r.user_id),
+                "user_email": r.user_email,
+                "user_name": r.user_name,
                 "total_calls": r.total_calls,
                 "total_tokens": r.total_tokens or 0,
                 "total_cost_usd": float(r.total_cost_usd or Decimal("0")),
@@ -202,7 +209,7 @@ class AIUsageService:
         limit: int = 50,
         operation_type: str | None = None,
         user_id: UUID | None = None,
-    ) -> tuple[list[AIUsageLog], int]:
+    ) -> tuple[list[dict], int]:
         """
         Get paginated usage history (admin view).
 
@@ -214,7 +221,7 @@ class AIUsageService:
             user_id: Optional filter by user
 
         Returns:
-            Tuple of (list of AIUsageLog records, total count)
+            Tuple of (list of usage log dicts with user info, total count)
         """
         # Build count query
         count_query = select(func.count(AIUsageLog.id))
@@ -226,8 +233,12 @@ class AIUsageService:
         total_result = await session.execute(count_query)
         total = total_result.scalar() or 0
 
-        # Build main query
-        query = select(AIUsageLog).order_by(AIUsageLog.created_at.desc())
+        # Build main query with user join
+        query = (
+            select(AIUsageLog)
+            .options(selectinload(AIUsageLog.user))
+            .order_by(AIUsageLog.created_at.desc())
+        )
         if operation_type:
             query = query.where(AIUsageLog.operation_type == operation_type)
         if user_id:
@@ -239,7 +250,25 @@ class AIUsageService:
         result = await session.execute(query)
         logs = list(result.scalars().all())
 
-        return logs, total
+        # Convert to dicts with user info
+        return [
+            {
+                "id": log.id,
+                "user_id": log.user_id,
+                "user_email": log.user.email if log.user else None,
+                "user_name": log.user.name if log.user else None,
+                "credit_transaction_id": log.credit_transaction_id,
+                "operation_type": log.operation_type,
+                "model": log.model,
+                "prompt_tokens": log.prompt_tokens,
+                "completion_tokens": log.completion_tokens,
+                "total_tokens": log.total_tokens,
+                "estimated_cost_usd": float(log.estimated_cost_usd),
+                "request_metadata": log.request_metadata,
+                "created_at": log.created_at,
+            }
+            for log in logs
+        ], total
 
     async def get_daily_usage(
         self,

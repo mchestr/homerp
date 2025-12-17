@@ -277,6 +277,8 @@ class AIUsageByUserResponse(BaseModel):
     """AI usage aggregated by user."""
 
     user_id: str
+    user_email: str
+    user_name: str | None
     total_calls: int
     total_tokens: int
     total_cost_usd: float
@@ -287,6 +289,8 @@ class AIUsageLogResponse(BaseModel):
 
     id: UUID
     user_id: UUID
+    user_email: str | None = None
+    user_name: str | None = None
     credit_transaction_id: UUID | None
     operation_type: str
     model: str

@@ -15,12 +15,14 @@ import {
   adjustUserCreditsApiV1AdminUsersUserIdCreditsPost,
   analyzeLocationImageApiV1LocationsAnalyzeImagePost,
   attachImageToItemApiV1ImagesImageIdAttachItemIdPost,
+  attachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPost,
   autoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPost,
+  batchCreateItemsApiV1ItemsBatchPost,
   batchUpdateItemsApiV1ItemsBatchPatch,
   calculateGridApiV1GridfinityCalculateGridGet,
   checkInItemApiV1ItemsItemIdCheckInPost,
   checkOutItemApiV1ItemsItemIdCheckOutPost,
-  classifyImageApiV1ImagesClassifyPost,
+  classifyImagesApiV1ImagesClassifyPost,
   createApiKeyApiV1AdminApikeysPost,
   createCategoryApiV1CategoriesPost,
   createCategoryFromPathApiV1CategoriesFromPathPost,
@@ -46,9 +48,17 @@ import {
   deletePackApiV1AdminPacksPackIdDelete,
   deletePlacementApiV1GridfinityPlacementsPlacementIdDelete,
   deleteUnitApiV1GridfinityUnitsUnitIdDelete,
+  detachImageFromItemApiV1ImagesImageIdDetachPost,
+  detachImageFromLocationApiV1ImagesImageIdDetachLocationPost,
   dismissRecommendationApiV1ProfileRecommendationsRecommendationIdDelete,
   findSimilarItemsApiV1ItemsFindSimilarPost,
   generateRecommendationsApiV1ProfileRecommendationsGeneratePost,
+  getActivityFeedApiV1AdminActivityGet,
+  getAiUsageByUserApiV1AdminAiUsageByUserGet,
+  getAiUsageDailyApiV1AdminAiUsageDailyGet,
+  getAiUsageHistoryApiV1AdminAiUsageHistoryGet,
+  getAiUsageSummaryApiV1AdminAiUsageSummaryGet,
+  getAlertHistoryApiV1NotificationsHistoryGet,
   getAllTagsApiV1ItemsTagsGet,
   getApiKeyApiV1AdminApikeysApiKeyIdGet,
   getAuthUrlApiV1AuthProviderGet,
@@ -58,12 +68,14 @@ import {
   getCategoryTemplateApiV1CategoriesCategoryIdTemplateGet,
   getCategoryTreeApiV1CategoriesTreeGet,
   getConfigApiV1WebhooksConfigsConfigIdGet,
+  getCreditActivityApiV1AdminStatsCreditsGet,
   getCurrentUserInfoApiV1AuthMeGet,
   getDashboardStatsApiV1ItemsStatsDashboardGet,
   getFeedbackApiV1FeedbackAdminFeedbackIdGet,
   getHobbyTypesApiV1ProfileHobbyTypesGet,
   getImageApiV1ImagesImageIdGet,
   getImageFileApiV1ImagesImageIdFileGet,
+  getImagesByLocationApiV1ImagesLocationLocationIdGet,
   getImageSignedUrlApiV1ImagesImageIdSignedUrlGet,
   getImageThumbnailApiV1ImagesImageIdThumbnailGet,
   getInventoryContextApiV1CollaborationContextGet,
@@ -75,14 +87,20 @@ import {
   getLocationApiV1LocationsLocationIdGet,
   getLocationDescendantsApiV1LocationsLocationIdDescendantsGet,
   getLocationQrCodeApiV1LocationsLocationIdQrGet,
+  getLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGet,
   getLocationTreeApiV1LocationsTreeGet,
   getLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGet,
   getMostUsedItemsApiV1ItemsStatsMostUsedGet,
   getMyProfileApiV1ProfileMeGet,
+  getNotificationPreferencesApiV1NotificationsPreferencesGet,
   getPackApiV1AdminPacksPackIdGet,
+  getPackBreakdownApiV1AdminStatsPacksGet,
+  getPricingApiV1AdminPricingPricingIdGet,
   getRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGet,
   getRecommendationsApiV1ProfileRecommendationsGet,
   getRecommendationsCostApiV1ProfileRecommendationsCostGet,
+  getRevenueOverTimeApiV1AdminStatsRevenueGet,
+  getSignupsOverTimeApiV1AdminStatsSignupsGet,
   getStatsApiV1AdminStatsGet,
   getUnitApiV1GridfinityUnitsUnitIdGet,
   getUnitLayoutApiV1GridfinityUnitsUnitIdLayoutGet,
@@ -105,6 +123,7 @@ import {
   listMyFeedbackApiV1FeedbackGet,
   listPacksApiV1AdminPacksGet,
   listPacksApiV1BillingPacksGet,
+  listPricingApiV1AdminPricingGet,
   listProvidersApiV1AuthProvidersGet,
   listTransactionsApiV1BillingTransactionsGet,
   listUnitsApiV1GridfinityUnitsGet,
@@ -121,8 +140,11 @@ import {
   resolveFeedbackApiV1FeedbackAdminFeedbackIdResolvePut,
   retriggerFeedbackWebhookApiV1FeedbackAdminFeedbackIdRetriggerWebhookPost,
   searchItemsApiV1ItemsSearchGet,
+  setImageAsPrimaryApiV1ImagesImageIdSetPrimaryPost,
+  setImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPost,
   suggestItemLocationApiV1ItemsSuggestLocationPost,
   testConfigApiV1WebhooksConfigsConfigIdTestPost,
+  triggerLowStockAlertsApiV1NotificationsLowStockTriggerPost,
   updateApiKeyApiV1AdminApikeysApiKeyIdPatch,
   updateCategoryApiV1CategoriesCategoryIdPut,
   updateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPut,
@@ -132,8 +154,10 @@ import {
   updateItemQuantityApiV1ItemsItemIdQuantityPatch,
   updateLocationApiV1LocationsLocationIdPut,
   updateMyProfileApiV1ProfileMePatch,
+  updateNotificationPreferencesApiV1NotificationsPreferencesPut,
   updatePackApiV1AdminPacksPackIdPut,
   updatePlacementApiV1GridfinityPlacementsPlacementIdPut,
+  updatePricingApiV1AdminPricingPricingIdPut,
   updateRecommendationApiV1ProfileRecommendationsRecommendationIdPatch,
   updateUnitApiV1GridfinityUnitsUnitIdPut,
   updateUserApiV1AdminUsersUserIdPut,
@@ -156,9 +180,15 @@ import type {
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostData,
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostError,
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostResponse,
+  AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostData,
+  AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostError,
+  AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostResponse,
   AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostData,
   AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostError,
   AutoLayoutItemsApiV1GridfinityUnitsUnitIdAutoLayoutPostResponse,
+  BatchCreateItemsApiV1ItemsBatchPostData,
+  BatchCreateItemsApiV1ItemsBatchPostError,
+  BatchCreateItemsApiV1ItemsBatchPostResponse,
   BatchUpdateItemsApiV1ItemsBatchPatchData,
   BatchUpdateItemsApiV1ItemsBatchPatchError,
   BatchUpdateItemsApiV1ItemsBatchPatchResponse,
@@ -171,9 +201,9 @@ import type {
   CheckOutItemApiV1ItemsItemIdCheckOutPostData,
   CheckOutItemApiV1ItemsItemIdCheckOutPostError,
   CheckOutItemApiV1ItemsItemIdCheckOutPostResponse,
-  ClassifyImageApiV1ImagesClassifyPostData,
-  ClassifyImageApiV1ImagesClassifyPostError,
-  ClassifyImageApiV1ImagesClassifyPostResponse,
+  ClassifyImagesApiV1ImagesClassifyPostData,
+  ClassifyImagesApiV1ImagesClassifyPostError,
+  ClassifyImagesApiV1ImagesClassifyPostResponse,
   CreateApiKeyApiV1AdminApikeysPostData,
   CreateApiKeyApiV1AdminApikeysPostError,
   CreateApiKeyApiV1AdminApikeysPostResponse,
@@ -249,6 +279,12 @@ import type {
   DeleteUnitApiV1GridfinityUnitsUnitIdDeleteData,
   DeleteUnitApiV1GridfinityUnitsUnitIdDeleteError,
   DeleteUnitApiV1GridfinityUnitsUnitIdDeleteResponse,
+  DetachImageFromItemApiV1ImagesImageIdDetachPostData,
+  DetachImageFromItemApiV1ImagesImageIdDetachPostError,
+  DetachImageFromItemApiV1ImagesImageIdDetachPostResponse,
+  DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostData,
+  DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostError,
+  DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostResponse,
   DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteData,
   DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteError,
   DismissRecommendationApiV1ProfileRecommendationsRecommendationIdDeleteResponse,
@@ -258,6 +294,24 @@ import type {
   GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostData,
   GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostError,
   GenerateRecommendationsApiV1ProfileRecommendationsGeneratePostResponse,
+  GetActivityFeedApiV1AdminActivityGetData,
+  GetActivityFeedApiV1AdminActivityGetError,
+  GetActivityFeedApiV1AdminActivityGetResponse,
+  GetAiUsageByUserApiV1AdminAiUsageByUserGetData,
+  GetAiUsageByUserApiV1AdminAiUsageByUserGetError,
+  GetAiUsageByUserApiV1AdminAiUsageByUserGetResponse,
+  GetAiUsageDailyApiV1AdminAiUsageDailyGetData,
+  GetAiUsageDailyApiV1AdminAiUsageDailyGetError,
+  GetAiUsageDailyApiV1AdminAiUsageDailyGetResponse,
+  GetAiUsageHistoryApiV1AdminAiUsageHistoryGetData,
+  GetAiUsageHistoryApiV1AdminAiUsageHistoryGetError,
+  GetAiUsageHistoryApiV1AdminAiUsageHistoryGetResponse,
+  GetAiUsageSummaryApiV1AdminAiUsageSummaryGetData,
+  GetAiUsageSummaryApiV1AdminAiUsageSummaryGetError,
+  GetAiUsageSummaryApiV1AdminAiUsageSummaryGetResponse,
+  GetAlertHistoryApiV1NotificationsHistoryGetData,
+  GetAlertHistoryApiV1NotificationsHistoryGetError,
+  GetAlertHistoryApiV1NotificationsHistoryGetResponse,
   GetAllTagsApiV1ItemsTagsGetData,
   GetAllTagsApiV1ItemsTagsGetError,
   GetAllTagsApiV1ItemsTagsGetResponse,
@@ -285,6 +339,9 @@ import type {
   GetConfigApiV1WebhooksConfigsConfigIdGetData,
   GetConfigApiV1WebhooksConfigsConfigIdGetError,
   GetConfigApiV1WebhooksConfigsConfigIdGetResponse,
+  GetCreditActivityApiV1AdminStatsCreditsGetData,
+  GetCreditActivityApiV1AdminStatsCreditsGetError,
+  GetCreditActivityApiV1AdminStatsCreditsGetResponse,
   GetCurrentUserInfoApiV1AuthMeGetData,
   GetCurrentUserInfoApiV1AuthMeGetError,
   GetCurrentUserInfoApiV1AuthMeGetResponse,
@@ -301,6 +358,9 @@ import type {
   GetImageApiV1ImagesImageIdGetResponse,
   GetImageFileApiV1ImagesImageIdFileGetData,
   GetImageFileApiV1ImagesImageIdFileGetError,
+  GetImagesByLocationApiV1ImagesLocationLocationIdGetData,
+  GetImagesByLocationApiV1ImagesLocationLocationIdGetError,
+  GetImagesByLocationApiV1ImagesLocationLocationIdGetResponse,
   GetImageSignedUrlApiV1ImagesImageIdSignedUrlGetData,
   GetImageSignedUrlApiV1ImagesImageIdSignedUrlGetError,
   GetImageSignedUrlApiV1ImagesImageIdSignedUrlGetResponse,
@@ -331,6 +391,9 @@ import type {
   GetLocationDescendantsApiV1LocationsLocationIdDescendantsGetResponse,
   GetLocationQrCodeApiV1LocationsLocationIdQrGetData,
   GetLocationQrCodeApiV1LocationsLocationIdQrGetError,
+  GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetData,
+  GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetError,
+  GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetResponse,
   GetLocationTreeApiV1LocationsTreeGetData,
   GetLocationTreeApiV1LocationsTreeGetError,
   GetLocationTreeApiV1LocationsTreeGetResponse,
@@ -343,9 +406,18 @@ import type {
   GetMyProfileApiV1ProfileMeGetData,
   GetMyProfileApiV1ProfileMeGetError,
   GetMyProfileApiV1ProfileMeGetResponse,
+  GetNotificationPreferencesApiV1NotificationsPreferencesGetData,
+  GetNotificationPreferencesApiV1NotificationsPreferencesGetError,
+  GetNotificationPreferencesApiV1NotificationsPreferencesGetResponse,
   GetPackApiV1AdminPacksPackIdGetData,
   GetPackApiV1AdminPacksPackIdGetError,
   GetPackApiV1AdminPacksPackIdGetResponse,
+  GetPackBreakdownApiV1AdminStatsPacksGetData,
+  GetPackBreakdownApiV1AdminStatsPacksGetError,
+  GetPackBreakdownApiV1AdminStatsPacksGetResponse,
+  GetPricingApiV1AdminPricingPricingIdGetData,
+  GetPricingApiV1AdminPricingPricingIdGetError,
+  GetPricingApiV1AdminPricingPricingIdGetResponse,
   GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetData,
   GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetError,
   GetRecentlyUsedItemsApiV1ItemsStatsRecentlyUsedGetResponse,
@@ -355,6 +427,12 @@ import type {
   GetRecommendationsCostApiV1ProfileRecommendationsCostGetData,
   GetRecommendationsCostApiV1ProfileRecommendationsCostGetError,
   GetRecommendationsCostApiV1ProfileRecommendationsCostGetResponse,
+  GetRevenueOverTimeApiV1AdminStatsRevenueGetData,
+  GetRevenueOverTimeApiV1AdminStatsRevenueGetError,
+  GetRevenueOverTimeApiV1AdminStatsRevenueGetResponse,
+  GetSignupsOverTimeApiV1AdminStatsSignupsGetData,
+  GetSignupsOverTimeApiV1AdminStatsSignupsGetError,
+  GetSignupsOverTimeApiV1AdminStatsSignupsGetResponse,
   GetStatsApiV1AdminStatsGetData,
   GetStatsApiV1AdminStatsGetError,
   GetStatsApiV1AdminStatsGetResponse,
@@ -418,6 +496,9 @@ import type {
   ListPacksApiV1AdminPacksGetResponse,
   ListPacksApiV1BillingPacksGetData,
   ListPacksApiV1BillingPacksGetResponse,
+  ListPricingApiV1AdminPricingGetData,
+  ListPricingApiV1AdminPricingGetError,
+  ListPricingApiV1AdminPricingGetResponse,
   ListProvidersApiV1AuthProvidersGetData,
   ListProvidersApiV1AuthProvidersGetResponse,
   ListTransactionsApiV1BillingTransactionsGetData,
@@ -462,12 +543,21 @@ import type {
   SearchItemsApiV1ItemsSearchGetData,
   SearchItemsApiV1ItemsSearchGetError,
   SearchItemsApiV1ItemsSearchGetResponse,
+  SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostData,
+  SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostError,
+  SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostResponse,
+  SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostData,
+  SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostError,
+  SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostResponse,
   SuggestItemLocationApiV1ItemsSuggestLocationPostData,
   SuggestItemLocationApiV1ItemsSuggestLocationPostError,
   SuggestItemLocationApiV1ItemsSuggestLocationPostResponse,
   TestConfigApiV1WebhooksConfigsConfigIdTestPostData,
   TestConfigApiV1WebhooksConfigsConfigIdTestPostError,
   TestConfigApiV1WebhooksConfigsConfigIdTestPostResponse,
+  TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostData,
+  TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostError,
+  TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostResponse,
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchData,
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchError,
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponse,
@@ -495,12 +585,18 @@ import type {
   UpdateMyProfileApiV1ProfileMePatchData,
   UpdateMyProfileApiV1ProfileMePatchError,
   UpdateMyProfileApiV1ProfileMePatchResponse,
+  UpdateNotificationPreferencesApiV1NotificationsPreferencesPutData,
+  UpdateNotificationPreferencesApiV1NotificationsPreferencesPutError,
+  UpdateNotificationPreferencesApiV1NotificationsPreferencesPutResponse,
   UpdatePackApiV1AdminPacksPackIdPutData,
   UpdatePackApiV1AdminPacksPackIdPutError,
   UpdatePackApiV1AdminPacksPackIdPutResponse,
   UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutData,
   UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutError,
   UpdatePlacementApiV1GridfinityPlacementsPlacementIdPutResponse,
+  UpdatePricingApiV1AdminPricingPricingIdPutData,
+  UpdatePricingApiV1AdminPricingPricingIdPutError,
+  UpdatePricingApiV1AdminPricingPricingIdPutResponse,
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchData,
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchError,
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponse,
@@ -723,6 +819,95 @@ export const updatePackApiV1AdminPacksPackIdPutMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await updatePackApiV1AdminPacksPackIdPut({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const listPricingApiV1AdminPricingGetQueryKey = (
+  options?: Options<ListPricingApiV1AdminPricingGetData>
+) => createQueryKey("listPricingApiV1AdminPricingGet", options);
+
+/**
+ * List Pricing
+ *
+ * List all credit pricing configurations.
+ */
+export const listPricingApiV1AdminPricingGetOptions = (
+  options?: Options<ListPricingApiV1AdminPricingGetData>
+) =>
+  queryOptions<
+    ListPricingApiV1AdminPricingGetResponse,
+    ListPricingApiV1AdminPricingGetError,
+    ListPricingApiV1AdminPricingGetResponse,
+    ReturnType<typeof listPricingApiV1AdminPricingGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await listPricingApiV1AdminPricingGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: listPricingApiV1AdminPricingGetQueryKey(options),
+  });
+
+export const getPricingApiV1AdminPricingPricingIdGetQueryKey = (
+  options: Options<GetPricingApiV1AdminPricingPricingIdGetData>
+) => createQueryKey("getPricingApiV1AdminPricingPricingIdGet", options);
+
+/**
+ * Get Pricing
+ *
+ * Get a specific credit pricing configuration.
+ */
+export const getPricingApiV1AdminPricingPricingIdGetOptions = (
+  options: Options<GetPricingApiV1AdminPricingPricingIdGetData>
+) =>
+  queryOptions<
+    GetPricingApiV1AdminPricingPricingIdGetResponse,
+    GetPricingApiV1AdminPricingPricingIdGetError,
+    GetPricingApiV1AdminPricingPricingIdGetResponse,
+    ReturnType<typeof getPricingApiV1AdminPricingPricingIdGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getPricingApiV1AdminPricingPricingIdGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getPricingApiV1AdminPricingPricingIdGetQueryKey(options),
+  });
+
+/**
+ * Update Pricing
+ *
+ * Update a credit pricing configuration.
+ */
+export const updatePricingApiV1AdminPricingPricingIdPutMutation = (
+  options?: Partial<Options<UpdatePricingApiV1AdminPricingPricingIdPutData>>
+): UseMutationOptions<
+  UpdatePricingApiV1AdminPricingPricingIdPutResponse,
+  UpdatePricingApiV1AdminPricingPricingIdPutError,
+  Options<UpdatePricingApiV1AdminPricingPricingIdPutData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdatePricingApiV1AdminPricingPricingIdPutResponse,
+    UpdatePricingApiV1AdminPricingPricingIdPutError,
+    Options<UpdatePricingApiV1AdminPricingPricingIdPutData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await updatePricingApiV1AdminPricingPricingIdPut({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -969,6 +1154,383 @@ export const getStatsApiV1AdminStatsGetOptions = (
     queryKey: getStatsApiV1AdminStatsGetQueryKey(options),
   });
 
+export const getRevenueOverTimeApiV1AdminStatsRevenueGetQueryKey = (
+  options?: Options<GetRevenueOverTimeApiV1AdminStatsRevenueGetData>
+) => createQueryKey("getRevenueOverTimeApiV1AdminStatsRevenueGet", options);
+
+/**
+ * Get Revenue Over Time
+ *
+ * Get revenue aggregated by day for the specified time range.
+ */
+export const getRevenueOverTimeApiV1AdminStatsRevenueGetOptions = (
+  options?: Options<GetRevenueOverTimeApiV1AdminStatsRevenueGetData>
+) =>
+  queryOptions<
+    GetRevenueOverTimeApiV1AdminStatsRevenueGetResponse,
+    GetRevenueOverTimeApiV1AdminStatsRevenueGetError,
+    GetRevenueOverTimeApiV1AdminStatsRevenueGetResponse,
+    ReturnType<typeof getRevenueOverTimeApiV1AdminStatsRevenueGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getRevenueOverTimeApiV1AdminStatsRevenueGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getRevenueOverTimeApiV1AdminStatsRevenueGetQueryKey(options),
+  });
+
+export const getSignupsOverTimeApiV1AdminStatsSignupsGetQueryKey = (
+  options?: Options<GetSignupsOverTimeApiV1AdminStatsSignupsGetData>
+) => createQueryKey("getSignupsOverTimeApiV1AdminStatsSignupsGet", options);
+
+/**
+ * Get Signups Over Time
+ *
+ * Get user signups aggregated by day for the specified time range.
+ */
+export const getSignupsOverTimeApiV1AdminStatsSignupsGetOptions = (
+  options?: Options<GetSignupsOverTimeApiV1AdminStatsSignupsGetData>
+) =>
+  queryOptions<
+    GetSignupsOverTimeApiV1AdminStatsSignupsGetResponse,
+    GetSignupsOverTimeApiV1AdminStatsSignupsGetError,
+    GetSignupsOverTimeApiV1AdminStatsSignupsGetResponse,
+    ReturnType<typeof getSignupsOverTimeApiV1AdminStatsSignupsGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getSignupsOverTimeApiV1AdminStatsSignupsGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getSignupsOverTimeApiV1AdminStatsSignupsGetQueryKey(options),
+  });
+
+export const getCreditActivityApiV1AdminStatsCreditsGetQueryKey = (
+  options?: Options<GetCreditActivityApiV1AdminStatsCreditsGetData>
+) => createQueryKey("getCreditActivityApiV1AdminStatsCreditsGet", options);
+
+/**
+ * Get Credit Activity
+ *
+ * Get credit purchases vs usage over time.
+ */
+export const getCreditActivityApiV1AdminStatsCreditsGetOptions = (
+  options?: Options<GetCreditActivityApiV1AdminStatsCreditsGetData>
+) =>
+  queryOptions<
+    GetCreditActivityApiV1AdminStatsCreditsGetResponse,
+    GetCreditActivityApiV1AdminStatsCreditsGetError,
+    GetCreditActivityApiV1AdminStatsCreditsGetResponse,
+    ReturnType<typeof getCreditActivityApiV1AdminStatsCreditsGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getCreditActivityApiV1AdminStatsCreditsGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getCreditActivityApiV1AdminStatsCreditsGetQueryKey(options),
+  });
+
+export const getPackBreakdownApiV1AdminStatsPacksGetQueryKey = (
+  options?: Options<GetPackBreakdownApiV1AdminStatsPacksGetData>
+) => createQueryKey("getPackBreakdownApiV1AdminStatsPacksGet", options);
+
+/**
+ * Get Pack Breakdown
+ *
+ * Get breakdown of credit pack sales.
+ */
+export const getPackBreakdownApiV1AdminStatsPacksGetOptions = (
+  options?: Options<GetPackBreakdownApiV1AdminStatsPacksGetData>
+) =>
+  queryOptions<
+    GetPackBreakdownApiV1AdminStatsPacksGetResponse,
+    GetPackBreakdownApiV1AdminStatsPacksGetError,
+    GetPackBreakdownApiV1AdminStatsPacksGetResponse,
+    ReturnType<typeof getPackBreakdownApiV1AdminStatsPacksGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getPackBreakdownApiV1AdminStatsPacksGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getPackBreakdownApiV1AdminStatsPacksGetQueryKey(options),
+  });
+
+export const getActivityFeedApiV1AdminActivityGetQueryKey = (
+  options?: Options<GetActivityFeedApiV1AdminActivityGetData>
+) => createQueryKey("getActivityFeedApiV1AdminActivityGet", options);
+
+/**
+ * Get Activity Feed
+ *
+ * Get paginated, filterable activity feed.
+ */
+export const getActivityFeedApiV1AdminActivityGetOptions = (
+  options?: Options<GetActivityFeedApiV1AdminActivityGetData>
+) =>
+  queryOptions<
+    GetActivityFeedApiV1AdminActivityGetResponse,
+    GetActivityFeedApiV1AdminActivityGetError,
+    GetActivityFeedApiV1AdminActivityGetResponse,
+    ReturnType<typeof getActivityFeedApiV1AdminActivityGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getActivityFeedApiV1AdminActivityGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getActivityFeedApiV1AdminActivityGetQueryKey(options),
+  });
+
+export const getActivityFeedApiV1AdminActivityGetInfiniteQueryKey = (
+  options?: Options<GetActivityFeedApiV1AdminActivityGetData>
+): QueryKey<Options<GetActivityFeedApiV1AdminActivityGetData>> =>
+  createQueryKey("getActivityFeedApiV1AdminActivityGet", options, true);
+
+/**
+ * Get Activity Feed
+ *
+ * Get paginated, filterable activity feed.
+ */
+export const getActivityFeedApiV1AdminActivityGetInfiniteOptions = (
+  options?: Options<GetActivityFeedApiV1AdminActivityGetData>
+) =>
+  infiniteQueryOptions<
+    GetActivityFeedApiV1AdminActivityGetResponse,
+    GetActivityFeedApiV1AdminActivityGetError,
+    InfiniteData<GetActivityFeedApiV1AdminActivityGetResponse>,
+    QueryKey<Options<GetActivityFeedApiV1AdminActivityGetData>>,
+    | number
+    | Pick<
+        QueryKey<Options<GetActivityFeedApiV1AdminActivityGetData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<GetActivityFeedApiV1AdminActivityGetData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              };
+        const params = createInfiniteParams(queryKey, page);
+        const { data } = await getActivityFeedApiV1AdminActivityGet({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        });
+        return data;
+      },
+      queryKey: getActivityFeedApiV1AdminActivityGetInfiniteQueryKey(options),
+    }
+  );
+
+export const getAiUsageSummaryApiV1AdminAiUsageSummaryGetQueryKey = (
+  options?: Options<GetAiUsageSummaryApiV1AdminAiUsageSummaryGetData>
+) => createQueryKey("getAiUsageSummaryApiV1AdminAiUsageSummaryGet", options);
+
+/**
+ * Get Ai Usage Summary
+ *
+ * Get AI token usage summary with breakdowns by operation and model.
+ */
+export const getAiUsageSummaryApiV1AdminAiUsageSummaryGetOptions = (
+  options?: Options<GetAiUsageSummaryApiV1AdminAiUsageSummaryGetData>
+) =>
+  queryOptions<
+    GetAiUsageSummaryApiV1AdminAiUsageSummaryGetResponse,
+    GetAiUsageSummaryApiV1AdminAiUsageSummaryGetError,
+    GetAiUsageSummaryApiV1AdminAiUsageSummaryGetResponse,
+    ReturnType<typeof getAiUsageSummaryApiV1AdminAiUsageSummaryGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getAiUsageSummaryApiV1AdminAiUsageSummaryGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getAiUsageSummaryApiV1AdminAiUsageSummaryGetQueryKey(options),
+  });
+
+export const getAiUsageByUserApiV1AdminAiUsageByUserGetQueryKey = (
+  options?: Options<GetAiUsageByUserApiV1AdminAiUsageByUserGetData>
+) => createQueryKey("getAiUsageByUserApiV1AdminAiUsageByUserGet", options);
+
+/**
+ * Get Ai Usage By User
+ *
+ * Get AI usage aggregated by user, ordered by total tokens.
+ */
+export const getAiUsageByUserApiV1AdminAiUsageByUserGetOptions = (
+  options?: Options<GetAiUsageByUserApiV1AdminAiUsageByUserGetData>
+) =>
+  queryOptions<
+    GetAiUsageByUserApiV1AdminAiUsageByUserGetResponse,
+    GetAiUsageByUserApiV1AdminAiUsageByUserGetError,
+    GetAiUsageByUserApiV1AdminAiUsageByUserGetResponse,
+    ReturnType<typeof getAiUsageByUserApiV1AdminAiUsageByUserGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getAiUsageByUserApiV1AdminAiUsageByUserGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getAiUsageByUserApiV1AdminAiUsageByUserGetQueryKey(options),
+  });
+
+export const getAiUsageHistoryApiV1AdminAiUsageHistoryGetQueryKey = (
+  options?: Options<GetAiUsageHistoryApiV1AdminAiUsageHistoryGetData>
+) => createQueryKey("getAiUsageHistoryApiV1AdminAiUsageHistoryGet", options);
+
+/**
+ * Get Ai Usage History
+ *
+ * Get paginated AI usage logs with user information.
+ */
+export const getAiUsageHistoryApiV1AdminAiUsageHistoryGetOptions = (
+  options?: Options<GetAiUsageHistoryApiV1AdminAiUsageHistoryGetData>
+) =>
+  queryOptions<
+    GetAiUsageHistoryApiV1AdminAiUsageHistoryGetResponse,
+    GetAiUsageHistoryApiV1AdminAiUsageHistoryGetError,
+    GetAiUsageHistoryApiV1AdminAiUsageHistoryGetResponse,
+    ReturnType<typeof getAiUsageHistoryApiV1AdminAiUsageHistoryGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getAiUsageHistoryApiV1AdminAiUsageHistoryGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getAiUsageHistoryApiV1AdminAiUsageHistoryGetQueryKey(options),
+  });
+
+export const getAiUsageHistoryApiV1AdminAiUsageHistoryGetInfiniteQueryKey = (
+  options?: Options<GetAiUsageHistoryApiV1AdminAiUsageHistoryGetData>
+): QueryKey<Options<GetAiUsageHistoryApiV1AdminAiUsageHistoryGetData>> =>
+  createQueryKey("getAiUsageHistoryApiV1AdminAiUsageHistoryGet", options, true);
+
+/**
+ * Get Ai Usage History
+ *
+ * Get paginated AI usage logs with user information.
+ */
+export const getAiUsageHistoryApiV1AdminAiUsageHistoryGetInfiniteOptions = (
+  options?: Options<GetAiUsageHistoryApiV1AdminAiUsageHistoryGetData>
+) =>
+  infiniteQueryOptions<
+    GetAiUsageHistoryApiV1AdminAiUsageHistoryGetResponse,
+    GetAiUsageHistoryApiV1AdminAiUsageHistoryGetError,
+    InfiniteData<GetAiUsageHistoryApiV1AdminAiUsageHistoryGetResponse>,
+    QueryKey<Options<GetAiUsageHistoryApiV1AdminAiUsageHistoryGetData>>,
+    | number
+    | Pick<
+        QueryKey<Options<GetAiUsageHistoryApiV1AdminAiUsageHistoryGetData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<
+            Options<GetAiUsageHistoryApiV1AdminAiUsageHistoryGetData>
+          >[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              };
+        const params = createInfiniteParams(queryKey, page);
+        const { data } = await getAiUsageHistoryApiV1AdminAiUsageHistoryGet({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        });
+        return data;
+      },
+      queryKey:
+        getAiUsageHistoryApiV1AdminAiUsageHistoryGetInfiniteQueryKey(options),
+    }
+  );
+
+export const getAiUsageDailyApiV1AdminAiUsageDailyGetQueryKey = (
+  options?: Options<GetAiUsageDailyApiV1AdminAiUsageDailyGetData>
+) => createQueryKey("getAiUsageDailyApiV1AdminAiUsageDailyGet", options);
+
+/**
+ * Get Ai Usage Daily
+ *
+ * Get daily AI usage for charts.
+ */
+export const getAiUsageDailyApiV1AdminAiUsageDailyGetOptions = (
+  options?: Options<GetAiUsageDailyApiV1AdminAiUsageDailyGetData>
+) =>
+  queryOptions<
+    GetAiUsageDailyApiV1AdminAiUsageDailyGetResponse,
+    GetAiUsageDailyApiV1AdminAiUsageDailyGetError,
+    GetAiUsageDailyApiV1AdminAiUsageDailyGetResponse,
+    ReturnType<typeof getAiUsageDailyApiV1AdminAiUsageDailyGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getAiUsageDailyApiV1AdminAiUsageDailyGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getAiUsageDailyApiV1AdminAiUsageDailyGetQueryKey(options),
+  });
+
 /**
  * Query Assistant
  *
@@ -977,7 +1539,7 @@ export const getStatsApiV1AdminStatsGetOptions = (
  * The assistant can provide personalized suggestions based on your inventory,
  * such as planting schedules, craft project ideas, organization tips, and more.
  *
- * Consumes 1 credit per query.
+ * Consumes credits based on configured pricing.
  */
 export const queryAssistantApiV1AiQueryPostMutation = (
   options?: Partial<Options<QueryAssistantApiV1AiQueryPostData>>
@@ -2166,6 +2728,42 @@ export const batchUpdateItemsApiV1ItemsBatchPatchMutation = (
   return mutationOptions;
 };
 
+/**
+ * Batch Create Items
+ *
+ * Batch create multiple items at once.
+ *
+ * Creates up to 50 items in a single request. Each item is processed independently,
+ * so if one fails, others may still succeed. The response includes the status
+ * for each item.
+ *
+ * This endpoint is optimized for the batch photo upload workflow where multiple
+ * photos have been classified and the user wants to create items from all of them.
+ */
+export const batchCreateItemsApiV1ItemsBatchPostMutation = (
+  options?: Partial<Options<BatchCreateItemsApiV1ItemsBatchPostData>>
+): UseMutationOptions<
+  BatchCreateItemsApiV1ItemsBatchPostResponse,
+  BatchCreateItemsApiV1ItemsBatchPostError,
+  Options<BatchCreateItemsApiV1ItemsBatchPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    BatchCreateItemsApiV1ItemsBatchPostResponse,
+    BatchCreateItemsApiV1ItemsBatchPostError,
+    Options<BatchCreateItemsApiV1ItemsBatchPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await batchCreateItemsApiV1ItemsBatchPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
 export const getDashboardStatsApiV1ItemsStatsDashboardGetQueryKey = (
   options?: Options<GetDashboardStatsApiV1ItemsStatsDashboardGetData>
 ) => createQueryKey("getDashboardStatsApiV1ItemsStatsDashboardGet", options);
@@ -2332,7 +2930,7 @@ export const findSimilarItemsApiV1ItemsFindSimilarPostMutation = (
  * Analyzes the item's characteristics and the user's existing locations
  * with their stored items to recommend suitable storage places.
  *
- * Consumes 1 credit on successful suggestion.
+ * Consumes credits based on configured pricing.
  */
 export const suggestItemLocationApiV1ItemsSuggestLocationPostMutation = (
   options?: Partial<
@@ -2611,6 +3209,10 @@ export const updateItemQuantityApiV1ItemsItemIdQuantityPatchMutation = (
  *
  * Uses row-level locking to prevent race conditions where concurrent
  * check-outs could exceed the available quantity.
+ *
+ * If the item falls below its minimum quantity threshold after check-out,
+ * a low stock alert email will be sent (subject to user preferences and
+ * 24-hour deduplication).
  */
 export const checkOutItemApiV1ItemsItemIdCheckOutPostMutation = (
   options?: Partial<Options<CheckOutItemApiV1ItemsItemIdCheckOutPostData>>
@@ -3198,7 +3800,7 @@ export const getLocationTreeApiV1LocationsTreeGetOptions = (
  *
  * Analyze an image to suggest location structure using AI.
  *
- * Consumes 1 credit on successful analysis.
+ * Consumes credits based on configured pricing.
  */
 export const analyzeLocationImageApiV1LocationsAnalyzeImagePostMutation = (
   options?: Partial<
@@ -3460,6 +4062,51 @@ export const getLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetOpt
         ),
     });
 
+export const getLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetQueryKey =
+  (
+    options: Options<GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetData>
+  ) =>
+    createQueryKey(
+      "getLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGet",
+      options
+    );
+
+/**
+ * Get Location Qr Signed Url
+ *
+ * Get a signed URL for accessing a location's QR code.
+ *
+ * This generates a short-lived token that can be used in browser <img> tags
+ * where Authorization headers cannot be sent.
+ */
+export const getLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetOptions =
+  (
+    options: Options<GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetData>
+  ) =>
+    queryOptions<
+      GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetResponse,
+      GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetError,
+      GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetResponse,
+      ReturnType<
+        typeof getLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetQueryKey
+      >
+    >({
+      queryFn: async ({ queryKey, signal }) => {
+        const { data } =
+          await getLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGet({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true,
+          });
+        return data;
+      },
+      queryKey:
+        getLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetQueryKey(
+          options
+        ),
+    });
+
 export const getLocationQrCodeApiV1LocationsLocationIdQrGetQueryKey = (
   options: Options<GetLocationQrCodeApiV1LocationsLocationIdQrGetData>
 ) => createQueryKey("getLocationQrCodeApiV1LocationsLocationIdQrGet", options);
@@ -3470,6 +4117,8 @@ export const getLocationQrCodeApiV1LocationsLocationIdQrGetQueryKey = (
  * Generate a QR code PNG for a location.
  *
  * The QR code contains the location's URL for scanning.
+ * Requires a valid signed token query parameter for authentication.
+ * Use GET /{location_id}/qr/signed-url to obtain a token.
  */
 export const getLocationQrCodeApiV1LocationsLocationIdQrGetOptions = (
   options: Options<GetLocationQrCodeApiV1LocationsLocationIdQrGetData>
@@ -3895,24 +4544,29 @@ export const uploadImageApiV1ImagesUploadPostMutation = (
 };
 
 /**
- * Classify Image
+ * Classify Images
  *
- * Classify an uploaded image using AI.
+ * Classify one or more uploaded images using AI.
+ *
+ * Multiple images are sent together in a single request, allowing the AI
+ * to see different angles/views of the same item for better identification.
+ *
+ * Charges credits per image based on configured pricing.
  */
-export const classifyImageApiV1ImagesClassifyPostMutation = (
-  options?: Partial<Options<ClassifyImageApiV1ImagesClassifyPostData>>
+export const classifyImagesApiV1ImagesClassifyPostMutation = (
+  options?: Partial<Options<ClassifyImagesApiV1ImagesClassifyPostData>>
 ): UseMutationOptions<
-  ClassifyImageApiV1ImagesClassifyPostResponse,
-  ClassifyImageApiV1ImagesClassifyPostError,
-  Options<ClassifyImageApiV1ImagesClassifyPostData>
+  ClassifyImagesApiV1ImagesClassifyPostResponse,
+  ClassifyImagesApiV1ImagesClassifyPostError,
+  Options<ClassifyImagesApiV1ImagesClassifyPostData>
 > => {
   const mutationOptions: UseMutationOptions<
-    ClassifyImageApiV1ImagesClassifyPostResponse,
-    ClassifyImageApiV1ImagesClassifyPostError,
-    Options<ClassifyImageApiV1ImagesClassifyPostData>
+    ClassifyImagesApiV1ImagesClassifyPostResponse,
+    ClassifyImagesApiV1ImagesClassifyPostError,
+    Options<ClassifyImagesApiV1ImagesClassifyPostData>
   > = {
     mutationFn: async (fnOptions) => {
-      const { data } = await classifyImageApiV1ImagesClassifyPost({
+      const { data } = await classifyImagesApiV1ImagesClassifyPost({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -4176,6 +4830,47 @@ export const getImageThumbnailApiV1ImagesImageIdThumbnailGetOptions = (
     queryKey: getImageThumbnailApiV1ImagesImageIdThumbnailGetQueryKey(options),
   });
 
+export const getImagesByLocationApiV1ImagesLocationLocationIdGetQueryKey = (
+  options: Options<GetImagesByLocationApiV1ImagesLocationLocationIdGetData>
+) =>
+  createQueryKey(
+    "getImagesByLocationApiV1ImagesLocationLocationIdGet",
+    options
+  );
+
+/**
+ * Get Images By Location
+ *
+ * Get all images for a location.
+ *
+ * Supports collaboration: when viewing a shared inventory, returns
+ * images for the inventory owner's location.
+ */
+export const getImagesByLocationApiV1ImagesLocationLocationIdGetOptions = (
+  options: Options<GetImagesByLocationApiV1ImagesLocationLocationIdGetData>
+) =>
+  queryOptions<
+    GetImagesByLocationApiV1ImagesLocationLocationIdGetResponse,
+    GetImagesByLocationApiV1ImagesLocationLocationIdGetError,
+    GetImagesByLocationApiV1ImagesLocationLocationIdGetResponse,
+    ReturnType<
+      typeof getImagesByLocationApiV1ImagesLocationLocationIdGetQueryKey
+    >
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } =
+        await getImagesByLocationApiV1ImagesLocationLocationIdGet({
+          ...options,
+          ...queryKey[0],
+          signal,
+          throwOnError: true,
+        });
+      return data;
+    },
+    queryKey:
+      getImagesByLocationApiV1ImagesLocationLocationIdGetQueryKey(options),
+  });
+
 /**
  * Attach Image To Item
  *
@@ -4207,6 +4902,181 @@ export const attachImageToItemApiV1ImagesImageIdAttachItemIdPostMutation = (
   };
   return mutationOptions;
 };
+
+/**
+ * Set Image As Primary
+ *
+ * Set an image as the primary image for its item.
+ *
+ * The image must already be attached to an item.
+ * Other images for the same item will be marked as non-primary.
+ */
+export const setImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostMutation = (
+  options?: Partial<
+    Options<SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostData>
+  >
+): UseMutationOptions<
+  SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostResponse,
+  SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostError,
+  Options<SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostResponse,
+    SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostError,
+    Options<SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await setImageAsPrimaryApiV1ImagesImageIdSetPrimaryPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Detach Image From Item
+ *
+ * Detach an image from its item.
+ *
+ * The image is not deleted, just unassociated from the item.
+ */
+export const detachImageFromItemApiV1ImagesImageIdDetachPostMutation = (
+  options?: Partial<
+    Options<DetachImageFromItemApiV1ImagesImageIdDetachPostData>
+  >
+): UseMutationOptions<
+  DetachImageFromItemApiV1ImagesImageIdDetachPostResponse,
+  DetachImageFromItemApiV1ImagesImageIdDetachPostError,
+  Options<DetachImageFromItemApiV1ImagesImageIdDetachPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DetachImageFromItemApiV1ImagesImageIdDetachPostResponse,
+    DetachImageFromItemApiV1ImagesImageIdDetachPostError,
+    Options<DetachImageFromItemApiV1ImagesImageIdDetachPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await detachImageFromItemApiV1ImagesImageIdDetachPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Attach Image To Location
+ *
+ * Attach an image to a location.
+ */
+export const attachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostMutation =
+  (
+    options?: Partial<
+      Options<AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostData>
+    >
+  ): UseMutationOptions<
+    AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostResponse,
+    AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostError,
+    Options<AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostResponse,
+      AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostError,
+      Options<AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostData>
+    > = {
+      mutationFn: async (fnOptions) => {
+        const { data } =
+          await attachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPost(
+            {
+              ...options,
+              ...fnOptions,
+              throwOnError: true,
+            }
+          );
+        return data;
+      },
+    };
+    return mutationOptions;
+  };
+
+/**
+ * Set Image As Primary For Location
+ *
+ * Set an image as the primary image for its location.
+ *
+ * The image must already be attached to a location.
+ * Other images for the same location will be marked as non-primary.
+ */
+export const setImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostMutation =
+  (
+    options?: Partial<
+      Options<SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostData>
+    >
+  ): UseMutationOptions<
+    SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostResponse,
+    SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostError,
+    Options<SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostResponse,
+      SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostError,
+      Options<SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostData>
+    > = {
+      mutationFn: async (fnOptions) => {
+        const { data } =
+          await setImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPost(
+            {
+              ...options,
+              ...fnOptions,
+              throwOnError: true,
+            }
+          );
+        return data;
+      },
+    };
+    return mutationOptions;
+  };
+
+/**
+ * Detach Image From Location
+ *
+ * Detach an image from its location.
+ *
+ * The image is not deleted, just unassociated from the location.
+ */
+export const detachImageFromLocationApiV1ImagesImageIdDetachLocationPostMutation =
+  (
+    options?: Partial<
+      Options<DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostData>
+    >
+  ): UseMutationOptions<
+    DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostResponse,
+    DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostError,
+    Options<DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostResponse,
+      DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostError,
+      Options<DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostData>
+    > = {
+      mutationFn: async (fnOptions) => {
+        const { data } =
+          await detachImageFromLocationApiV1ImagesImageIdDetachLocationPost({
+            ...options,
+            ...fnOptions,
+            throwOnError: true,
+          });
+        return data;
+      },
+    };
+    return mutationOptions;
+  };
 
 export const getHobbyTypesApiV1ProfileHobbyTypesGetQueryKey = (
   options?: Options<GetHobbyTypesApiV1ProfileHobbyTypesGetData>
@@ -5097,3 +5967,198 @@ export const leaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteMutation =
     };
     return mutationOptions;
   };
+
+export const getNotificationPreferencesApiV1NotificationsPreferencesGetQueryKey =
+  (
+    options?: Options<GetNotificationPreferencesApiV1NotificationsPreferencesGetData>
+  ) =>
+    createQueryKey(
+      "getNotificationPreferencesApiV1NotificationsPreferencesGet",
+      options
+    );
+
+/**
+ * Get Notification Preferences
+ *
+ * Get current user's notification preferences.
+ */
+export const getNotificationPreferencesApiV1NotificationsPreferencesGetOptions =
+  (
+    options?: Options<GetNotificationPreferencesApiV1NotificationsPreferencesGetData>
+  ) =>
+    queryOptions<
+      GetNotificationPreferencesApiV1NotificationsPreferencesGetResponse,
+      GetNotificationPreferencesApiV1NotificationsPreferencesGetError,
+      GetNotificationPreferencesApiV1NotificationsPreferencesGetResponse,
+      ReturnType<
+        typeof getNotificationPreferencesApiV1NotificationsPreferencesGetQueryKey
+      >
+    >({
+      queryFn: async ({ queryKey, signal }) => {
+        const { data } =
+          await getNotificationPreferencesApiV1NotificationsPreferencesGet({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true,
+          });
+        return data;
+      },
+      queryKey:
+        getNotificationPreferencesApiV1NotificationsPreferencesGetQueryKey(
+          options
+        ),
+    });
+
+/**
+ * Update Notification Preferences
+ *
+ * Update notification preferences.
+ */
+export const updateNotificationPreferencesApiV1NotificationsPreferencesPutMutation =
+  (
+    options?: Partial<
+      Options<UpdateNotificationPreferencesApiV1NotificationsPreferencesPutData>
+    >
+  ): UseMutationOptions<
+    UpdateNotificationPreferencesApiV1NotificationsPreferencesPutResponse,
+    UpdateNotificationPreferencesApiV1NotificationsPreferencesPutError,
+    Options<UpdateNotificationPreferencesApiV1NotificationsPreferencesPutData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      UpdateNotificationPreferencesApiV1NotificationsPreferencesPutResponse,
+      UpdateNotificationPreferencesApiV1NotificationsPreferencesPutError,
+      Options<UpdateNotificationPreferencesApiV1NotificationsPreferencesPutData>
+    > = {
+      mutationFn: async (fnOptions) => {
+        const { data } =
+          await updateNotificationPreferencesApiV1NotificationsPreferencesPut({
+            ...options,
+            ...fnOptions,
+            throwOnError: true,
+          });
+        return data;
+      },
+    };
+    return mutationOptions;
+  };
+
+/**
+ * Trigger Low Stock Alerts
+ *
+ * Manually trigger low stock alerts for specified items or all low stock items.
+ *
+ * If item_ids is not provided, alerts will be sent for all items that are
+ * currently below their minimum quantity threshold and haven't been alerted
+ * in the last 24 hours.
+ */
+export const triggerLowStockAlertsApiV1NotificationsLowStockTriggerPostMutation =
+  (
+    options?: Partial<
+      Options<TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostData>
+    >
+  ): UseMutationOptions<
+    TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostResponse,
+    TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostError,
+    Options<TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostResponse,
+      TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostError,
+      Options<TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostData>
+    > = {
+      mutationFn: async (fnOptions) => {
+        const { data } =
+          await triggerLowStockAlertsApiV1NotificationsLowStockTriggerPost({
+            ...options,
+            ...fnOptions,
+            throwOnError: true,
+          });
+        return data;
+      },
+    };
+    return mutationOptions;
+  };
+
+export const getAlertHistoryApiV1NotificationsHistoryGetQueryKey = (
+  options?: Options<GetAlertHistoryApiV1NotificationsHistoryGetData>
+) => createQueryKey("getAlertHistoryApiV1NotificationsHistoryGet", options);
+
+/**
+ * Get Alert History
+ *
+ * Get alert history for the current user.
+ */
+export const getAlertHistoryApiV1NotificationsHistoryGetOptions = (
+  options?: Options<GetAlertHistoryApiV1NotificationsHistoryGetData>
+) =>
+  queryOptions<
+    GetAlertHistoryApiV1NotificationsHistoryGetResponse,
+    GetAlertHistoryApiV1NotificationsHistoryGetError,
+    GetAlertHistoryApiV1NotificationsHistoryGetResponse,
+    ReturnType<typeof getAlertHistoryApiV1NotificationsHistoryGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getAlertHistoryApiV1NotificationsHistoryGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getAlertHistoryApiV1NotificationsHistoryGetQueryKey(options),
+  });
+
+export const getAlertHistoryApiV1NotificationsHistoryGetInfiniteQueryKey = (
+  options?: Options<GetAlertHistoryApiV1NotificationsHistoryGetData>
+): QueryKey<Options<GetAlertHistoryApiV1NotificationsHistoryGetData>> =>
+  createQueryKey("getAlertHistoryApiV1NotificationsHistoryGet", options, true);
+
+/**
+ * Get Alert History
+ *
+ * Get alert history for the current user.
+ */
+export const getAlertHistoryApiV1NotificationsHistoryGetInfiniteOptions = (
+  options?: Options<GetAlertHistoryApiV1NotificationsHistoryGetData>
+) =>
+  infiniteQueryOptions<
+    GetAlertHistoryApiV1NotificationsHistoryGetResponse,
+    GetAlertHistoryApiV1NotificationsHistoryGetError,
+    InfiniteData<GetAlertHistoryApiV1NotificationsHistoryGetResponse>,
+    QueryKey<Options<GetAlertHistoryApiV1NotificationsHistoryGetData>>,
+    | number
+    | Pick<
+        QueryKey<Options<GetAlertHistoryApiV1NotificationsHistoryGetData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<GetAlertHistoryApiV1NotificationsHistoryGetData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              };
+        const params = createInfiniteParams(queryKey, page);
+        const { data } = await getAlertHistoryApiV1NotificationsHistoryGet({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        });
+        return data;
+      },
+      queryKey:
+        getAlertHistoryApiV1NotificationsHistoryGetInfiniteQueryKey(options),
+    }
+  );

@@ -5,6 +5,136 @@ export type ClientOptions = {
 };
 
 /**
+ * AIUsageByUserResponse
+ *
+ * AI usage aggregated by user.
+ */
+export type AiUsageByUserResponse = {
+  /**
+   * User Id
+   */
+  user_id: string;
+  /**
+   * User Email
+   */
+  user_email: string;
+  /**
+   * User Name
+   */
+  user_name: string | null;
+  /**
+   * Total Calls
+   */
+  total_calls: number;
+  /**
+   * Total Tokens
+   */
+  total_tokens: number;
+  /**
+   * Total Cost Usd
+   */
+  total_cost_usd: number;
+};
+
+/**
+ * AIUsageLogResponse
+ *
+ * Individual AI usage log entry.
+ */
+export type AiUsageLogResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * User Id
+   */
+  user_id: string;
+  /**
+   * User Email
+   */
+  user_email?: string | null;
+  /**
+   * User Name
+   */
+  user_name?: string | null;
+  /**
+   * Credit Transaction Id
+   */
+  credit_transaction_id: string | null;
+  /**
+   * Operation Type
+   */
+  operation_type: string;
+  /**
+   * Model
+   */
+  model: string;
+  /**
+   * Prompt Tokens
+   */
+  prompt_tokens: number;
+  /**
+   * Completion Tokens
+   */
+  completion_tokens: number;
+  /**
+   * Total Tokens
+   */
+  total_tokens: number;
+  /**
+   * Estimated Cost Usd
+   */
+  estimated_cost_usd: number;
+  /**
+   * Metadata
+   */
+  metadata?: {
+    [key: string]: unknown;
+  } | null;
+  /**
+   * Created At
+   */
+  created_at: string;
+};
+
+/**
+ * AIUsageSummaryResponse
+ *
+ * Summary of AI token usage.
+ */
+export type AiUsageSummaryResponse = {
+  /**
+   * Total Calls
+   */
+  total_calls: number;
+  /**
+   * Total Prompt Tokens
+   */
+  total_prompt_tokens: number;
+  /**
+   * Total Completion Tokens
+   */
+  total_completion_tokens: number;
+  /**
+   * Total Tokens
+   */
+  total_tokens: number;
+  /**
+   * Total Cost Usd
+   */
+  total_cost_usd: number;
+  /**
+   * By Operation
+   */
+  by_operation: Array<OperationBreakdown>;
+  /**
+   * By Model
+   */
+  by_model: Array<ModelBreakdown>;
+};
+
+/**
  * AcceptInvitationRequest
  *
  * Request to accept an invitation via token.
@@ -79,6 +209,86 @@ export type AdminStatsResponse = {
    * Recent Activity
    */
   recent_activity: Array<RecentActivityItem>;
+};
+
+/**
+ * AlertHistoryResponse
+ *
+ * Response schema for alert history entry.
+ */
+export type AlertHistoryResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Item Id
+   */
+  item_id: string;
+  /**
+   * Item Name
+   */
+  item_name?: string | null;
+  /**
+   * Alert Type
+   */
+  alert_type: string;
+  /**
+   * Channel
+   */
+  channel: string;
+  /**
+   * Recipient Email
+   */
+  recipient_email: string;
+  /**
+   * Subject
+   */
+  subject: string;
+  /**
+   * Status
+   */
+  status: string;
+  /**
+   * Error Message
+   */
+  error_message: string | null;
+  /**
+   * Item Quantity At Alert
+   */
+  item_quantity_at_alert: number;
+  /**
+   * Item Min Quantity
+   */
+  item_min_quantity: number;
+  /**
+   * Sent At
+   */
+  sent_at: string;
+};
+
+/**
+ * AlertedItemSummary
+ *
+ * Summary of an item that was alerted.
+ */
+export type AlertedItemSummary = {
+  /**
+   * Item Id
+   */
+  item_id?: string | null;
+  /**
+   * Item Name
+   */
+  item_name: string;
+  /**
+   * Status
+   */
+  status: string;
+  /**
+   * Message
+   */
+  message?: string | null;
 };
 
 /**
@@ -399,6 +609,116 @@ export type AutoLayoutResult = {
    * Grid utilization percentage
    */
   utilization_percent: number;
+};
+
+/**
+ * BatchCreateRequest
+ *
+ * Schema for batch creating multiple items.
+ */
+export type BatchCreateRequest = {
+  /**
+   * Items
+   */
+  items: Array<BatchItemCreate>;
+};
+
+/**
+ * BatchCreateResponse
+ *
+ * Response for batch create operation.
+ */
+export type BatchCreateResponse = {
+  /**
+   * Created Count
+   */
+  created_count: number;
+  /**
+   * Failed Count
+   */
+  failed_count: number;
+  /**
+   * Results
+   */
+  results: Array<BatchItemResult>;
+};
+
+/**
+ * BatchItemCreate
+ *
+ * Schema for a single item in batch creation.
+ */
+export type BatchItemCreate = {
+  /**
+   * Name
+   */
+  name: string;
+  /**
+   * Description
+   */
+  description?: string | null;
+  /**
+   * Category Id
+   */
+  category_id?: string | null;
+  /**
+   * Location Id
+   */
+  location_id?: string | null;
+  /**
+   * Quantity
+   */
+  quantity?: number;
+  /**
+   * Quantity Unit
+   */
+  quantity_unit?: string;
+  /**
+   * Min Quantity
+   */
+  min_quantity?: number | null;
+  /**
+   * Price
+   */
+  price?: number | string | null;
+  /**
+   * Attributes
+   */
+  attributes?: {
+    [key: string]: unknown;
+  };
+  /**
+   * Tags
+   */
+  tags?: Array<string>;
+  /**
+   * Image Ids
+   */
+  image_ids?: Array<string> | null;
+};
+
+/**
+ * BatchItemResult
+ *
+ * Result for a single item in batch creation.
+ */
+export type BatchItemResult = {
+  /**
+   * Success
+   */
+  success: boolean;
+  /**
+   * Item Id
+   */
+  item_id?: string | null;
+  /**
+   * Name
+   */
+  name: string;
+  /**
+   * Error
+   */
+  error?: string | null;
 };
 
 /**
@@ -795,12 +1115,15 @@ export type CheckoutResponse = {
  * ClassificationRequest
  *
  * Schema for image classification request.
+ *
+ * Accepts multiple image IDs to classify together (e.g., multiple angles of same item).
+ * Charges 1 credit per image.
  */
 export type ClassificationRequest = {
   /**
-   * Image Id
+   * Image Ids
    */
-  image_id: string;
+  image_ids: Array<string>;
   /**
    * Custom Prompt
    */
@@ -828,6 +1151,10 @@ export type ClassificationResponse = {
   create_item_prefill?: {
     [key: string]: unknown;
   } | null;
+  /**
+   * Credits Charged
+   */
+  credits_charged?: number;
 };
 
 /**
@@ -991,6 +1318,58 @@ export type CollaboratorUserInfo = {
    * Avatar Url
    */
   avatar_url: string | null;
+};
+
+/**
+ * CreditActivityDataPoint
+ *
+ * Credit activity data point with purchases and usage.
+ */
+export type CreditActivityDataPoint = {
+  /**
+   * Date
+   */
+  date: string;
+  /**
+   * Purchases
+   */
+  purchases: number;
+  /**
+   * Usage
+   */
+  usage: number;
+};
+
+/**
+ * CreditActivityResponse
+ *
+ * Credit purchases vs usage over time.
+ */
+export type CreditActivityResponse = {
+  /**
+   * Data
+   */
+  data: Array<CreditActivityDataPoint>;
+  /**
+   * Total Purchased
+   */
+  total_purchased: number;
+  /**
+   * Total Used
+   */
+  total_used: number;
+  /**
+   * Period Purchased
+   */
+  period_purchased: number;
+  /**
+   * Period Used
+   */
+  period_used: number;
+  /**
+   * Period Label
+   */
+  period_label: string;
 };
 
 /**
@@ -1220,6 +1599,102 @@ export type CreditPackUpdate = {
 };
 
 /**
+ * CreditPricingResponse
+ *
+ * Response schema for credit pricing.
+ */
+export type CreditPricingResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Operation Type
+   */
+  operation_type: string;
+  /**
+   * Credits Per Operation
+   */
+  credits_per_operation: number;
+  /**
+   * Display Name
+   */
+  display_name: string;
+  /**
+   * Description
+   */
+  description: string | null;
+  /**
+   * Is Active
+   */
+  is_active: boolean;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Updated At
+   */
+  updated_at: string;
+};
+
+/**
+ * CreditPricingUpdate
+ *
+ * Request schema for updating credit pricing.
+ */
+export type CreditPricingUpdate = {
+  /**
+   * Credits Per Operation
+   *
+   * Credits charged per operation (1-100)
+   */
+  credits_per_operation?: number | null;
+  /**
+   * Display Name
+   *
+   * Display name
+   */
+  display_name?: string | null;
+  /**
+   * Description
+   *
+   * Description of the operation
+   */
+  description?: string | null;
+  /**
+   * Is Active
+   *
+   * Whether pricing is active
+   */
+  is_active?: boolean | null;
+};
+
+/**
+ * DailyUsageResponse
+ *
+ * Daily AI usage for charts.
+ */
+export type DailyUsageResponse = {
+  /**
+   * Date
+   */
+  date: string;
+  /**
+   * Total Calls
+   */
+  total_calls: number;
+  /**
+   * Total Tokens
+   */
+  total_tokens: number;
+  /**
+   * Total Cost Usd
+   */
+  total_cost_usd: number;
+};
+
+/**
  * DashboardStatsResponse
  *
  * Dashboard statistics response.
@@ -1228,7 +1703,7 @@ export type DashboardStatsResponse = {
   /**
    * Items Over Time
    */
-  items_over_time: Array<TimeSeriesDataPoint>;
+  items_over_time: Array<SrcItemsSchemasTimeSeriesDataPoint>;
   /**
    * Items By Category
    */
@@ -2006,6 +2481,10 @@ export type ImageResponse = {
    */
   item_id: string | null;
   /**
+   * Location Id
+   */
+  location_id: string | null;
+  /**
    * Is Primary
    */
   is_primary: boolean;
@@ -2216,6 +2695,10 @@ export type ItemDetailResponse = {
    * Primary Image Url
    */
   primary_image_url?: string | null;
+  /**
+   * Images
+   */
+  images?: Array<ImageResponse>;
 };
 
 /**
@@ -2545,6 +3028,18 @@ export type LocationMoveRequest = {
 };
 
 /**
+ * LocationQrSignedUrlResponse
+ *
+ * Schema for signed QR code URL response.
+ */
+export type LocationQrSignedUrlResponse = {
+  /**
+   * Url
+   */
+  url: string;
+};
+
+/**
  * LocationResponse
  *
  * Schema for location responses.
@@ -2737,6 +3232,44 @@ export type LocationWithAncestors = {
 };
 
 /**
+ * LowStockAlertRequest
+ *
+ * Request to trigger low stock alerts.
+ */
+export type LowStockAlertRequest = {
+  /**
+   * Item Ids
+   *
+   * Specific item IDs to trigger alerts for. None = all low stock items
+   */
+  item_ids?: Array<string> | null;
+};
+
+/**
+ * LowStockAlertResponse
+ *
+ * Response from triggering low stock alerts.
+ */
+export type LowStockAlertResponse = {
+  /**
+   * Triggered Count
+   */
+  triggered_count: number;
+  /**
+   * Skipped Count
+   */
+  skipped_count: number;
+  /**
+   * Failed Count
+   */
+  failed_count: number;
+  /**
+   * Items
+   */
+  items: Array<AlertedItemSummary>;
+};
+
+/**
  * MergedAttributeTemplate
  *
  * Schema for merged attribute template from category hierarchy.
@@ -2752,6 +3285,30 @@ export type MergedAttributeTemplate = {
    * Category IDs from which fields were inherited
    */
   inherited_from?: Array<string>;
+};
+
+/**
+ * ModelBreakdown
+ *
+ * Token usage breakdown by model.
+ */
+export type ModelBreakdown = {
+  /**
+   * Model
+   */
+  model: string;
+  /**
+   * Total Calls
+   */
+  total_calls: number;
+  /**
+   * Total Tokens
+   */
+  total_tokens: number;
+  /**
+   * Total Cost Usd
+   */
+  total_cost_usd: number;
 };
 
 /**
@@ -2779,6 +3336,38 @@ export type MostUsedItemResponse = {
 };
 
 /**
+ * NotificationPreferencesResponse
+ *
+ * Response schema for notification preferences.
+ */
+export type NotificationPreferencesResponse = {
+  /**
+   * Email Notifications Enabled
+   */
+  email_notifications_enabled: boolean;
+  /**
+   * Low Stock Email Enabled
+   */
+  low_stock_email_enabled: boolean;
+};
+
+/**
+ * NotificationPreferencesUpdate
+ *
+ * Schema for updating notification preferences.
+ */
+export type NotificationPreferencesUpdate = {
+  /**
+   * Email Notifications Enabled
+   */
+  email_notifications_enabled?: boolean | null;
+  /**
+   * Low Stock Email Enabled
+   */
+  low_stock_email_enabled?: boolean | null;
+};
+
+/**
  * OAuthProviderInfo
  */
 export type OAuthProviderInfo = {
@@ -2794,6 +3383,146 @@ export type OAuthProviderInfo = {
    * Icon
    */
   icon: string;
+};
+
+/**
+ * OperationBreakdown
+ *
+ * Token usage breakdown by operation type.
+ */
+export type OperationBreakdown = {
+  /**
+   * Operation Type
+   */
+  operation_type: string;
+  /**
+   * Total Calls
+   */
+  total_calls: number;
+  /**
+   * Total Tokens
+   */
+  total_tokens: number;
+  /**
+   * Total Cost Usd
+   */
+  total_cost_usd: number;
+};
+
+/**
+ * PackBreakdownItem
+ *
+ * Credit pack sales breakdown item.
+ */
+export type PackBreakdownItem = {
+  /**
+   * Pack Id
+   */
+  pack_id: string;
+  /**
+   * Pack Name
+   */
+  pack_name: string;
+  /**
+   * Credits
+   */
+  credits: number;
+  /**
+   * Price Cents
+   */
+  price_cents: number;
+  /**
+   * Purchase Count
+   */
+  purchase_count: number;
+  /**
+   * Total Revenue Cents
+   */
+  total_revenue_cents: number;
+  /**
+   * Percentage
+   */
+  percentage: number;
+};
+
+/**
+ * PackBreakdownResponse
+ *
+ * Credit pack breakdown response.
+ */
+export type PackBreakdownResponse = {
+  /**
+   * Packs
+   */
+  packs: Array<PackBreakdownItem>;
+  /**
+   * Total Purchases
+   */
+  total_purchases: number;
+  /**
+   * Total Revenue Cents
+   */
+  total_revenue_cents: number;
+  /**
+   * Period Label
+   */
+  period_label: string;
+};
+
+/**
+ * PaginatedAIUsageLogsResponse
+ *
+ * Paginated response for AI usage logs.
+ */
+export type PaginatedAiUsageLogsResponse = {
+  /**
+   * Items
+   */
+  items: Array<AiUsageLogResponse>;
+  /**
+   * Total
+   */
+  total: number;
+  /**
+   * Page
+   */
+  page: number;
+  /**
+   * Limit
+   */
+  limit: number;
+  /**
+   * Total Pages
+   */
+  total_pages: number;
+};
+
+/**
+ * PaginatedActivityResponse
+ *
+ * Paginated activity feed response.
+ */
+export type PaginatedActivityResponse = {
+  /**
+   * Items
+   */
+  items: Array<RecentActivityItem>;
+  /**
+   * Total
+   */
+  total: number;
+  /**
+   * Page
+   */
+  page: number;
+  /**
+   * Limit
+   */
+  limit: number;
+  /**
+   * Total Pages
+   */
+  total_pages: number;
 };
 
 /**
@@ -2890,6 +3619,32 @@ export type PaginatedImagesResponse = {
    * Items
    */
   items: Array<ImageResponse>;
+  /**
+   * Total
+   */
+  total: number;
+  /**
+   * Page
+   */
+  page: number;
+  /**
+   * Limit
+   */
+  limit: number;
+  /**
+   * Total Pages
+   */
+  total_pages: number;
+};
+
+/**
+ * PaginatedResponse[AlertHistoryResponse]
+ */
+export type PaginatedResponseAlertHistoryResponse = {
+  /**
+   * Items
+   */
+  items: Array<AlertHistoryResponse>;
   /**
    * Total
    */
@@ -3329,6 +4084,30 @@ export type RefundResponse = {
 };
 
 /**
+ * RevenueTimeSeriesResponse
+ *
+ * Revenue over time response.
+ */
+export type RevenueTimeSeriesResponse = {
+  /**
+   * Data
+   */
+  data: Array<SrcAdminSchemasTimeSeriesDataPoint>;
+  /**
+   * Total Revenue Cents
+   */
+  total_revenue_cents: number;
+  /**
+   * Period Revenue Cents
+   */
+  period_revenue_cents: number;
+  /**
+   * Period Label
+   */
+  period_label: string;
+};
+
+/**
  * Settings
  *
  * Application settings loaded from environment variables.
@@ -3342,6 +4121,10 @@ export type Settings = {
    * Debug
    */
   debug?: boolean;
+  /**
+   * Environment
+   */
+  environment?: string;
   /**
    * Database Url
    */
@@ -3422,6 +4205,42 @@ export type Settings = {
    * Admin Email
    */
   admin_email?: string;
+  /**
+   * Redis Url
+   */
+  redis_url?: string | null;
+  /**
+   * Smtp Host
+   */
+  smtp_host?: string;
+  /**
+   * Smtp Port
+   */
+  smtp_port?: number;
+  /**
+   * Smtp Username
+   */
+  smtp_username?: string;
+  /**
+   * Smtp Password
+   */
+  smtp_password?: string;
+  /**
+   * Smtp Use Tls
+   */
+  smtp_use_tls?: boolean;
+  /**
+   * Smtp From Email
+   */
+  smtp_from_email?: string;
+  /**
+   * Smtp From Name
+   */
+  smtp_from_name?: string;
+  /**
+   * Allowed Networks
+   */
+  allowed_networks?: string;
 };
 
 /**
@@ -3445,6 +4264,30 @@ export type SharedInventoryResponse = {
    */
   accepted_at: string | null;
   owner: CollaboratorOwnerInfo;
+};
+
+/**
+ * SignupsTimeSeriesResponse
+ *
+ * User signups over time response.
+ */
+export type SignupsTimeSeriesResponse = {
+  /**
+   * Data
+   */
+  data: Array<SrcAdminSchemasTimeSeriesDataPoint>;
+  /**
+   * Total Users
+   */
+  total_users: number;
+  /**
+   * Period Signups
+   */
+  period_signups: number;
+  /**
+   * Period Label
+   */
+  period_label: string;
 };
 
 /**
@@ -3487,22 +4330,6 @@ export type SimilarItemMatch = {
    * Primary Image Url
    */
   primary_image_url?: string | null;
-};
-
-/**
- * TimeSeriesDataPoint
- *
- * A single data point in a time series.
- */
-export type TimeSeriesDataPoint = {
-  /**
-   * Date
-   */
-  date: string;
-  /**
-   * Count
-   */
-  count: number;
 };
 
 /**
@@ -4081,6 +4908,38 @@ export type WebhookTestResponse = {
 };
 
 /**
+ * TimeSeriesDataPoint
+ *
+ * A single data point in a time series.
+ */
+export type SrcAdminSchemasTimeSeriesDataPoint = {
+  /**
+   * Date
+   */
+  date: string;
+  /**
+   * Value
+   */
+  value: number | number;
+};
+
+/**
+ * TimeSeriesDataPoint
+ *
+ * A single data point in a time series.
+ */
+export type SrcItemsSchemasTimeSeriesDataPoint = {
+  /**
+   * Date
+   */
+  date: string;
+  /**
+   * Count
+   */
+  count: number;
+};
+
+/**
  * GridfinityPlacementResponse
  *
  * Schema for placement responses.
@@ -4398,6 +5257,117 @@ export type UpdatePackApiV1AdminPacksPackIdPutResponses = {
 export type UpdatePackApiV1AdminPacksPackIdPutResponse =
   UpdatePackApiV1AdminPacksPackIdPutResponses[keyof UpdatePackApiV1AdminPacksPackIdPutResponses];
 
+export type ListPricingApiV1AdminPricingGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/pricing";
+};
+
+export type ListPricingApiV1AdminPricingGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListPricingApiV1AdminPricingGetError =
+  ListPricingApiV1AdminPricingGetErrors[keyof ListPricingApiV1AdminPricingGetErrors];
+
+export type ListPricingApiV1AdminPricingGetResponses = {
+  /**
+   * Response List Pricing Api V1 Admin Pricing Get
+   *
+   * Successful Response
+   */
+  200: Array<CreditPricingResponse>;
+};
+
+export type ListPricingApiV1AdminPricingGetResponse =
+  ListPricingApiV1AdminPricingGetResponses[keyof ListPricingApiV1AdminPricingGetResponses];
+
+export type GetPricingApiV1AdminPricingPricingIdGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Pricing Id
+     */
+    pricing_id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/pricing/{pricing_id}";
+};
+
+export type GetPricingApiV1AdminPricingPricingIdGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetPricingApiV1AdminPricingPricingIdGetError =
+  GetPricingApiV1AdminPricingPricingIdGetErrors[keyof GetPricingApiV1AdminPricingPricingIdGetErrors];
+
+export type GetPricingApiV1AdminPricingPricingIdGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: CreditPricingResponse;
+};
+
+export type GetPricingApiV1AdminPricingPricingIdGetResponse =
+  GetPricingApiV1AdminPricingPricingIdGetResponses[keyof GetPricingApiV1AdminPricingPricingIdGetResponses];
+
+export type UpdatePricingApiV1AdminPricingPricingIdPutData = {
+  body: CreditPricingUpdate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Pricing Id
+     */
+    pricing_id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/pricing/{pricing_id}";
+};
+
+export type UpdatePricingApiV1AdminPricingPricingIdPutErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type UpdatePricingApiV1AdminPricingPricingIdPutError =
+  UpdatePricingApiV1AdminPricingPricingIdPutErrors[keyof UpdatePricingApiV1AdminPricingPricingIdPutErrors];
+
+export type UpdatePricingApiV1AdminPricingPricingIdPutResponses = {
+  /**
+   * Successful Response
+   */
+  200: CreditPricingResponse;
+};
+
+export type UpdatePricingApiV1AdminPricingPricingIdPutResponse =
+  UpdatePricingApiV1AdminPricingPricingIdPutResponses[keyof UpdatePricingApiV1AdminPricingPricingIdPutResponses];
+
 export type ListUsersApiV1AdminUsersGetData = {
   body?: never;
   headers?: {
@@ -4592,6 +5562,400 @@ export type GetStatsApiV1AdminStatsGetResponses = {
 
 export type GetStatsApiV1AdminStatsGetResponse =
   GetStatsApiV1AdminStatsGetResponses[keyof GetStatsApiV1AdminStatsGetResponses];
+
+export type GetRevenueOverTimeApiV1AdminStatsRevenueGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Time Range
+     */
+    time_range?: string;
+  };
+  url: "/api/v1/admin/stats/revenue";
+};
+
+export type GetRevenueOverTimeApiV1AdminStatsRevenueGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetRevenueOverTimeApiV1AdminStatsRevenueGetError =
+  GetRevenueOverTimeApiV1AdminStatsRevenueGetErrors[keyof GetRevenueOverTimeApiV1AdminStatsRevenueGetErrors];
+
+export type GetRevenueOverTimeApiV1AdminStatsRevenueGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: RevenueTimeSeriesResponse;
+};
+
+export type GetRevenueOverTimeApiV1AdminStatsRevenueGetResponse =
+  GetRevenueOverTimeApiV1AdminStatsRevenueGetResponses[keyof GetRevenueOverTimeApiV1AdminStatsRevenueGetResponses];
+
+export type GetSignupsOverTimeApiV1AdminStatsSignupsGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Time Range
+     */
+    time_range?: string;
+  };
+  url: "/api/v1/admin/stats/signups";
+};
+
+export type GetSignupsOverTimeApiV1AdminStatsSignupsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetSignupsOverTimeApiV1AdminStatsSignupsGetError =
+  GetSignupsOverTimeApiV1AdminStatsSignupsGetErrors[keyof GetSignupsOverTimeApiV1AdminStatsSignupsGetErrors];
+
+export type GetSignupsOverTimeApiV1AdminStatsSignupsGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: SignupsTimeSeriesResponse;
+};
+
+export type GetSignupsOverTimeApiV1AdminStatsSignupsGetResponse =
+  GetSignupsOverTimeApiV1AdminStatsSignupsGetResponses[keyof GetSignupsOverTimeApiV1AdminStatsSignupsGetResponses];
+
+export type GetCreditActivityApiV1AdminStatsCreditsGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Time Range
+     */
+    time_range?: string;
+  };
+  url: "/api/v1/admin/stats/credits";
+};
+
+export type GetCreditActivityApiV1AdminStatsCreditsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetCreditActivityApiV1AdminStatsCreditsGetError =
+  GetCreditActivityApiV1AdminStatsCreditsGetErrors[keyof GetCreditActivityApiV1AdminStatsCreditsGetErrors];
+
+export type GetCreditActivityApiV1AdminStatsCreditsGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: CreditActivityResponse;
+};
+
+export type GetCreditActivityApiV1AdminStatsCreditsGetResponse =
+  GetCreditActivityApiV1AdminStatsCreditsGetResponses[keyof GetCreditActivityApiV1AdminStatsCreditsGetResponses];
+
+export type GetPackBreakdownApiV1AdminStatsPacksGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Time Range
+     */
+    time_range?: string;
+  };
+  url: "/api/v1/admin/stats/packs";
+};
+
+export type GetPackBreakdownApiV1AdminStatsPacksGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetPackBreakdownApiV1AdminStatsPacksGetError =
+  GetPackBreakdownApiV1AdminStatsPacksGetErrors[keyof GetPackBreakdownApiV1AdminStatsPacksGetErrors];
+
+export type GetPackBreakdownApiV1AdminStatsPacksGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: PackBreakdownResponse;
+};
+
+export type GetPackBreakdownApiV1AdminStatsPacksGetResponse =
+  GetPackBreakdownApiV1AdminStatsPacksGetResponses[keyof GetPackBreakdownApiV1AdminStatsPacksGetResponses];
+
+export type GetActivityFeedApiV1AdminActivityGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Page
+     */
+    page?: number;
+    /**
+     * Limit
+     */
+    limit?: number;
+    /**
+     * Activity Type
+     */
+    activity_type?: string | null;
+  };
+  url: "/api/v1/admin/activity";
+};
+
+export type GetActivityFeedApiV1AdminActivityGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetActivityFeedApiV1AdminActivityGetError =
+  GetActivityFeedApiV1AdminActivityGetErrors[keyof GetActivityFeedApiV1AdminActivityGetErrors];
+
+export type GetActivityFeedApiV1AdminActivityGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: PaginatedActivityResponse;
+};
+
+export type GetActivityFeedApiV1AdminActivityGetResponse =
+  GetActivityFeedApiV1AdminActivityGetResponses[keyof GetActivityFeedApiV1AdminActivityGetResponses];
+
+export type GetAiUsageSummaryApiV1AdminAiUsageSummaryGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Start Date
+     *
+     * Start date filter
+     */
+    start_date?: string | null;
+    /**
+     * End Date
+     *
+     * End date filter
+     */
+    end_date?: string | null;
+  };
+  url: "/api/v1/admin/ai-usage/summary";
+};
+
+export type GetAiUsageSummaryApiV1AdminAiUsageSummaryGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetAiUsageSummaryApiV1AdminAiUsageSummaryGetError =
+  GetAiUsageSummaryApiV1AdminAiUsageSummaryGetErrors[keyof GetAiUsageSummaryApiV1AdminAiUsageSummaryGetErrors];
+
+export type GetAiUsageSummaryApiV1AdminAiUsageSummaryGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: AiUsageSummaryResponse;
+};
+
+export type GetAiUsageSummaryApiV1AdminAiUsageSummaryGetResponse =
+  GetAiUsageSummaryApiV1AdminAiUsageSummaryGetResponses[keyof GetAiUsageSummaryApiV1AdminAiUsageSummaryGetResponses];
+
+export type GetAiUsageByUserApiV1AdminAiUsageByUserGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Start Date
+     *
+     * Start date filter
+     */
+    start_date?: string | null;
+    /**
+     * End Date
+     *
+     * End date filter
+     */
+    end_date?: string | null;
+    /**
+     * Limit
+     *
+     * Max users to return
+     */
+    limit?: number;
+  };
+  url: "/api/v1/admin/ai-usage/by-user";
+};
+
+export type GetAiUsageByUserApiV1AdminAiUsageByUserGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetAiUsageByUserApiV1AdminAiUsageByUserGetError =
+  GetAiUsageByUserApiV1AdminAiUsageByUserGetErrors[keyof GetAiUsageByUserApiV1AdminAiUsageByUserGetErrors];
+
+export type GetAiUsageByUserApiV1AdminAiUsageByUserGetResponses = {
+  /**
+   * Response Get Ai Usage By User Api V1 Admin Ai Usage By User Get
+   *
+   * Successful Response
+   */
+  200: Array<AiUsageByUserResponse>;
+};
+
+export type GetAiUsageByUserApiV1AdminAiUsageByUserGetResponse =
+  GetAiUsageByUserApiV1AdminAiUsageByUserGetResponses[keyof GetAiUsageByUserApiV1AdminAiUsageByUserGetResponses];
+
+export type GetAiUsageHistoryApiV1AdminAiUsageHistoryGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Page
+     */
+    page?: number;
+    /**
+     * Limit
+     */
+    limit?: number;
+    /**
+     * Operation Type
+     *
+     * Filter by operation type
+     */
+    operation_type?: string | null;
+    /**
+     * User Id
+     *
+     * Filter by user ID
+     */
+    user_id?: string | null;
+  };
+  url: "/api/v1/admin/ai-usage/history";
+};
+
+export type GetAiUsageHistoryApiV1AdminAiUsageHistoryGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetAiUsageHistoryApiV1AdminAiUsageHistoryGetError =
+  GetAiUsageHistoryApiV1AdminAiUsageHistoryGetErrors[keyof GetAiUsageHistoryApiV1AdminAiUsageHistoryGetErrors];
+
+export type GetAiUsageHistoryApiV1AdminAiUsageHistoryGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: PaginatedAiUsageLogsResponse;
+};
+
+export type GetAiUsageHistoryApiV1AdminAiUsageHistoryGetResponse =
+  GetAiUsageHistoryApiV1AdminAiUsageHistoryGetResponses[keyof GetAiUsageHistoryApiV1AdminAiUsageHistoryGetResponses];
+
+export type GetAiUsageDailyApiV1AdminAiUsageDailyGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Days
+     *
+     * Number of days to include
+     */
+    days?: number;
+  };
+  url: "/api/v1/admin/ai-usage/daily";
+};
+
+export type GetAiUsageDailyApiV1AdminAiUsageDailyGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetAiUsageDailyApiV1AdminAiUsageDailyGetError =
+  GetAiUsageDailyApiV1AdminAiUsageDailyGetErrors[keyof GetAiUsageDailyApiV1AdminAiUsageDailyGetErrors];
+
+export type GetAiUsageDailyApiV1AdminAiUsageDailyGetResponses = {
+  /**
+   * Response Get Ai Usage Daily Api V1 Admin Ai Usage Daily Get
+   *
+   * Successful Response
+   */
+  200: Array<DailyUsageResponse>;
+};
+
+export type GetAiUsageDailyApiV1AdminAiUsageDailyGetResponse =
+  GetAiUsageDailyApiV1AdminAiUsageDailyGetResponses[keyof GetAiUsageDailyApiV1AdminAiUsageDailyGetResponses];
 
 export type QueryAssistantApiV1AiQueryPostData = {
   body: AssistantQueryRequest;
@@ -5752,6 +7116,43 @@ export type BatchUpdateItemsApiV1ItemsBatchPatchResponses = {
 
 export type BatchUpdateItemsApiV1ItemsBatchPatchResponse =
   BatchUpdateItemsApiV1ItemsBatchPatchResponses[keyof BatchUpdateItemsApiV1ItemsBatchPatchResponses];
+
+export type BatchCreateItemsApiV1ItemsBatchPostData = {
+  body: BatchCreateRequest;
+  headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/items/batch";
+};
+
+export type BatchCreateItemsApiV1ItemsBatchPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type BatchCreateItemsApiV1ItemsBatchPostError =
+  BatchCreateItemsApiV1ItemsBatchPostErrors[keyof BatchCreateItemsApiV1ItemsBatchPostErrors];
+
+export type BatchCreateItemsApiV1ItemsBatchPostResponses = {
+  /**
+   * Successful Response
+   */
+  201: BatchCreateResponse;
+};
+
+export type BatchCreateItemsApiV1ItemsBatchPostResponse =
+  BatchCreateItemsApiV1ItemsBatchPostResponses[keyof BatchCreateItemsApiV1ItemsBatchPostResponses];
 
 export type GetDashboardStatsApiV1ItemsStatsDashboardGetData = {
   body?: never;
@@ -7389,11 +8790,8 @@ export type GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetResp
 export type GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetResponse =
   GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetResponses[keyof GetLocationWithAncestorsApiV1LocationsLocationIdWithAncestorsGetResponses];
 
-export type GetLocationQrCodeApiV1LocationsLocationIdQrGetData = {
-  /**
-   * Settings
-   */
-  body?: Settings | null;
+export type GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetData = {
+  body?: never;
   headers?: {
     /**
      * X-Inventory-Context
@@ -7411,6 +8809,54 @@ export type GetLocationQrCodeApiV1LocationsLocationIdQrGetData = {
     location_id: string;
   };
   query?: {
+    /**
+     * Size
+     *
+     * Scale factor (1-40)
+     */
+    size?: number;
+  };
+  url: "/api/v1/locations/{location_id}/qr/signed-url";
+};
+
+export type GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetError =
+  GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetErrors[keyof GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetErrors];
+
+export type GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: LocationQrSignedUrlResponse;
+  };
+
+export type GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetResponse =
+  GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetResponses[keyof GetLocationQrSignedUrlApiV1LocationsLocationIdQrSignedUrlGetResponses];
+
+export type GetLocationQrCodeApiV1LocationsLocationIdQrGetData = {
+  /**
+   * Settings
+   */
+  body?: Settings | null;
+  path: {
+    /**
+     * Location Id
+     */
+    location_id: string;
+  };
+  query?: {
+    /**
+     * Token
+     */
+    token?: string | null;
     /**
      * Size
      *
@@ -7913,7 +9359,7 @@ export type UploadImageApiV1ImagesUploadPostResponses = {
 export type UploadImageApiV1ImagesUploadPostResponse =
   UploadImageApiV1ImagesUploadPostResponses[keyof UploadImageApiV1ImagesUploadPostResponses];
 
-export type ClassifyImageApiV1ImagesClassifyPostData = {
+export type ClassifyImagesApiV1ImagesClassifyPostData = {
   body: ClassificationRequest;
   headers?: {
     /**
@@ -7926,25 +9372,25 @@ export type ClassifyImageApiV1ImagesClassifyPostData = {
   url: "/api/v1/images/classify";
 };
 
-export type ClassifyImageApiV1ImagesClassifyPostErrors = {
+export type ClassifyImagesApiV1ImagesClassifyPostErrors = {
   /**
    * Validation Error
    */
   422: HttpValidationError;
 };
 
-export type ClassifyImageApiV1ImagesClassifyPostError =
-  ClassifyImageApiV1ImagesClassifyPostErrors[keyof ClassifyImageApiV1ImagesClassifyPostErrors];
+export type ClassifyImagesApiV1ImagesClassifyPostError =
+  ClassifyImagesApiV1ImagesClassifyPostErrors[keyof ClassifyImagesApiV1ImagesClassifyPostErrors];
 
-export type ClassifyImageApiV1ImagesClassifyPostResponses = {
+export type ClassifyImagesApiV1ImagesClassifyPostResponses = {
   /**
    * Successful Response
    */
   200: ClassificationResponse;
 };
 
-export type ClassifyImageApiV1ImagesClassifyPostResponse =
-  ClassifyImageApiV1ImagesClassifyPostResponses[keyof ClassifyImageApiV1ImagesClassifyPostResponses];
+export type ClassifyImagesApiV1ImagesClassifyPostResponse =
+  ClassifyImagesApiV1ImagesClassifyPostResponses[keyof ClassifyImagesApiV1ImagesClassifyPostResponses];
 
 export type ListClassifiedImagesApiV1ImagesClassifiedGetData = {
   body?: never;
@@ -8185,6 +9631,50 @@ export type GetImageThumbnailApiV1ImagesImageIdThumbnailGetResponses = {
   200: unknown;
 };
 
+export type GetImagesByLocationApiV1ImagesLocationLocationIdGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Location Id
+     */
+    location_id: string;
+  };
+  query?: never;
+  url: "/api/v1/images/location/{location_id}";
+};
+
+export type GetImagesByLocationApiV1ImagesLocationLocationIdGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetImagesByLocationApiV1ImagesLocationLocationIdGetError =
+  GetImagesByLocationApiV1ImagesLocationLocationIdGetErrors[keyof GetImagesByLocationApiV1ImagesLocationLocationIdGetErrors];
+
+export type GetImagesByLocationApiV1ImagesLocationLocationIdGetResponses = {
+  /**
+   * Response Get Images By Location Api V1 Images Location  Location Id  Get
+   *
+   * Successful Response
+   */
+  200: Array<ImageResponse>;
+};
+
+export type GetImagesByLocationApiV1ImagesLocationLocationIdGetResponse =
+  GetImagesByLocationApiV1ImagesLocationLocationIdGetResponses[keyof GetImagesByLocationApiV1ImagesLocationLocationIdGetResponses];
+
 export type AttachImageToItemApiV1ImagesImageIdAttachItemIdPostData = {
   body?: never;
   headers?: {
@@ -8231,6 +9721,213 @@ export type AttachImageToItemApiV1ImagesImageIdAttachItemIdPostResponses = {
 
 export type AttachImageToItemApiV1ImagesImageIdAttachItemIdPostResponse =
   AttachImageToItemApiV1ImagesImageIdAttachItemIdPostResponses[keyof AttachImageToItemApiV1ImagesImageIdAttachItemIdPostResponses];
+
+export type SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Image Id
+     */
+    image_id: string;
+  };
+  query?: never;
+  url: "/api/v1/images/{image_id}/set-primary";
+};
+
+export type SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostError =
+  SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostErrors[keyof SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostErrors];
+
+export type SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: ImageResponse;
+};
+
+export type SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostResponse =
+  SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostResponses[keyof SetImageAsPrimaryApiV1ImagesImageIdSetPrimaryPostResponses];
+
+export type DetachImageFromItemApiV1ImagesImageIdDetachPostData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Image Id
+     */
+    image_id: string;
+  };
+  query?: never;
+  url: "/api/v1/images/{image_id}/detach";
+};
+
+export type DetachImageFromItemApiV1ImagesImageIdDetachPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type DetachImageFromItemApiV1ImagesImageIdDetachPostError =
+  DetachImageFromItemApiV1ImagesImageIdDetachPostErrors[keyof DetachImageFromItemApiV1ImagesImageIdDetachPostErrors];
+
+export type DetachImageFromItemApiV1ImagesImageIdDetachPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: ImageResponse;
+};
+
+export type DetachImageFromItemApiV1ImagesImageIdDetachPostResponse =
+  DetachImageFromItemApiV1ImagesImageIdDetachPostResponses[keyof DetachImageFromItemApiV1ImagesImageIdDetachPostResponses];
+
+export type AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostData =
+  {
+    body?: never;
+    headers?: {
+      /**
+       * X-Api-Key
+       */
+      "X-API-Key"?: string | null;
+    };
+    path: {
+      /**
+       * Image Id
+       */
+      image_id: string;
+      /**
+       * Location Id
+       */
+      location_id: string;
+    };
+    query?: {
+      /**
+       * Is Primary
+       */
+      is_primary?: boolean;
+    };
+    url: "/api/v1/images/{image_id}/attach-location/{location_id}";
+  };
+
+export type AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostError =
+  AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostErrors[keyof AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostErrors];
+
+export type AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: ImageResponse;
+  };
+
+export type AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostResponse =
+  AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostResponses[keyof AttachImageToLocationApiV1ImagesImageIdAttachLocationLocationIdPostResponses];
+
+export type SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostData =
+  {
+    body?: never;
+    headers?: {
+      /**
+       * X-Api-Key
+       */
+      "X-API-Key"?: string | null;
+    };
+    path: {
+      /**
+       * Image Id
+       */
+      image_id: string;
+    };
+    query?: never;
+    url: "/api/v1/images/{image_id}/set-primary-location";
+  };
+
+export type SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostError =
+  SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostErrors[keyof SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostErrors];
+
+export type SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: ImageResponse;
+  };
+
+export type SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostResponse =
+  SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostResponses[keyof SetImageAsPrimaryForLocationApiV1ImagesImageIdSetPrimaryLocationPostResponses];
+
+export type DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Image Id
+     */
+    image_id: string;
+  };
+  query?: never;
+  url: "/api/v1/images/{image_id}/detach-location";
+};
+
+export type DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostError =
+  DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostErrors[keyof DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostErrors];
+
+export type DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: ImageResponse;
+  };
+
+export type DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostResponse =
+  DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostResponses[keyof DetachImageFromLocationApiV1ImagesImageIdDetachLocationPostResponses];
 
 export type GetHobbyTypesApiV1ProfileHobbyTypesGetData = {
   body?: never;
@@ -9192,3 +10889,158 @@ export type LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteResponses =
 
 export type LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteResponse =
   LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteResponses[keyof LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteResponses];
+
+export type GetNotificationPreferencesApiV1NotificationsPreferencesGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/notifications/preferences";
+};
+
+export type GetNotificationPreferencesApiV1NotificationsPreferencesGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetNotificationPreferencesApiV1NotificationsPreferencesGetError =
+  GetNotificationPreferencesApiV1NotificationsPreferencesGetErrors[keyof GetNotificationPreferencesApiV1NotificationsPreferencesGetErrors];
+
+export type GetNotificationPreferencesApiV1NotificationsPreferencesGetResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: NotificationPreferencesResponse;
+  };
+
+export type GetNotificationPreferencesApiV1NotificationsPreferencesGetResponse =
+  GetNotificationPreferencesApiV1NotificationsPreferencesGetResponses[keyof GetNotificationPreferencesApiV1NotificationsPreferencesGetResponses];
+
+export type UpdateNotificationPreferencesApiV1NotificationsPreferencesPutData =
+  {
+    body: NotificationPreferencesUpdate;
+    headers?: {
+      /**
+       * X-Api-Key
+       */
+      "X-API-Key"?: string | null;
+    };
+    path?: never;
+    query?: never;
+    url: "/api/v1/notifications/preferences";
+  };
+
+export type UpdateNotificationPreferencesApiV1NotificationsPreferencesPutErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type UpdateNotificationPreferencesApiV1NotificationsPreferencesPutError =
+  UpdateNotificationPreferencesApiV1NotificationsPreferencesPutErrors[keyof UpdateNotificationPreferencesApiV1NotificationsPreferencesPutErrors];
+
+export type UpdateNotificationPreferencesApiV1NotificationsPreferencesPutResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: NotificationPreferencesResponse;
+  };
+
+export type UpdateNotificationPreferencesApiV1NotificationsPreferencesPutResponse =
+  UpdateNotificationPreferencesApiV1NotificationsPreferencesPutResponses[keyof UpdateNotificationPreferencesApiV1NotificationsPreferencesPutResponses];
+
+export type TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostData = {
+  /**
+   * Data
+   */
+  body?: LowStockAlertRequest | null;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/notifications/low-stock/trigger";
+};
+
+export type TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostError =
+  TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostErrors[keyof TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostErrors];
+
+export type TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: LowStockAlertResponse;
+  };
+
+export type TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostResponse =
+  TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostResponses[keyof TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostResponses];
+
+export type GetAlertHistoryApiV1NotificationsHistoryGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Alert Type
+     *
+     * Filter by alert type
+     */
+    alert_type?: string | null;
+    /**
+     * Page
+     */
+    page?: number;
+    /**
+     * Limit
+     */
+    limit?: number;
+  };
+  url: "/api/v1/notifications/history";
+};
+
+export type GetAlertHistoryApiV1NotificationsHistoryGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetAlertHistoryApiV1NotificationsHistoryGetError =
+  GetAlertHistoryApiV1NotificationsHistoryGetErrors[keyof GetAlertHistoryApiV1NotificationsHistoryGetErrors];
+
+export type GetAlertHistoryApiV1NotificationsHistoryGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: PaginatedResponseAlertHistoryResponse;
+};
+
+export type GetAlertHistoryApiV1NotificationsHistoryGetResponse =
+  GetAlertHistoryApiV1NotificationsHistoryGetResponses[keyof GetAlertHistoryApiV1NotificationsHistoryGetResponses];
