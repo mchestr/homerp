@@ -15,6 +15,10 @@ os.environ["WEBHOOK_SKIP_DNS_RESOLUTION"] = "true"
 # Must be set before importing src.config which validates JWT secrets
 os.environ["DEBUG"] = "true"
 
+# Explicitly set development environment to avoid production checks
+# (e.g., Redis requirement for rate limiting)
+os.environ["ENVIRONMENT"] = "development"
+
 import uuid
 from collections.abc import AsyncGenerator
 from datetime import UTC, datetime, timedelta

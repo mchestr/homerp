@@ -99,14 +99,20 @@ class Settings(BaseSettings):
         Determine if this is a production environment.
 
         Uses multiple signals to detect production even if debug=True is misconfigured:
-        1. Explicit environment setting
-        2. Non-localhost frontend URL
+        1. Explicit environment setting (trusted for both prod and non-prod)
+        2. Non-localhost frontend URL as fallback heuristic
         """
+        env_lower = self.environment.lower()
+
         # Explicit production environment
-        if self.environment.lower() in ("production", "prod"):
+        if env_lower in ("production", "prod"):
             return True
 
-        # Non-localhost frontend URL suggests production
+        # Explicit non-production environment - trust it
+        if env_lower in ("development", "dev", "staging", "test", "local"):
+            return False
+
+        # Fallback heuristic: non-localhost frontend URL suggests production
         return bool(
             self.frontend_url
             and not any(

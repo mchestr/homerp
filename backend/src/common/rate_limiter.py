@@ -67,6 +67,8 @@ def configure_rate_limiting(app) -> None:
 
     settings = get_settings()
 
+    is_production = settings._is_production_environment()
+
     # Configure storage backend
     if settings.redis_url:
         try:
@@ -83,7 +85,7 @@ def configure_rate_limiting(app) -> None:
         except Exception as e:
             logger.error(f"Failed to configure Redis for rate limiting: {e}")
             # In production, fail fast rather than silently degrading
-            if settings.environment.lower() in ("production", "prod"):
+            if is_production:
                 raise RuntimeError(
                     "Redis rate limiting required but failed to connect. "
                     "Set REDIS_URL to a valid Redis instance or remove it for single-instance mode."
@@ -92,6 +94,12 @@ def configure_rate_limiting(app) -> None:
                 "Falling back to in-memory storage (not suitable for multi-instance)"
             )
             limiter._storage = MemoryStorage()
+    elif is_production:
+        # Production without Redis - fail fast
+        raise RuntimeError(
+            "REDIS_URL is required in production for distributed rate limiting. "
+            "Set REDIS_URL to a valid Redis instance."
+        )
     else:
         logger.info(
             "Rate limiting configured with in-memory storage (single instance only)"
