@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from src.items.models import Item
-from src.notifications.models import AlertHistory, NotificationPreferences
+from src.notifications.models import AlertHistory, AlertStatus, NotificationPreferences
 from src.notifications.schemas import NotificationPreferencesUpdate
 
 
@@ -69,7 +69,7 @@ class NotificationRepository:
                 AlertHistory.user_id == self.user_id,
                 AlertHistory.item_id == item_id,
                 AlertHistory.alert_type == alert_type,
-                AlertHistory.status == "sent",
+                AlertHistory.status == AlertStatus.SENT.value,
                 AlertHistory.sent_at >= cutoff,
             )
         )
@@ -85,7 +85,7 @@ class NotificationRepository:
         subject: str,
         item_quantity: int,
         item_min_quantity: int,
-        status: str = "pending",
+        status: str = AlertStatus.PENDING.value,
         error_message: str | None = None,
     ) -> AlertHistory:
         """Create an alert history record."""

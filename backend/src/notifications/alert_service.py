@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.config import Settings, get_settings
 from src.items.models import Item
 from src.notifications.email_service import EmailService
+from src.notifications.models import AlertStatus
 from src.notifications.repository import NotificationRepository
 from src.notifications.schemas import AlertedItemSummary, LowStockAlertResponse
 from src.users.models import User
@@ -145,7 +146,7 @@ class AlertService:
                     subject=subject,
                     item_quantity=item_quantity,
                     item_min_quantity=item_min_quantity,
-                    status="pending",
+                    status=AlertStatus.PENDING.value,
                 )
 
                 # Send email
@@ -158,19 +159,33 @@ class AlertService:
 
                 # Update alert status
                 if success:
-                    await repo.update_alert_status(alert.id, "sent")
+                    await repo.update_alert_status(alert.id, AlertStatus.SENT.value)
                     logger.info(f"Low stock alert sent for item {item_id}")
                 else:
                     await repo.update_alert_status(
-                        alert.id, "failed", "Email send failed"
+                        alert.id, AlertStatus.FAILED.value, "Email send failed"
                     )
                     logger.error(f"Failed to send low stock alert for item {item_id}")
 
             except Exception as e:
-                logger.error(
-                    f"Background low stock alert failed for item {item_id}: {e}",
-                    exc_info=True,
-                )
+                # Provide specific logging for common failure scenarios
+                error_type = type(e).__name__
+                if "user" in str(e).lower() or "User" in str(e):
+                    logger.error(
+                        f"Background alert failed for item {item_id}: "
+                        f"user {self.user_id} may have been deleted. {error_type}: {e}"
+                    )
+                elif "item" in str(e).lower() or "Item" in str(e):
+                    logger.error(
+                        f"Background alert failed: item {item_id} may have been deleted. "
+                        f"{error_type}: {e}"
+                    )
+                else:
+                    logger.error(
+                        f"Background low stock alert failed for item {item_id}: "
+                        f"{error_type}: {e}",
+                        exc_info=True,
+                    )
 
     async def trigger_low_stock_alerts(
         self,
@@ -195,7 +210,7 @@ class AlertService:
                 failed_count=0,
                 items=[
                     AlertedItemSummary(
-                        item_id=UUID("00000000-0000-0000-0000-000000000000"),
+                        item_id=None,
                         item_name="N/A",
                         status="skipped_disabled",
                         message="Email notifications are disabled",
@@ -288,7 +303,7 @@ class AlertService:
             subject=subject,
             item_quantity=item.quantity,
             item_min_quantity=item.min_quantity,
-            status="pending",
+            status=AlertStatus.PENDING.value,
         )
 
         # Send email
@@ -300,10 +315,10 @@ class AlertService:
         )
 
         if success:
-            await self.repository.update_alert_status(alert.id, "sent")
+            await self.repository.update_alert_status(alert.id, AlertStatus.SENT.value)
         else:
             await self.repository.update_alert_status(
-                alert.id, "failed", "Email send failed"
+                alert.id, AlertStatus.FAILED.value, "Email send failed"
             )
             raise RuntimeError("Failed to send email")
 

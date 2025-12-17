@@ -36,7 +36,7 @@ class LowStockAlertRequest(BaseModel):
 class AlertedItemSummary(BaseModel):
     """Summary of an item that was alerted."""
 
-    item_id: UUID
+    item_id: UUID | None = None
     item_name: str
     status: str  # 'sent', 'skipped_recent', 'skipped_disabled', 'failed'
     message: str | None = None

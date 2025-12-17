@@ -1,5 +1,6 @@
 """Notification models for preferences and alert history."""
 
+import enum
 from datetime import datetime
 from uuid import UUID
 
@@ -7,6 +8,14 @@ from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database import Base
+
+
+class AlertStatus(str, enum.Enum):
+    """Valid status values for alert history."""
+
+    PENDING = "pending"
+    SENT = "sent"
+    FAILED = "failed"
 
 
 class NotificationPreferences(Base):
@@ -67,10 +76,10 @@ class AlertHistory(Base):
     recipient_email: Mapped[str] = mapped_column(String(255), nullable=False)
     subject: Mapped[str] = mapped_column(String(500), nullable=False)
 
-    # Status tracking
+    # Status tracking (see AlertStatus enum for valid values)
     status: Mapped[str] = mapped_column(
-        String(20), default="pending", server_default="'pending'"
-    )  # 'pending', 'sent', 'failed'
+        String(20), default=AlertStatus.PENDING.value, server_default="'pending'"
+    )
     error_message: Mapped[str | None] = mapped_column(String(1000))
 
     # Snapshot of item state at alert time

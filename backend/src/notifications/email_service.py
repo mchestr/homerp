@@ -64,22 +64,30 @@ class EmailService:
             message.attach(html_part)
 
             # Send via SMTP
+            username = self.settings.smtp_username or None
+            password = self.settings.smtp_password or None
+
             if self.settings.smtp_use_tls:
                 await aiosmtplib.send(
                     message,
                     hostname=self.settings.smtp_host,
                     port=self.settings.smtp_port,
-                    username=self.settings.smtp_username or None,
-                    password=self.settings.smtp_password or None,
+                    username=username,
+                    password=password,
                     start_tls=True,
                 )
             else:
+                # Warn if credentials are sent without TLS
+                if username or password:
+                    logger.warning(
+                        "SMTP credentials will be sent without TLS encryption"
+                    )
                 await aiosmtplib.send(
                     message,
                     hostname=self.settings.smtp_host,
                     port=self.settings.smtp_port,
-                    username=self.settings.smtp_username or None,
-                    password=self.settings.smtp_password or None,
+                    username=username,
+                    password=password,
                 )
 
             logger.info(f"Email sent successfully to {to_email}")
