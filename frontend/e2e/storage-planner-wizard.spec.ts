@@ -363,4 +363,91 @@ test.describe("Storage Planner Create", () => {
     await expect(page.getByTestId("storage-type-multiboard")).toBeDisabled();
     await expect(page.getByTestId("storage-type-toteRack")).toBeDisabled();
   });
+
+  test("allows clearing dimension inputs to enter new values", async ({
+    page,
+  }) => {
+    await page.goto("/gridfinity");
+    await page.getByTestId("open-wizard-button").click();
+
+    // Select Gridfinity and proceed to configuration
+    await page.getByTestId("storage-type-gridfinity").click();
+    await page.getByTestId("wizard-next-button").click();
+
+    // Fill in name
+    await page.getByTestId("gridfinity-name-input").fill("Test");
+
+    // Get the width input
+    const widthInput = page.getByTestId("gridfinity-width-input");
+
+    // Initial value should be 252 (default)
+    await expect(widthInput).toHaveValue("252");
+
+    // Clear the input completely - this should work without resetting to default
+    await widthInput.fill("");
+
+    // Input should show empty string (not reset to 42)
+    await expect(widthInput).toHaveValue("");
+
+    // Now type a new value
+    await widthInput.fill("168");
+
+    // Verify the new value is set
+    await expect(widthInput).toHaveValue("168");
+
+    // Test depth input similarly
+    const depthInput = page.getByTestId("gridfinity-depth-input");
+    await expect(depthInput).toHaveValue("252");
+
+    // Clear and type new value
+    await depthInput.fill("");
+    await expect(depthInput).toHaveValue("");
+    await depthInput.fill("126");
+    await expect(depthInput).toHaveValue("126");
+
+    // Test height input
+    const heightInput = page.getByTestId("gridfinity-height-input");
+    await expect(heightInput).toHaveValue("50");
+
+    // Clear and type new value
+    await heightInput.fill("");
+    await expect(heightInput).toHaveValue("");
+    await heightInput.fill("42");
+    await expect(heightInput).toHaveValue("42");
+
+    // Verify grid preview updates correctly
+    await expect(
+      page.getByTestId("step-configuration").getByText("4 x 3", { exact: true })
+    ).toBeVisible();
+  });
+
+  test("restores minimum value on blur when dimension input is empty", async ({
+    page,
+  }) => {
+    await page.goto("/gridfinity");
+    await page.getByTestId("open-wizard-button").click();
+
+    // Select Gridfinity and proceed to configuration
+    await page.getByTestId("storage-type-gridfinity").click();
+    await page.getByTestId("wizard-next-button").click();
+
+    // Fill in name
+    await page.getByTestId("gridfinity-name-input").fill("Test");
+
+    // Get the width input and clear it
+    const widthInput = page.getByTestId("gridfinity-width-input");
+    await widthInput.fill("");
+
+    // Click elsewhere to blur the input
+    await page.getByTestId("gridfinity-name-input").click();
+
+    // Width should now have the minimum value (42)
+    await expect(widthInput).toHaveValue("42");
+
+    // Test with height (minimum is 7)
+    const heightInput = page.getByTestId("gridfinity-height-input");
+    await heightInput.fill("");
+    await page.getByTestId("gridfinity-name-input").click();
+    await expect(heightInput).toHaveValue("7");
+  });
 });
