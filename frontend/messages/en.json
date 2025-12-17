@@ -479,7 +479,8 @@
     "emailNotifications": "Email Notifications",
     "emailNotificationsDescription": "Receive alerts via email",
     "lowStockAlerts": "Low Stock Alerts",
-    "lowStockAlertsDescription": "Get notified when items fall below minimum quantity"
+    "lowStockAlertsDescription": "Get notified when items fall below minimum quantity",
+    "notificationUpdateFailed": "Failed to update notification settings"
   },
   "systemProfile": {
     "title": "System Profile",

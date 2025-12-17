@@ -477,7 +477,8 @@
     "emailNotifications": "E-Mail-Benachrichtigungen",
     "emailNotificationsDescription": "Erhalten Sie Benachrichtigungen per E-Mail",
     "lowStockAlerts": "Niedriger Bestand Warnungen",
-    "lowStockAlertsDescription": "Werden Sie benachrichtigt, wenn Artikel unter die Mindestmenge fallen"
+    "lowStockAlertsDescription": "Werden Sie benachrichtigt, wenn Artikel unter die Mindestmenge fallen",
+    "notificationUpdateFailed": "Fehler beim Aktualisieren der Benachrichtigungseinstellungen"
   },
   "systemProfile": {
     "title": "Systemprofil",

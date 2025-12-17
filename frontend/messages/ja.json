@@ -434,7 +434,8 @@
     "emailNotifications": "メール通知",
     "emailNotificationsDescription": "メールでアラートを受信",
     "lowStockAlerts": "在庫不足アラート",
-    "lowStockAlertsDescription": "アイテムが最小数量を下回った時に通知"
+    "lowStockAlertsDescription": "アイテムが最小数量を下回った時に通知",
+    "notificationUpdateFailed": "通知設定の更新に失敗しました"
   },
   "systemProfile": {
     "title": "システムプロファイル",

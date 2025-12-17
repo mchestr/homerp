@@ -17,6 +17,7 @@ type MockOptions = {
     | typeof fixtures.testCollaborationContextEmpty;
   declutterCost?: typeof fixtures.testDeclutterCost;
   declutterRecommendations?: typeof fixtures.testDeclutterRecommendations;
+  notificationPreferences?: typeof fixtures.testNotificationPreferences;
 };
 
 /**
@@ -32,6 +33,7 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     collaborationContext = fixtures.testCollaborationContextEmpty,
     declutterCost = fixtures.testDeclutterCost,
     declutterRecommendations = fixtures.testDeclutterRecommendations,
+    notificationPreferences = fixtures.testNotificationPreferences,
   } = options;
 
   // Auth endpoints
@@ -1052,6 +1054,33 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
       await route.continue();
     }
   });
+
+  // Notification preferences endpoints
+  // Track notification preferences state in memory for mocking updates
+  let currentNotificationPrefs = { ...notificationPreferences };
+
+  await page.route("**/api/v1/notifications/preferences", async (route) => {
+    if (route.request().method() === "GET") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(currentNotificationPrefs),
+      });
+    } else if (route.request().method() === "PUT") {
+      const updates = route.request().postDataJSON();
+      currentNotificationPrefs = {
+        ...currentNotificationPrefs,
+        ...updates,
+      };
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(currentNotificationPrefs),
+      });
+    } else {
+      await route.continue();
+    }
+  });
 }
 
 /**
@@ -1099,6 +1128,58 @@ export async function setupClassificationMock(
           error: "Failed to classify image. Please try again.",
         }),
       });
+    }
+  });
+}
+
+/**
+ * Sets up notification preferences mock with error handling.
+ */
+export async function setupNotificationPreferencesMock(
+  page: Page,
+  options: {
+    shouldFail?: boolean;
+    initialPreferences?: typeof fixtures.testNotificationPreferences;
+  } = {}
+) {
+  const {
+    shouldFail = false,
+    initialPreferences = fixtures.testNotificationPreferences,
+  } = options;
+
+  let currentNotificationPrefs = { ...initialPreferences };
+
+  await page.route("**/api/v1/notifications/preferences", async (route) => {
+    if (route.request().method() === "GET") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(currentNotificationPrefs),
+      });
+    } else if (route.request().method() === "PUT") {
+      if (shouldFail) {
+        await route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({
+            detail: "Failed to update notification preferences",
+          }),
+        });
+        return;
+      }
+
+      const updates = route.request().postDataJSON();
+      currentNotificationPrefs = {
+        ...currentNotificationPrefs,
+        ...updates,
+      };
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(currentNotificationPrefs),
+      });
+    } else {
+      await route.continue();
     }
   });
 }

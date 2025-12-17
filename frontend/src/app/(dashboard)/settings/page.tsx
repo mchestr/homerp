@@ -33,6 +33,7 @@ import {
   notificationsApi,
   type NotificationPreferencesUpdate,
 } from "@/lib/api/api-client";
+import { useToast } from "@/hooks/use-toast";
 
 const CURRENCIES = [
   { code: "USD", label: "US Dollar ($)" },
@@ -55,6 +56,7 @@ export default function SettingsPage() {
   const t = useTranslations();
   const currentLocale = useLocale();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   // Notification preferences
   const { data: notificationPrefs } = useQuery({
@@ -67,6 +69,13 @@ export default function SettingsPage() {
       notificationsApi.updatePreferences(data),
     onSuccess: (data) => {
       queryClient.setQueryData(["notificationPreferences"], data);
+    },
+    onError: () => {
+      toast({
+        title: t("common.error"),
+        description: t("settings.notificationUpdateFailed"),
+        variant: "destructive",
+      });
     },
   });
 
@@ -238,7 +247,7 @@ export default function SettingsPage() {
               </div>
             </div>
             <Switch
-              checked={notificationPrefs?.email_notifications_enabled ?? true}
+              checked={notificationPrefs?.email_notifications_enabled ?? false}
               onCheckedChange={(checked) =>
                 handleNotificationChange("email_notifications_enabled", checked)
               }
@@ -256,7 +265,7 @@ export default function SettingsPage() {
               </div>
             </div>
             <Switch
-              checked={notificationPrefs?.low_stock_email_enabled ?? true}
+              checked={notificationPrefs?.low_stock_email_enabled ?? false}
               onCheckedChange={(checked) =>
                 handleNotificationChange("low_stock_email_enabled", checked)
               }

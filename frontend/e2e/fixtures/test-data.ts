@@ -672,3 +672,14 @@ export const testAdminPricing = [
     updated_at: "2024-01-01T00:00:00Z",
   },
 ];
+
+// Notification preferences test data
+export const testNotificationPreferences = {
+  email_notifications_enabled: true,
+  low_stock_email_enabled: true,
+};
+
+export const testNotificationPreferencesDisabled = {
+  email_notifications_enabled: false,
+  low_stock_email_enabled: false,
+};

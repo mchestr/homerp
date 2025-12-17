@@ -434,7 +434,8 @@
     "emailNotifications": "Notificações por e-mail",
     "emailNotificationsDescription": "Receba alertas por e-mail",
     "lowStockAlerts": "Alertas de estoque baixo",
-    "lowStockAlertsDescription": "Seja notificado quando os itens caírem abaixo da quantidade mínima"
+    "lowStockAlertsDescription": "Seja notificado quando os itens caírem abaixo da quantidade mínima",
+    "notificationUpdateFailed": "Falha ao atualizar configurações de notificação"
   },
   "systemProfile": {
     "title": "Perfil do Sistema",
