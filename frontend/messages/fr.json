@@ -428,7 +428,13 @@
     "manageAiCredits": "Gérez vos crédits IA",
     "authentication": "Authentification",
     "signedInViaGoogle": "Connecté via Google OAuth",
-    "memberSince": "Membre depuis"
+    "memberSince": "Membre depuis",
+    "notifications": "Notifications",
+    "notificationsDescription": "Gérez la façon dont vous recevez les alertes",
+    "emailNotifications": "Notifications par e-mail",
+    "emailNotificationsDescription": "Recevez des alertes par e-mail",
+    "lowStockAlerts": "Alertes de stock faible",
+    "lowStockAlertsDescription": "Soyez averti lorsque les articles passent en dessous de la quantité minimale"
   },
   "systemProfile": {
     "title": "Profil Système",

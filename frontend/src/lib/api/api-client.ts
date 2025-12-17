@@ -1913,3 +1913,26 @@ export type DailyUsage = {
   total_tokens: number;
   total_cost_usd: number;
 };
+
+// Notification Types
+export type NotificationPreferences = {
+  email_notifications_enabled: boolean;
+  low_stock_email_enabled: boolean;
+};
+
+export type NotificationPreferencesUpdate = {
+  email_notifications_enabled?: boolean;
+  low_stock_email_enabled?: boolean;
+};
+
+// Notifications API
+export const notificationsApi = {
+  getPreferences: () =>
+    apiRequest<NotificationPreferences>("/api/v1/notifications/preferences"),
+
+  updatePreferences: (data: NotificationPreferencesUpdate) =>
+    apiRequest<NotificationPreferences>("/api/v1/notifications/preferences", {
+      method: "PUT",
+      body: data,
+    }),
+};

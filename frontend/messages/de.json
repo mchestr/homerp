@@ -471,7 +471,13 @@
     "manageAiCredits": "Verwalten Sie Ihre KI-Credits",
     "authentication": "Authentifizierung",
     "signedInViaGoogle": "Angemeldet über Google OAuth",
-    "memberSince": "Mitglied seit"
+    "memberSince": "Mitglied seit",
+    "notifications": "Benachrichtigungen",
+    "notificationsDescription": "Verwalten Sie, wie Sie Benachrichtigungen erhalten",
+    "emailNotifications": "E-Mail-Benachrichtigungen",
+    "emailNotificationsDescription": "Erhalten Sie Benachrichtigungen per E-Mail",
+    "lowStockAlerts": "Niedriger Bestand Warnungen",
+    "lowStockAlertsDescription": "Werden Sie benachrichtigt, wenn Artikel unter die Mindestmenge fallen"
   },
   "systemProfile": {
     "title": "Systemprofil",

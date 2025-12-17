@@ -428,7 +428,13 @@
     "manageAiCredits": "AIクレジットを管理",
     "authentication": "認証",
     "signedInViaGoogle": "Google OAuthでサインイン",
-    "memberSince": "メンバー登録日"
+    "memberSince": "メンバー登録日",
+    "notifications": "通知",
+    "notificationsDescription": "アラートの受信方法を管理",
+    "emailNotifications": "メール通知",
+    "emailNotificationsDescription": "メールでアラートを受信",
+    "lowStockAlerts": "在庫不足アラート",
+    "lowStockAlertsDescription": "アイテムが最小数量を下回った時に通知"
   },
   "systemProfile": {
     "title": "システムプロファイル",
