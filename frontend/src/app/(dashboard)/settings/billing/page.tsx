@@ -149,7 +149,11 @@ function CreditsInfoCard() {
       {isExpanded && (
         <div className="border-t px-6 pt-4 pb-6">
           <p className="text-muted-foreground text-sm">
-            {t("creditsExplanation", { cost: costDisplay })}
+            {isCostsLoading
+              ? "..."
+              : t("creditsExplanation", {
+                  cost: imageClassificationCost ?? 1,
+                })}
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             <div className="bg-muted/50 rounded-lg p-4">
