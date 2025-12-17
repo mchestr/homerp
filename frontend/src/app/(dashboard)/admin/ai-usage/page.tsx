@@ -5,12 +5,7 @@ import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  adminApi,
-  AIUsageLog,
-  AIUsageByUser,
-  DailyUsage,
-} from "@/lib/api/api-client";
+import { adminApi, AIUsageLog, AIUsageByUser, DailyUsage } from "@/lib/api/api";
 import { formatDateTime } from "@/lib/utils";
 import {
   Activity,

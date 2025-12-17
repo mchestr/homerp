@@ -28,7 +28,7 @@ import {
   ApiKeyCreatedResponse,
   ApiKeyResponse,
   ApiKeyUpdate,
-} from "@/lib/api/api-client";
+} from "@/lib/api/api";
 import { formatDateTime } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {

@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { webhooksApi, WebhookExecution } from "@/lib/api/api-client";
+import { webhooksApi, WebhookExecution } from "@/lib/api/api";
 import { formatDateTimeWithSeconds } from "@/lib/utils";
 import {
   ArrowLeft,

@@ -3,11 +3,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import {
-  feedbackApi,
-  FeedbackCreate,
-  FeedbackResponse,
-} from "@/lib/api/api-client";
+import { feedbackApi, FeedbackCreate, FeedbackResponse } from "@/lib/api/api";
 import { formatDate } from "@/lib/utils";
 import {
   MessageSquare,

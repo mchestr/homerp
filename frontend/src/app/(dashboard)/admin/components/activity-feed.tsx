@@ -11,7 +11,7 @@ import {
   Clock,
   AlertCircle,
 } from "lucide-react";
-import { adminApi, RecentActivityItem } from "@/lib/api/api-client";
+import { adminApi, RecentActivityItem } from "@/lib/api/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatRelativeTime } from "@/lib/utils";

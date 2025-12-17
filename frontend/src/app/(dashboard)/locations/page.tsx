@@ -38,7 +38,7 @@ import {
   LocationCreate,
   LocationTreeNode,
   LocationAnalysisResult,
-} from "@/lib/api/api-client";
+} from "@/lib/api/api";
 import { cn, formatPrice } from "@/lib/utils";
 import type { LabelData } from "@/lib/labels";
 import { useTranslations } from "next-intl";
@@ -66,7 +66,7 @@ function addIconsToTree(
     ...node,
     icon:
       LOCATION_TYPES.find((t) => t.value === node.location_type)?.icon || "📍",
-    children: addIconsToTree(node.children),
+    children: addIconsToTree(node.children ?? []),
   }));
 }
 
@@ -335,7 +335,7 @@ export default function LocationsPage() {
         .filter((n) => n.id !== editingId)
         .map((n) => ({
           ...n,
-          children: filterTree(n.children),
+          children: filterTree(n.children ?? []),
         }));
     };
     return filterTree(locationTree);
@@ -357,8 +357,8 @@ export default function LocationsPage() {
     const traverse = (nodes: LocationTreeNode[]) => {
       for (const node of nodes) {
         stats.set(node.id, {
-          item_count: node.item_count,
-          total_value: node.total_value,
+          item_count: node.item_count ?? 0,
+          total_value: node.total_value ?? 0,
         });
         if (node.children) traverse(node.children);
       }
@@ -580,7 +580,7 @@ export default function LocationsPage() {
                   setUploadedImageUrl(null);
                 }}
                 isCreating={bulkCreateMutation.isPending}
-                existingParentId={formData.parent_id}
+                existingParentId={formData.parent_id ?? undefined}
               />
               <InsufficientCreditsModal />
             </>

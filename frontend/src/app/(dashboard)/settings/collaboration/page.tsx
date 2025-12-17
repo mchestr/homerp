@@ -33,55 +33,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
-import { apiRequest } from "@/lib/api/api-client";
+import { collaborationApi, CollaboratorRole } from "@/lib/api/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
-type CollaboratorRole = "viewer" | "editor";
-type CollaboratorStatus = "pending" | "accepted" | "declined";
-
-interface CollaboratorUserInfo {
-  id: string;
-  name: string | null;
-  email: string;
-  avatar_url: string | null;
-}
-
-interface Collaborator {
-  id: string;
-  owner_id: string;
-  collaborator_id: string | null;
-  invited_email: string;
-  role: CollaboratorRole;
-  status: CollaboratorStatus;
-  created_at: string;
-  updated_at: string;
-  accepted_at: string | null;
-  collaborator: CollaboratorUserInfo | null;
-}
-
-interface SharedInventory {
-  id: string;
-  owner_id: string;
-  role: CollaboratorRole;
-  status: CollaboratorStatus;
-  accepted_at: string | null;
-  owner: CollaboratorUserInfo;
-}
-
-interface PendingInvitation {
-  id: string;
-  owner_id: string;
-  role: CollaboratorRole;
-  invited_email: string;
-  created_at: string;
-  owner: CollaboratorUserInfo;
-}
-
-interface InventoryContext {
-  own_inventory: CollaboratorUserInfo;
-  shared_inventories: SharedInventory[];
-  pending_invitations: PendingInvitation[];
-}
 
 export default function CollaborationSettingsPage() {
   const t = useTranslations("collaboration");
@@ -99,9 +52,7 @@ export default function CollaborationSettingsPage() {
     error: contextError,
   } = useQuery({
     queryKey: ["collaboration", "context"],
-    queryFn: async () => {
-      return apiRequest<InventoryContext>("/api/v1/collaboration/context");
-    },
+    queryFn: () => collaborationApi.getContext(),
   });
 
   // Fetch my collaborators (people I've invited)
@@ -111,19 +62,13 @@ export default function CollaborationSettingsPage() {
     error: collaboratorsError,
   } = useQuery({
     queryKey: ["collaboration", "collaborators"],
-    queryFn: async () => {
-      return apiRequest<Collaborator[]>("/api/v1/collaboration/collaborators");
-    },
+    queryFn: () => collaborationApi.listCollaborators(),
   });
 
   // Invite collaborator mutation
   const inviteMutation = useMutation({
-    mutationFn: async (data: { email: string; role: CollaboratorRole }) => {
-      return apiRequest<Collaborator>("/api/v1/collaboration/collaborators", {
-        method: "POST",
-        body: data,
-      });
-    },
+    mutationFn: (data: { email: string; role: CollaboratorRole }) =>
+      collaborationApi.invite(data.email, data.role),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["collaboration"] });
       setInviteDialogOpen(false);
@@ -145,12 +90,8 @@ export default function CollaborationSettingsPage() {
 
   // Accept invitation mutation
   const acceptMutation = useMutation({
-    mutationFn: async (invitationId: string) => {
-      return apiRequest(
-        `/api/v1/collaboration/invitations/${invitationId}/accept`,
-        { method: "POST" }
-      );
-    },
+    mutationFn: (invitationId: string) =>
+      collaborationApi.acceptInvitationById(invitationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["collaboration"] });
       toast({
@@ -169,12 +110,8 @@ export default function CollaborationSettingsPage() {
 
   // Decline invitation mutation
   const declineMutation = useMutation({
-    mutationFn: async (invitationId: string) => {
-      return apiRequest(
-        `/api/v1/collaboration/invitations/${invitationId}/decline`,
-        { method: "POST" }
-      );
-    },
+    mutationFn: (invitationId: string) =>
+      collaborationApi.declineInvitation(invitationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["collaboration"] });
       toast({
@@ -193,12 +130,8 @@ export default function CollaborationSettingsPage() {
 
   // Remove collaborator mutation
   const removeMutation = useMutation({
-    mutationFn: async (collaboratorId: string) => {
-      return apiRequest(
-        `/api/v1/collaboration/collaborators/${collaboratorId}`,
-        { method: "DELETE" }
-      );
-    },
+    mutationFn: (collaboratorId: string) =>
+      collaborationApi.remove(collaboratorId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["collaboration"] });
       toast({
@@ -217,11 +150,8 @@ export default function CollaborationSettingsPage() {
 
   // Leave shared inventory mutation
   const leaveMutation = useMutation({
-    mutationFn: async (ownerId: string) => {
-      return apiRequest(`/api/v1/collaboration/shared/${ownerId}`, {
-        method: "DELETE",
-      });
-    },
+    mutationFn: (ownerId: string) =>
+      collaborationApi.leaveSharedInventory(ownerId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["collaboration"] });
       toast({

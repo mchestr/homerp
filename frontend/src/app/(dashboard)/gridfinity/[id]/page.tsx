@@ -50,7 +50,7 @@ import {
   ItemListItem,
   AutoLayoutResult,
   BinRecommendation,
-} from "@/lib/api/api-client";
+} from "@/lib/api/api";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
@@ -108,8 +108,8 @@ function checkPlacementOverlap(
       continue;
     }
 
-    const existingXEnd = placement.grid_x + placement.width_units;
-    const existingYEnd = placement.grid_y + placement.depth_units;
+    const existingXEnd = placement.grid_x + (placement.width_units ?? 1);
+    const existingYEnd = placement.grid_y + (placement.depth_units ?? 1);
 
     // Check for overlap using AABB collision detection
     if (
@@ -306,8 +306,10 @@ export default function GridfinityEditorPage() {
     const map = new Map<string, GridfinityPlacement>();
     unit?.placements?.forEach((p) => {
       // Mark all cells this placement occupies
-      for (let dx = 0; dx < p.width_units; dx++) {
-        for (let dy = 0; dy < p.depth_units; dy++) {
+      const widthUnits = p.width_units ?? 1;
+      const depthUnits = p.depth_units ?? 1;
+      for (let dx = 0; dx < widthUnits; dx++) {
+        for (let dy = 0; dy < depthUnits; dy++) {
           map.set(`${p.grid_x + dx},${p.grid_y + dy}`, p);
         }
       }
@@ -393,8 +395,8 @@ export default function GridfinityEditorPage() {
   const handleEditPlacement = useCallback((placement: GridfinityPlacement) => {
     setEditingPlacement({
       placement,
-      widthUnits: placement.width_units,
-      depthUnits: placement.depth_units,
+      widthUnits: placement.width_units ?? 1,
+      depthUnits: placement.depth_units ?? 1,
     });
   }, []);
 
@@ -1120,15 +1122,15 @@ function DraggablePlacement({
         isDragging && "opacity-50"
       )}
       style={{
-        gridColumn: `span ${placement.width_units}`,
-        gridRow: `span ${placement.depth_units}`,
+        gridColumn: `span ${placement.width_units ?? 1}`,
+        gridRow: `span ${placement.depth_units ?? 1}`,
         width:
-          placement.width_units > 1
-            ? `${placement.width_units * 48 + (placement.width_units - 1) * 4}px`
+          (placement.width_units ?? 1) > 1
+            ? `${(placement.width_units ?? 1) * 48 + ((placement.width_units ?? 1) - 1) * 4}px`
             : undefined,
         height:
-          placement.depth_units > 1
-            ? `${placement.depth_units * 48 + (placement.depth_units - 1) * 4}px`
+          (placement.depth_units ?? 1) > 1
+            ? `${(placement.depth_units ?? 1) * 48 + ((placement.depth_units ?? 1) - 1) * 4}px`
             : undefined,
       }}
     >

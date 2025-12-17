@@ -12,7 +12,7 @@ import {
   Cell,
 } from "recharts";
 import { Loader2, CreditCard } from "lucide-react";
-import { PackBreakdownResponse } from "@/lib/api/api-client";
+import { PackBreakdownResponse } from "@/lib/api/api";
 
 interface PackBreakdownChartProps {
   data: PackBreakdownResponse | undefined;

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, X, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Facet, FacetValue } from "@/lib/api/api-client";
+import type { Facet, FacetValue } from "@/lib/api/api";
 
 interface FacetedFilterProps {
   facets: Facet[];

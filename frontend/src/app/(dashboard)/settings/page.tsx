@@ -32,7 +32,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   notificationsApi,
   type NotificationPreferencesUpdate,
-} from "@/lib/api/api-client";
+} from "@/lib/api/api";
 import { useToast } from "@/hooks/use-toast";
 
 const CURRENCIES = [

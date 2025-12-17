@@ -5,7 +5,7 @@ import { Download, Printer, X, QrCode, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { locationsApi, Location } from "@/lib/api/api-client";
+import { locationsApi, Location } from "@/lib/api/api";
 
 interface QRCodeModalProps {
   isOpen: boolean;

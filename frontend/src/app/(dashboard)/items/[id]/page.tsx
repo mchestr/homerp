@@ -34,7 +34,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { itemsApi, CheckInOutCreate } from "@/lib/api/api-client";
+import { itemsApi, CheckInOutCreate } from "@/lib/api/api";
 import { cn, formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import { useTranslations } from "next-intl";
@@ -139,7 +139,7 @@ export default function ItemDetailPage() {
 
   const handleQuantityChange = (delta: number) => {
     if (!item) return;
-    const newQuantity = Math.max(0, item.quantity + delta);
+    const newQuantity = Math.max(0, (item.quantity ?? 0) + delta);
     updateQuantityMutation.mutate(newQuantity);
   };
 
@@ -290,7 +290,7 @@ export default function ItemDetailPage() {
                 size="icon"
                 onClick={() => handleQuantityChange(-1)}
                 disabled={
-                  item.quantity === 0 || updateQuantityMutation.isPending
+                  (item.quantity ?? 0) === 0 || updateQuantityMutation.isPending
                 }
                 className="h-12 w-12 rounded-full"
               >
@@ -303,7 +303,7 @@ export default function ItemDetailPage() {
                     item.is_low_stock && "text-amber-600 dark:text-amber-400"
                   )}
                 >
-                  {item.quantity}
+                  {item.quantity ?? 0}
                 </span>
                 <p className="text-muted-foreground text-sm">
                   {item.quantity_unit}
@@ -469,10 +469,12 @@ export default function ItemDetailPage() {
                             checkInMutation.isPending ||
                             !item ||
                             !usageStats ||
-                            item.quantity - usageStats.currently_checked_out <=
+                            (item.quantity ?? 0) -
+                              usageStats.currently_checked_out <=
                               0 ||
                             checkInOutQuantity >
-                              item.quantity - usageStats.currently_checked_out
+                              (item.quantity ?? 0) -
+                                usageStats.currently_checked_out
                           }
                           className="w-full gap-2"
                         >
@@ -485,21 +487,24 @@ export default function ItemDetailPage() {
                     </TooltipTrigger>
                     {item &&
                       usageStats &&
-                      item.quantity - usageStats.currently_checked_out <= 0 && (
+                      (item.quantity ?? 0) - usageStats.currently_checked_out <=
+                        0 && (
                         <TooltipContent>
                           <p>{t("checkOutDisabled")}</p>
                         </TooltipContent>
                       )}
                     {item &&
                       usageStats &&
-                      item.quantity - usageStats.currently_checked_out > 0 &&
+                      (item.quantity ?? 0) - usageStats.currently_checked_out >
+                        0 &&
                       checkInOutQuantity >
-                        item.quantity - usageStats.currently_checked_out && (
+                        (item.quantity ?? 0) -
+                          usageStats.currently_checked_out && (
                         <TooltipContent>
                           <p>
                             {t("exceedsAvailable", {
                               count:
-                                item.quantity -
+                                (item.quantity ?? 0) -
                                 usageStats.currently_checked_out,
                             })}
                           </p>

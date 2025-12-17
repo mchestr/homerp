@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
-import { authApi } from "@/lib/api/api-client";
+import { authApi } from "@/lib/api/api";
 
 function GoogleCallbackContent() {
   const router = useRouter();

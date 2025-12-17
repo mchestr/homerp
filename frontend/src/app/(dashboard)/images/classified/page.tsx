@@ -19,7 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
-import { imagesApi, Image, ClassificationResult } from "@/lib/api/api-client";
+import { imagesApi, Image, ClassificationResult } from "@/lib/api/api";
 import {
   Dialog,
   DialogContent,
@@ -368,14 +368,18 @@ export default function ClassifiedImagesPage() {
                           {t("alternativeSuggestions")}
                         </p>
                         <div className="mt-1 flex flex-wrap gap-2">
-                          {aiResult.alternative_suggestions.map((alt, i) => (
-                            <span
-                              key={i}
-                              className="bg-muted rounded-full px-2 py-1 text-xs"
-                            >
-                              {alt.name} ({formatConfidence(alt.confidence)})
-                            </span>
-                          ))}
+                          {aiResult.alternative_suggestions.map((alt, i) => {
+                            const name = alt.name as string;
+                            const confidence = alt.confidence as number;
+                            return (
+                              <span
+                                key={i}
+                                className="bg-muted rounded-full px-2 py-1 text-xs"
+                              >
+                                {name} ({formatConfidence(confidence)})
+                              </span>
+                            );
+                          })}
                         </div>
                       </div>
                     )}

@@ -24,7 +24,7 @@ import {
   locationsApi,
   GridfinityUnitCreate,
   LocationTreeNode,
-} from "@/lib/api/api-client";
+} from "@/lib/api/api";
 import { cn } from "@/lib/utils";
 
 // Storage type definitions
@@ -131,7 +131,7 @@ export function StoragePlannerWizard({
     return nodes.map((node) => ({
       id: node.id,
       name: node.name,
-      children: convertToTreeSelectNodes(node.children),
+      children: convertToTreeSelectNodes(node.children ?? []),
     }));
   };
 

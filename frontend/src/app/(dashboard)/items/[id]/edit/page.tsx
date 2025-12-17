@@ -14,7 +14,7 @@ import {
   locationsApi,
   ItemUpdate,
   LocationTreeNode,
-} from "@/lib/api/api-client";
+} from "@/lib/api/api";
 
 const LOCATION_TYPES: Record<string, string> = {
   room: "🏠",
@@ -31,7 +31,7 @@ function addIconsToLocationTree(
   return nodes.map((node) => ({
     ...node,
     icon: LOCATION_TYPES[node.location_type || ""] || "📍",
-    children: addIconsToLocationTree(node.children),
+    children: addIconsToLocationTree(node.children ?? []),
   }));
 }
 
@@ -158,7 +158,7 @@ export default function EditItemPage() {
   );
   useEffect(() => {
     if (item && initialCategoryId === null) {
-      setInitialCategoryId(item.category_id);
+      setInitialCategoryId(item.category_id ?? null);
     }
   }, [item, initialCategoryId]);
 
@@ -233,7 +233,7 @@ export default function EditItemPage() {
             <input
               type="text"
               name="name"
-              value={formData.name}
+              value={formData.name ?? ""}
               onChange={handleInputChange}
               required
               className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
@@ -293,7 +293,7 @@ export default function EditItemPage() {
               <input
                 type="number"
                 name="quantity"
-                value={formData.quantity}
+                value={formData.quantity ?? ""}
                 onChange={handleInputChange}
                 min={0}
                 className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
@@ -305,7 +305,7 @@ export default function EditItemPage() {
               <input
                 type="text"
                 name="quantity_unit"
-                value={formData.quantity_unit}
+                value={formData.quantity_unit ?? ""}
                 onChange={handleInputChange}
                 className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
                 placeholder="pcs, meters, etc."
@@ -342,10 +342,10 @@ export default function EditItemPage() {
             </div>
           </div>
 
-          {categoryTemplate && categoryTemplate.fields.length > 0 && (
+          {categoryTemplate && (categoryTemplate.fields?.length ?? 0) > 0 && (
             <div className="border-t pt-5">
               <DynamicAttributeForm
-                fields={categoryTemplate.fields}
+                fields={categoryTemplate.fields!}
                 values={categoryAttributes}
                 onChange={setCategoryAttributes}
               />

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { Package, Star, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { Image } from "@/lib/api/api-client";
+import { Image } from "@/lib/api/api";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

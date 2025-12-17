@@ -18,7 +18,7 @@ import { ItemsPanel } from "@/components/items/items-panel";
 import { useQRCodeModal } from "@/components/locations/qr-code-modal";
 import { useLabelPrintModal } from "@/components/labels";
 import { LocationPhoto } from "@/components/locations/location-photo";
-import { locationsApi } from "@/lib/api/api-client";
+import { locationsApi } from "@/lib/api/api";
 import type { LabelData } from "@/lib/labels";
 
 const LOCATION_TYPE_ICONS: Record<string, string> = {
@@ -97,7 +97,7 @@ export default function LocationDetailPage() {
         <Link href="/locations" className="hover:text-foreground">
           {t("title")}
         </Link>
-        {location.ancestors.map((ancestor) => (
+        {(location.ancestors ?? []).map((ancestor) => (
           <div key={ancestor.id} className="flex items-center gap-1">
             <ChevronRight className="h-4 w-4" />
             <Link

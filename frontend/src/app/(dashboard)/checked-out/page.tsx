@@ -28,7 +28,7 @@ import {
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
 import { SpecificationTags } from "@/components/items/specification-tags";
 import { ViewModeToggle } from "@/components/ui/view-mode-toggle";
-import { itemsApi, ItemListItem, CheckInOutCreate } from "@/lib/api/api-client";
+import { itemsApi, ItemListItem, CheckInOutCreate } from "@/lib/api/api";
 import { formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import { useViewMode, VIEW_MODES, type ViewMode } from "@/hooks/use-view-mode";

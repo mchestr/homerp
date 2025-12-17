@@ -47,7 +47,7 @@ import {
   LocationTreeNode,
   SimilarItemMatch,
   LocationSuggestionItem,
-} from "@/lib/api/api-client";
+} from "@/lib/api/api";
 import { parseQuantityEstimate } from "@/lib/utils";
 import { useOperationCosts } from "@/hooks/use-operation-costs";
 
@@ -67,7 +67,7 @@ function addIconsToLocationTree(
   return nodes.map((node) => ({
     ...node,
     icon: LOCATION_TYPES[node.location_type || ""] || "📍",
-    children: addIconsToLocationTree(node.children),
+    children: addIconsToLocationTree(node.children ?? []),
   }));
 }
 
@@ -600,7 +600,7 @@ export default function NewItemPage() {
           <LocationSuggestionDisplay
             suggestions={locationSuggestions}
             onSelectLocation={handleSelectSuggestedLocation}
-            selectedLocationId={formData.location_id}
+            selectedLocationId={formData.location_id ?? undefined}
           />
         )}
 
@@ -839,10 +839,10 @@ export default function NewItemPage() {
           </div>
 
           {/* Dynamic Category Attributes */}
-          {categoryTemplate && categoryTemplate.fields.length > 0 && (
+          {categoryTemplate && (categoryTemplate.fields?.length ?? 0) > 0 && (
             <div className="border-t pt-5">
               <DynamicAttributeForm
-                fields={categoryTemplate.fields}
+                fields={categoryTemplate.fields!}
                 values={categoryAttributes}
                 onChange={setCategoryAttributes}
               />
