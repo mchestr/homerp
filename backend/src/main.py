@@ -1,15 +1,17 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi.middleware import SlowAPIMiddleware
-from sqlalchemy import text
 
 from src.common.rate_limiter import configure_rate_limiting
 from src.common.security_headers import SecurityHeadersMiddleware
 from src.config import get_settings
-from src.database import close_db, get_session, init_db
+from src.database import check_db_connectivity, close_db, init_db
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -56,19 +58,16 @@ def create_app() -> FastAPI:
 
         Returns 200 if healthy, 503 if database is unavailable.
         """
-        health = {"status": "healthy", "database": "connected"}
+        db_connected = await check_db_connectivity()
 
-        # Check database connectivity
-        try:
-            async for session in get_session():
-                await session.execute(text("SELECT 1"))
-                break
-        except Exception:
-            health["status"] = "unhealthy"
-            health["database"] = "disconnected"
-            return JSONResponse(status_code=503, content=health)
+        if db_connected:
+            return {"status": "healthy", "database": "connected"}
 
-        return health
+        logger.warning("Health check failed: database connectivity check failed")
+        return JSONResponse(
+            status_code=503,
+            content={"status": "unhealthy", "database": "disconnected"},
+        )
 
     # Include routers
     from src.admin.router import router as admin_router
