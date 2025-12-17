@@ -82,7 +82,9 @@ export default function NewItemPage() {
   const tSimilarItems = useTranslations("similarItems");
   const { getCost, isLoading: isCostsLoading } = useOperationCosts();
   const locationSuggestionCost = getCost("location_suggestion");
-  const costDisplay = isCostsLoading ? "..." : (locationSuggestionCost ?? "...");
+  const costDisplay = isCostsLoading
+    ? "..."
+    : (locationSuggestionCost ?? "...");
 
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [classification, setClassification] =

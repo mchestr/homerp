@@ -90,7 +90,9 @@ export default function BatchUploadPage() {
   const { refreshCredits } = useAuth();
   const { getCost, isLoading: isCostsLoading } = useOperationCosts();
   const imageClassificationCost = getCost("image_classification");
-  const costDisplay = isCostsLoading ? "..." : (imageClassificationCost ?? "...");
+  const costDisplay = isCostsLoading
+    ? "..."
+    : (imageClassificationCost ?? "...");
 
   const { data: categoryTree } = useQuery({
     queryKey: ["categories", "tree"],

@@ -129,7 +129,9 @@ function CreditsInfoCard() {
   const t = useTranslations("billing");
   const { getCost, isLoading: isCostsLoading } = useOperationCosts();
   const imageClassificationCost = getCost("image_classification");
-  const costDisplay = isCostsLoading ? "..." : (imageClassificationCost ?? "...");
+  const costDisplay = isCostsLoading
+    ? "..."
+    : (imageClassificationCost ?? "...");
 
   return (
     <div className="bg-card rounded-xl border">
