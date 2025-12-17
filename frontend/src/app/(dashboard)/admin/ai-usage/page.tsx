@@ -5,7 +5,12 @@ import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { adminApi, AIUsageLog, DailyUsage } from "@/lib/api/api-client";
+import {
+  adminApi,
+  AIUsageLog,
+  AIUsageByUser,
+  DailyUsage,
+} from "@/lib/api/api-client";
 import { formatDateTime } from "@/lib/utils";
 import {
   Activity,
@@ -17,6 +22,7 @@ import {
   History,
   ChevronLeft,
   ChevronRight,
+  Users,
 } from "lucide-react";
 import {
   AreaChart,
@@ -137,6 +143,12 @@ export default function AIUsagePage() {
         HISTORY_PAGE_SIZE,
         operationFilter === "all" ? undefined : operationFilter
       ),
+    enabled: !!user?.is_admin,
+  });
+
+  const { data: byUserData, isLoading: byUserLoading } = useQuery({
+    queryKey: ["admin-ai-usage-by-user"],
+    queryFn: () => adminApi.getAIUsageByUser(),
     enabled: !!user?.is_admin,
   });
 
@@ -433,6 +445,76 @@ export default function AIUsagePage() {
             </div>
           </div>
 
+          {/* By User */}
+          <div className="bg-card rounded-xl border p-4 sm:p-6">
+            <div className="mb-4 flex items-center gap-2">
+              <Users className="text-primary h-5 w-5" />
+              <h2 className="text-lg font-semibold">
+                {t("admin.aiUsage.byUser")}
+              </h2>
+            </div>
+            {byUserLoading ? (
+              <div className="flex h-32 items-center justify-center">
+                <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
+              </div>
+            ) : byUserData && byUserData.length > 0 ? (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t("admin.aiUsage.user")}</TableHead>
+                      <TableHead className="text-right">
+                        {t("admin.aiUsage.calls")}
+                      </TableHead>
+                      <TableHead className="text-right">
+                        {t("admin.aiUsage.tokens")}
+                      </TableHead>
+                      <TableHead className="text-right">
+                        {t("admin.aiUsage.cost")}
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {byUserData.map((userUsage: AIUsageByUser) => (
+                      <TableRow key={userUsage.user_id}>
+                        <TableCell>
+                          <Link
+                            href={`/admin/users?search=${encodeURIComponent(userUsage.user_email || "")}`}
+                            className="group"
+                          >
+                            <div className="flex flex-col group-hover:underline">
+                              <span className="font-medium">
+                                {userUsage.user_name || userUsage.user_email}
+                              </span>
+                              {userUsage.user_name && (
+                                <span className="text-muted-foreground text-xs">
+                                  {userUsage.user_email}
+                                </span>
+                              )}
+                            </div>
+                          </Link>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {userUsage.total_calls.toLocaleString()}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {formatTokens(userUsage.total_tokens)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {formatCost(userUsage.total_cost_usd)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : (
+              <p className="text-muted-foreground py-8 text-center">
+                {t("admin.aiUsage.noData")}
+              </p>
+            )}
+          </div>
+
           {/* History Log */}
           <div className="bg-card rounded-xl border p-4 sm:p-6">
             <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -480,6 +562,7 @@ export default function AIUsagePage() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>{t("admin.aiUsage.date")}</TableHead>
+                        <TableHead>{t("admin.aiUsage.user")}</TableHead>
                         <TableHead>
                           {t("admin.aiUsage.operationType")}
                         </TableHead>
@@ -503,6 +586,19 @@ export default function AIUsagePage() {
                         <TableRow key={log.id}>
                           <TableCell className="text-sm whitespace-nowrap">
                             {formatDateTime(log.created_at)}
+                          </TableCell>
+                          <TableCell>
+                            {log.user_email ? (
+                              <Link
+                                href={`/admin/users?search=${encodeURIComponent(log.user_email)}`}
+                                className="text-sm hover:underline"
+                                title={log.user_email}
+                              >
+                                {log.user_name || log.user_email}
+                              </Link>
+                            ) : (
+                              <span className="text-sm">-</span>
+                            )}
                           </TableCell>
                           <TableCell>
                             <Badge

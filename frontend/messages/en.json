@@ -678,6 +678,7 @@
       "byOperation": "By Operation",
       "byModel": "By Model",
       "byUser": "By User",
+      "user": "User",
       "history": "Usage History",
       "daily": "Daily Usage",
       "date": "Date",
