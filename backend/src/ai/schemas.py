@@ -36,6 +36,7 @@ class AssistantQueryRequest(BaseModel):
 class InventoryContextItem(BaseModel):
     """Summary of an item for AI context."""
 
+    id: str
     name: str
     quantity: int
     quantity_unit: str

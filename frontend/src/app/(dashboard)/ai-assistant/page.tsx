@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown, { Components } from "react-markdown";
+import Link from "next/link";
 import { aiApi, AssistantQueryRequest } from "@/lib/api/api";
 import {
   Bot,
@@ -20,6 +21,56 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useInsufficientCreditsModal } from "@/components/billing/insufficient-credits-modal";
 import { useOperationCosts } from "@/hooks/use-operation-costs";
+
+// Valid internal link patterns for security
+const VALID_LINK_PATTERNS = [
+  /^\/items\/[a-f0-9-]{36}$/,
+  /^\/categories\/[a-f0-9-]{36}$/,
+  /^\/locations\/[a-f0-9-]{36}$/,
+];
+
+// Custom link component for ReactMarkdown to handle internal navigation
+const MarkdownLink = ({
+  href,
+  children,
+}: {
+  href?: string;
+  children?: React.ReactNode;
+}) => {
+  // Check if the link is internal (starts with /)
+  if (href && href.startsWith("/")) {
+    // Validate that href matches expected patterns to prevent injection
+    const isValidInternalLink = VALID_LINK_PATTERNS.some((pattern) =>
+      pattern.test(href)
+    );
+
+    if (!isValidInternalLink) {
+      // Render invalid links as plain text for security
+      return <span className="text-muted-foreground">{children}</span>;
+    }
+
+    return (
+      <Link href={href} className="text-primary font-medium hover:underline">
+        {children}
+      </Link>
+    );
+  }
+  // External links open in new tab
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-primary hover:underline"
+    >
+      {children}
+    </a>
+  );
+};
+
+const markdownComponents: Components = {
+  a: MarkdownLink,
+};
 
 interface Message {
   id: string;
@@ -194,7 +245,9 @@ export default function AIAssistantPage() {
                   >
                     {message.role === "assistant" ? (
                       <div className="prose prose-sm dark:prose-invert max-w-none">
-                        <ReactMarkdown>{message.content}</ReactMarkdown>
+                        <ReactMarkdown components={markdownComponents}>
+                          {message.content}
+                        </ReactMarkdown>
                       </div>
                     ) : (
                       <p className="text-sm whitespace-pre-wrap">

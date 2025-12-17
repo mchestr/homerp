@@ -57,6 +57,7 @@ async def _build_inventory_context(
 
         items_summary.append(
             InventoryContextItem(
+                id=str(item.id),
                 name=item.name,
                 quantity=item.quantity,
                 quantity_unit=item.quantity_unit,
