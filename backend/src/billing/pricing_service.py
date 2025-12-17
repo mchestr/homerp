@@ -72,6 +72,10 @@ class CreditPricingService:
             return None
 
         if credits_per_operation is not None:
+            if credits_per_operation < 1:
+                raise ValueError("credits_per_operation must be at least 1")
+            if credits_per_operation > 100:
+                raise ValueError("credits_per_operation must not exceed 100")
             pricing.credits_per_operation = credits_per_operation
         if display_name is not None:
             pricing.display_name = display_name

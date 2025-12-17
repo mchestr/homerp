@@ -19,6 +19,7 @@ import {
   CreditPricingUpdate,
 } from "@/lib/api/api-client";
 import { formatDateTime } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Check, Loader2, Pencil, X } from "lucide-react";
 import Link from "next/link";
@@ -188,6 +189,7 @@ export default function AdminPricingPage() {
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const t = useTranslations("admin.pricing");
   const tCommon = useTranslations("common");
 
@@ -207,6 +209,17 @@ export default function AdminPricingPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-pricing"] });
       setEditingPricing(null);
+      toast({
+        title: t("updateSuccess"),
+        description: t("pricingUpdated"),
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: t("updateFailed"),
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 

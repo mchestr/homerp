@@ -121,7 +121,7 @@ class CreditPricingUpdate(BaseModel):
     """Request schema for updating credit pricing."""
 
     credits_per_operation: int | None = Field(
-        None, ge=1, description="Credits charged per operation (minimum 1)"
+        None, ge=1, le=100, description="Credits charged per operation (1-100)"
     )
     display_name: str | None = Field(
         None, min_length=1, max_length=100, description="Display name"

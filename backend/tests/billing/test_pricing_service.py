@@ -275,3 +275,70 @@ class TestUpdatePricing:
         assert updated.credits_per_operation == 10
         assert updated.display_name == original_display_name
         assert updated.is_active == original_is_active
+
+    async def test_update_pricing_rejects_zero_credits(
+        self,
+        async_session: AsyncSession,
+        credit_pricing: CreditPricing,
+    ):
+        """Test that zero credits are rejected."""
+        import pytest
+
+        service = CreditPricingService(async_session)
+
+        with pytest.raises(
+            ValueError, match="credits_per_operation must be at least 1"
+        ):
+            await service.update_pricing(credit_pricing.id, credits_per_operation=0)
+
+    async def test_update_pricing_rejects_negative_credits(
+        self,
+        async_session: AsyncSession,
+        credit_pricing: CreditPricing,
+    ):
+        """Test that negative credits are rejected."""
+        import pytest
+
+        service = CreditPricingService(async_session)
+
+        with pytest.raises(
+            ValueError, match="credits_per_operation must be at least 1"
+        ):
+            await service.update_pricing(credit_pricing.id, credits_per_operation=-5)
+
+    async def test_update_pricing_rejects_credits_exceeding_maximum(
+        self,
+        async_session: AsyncSession,
+        credit_pricing: CreditPricing,
+    ):
+        """Test that credits exceeding maximum (100) are rejected."""
+        import pytest
+
+        service = CreditPricingService(async_session)
+
+        with pytest.raises(
+            ValueError, match="credits_per_operation must not exceed 100"
+        ):
+            await service.update_pricing(credit_pricing.id, credits_per_operation=101)
+
+    async def test_update_pricing_accepts_boundary_values(
+        self,
+        async_session: AsyncSession,
+        credit_pricing: CreditPricing,
+    ):
+        """Test that boundary values (1 and 100) are accepted."""
+        service = CreditPricingService(async_session)
+
+        # Test minimum value (1)
+        updated = await service.update_pricing(
+            credit_pricing.id, credits_per_operation=1
+        )
+        assert updated is not None
+        assert updated.credits_per_operation == 1
+
+        # Test maximum value (100)
+        updated = await service.update_pricing(
+            credit_pricing.id, credits_per_operation=100
+        )
+        assert updated is not None
+        assert updated.credits_per_operation == 100
