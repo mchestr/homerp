@@ -70,7 +70,7 @@ function LoginContent() {
 
   if (authLoading || loadingProviders) {
     return (
-      <div className="bg-background flex min-h-screen items-center justify-center">
+      <div className="bg-background flex min-h-dvh items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="border-primary h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
           <p className="text-muted-foreground text-sm">Loading...</p>
@@ -80,7 +80,7 @@ function LoginContent() {
   }
 
   return (
-    <div className="bg-background flex min-h-screen flex-col">
+    <div className="bg-background flex min-h-dvh flex-col">
       <header className="border-b">
         <div className="mx-auto flex h-16 max-w-6xl items-center px-4">
           <Link href="/" className="flex items-center gap-3">
@@ -172,7 +172,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="bg-background flex min-h-screen items-center justify-center">
+        <div className="bg-background flex min-h-dvh items-center justify-center">
           <div className="flex flex-col items-center gap-4">
             <div className="border-primary h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
             <p className="text-muted-foreground text-sm">Loading...</p>
