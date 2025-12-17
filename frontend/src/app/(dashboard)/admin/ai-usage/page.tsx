@@ -478,16 +478,21 @@ export default function AIUsagePage() {
                     {byUserData.map((userUsage: AIUsageByUser) => (
                       <TableRow key={userUsage.user_id}>
                         <TableCell>
-                          <div className="flex flex-col">
-                            <span className="font-medium">
-                              {userUsage.user_name || userUsage.user_email}
-                            </span>
-                            {userUsage.user_name && (
-                              <span className="text-muted-foreground text-xs">
-                                {userUsage.user_email}
+                          <Link
+                            href={`/admin/users?search=${encodeURIComponent(userUsage.user_email || "")}`}
+                            className="group"
+                          >
+                            <div className="flex flex-col group-hover:underline">
+                              <span className="font-medium">
+                                {userUsage.user_name || userUsage.user_email}
                               </span>
-                            )}
-                          </div>
+                              {userUsage.user_name && (
+                                <span className="text-muted-foreground text-xs">
+                                  {userUsage.user_email}
+                                </span>
+                              )}
+                            </div>
+                          </Link>
                         </TableCell>
                         <TableCell className="text-right">
                           {userUsage.total_calls.toLocaleString()}
@@ -583,12 +588,17 @@ export default function AIUsagePage() {
                             {formatDateTime(log.created_at)}
                           </TableCell>
                           <TableCell>
-                            <span
-                              className="text-sm"
-                              title={log.user_email || undefined}
-                            >
-                              {log.user_name || log.user_email || "-"}
-                            </span>
+                            {log.user_email ? (
+                              <Link
+                                href={`/admin/users?search=${encodeURIComponent(log.user_email)}`}
+                                className="text-sm hover:underline"
+                                title={log.user_email}
+                              >
+                                {log.user_name || log.user_email}
+                              </Link>
+                            ) : (
+                              <span className="text-sm">-</span>
+                            )}
                           </TableCell>
                           <TableCell>
                             <Badge
