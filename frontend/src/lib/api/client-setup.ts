@@ -32,8 +32,6 @@ function getApiBaseUrl(): string {
 // Configure client defaults
 client.setConfig({
   baseUrl: getApiBaseUrl(),
-  // Throw errors instead of returning them, matching the hand-written client behavior
-  throwOnError: true,
 });
 
 // =============================================================================

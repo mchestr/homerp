@@ -755,7 +755,7 @@ export const imagesApi = {
 
   classify: (imageIds: string[], customPrompt?: string) =>
     classifyImagesApiV1ImagesClassifyPost({
-      body: { image_ids: imageIds, custom_prompt: customPrompt || null },
+      body: { image_ids: imageIds, custom_prompt: customPrompt ?? null },
       throwOnError: true,
     }).then((res) => res.data),
 
@@ -768,7 +768,7 @@ export const imagesApi = {
   getSignedUrl: (id: string, thumbnail?: boolean) =>
     getImageSignedUrlApiV1ImagesImageIdSignedUrlGet({
       path: { image_id: id },
-      query: { thumbnail },
+      query: thumbnail ? { thumbnail } : undefined,
       throwOnError: true,
     }).then((res) => res.data),
 
