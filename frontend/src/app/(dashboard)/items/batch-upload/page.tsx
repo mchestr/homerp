@@ -88,8 +88,9 @@ export default function BatchUploadPage() {
   const { show: showInsufficientCredits, InsufficientCreditsModal } =
     useInsufficientCreditsModal();
   const { refreshCredits } = useAuth();
-  const { getCost } = useOperationCosts();
+  const { getCost, isLoading: isCostsLoading } = useOperationCosts();
   const imageClassificationCost = getCost("image_classification");
+  const costDisplay = isCostsLoading ? "..." : (imageClassificationCost ?? "...");
 
   const { data: categoryTree } = useQuery({
     queryKey: ["categories", "tree"],
@@ -639,7 +640,7 @@ export default function BatchUploadPage() {
                       >
                         <Sparkles className="h-4 w-4" />
                         {tBilling("identifyItem", {
-                          cost: imageClassificationCost,
+                          cost: costDisplay,
                         })}
                       </Button>
                     )}

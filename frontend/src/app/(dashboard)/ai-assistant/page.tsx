@@ -39,8 +39,9 @@ export default function AIAssistantPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { show: showCreditsModal, InsufficientCreditsModal } =
     useInsufficientCreditsModal();
-  const { getCost } = useOperationCosts();
+  const { getCost, isLoading: isCostsLoading } = useOperationCosts();
   const assistantQueryCost = getCost("assistant_query");
+  const costDisplay = isCostsLoading ? "..." : (assistantQueryCost ?? "...");
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -282,7 +283,7 @@ export default function AIAssistantPage() {
               <span>{prompt.length}/2000</span>
               <span className="flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" />
-                {t("aiAssistant.creditCost", { cost: assistantQueryCost })}
+                {t("aiAssistant.creditCost", { cost: costDisplay })}
               </span>
             </div>
           </form>

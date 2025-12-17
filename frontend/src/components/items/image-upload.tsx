@@ -58,8 +58,9 @@ export function ImageUpload({
   const { refreshCredits } = useAuth();
   const t = useTranslations("billing");
   const tImages = useTranslations("images");
-  const { getCost } = useOperationCosts();
+  const { getCost, isLoading: isCostsLoading } = useOperationCosts();
   const classificationCost = getCost("image_classification");
+  const costDisplay = isCostsLoading ? "..." : (classificationCost ?? "...");
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -265,7 +266,7 @@ export function ImageUpload({
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4" />
-                    {t("reclassifyCost", { cost: classificationCost })}
+                    {t("reclassifyCost", { cost: costDisplay })}
                   </>
                 )}
               </Button>
@@ -287,7 +288,7 @@ export function ImageUpload({
               ) : (
                 <>
                   <Sparkles className="h-4 w-4" />
-                  {t("identifyItemCost", { cost: classificationCost })}
+                  {t("identifyItemCost", { cost: costDisplay })}
                 </>
               )}
             </Button>

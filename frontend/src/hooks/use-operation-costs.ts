@@ -11,20 +11,6 @@ export type OperationType =
   | "location_suggestion";
 
 /**
- * Default costs as fallback while loading or if fetch fails.
- *
- * SYNC WARNING: These values must match the backend database defaults in
- * `backend/src/billing/pricing_service.py`. If pricing changes in production,
- * update these fallbacks to minimize incorrect cost display during initial load.
- */
-const DEFAULT_COSTS: Record<OperationType, number> = {
-  image_classification: 1,
-  location_analysis: 1,
-  assistant_query: 1,
-  location_suggestion: 1,
-};
-
-/**
  * Hook to fetch and cache operation costs from the backend.
  * Returns the cost for each operation type and helper functions.
  *
@@ -36,6 +22,10 @@ const DEFAULT_COSTS: Record<OperationType, number> = {
  *
  * Rationale: Pricing rarely changes, so aggressive caching reduces API calls.
  * The 5-minute stale time balances freshness with performance.
+ *
+ * Usage: Components should check isLoading and show appropriate loading state
+ * for cost displays (e.g., "..." or skeleton) rather than showing potentially
+ * incorrect fallback values.
  */
 export function useOperationCosts() {
   const { data, isLoading, error } = useQuery({
@@ -46,22 +36,17 @@ export function useOperationCosts() {
 
   /**
    * Get the credit cost for a specific operation type.
-   * Falls back to default if data is not loaded.
+   * Returns undefined if costs haven't loaded yet.
    */
-  const getCost = (operationType: OperationType): number => {
+  const getCost = (operationType: OperationType): number | undefined => {
     if (data?.costs && operationType in data.costs) {
       return data.costs[operationType];
     }
-    return DEFAULT_COSTS[operationType];
+    return undefined;
   };
 
-  /**
-   * Get all operation costs as a map.
-   */
-  const costs = data?.costs ?? DEFAULT_COSTS;
-
   return {
-    costs,
+    costs: data?.costs,
     getCost,
     isLoading,
     error,

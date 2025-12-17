@@ -61,7 +61,7 @@ export function MultiImageUpload({
   const { refreshCredits } = useAuth();
   const t = useTranslations("billing");
   const tImages = useTranslations("images");
-  const { getCost } = useOperationCosts();
+  const { getCost, isLoading: isCostsLoading } = useOperationCosts();
   const classificationCostPerImage = getCost("image_classification");
 
   // Get the selected image or first image
@@ -76,7 +76,10 @@ export function MultiImageUpload({
     !allClassified &&
     unclassifiedImages.length > 0 &&
     uploadedImages.length > 0;
-  const creditCost = uploadedImages.length * classificationCostPerImage;
+  const creditCost =
+    isCostsLoading || classificationCostPerImage === undefined
+      ? "..."
+      : uploadedImages.length * classificationCostPerImage;
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {

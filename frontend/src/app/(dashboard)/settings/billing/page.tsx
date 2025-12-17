@@ -127,8 +127,9 @@ function TransactionRow({ transaction }: { transaction: CreditTransaction }) {
 function CreditsInfoCard() {
   const [isExpanded, setIsExpanded] = useState(false);
   const t = useTranslations("billing");
-  const { getCost } = useOperationCosts();
+  const { getCost, isLoading: isCostsLoading } = useOperationCosts();
   const imageClassificationCost = getCost("image_classification");
+  const costDisplay = isCostsLoading ? "..." : (imageClassificationCost ?? "...");
 
   return (
     <div className="bg-card rounded-xl border">
@@ -149,7 +150,7 @@ function CreditsInfoCard() {
       {isExpanded && (
         <div className="border-t px-6 pt-4 pb-6">
           <p className="text-muted-foreground text-sm">
-            {t("creditsExplanation", { cost: imageClassificationCost })}
+            {t("creditsExplanation", { cost: costDisplay })}
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             <div className="bg-muted/50 rounded-lg p-4">
@@ -178,7 +179,7 @@ function CreditsInfoCard() {
                 <h3 className="text-sm font-medium">{t("creditCostInfo")}</h3>
               </div>
               <p className="text-muted-foreground mt-2 text-xs">
-                {t("creditCostDescription", { cost: imageClassificationCost })}
+                {t("creditCostDescription", { cost: costDisplay })}
               </p>
             </div>
           </div>

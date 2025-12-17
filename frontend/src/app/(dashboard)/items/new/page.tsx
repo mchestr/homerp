@@ -80,8 +80,9 @@ export default function NewItemPage() {
   const tCommon = useTranslations("common");
   const tImages = useTranslations("images");
   const tSimilarItems = useTranslations("similarItems");
-  const { getCost } = useOperationCosts();
+  const { getCost, isLoading: isCostsLoading } = useOperationCosts();
   const locationSuggestionCost = getCost("location_suggestion");
+  const costDisplay = isCostsLoading ? "..." : (locationSuggestionCost ?? "...");
 
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [classification, setClassification] =
@@ -631,7 +632,7 @@ export default function NewItemPage() {
               <Sparkles className="mr-2 h-4 w-4" />
               {t("locationSuggestion.suggestLocation")}
               <span className="ml-2 text-xs opacity-70">
-                ({t("billing.creditCost", { cost: locationSuggestionCost })})
+                ({t("billing.creditCost", { cost: costDisplay })})
               </span>
             </Button>
           </div>
