@@ -1478,9 +1478,9 @@ class TestSuggestLocationEndpoint:
         )
 
         with patch(
-            "src.items.router.AIClassificationService.suggest_item_location",
+            "src.items.router.AIClassificationService.suggest_item_location_with_usage",
             new_callable=AsyncMock,
-            return_value=mock_result,
+            return_value=(mock_result, {"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150}),
         ):
             response = await authenticated_client.post(
                 "/api/v1/items/suggest-location",
@@ -1538,9 +1538,9 @@ class TestSuggestLocationEndpoint:
         )
 
         with patch(
-            "src.items.router.AIClassificationService.suggest_item_location",
+            "src.items.router.AIClassificationService.suggest_item_location_with_usage",
             new_callable=AsyncMock,
-            return_value=mock_result,
+            return_value=(mock_result, {"prompt_tokens": 120, "completion_tokens": 60, "total_tokens": 180}),
         ):
             response = await authenticated_client.post(
                 "/api/v1/items/suggest-location",
