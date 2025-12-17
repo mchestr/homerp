@@ -451,6 +451,8 @@
     "credits": "crédits",
     "generateComplete": "Analyse Terminée",
     "generateCompleteDescription": "{count} articles trouvés à examiner, {credits} crédits utilisés",
+    "noItemsToSuggest": "Aucun Article à Désencombrer",
+    "noItemsToSuggestDescription": "Bonne nouvelle ! Selon les paramètres de votre profil, aucun de vos articles n'a besoin d'être désencombré pour le moment.",
     "generateError": "Échec de la génération des suggestions. Veuillez réessayer.",
     "updateError": "Échec de la mise à jour de la recommandation",
     "resultsTitle": "Suggestions",

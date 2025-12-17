@@ -130,13 +130,20 @@ export default function DeclutterSuggestionsPage() {
       await refreshCredits();
       await loadCostInfo(itemsToAnalyze);
 
-      toast({
-        title: t("generateComplete"),
-        description: t("generateCompleteDescription", {
-          count: response.total_generated,
-          credits: response.credits_used,
-        }),
-      });
+      if (response.total_generated === 0) {
+        toast({
+          title: t("noItemsToSuggest"),
+          description: t("noItemsToSuggestDescription"),
+        });
+      } else {
+        toast({
+          title: t("generateComplete"),
+          description: t("generateCompleteDescription", {
+            count: response.total_generated,
+            credits: response.credits_used,
+          }),
+        });
+      }
     } catch (error: unknown) {
       const apiError = error as { status?: number };
       if (apiError.status === 402) {
