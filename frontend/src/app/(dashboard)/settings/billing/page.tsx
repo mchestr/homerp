@@ -129,9 +129,6 @@ function CreditsInfoCard() {
   const t = useTranslations("billing");
   const { getCost, isLoading: isCostsLoading } = useOperationCosts();
   const imageClassificationCost = getCost("image_classification");
-  const costDisplay = isCostsLoading
-    ? "..."
-    : (imageClassificationCost ?? "...");
 
   return (
     <div className="bg-card rounded-xl border">
@@ -181,7 +178,11 @@ function CreditsInfoCard() {
                 <h3 className="text-sm font-medium">{t("creditCostInfo")}</h3>
               </div>
               <p className="text-muted-foreground mt-2 text-xs">
-                {t("creditCostDescription", { cost: costDisplay })}
+                {isCostsLoading
+                  ? "..."
+                  : t("creditCostDescription", {
+                      cost: imageClassificationCost ?? 1,
+                    })}
               </p>
             </div>
           </div>
