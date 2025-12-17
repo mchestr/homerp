@@ -724,22 +724,29 @@ export default function GridfinityEditorPage() {
                     type="number"
                     min={1}
                     max={(unit?.grid_columns || 1) - pendingPlacement.gridX}
-                    value={pendingPlacement.widthUnits}
+                    value={pendingPlacement.widthUnits || ""}
                     onChange={(e) => {
-                      const value = parseInt(e.target.value) || 1;
+                      const parsed = parseInt(e.target.value);
                       const maxWidth =
                         (unit?.grid_columns || 1) - pendingPlacement.gridX;
                       setPendingPlacement((prev) =>
                         prev
                           ? {
                               ...prev,
-                              widthUnits: Math.max(
-                                1,
-                                Math.min(value, maxWidth)
-                              ),
+                              widthUnits: isNaN(parsed)
+                                ? 0
+                                : Math.min(parsed, maxWidth),
                             }
                           : prev
                       );
+                    }}
+                    onBlur={(e) => {
+                      const parsed = parseInt(e.target.value);
+                      if (isNaN(parsed) || parsed < 1) {
+                        setPendingPlacement((prev) =>
+                          prev ? { ...prev, widthUnits: 1 } : prev
+                        );
+                      }
                     }}
                   />
                 </div>
@@ -750,22 +757,29 @@ export default function GridfinityEditorPage() {
                     type="number"
                     min={1}
                     max={(unit?.grid_rows || 1) - pendingPlacement.gridY}
-                    value={pendingPlacement.depthUnits}
+                    value={pendingPlacement.depthUnits || ""}
                     onChange={(e) => {
-                      const value = parseInt(e.target.value) || 1;
+                      const parsed = parseInt(e.target.value);
                       const maxDepth =
                         (unit?.grid_rows || 1) - pendingPlacement.gridY;
                       setPendingPlacement((prev) =>
                         prev
                           ? {
                               ...prev,
-                              depthUnits: Math.max(
-                                1,
-                                Math.min(value, maxDepth)
-                              ),
+                              depthUnits: isNaN(parsed)
+                                ? 0
+                                : Math.min(parsed, maxDepth),
                             }
                           : prev
                       );
+                    }}
+                    onBlur={(e) => {
+                      const parsed = parseInt(e.target.value);
+                      if (isNaN(parsed) || parsed < 1) {
+                        setPendingPlacement((prev) =>
+                          prev ? { ...prev, depthUnits: 1 } : prev
+                        );
+                      }
                     }}
                   />
                 </div>
@@ -902,9 +916,9 @@ export default function GridfinityEditorPage() {
                       (unit?.grid_columns || 1) -
                       editingPlacement.placement.grid_x
                     }
-                    value={editingPlacement.widthUnits}
+                    value={editingPlacement.widthUnits || ""}
                     onChange={(e) => {
-                      const value = parseInt(e.target.value) || 1;
+                      const parsed = parseInt(e.target.value);
                       const maxWidth =
                         (unit?.grid_columns || 1) -
                         editingPlacement.placement.grid_x;
@@ -912,13 +926,20 @@ export default function GridfinityEditorPage() {
                         prev
                           ? {
                               ...prev,
-                              widthUnits: Math.max(
-                                1,
-                                Math.min(value, maxWidth)
-                              ),
+                              widthUnits: isNaN(parsed)
+                                ? 0
+                                : Math.min(parsed, maxWidth),
                             }
                           : prev
                       );
+                    }}
+                    onBlur={(e) => {
+                      const parsed = parseInt(e.target.value);
+                      if (isNaN(parsed) || parsed < 1) {
+                        setEditingPlacement((prev) =>
+                          prev ? { ...prev, widthUnits: 1 } : prev
+                        );
+                      }
                     }}
                   />
                 </div>
@@ -931,9 +952,9 @@ export default function GridfinityEditorPage() {
                     max={
                       (unit?.grid_rows || 1) - editingPlacement.placement.grid_y
                     }
-                    value={editingPlacement.depthUnits}
+                    value={editingPlacement.depthUnits || ""}
                     onChange={(e) => {
-                      const value = parseInt(e.target.value) || 1;
+                      const parsed = parseInt(e.target.value);
                       const maxDepth =
                         (unit?.grid_rows || 1) -
                         editingPlacement.placement.grid_y;
@@ -941,13 +962,20 @@ export default function GridfinityEditorPage() {
                         prev
                           ? {
                               ...prev,
-                              depthUnits: Math.max(
-                                1,
-                                Math.min(value, maxDepth)
-                              ),
+                              depthUnits: isNaN(parsed)
+                                ? 0
+                                : Math.min(parsed, maxDepth),
                             }
                           : prev
                       );
+                    }}
+                    onBlur={(e) => {
+                      const parsed = parseInt(e.target.value);
+                      if (isNaN(parsed) || parsed < 1) {
+                        setEditingPlacement((prev) =>
+                          prev ? { ...prev, depthUnits: 1 } : prev
+                        );
+                      }
                     }}
                   />
                 </div>

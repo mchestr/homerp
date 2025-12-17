@@ -388,13 +388,23 @@ export function StoragePlannerWizard({
                       id="width"
                       type="number"
                       min={42}
-                      value={gridfinityData.container_width_mm}
-                      onChange={(e) =>
+                      value={gridfinityData.container_width_mm || ""}
+                      onChange={(e) => {
+                        const parsed = parseInt(e.target.value);
                         setGridfinityData((prev) => ({
                           ...prev,
-                          container_width_mm: parseInt(e.target.value) || 42,
-                        }))
-                      }
+                          container_width_mm: isNaN(parsed) ? 0 : parsed,
+                        }));
+                      }}
+                      onBlur={(e) => {
+                        const parsed = parseInt(e.target.value);
+                        if (isNaN(parsed) || parsed < 42) {
+                          setGridfinityData((prev) => ({
+                            ...prev,
+                            container_width_mm: 42,
+                          }));
+                        }
+                      }}
                       required
                       data-testid="gridfinity-width-input"
                     />
@@ -405,13 +415,23 @@ export function StoragePlannerWizard({
                       id="depth"
                       type="number"
                       min={42}
-                      value={gridfinityData.container_depth_mm}
-                      onChange={(e) =>
+                      value={gridfinityData.container_depth_mm || ""}
+                      onChange={(e) => {
+                        const parsed = parseInt(e.target.value);
                         setGridfinityData((prev) => ({
                           ...prev,
-                          container_depth_mm: parseInt(e.target.value) || 42,
-                        }))
-                      }
+                          container_depth_mm: isNaN(parsed) ? 0 : parsed,
+                        }));
+                      }}
+                      onBlur={(e) => {
+                        const parsed = parseInt(e.target.value);
+                        if (isNaN(parsed) || parsed < 42) {
+                          setGridfinityData((prev) => ({
+                            ...prev,
+                            container_depth_mm: 42,
+                          }));
+                        }
+                      }}
                       required
                       data-testid="gridfinity-depth-input"
                     />
@@ -424,13 +444,23 @@ export function StoragePlannerWizard({
                       id="height"
                       type="number"
                       min={7}
-                      value={gridfinityData.container_height_mm}
-                      onChange={(e) =>
+                      value={gridfinityData.container_height_mm || ""}
+                      onChange={(e) => {
+                        const parsed = parseInt(e.target.value);
                         setGridfinityData((prev) => ({
                           ...prev,
-                          container_height_mm: parseInt(e.target.value) || 7,
-                        }))
-                      }
+                          container_height_mm: isNaN(parsed) ? 0 : parsed,
+                        }));
+                      }}
+                      onBlur={(e) => {
+                        const parsed = parseInt(e.target.value);
+                        if (isNaN(parsed) || parsed < 7) {
+                          setGridfinityData((prev) => ({
+                            ...prev,
+                            container_height_mm: 7,
+                          }));
+                        }
+                      }}
                       required
                       data-testid="gridfinity-height-input"
                     />

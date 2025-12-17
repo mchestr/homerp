@@ -393,13 +393,23 @@ export default function GridfinityPage() {
                   id="edit-width"
                   type="number"
                   min={42}
-                  value={editFormData.container_width_mm}
-                  onChange={(e) =>
+                  value={editFormData.container_width_mm || ""}
+                  onChange={(e) => {
+                    const parsed = parseInt(e.target.value);
                     setEditFormData((prev) => ({
                       ...prev,
-                      container_width_mm: parseInt(e.target.value) || 42,
-                    }))
-                  }
+                      container_width_mm: isNaN(parsed) ? 0 : parsed,
+                    }));
+                  }}
+                  onBlur={(e) => {
+                    const parsed = parseInt(e.target.value);
+                    if (isNaN(parsed) || parsed < 42) {
+                      setEditFormData((prev) => ({
+                        ...prev,
+                        container_width_mm: 42,
+                      }));
+                    }
+                  }}
                   required
                 />
               </div>
@@ -409,13 +419,23 @@ export default function GridfinityPage() {
                   id="edit-depth"
                   type="number"
                   min={42}
-                  value={editFormData.container_depth_mm}
-                  onChange={(e) =>
+                  value={editFormData.container_depth_mm || ""}
+                  onChange={(e) => {
+                    const parsed = parseInt(e.target.value);
                     setEditFormData((prev) => ({
                       ...prev,
-                      container_depth_mm: parseInt(e.target.value) || 42,
-                    }))
-                  }
+                      container_depth_mm: isNaN(parsed) ? 0 : parsed,
+                    }));
+                  }}
+                  onBlur={(e) => {
+                    const parsed = parseInt(e.target.value);
+                    if (isNaN(parsed) || parsed < 42) {
+                      setEditFormData((prev) => ({
+                        ...prev,
+                        container_depth_mm: 42,
+                      }));
+                    }
+                  }}
                   required
                 />
               </div>
@@ -425,13 +445,23 @@ export default function GridfinityPage() {
                   id="edit-height"
                   type="number"
                   min={7}
-                  value={editFormData.container_height_mm}
-                  onChange={(e) =>
+                  value={editFormData.container_height_mm || ""}
+                  onChange={(e) => {
+                    const parsed = parseInt(e.target.value);
                     setEditFormData((prev) => ({
                       ...prev,
-                      container_height_mm: parseInt(e.target.value) || 7,
-                    }))
-                  }
+                      container_height_mm: isNaN(parsed) ? 0 : parsed,
+                    }));
+                  }}
+                  onBlur={(e) => {
+                    const parsed = parseInt(e.target.value);
+                    if (isNaN(parsed) || parsed < 7) {
+                      setEditFormData((prev) => ({
+                        ...prev,
+                        container_height_mm: 7,
+                      }));
+                    }
+                  }}
                   required
                 />
               </div>
