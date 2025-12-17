@@ -8,32 +8,12 @@ import {
   useState,
 } from "react";
 import { useAuth } from "@/context/auth-context";
-import { apiRequest } from "@/lib/api/api";
+import {
+  collaborationApi,
+  SharedInventory,
+  CollaboratorRole,
+} from "@/lib/api/api";
 import { setInventoryContext as setApiInventoryContext } from "@/lib/api/client-setup";
-
-type CollaboratorRole = "viewer" | "editor";
-
-interface CollaboratorUserInfo {
-  id: string;
-  name: string | null;
-  email: string;
-  avatar_url: string | null;
-}
-
-interface SharedInventory {
-  id: string;
-  owner_id: string;
-  role: CollaboratorRole;
-  status: "pending" | "accepted" | "declined";
-  accepted_at: string | null;
-  owner: CollaboratorUserInfo;
-}
-
-interface InventoryContextData {
-  own_inventory: CollaboratorUserInfo;
-  shared_inventories: SharedInventory[];
-  pending_invitations: unknown[];
-}
 
 export interface SelectedInventory {
   id: string;
@@ -83,10 +63,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      const data = await apiRequest<InventoryContextData>(
-        "/api/v1/collaboration/context",
-        { skipInventoryContext: true }
-      );
+      const data = await collaborationApi.getContext();
 
       const acceptedShared = data.shared_inventories.filter(
         (inv) => inv.status === "accepted"

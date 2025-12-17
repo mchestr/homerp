@@ -166,6 +166,16 @@ import {
   // Notifications
   getNotificationPreferencesApiV1NotificationsPreferencesGet,
   updateNotificationPreferencesApiV1NotificationsPreferencesPut,
+  // Collaboration
+  getInventoryContextApiV1CollaborationContextGet,
+  listCollaboratorsApiV1CollaborationCollaboratorsGet,
+  inviteCollaboratorApiV1CollaborationCollaboratorsPost,
+  removeCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDelete,
+  updateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPut,
+  acceptInvitationApiV1CollaborationInvitationsAcceptPost,
+  acceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPost,
+  declineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePost,
+  leaveSharedInventoryApiV1CollaborationSharedOwnerIdDelete,
 } from "./sdk.gen";
 
 // Import types we need to use within this file
@@ -197,6 +207,7 @@ import type {
   WebhookConfigUpdate,
   ApiKeyCreate,
   ApiKeyUpdate,
+  CollaboratorRole,
 } from "./types.gen";
 
 // =============================================================================
@@ -340,6 +351,15 @@ export type {
   // Notification types
   NotificationPreferencesResponse as NotificationPreferences,
   NotificationPreferencesUpdate,
+  // Collaboration types
+  InventoryContextResponse as InventoryContext,
+  CollaboratorResponse as Collaborator,
+  CollaboratorInviteRequest,
+  CollaboratorUpdateRequest,
+  CollaboratorRole,
+  CollaboratorUserInfo,
+  CollaboratorOwnerInfo,
+  SharedInventoryResponse as SharedInventory,
 } from "./types.gen";
 
 // Also export the OAuth provider type
@@ -1366,64 +1386,60 @@ export const notificationsApi = {
 };
 
 // =============================================================================
-// Legacy exports for backwards compatibility
+// Collaboration API
 // =============================================================================
 
-// Re-export apiRequest for any code that uses it directly
-// This is a simple fetch wrapper that matches the old behavior
-export async function apiRequest<T>(
-  endpoint: string,
-  options: {
-    method?: string;
-    body?: unknown;
-    headers?: Record<string, string>;
-    skipInventoryContext?: boolean;
-  } = {}
-): Promise<T> {
-  const { method = "GET", body, headers = {} } = options;
+export const collaborationApi = {
+  getContext: () =>
+    getInventoryContextApiV1CollaborationContextGet({
+      throwOnError: true,
+    }).then((res) => res.data),
 
-  // Get auth token
-  let token: string | null = null;
-  if (typeof window !== "undefined") {
-    token = localStorage.getItem("auth_token");
-  }
+  listCollaborators: () =>
+    listCollaboratorsApiV1CollaborationCollaboratorsGet({
+      throwOnError: true,
+    }).then((res) => res.data),
 
-  // Build request headers
-  const requestHeaders: Record<string, string> = {
-    "Content-Type": "application/json",
-    ...headers,
-  };
+  invite: (email: string, role: CollaboratorRole = "viewer") =>
+    inviteCollaboratorApiV1CollaborationCollaboratorsPost({
+      body: { email, role },
+      throwOnError: true,
+    }).then((res) => res.data),
 
-  if (token) {
-    requestHeaders["Authorization"] = `Bearer ${token}`;
-  }
+  remove: (collaboratorId: string) =>
+    removeCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdDelete({
+      path: { collaborator_id: collaboratorId },
+      throwOnError: true,
+    }).then((res) => res.data),
 
-  // Get base URL
-  let baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-  if (typeof window !== "undefined") {
-    const envUrl = (window as unknown as { __ENV__?: { API_URL?: string } })
-      .__ENV__?.API_URL;
-    if (envUrl) baseUrl = envUrl;
-  }
+  updateRole: (collaboratorId: string, role: CollaboratorRole) =>
+    updateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPut({
+      path: { collaborator_id: collaboratorId },
+      body: { role },
+      throwOnError: true,
+    }).then((res) => res.data),
 
-  const response = await fetch(`${baseUrl}${endpoint}`, {
-    method,
-    headers: requestHeaders,
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  acceptInvitation: (token: string) =>
+    acceptInvitationApiV1CollaborationInvitationsAcceptPost({
+      body: { token },
+      throwOnError: true,
+    }).then((res) => res.data),
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    const error = new Error(
-      errorData.detail || `Request failed with status ${response.status}`
-    );
-    (error as Error & { status: number }).status = response.status;
-    throw error;
-  }
+  acceptInvitationById: (invitationId: string) =>
+    acceptInvitationByIdApiV1CollaborationInvitationsInvitationIdAcceptPost({
+      path: { invitation_id: invitationId },
+      throwOnError: true,
+    }).then((res) => res.data),
 
-  if (response.status === 204) {
-    return undefined as T;
-  }
+  declineInvitation: (invitationId: string) =>
+    declineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePost({
+      path: { invitation_id: invitationId },
+      throwOnError: true,
+    }).then((res) => res.data),
 
-  return response.json();
-}
+  leaveSharedInventory: (ownerId: string) =>
+    leaveSharedInventoryApiV1CollaborationSharedOwnerIdDelete({
+      path: { owner_id: ownerId },
+      throwOnError: true,
+    }).then((res) => res.data),
+};
