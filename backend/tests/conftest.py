@@ -26,7 +26,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy_utils import Ltree
 from testcontainers.postgres import PostgresContainer
 
-from src.billing.models import CreditPack, CreditTransaction
+from src.billing.models import CreditPack, CreditPricing, CreditTransaction
 from src.categories.models import Category
 from src.config import Settings
 from src.database import Base
@@ -320,6 +320,66 @@ async def credit_packs(async_session: AsyncSession) -> list[CreditPack]:
         async_session.add(pack)
     await async_session.commit()
     return packs
+
+
+@pytest.fixture
+async def credit_pricing(async_session: AsyncSession) -> CreditPricing:
+    """Create a test credit pricing configuration."""
+    pricing = CreditPricing(
+        id=uuid.uuid4(),
+        operation_type="image_classification",
+        credits_per_operation=1,
+        display_name="Image Classification",
+        description="AI-powered image classification",
+        is_active=True,
+    )
+    async_session.add(pricing)
+    await async_session.commit()
+    await async_session.refresh(pricing)
+    return pricing
+
+
+@pytest.fixture
+async def credit_pricing_list(async_session: AsyncSession) -> list[CreditPricing]:
+    """Create multiple test credit pricing configurations."""
+    pricing_list = [
+        CreditPricing(
+            id=uuid.uuid4(),
+            operation_type="image_classification",
+            credits_per_operation=1,
+            display_name="Image Classification",
+            description="AI-powered image classification",
+            is_active=True,
+        ),
+        CreditPricing(
+            id=uuid.uuid4(),
+            operation_type="location_analysis",
+            credits_per_operation=2,
+            display_name="Location Analysis",
+            description="AI analysis of location images",
+            is_active=True,
+        ),
+        CreditPricing(
+            id=uuid.uuid4(),
+            operation_type="assistant_query",
+            credits_per_operation=1,
+            display_name="AI Assistant Query",
+            description="Ask the AI assistant questions",
+            is_active=True,
+        ),
+        CreditPricing(
+            id=uuid.uuid4(),
+            operation_type="location_suggestion",
+            credits_per_operation=1,
+            display_name="Location Suggestion",
+            description="AI-powered location suggestions",
+            is_active=False,
+        ),
+    ]
+    for pricing in pricing_list:
+        async_session.add(pricing)
+    await async_session.commit()
+    return pricing_list
 
 
 @pytest.fixture

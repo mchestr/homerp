@@ -994,6 +994,24 @@ export type CreditPackCreate = {
 
 export type CreditPackUpdate = Partial<CreditPackCreate>;
 
+export type CreditPricing = {
+  id: string;
+  operation_type: string;
+  credits_per_operation: number;
+  display_name: string;
+  description: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CreditPricingUpdate = {
+  credits_per_operation?: number;
+  display_name?: string;
+  description?: string;
+  is_active?: boolean;
+};
+
 export type UserAdmin = {
   id: string;
   email: string;
@@ -1116,6 +1134,18 @@ export const adminApi = {
 
   deletePack: (id: string) =>
     apiRequest<void>(`/api/v1/admin/packs/${id}`, { method: "DELETE" }),
+
+  // Credit Pricing
+  listPricing: () => apiRequest<CreditPricing[]>("/api/v1/admin/pricing"),
+
+  getPricing: (id: string) =>
+    apiRequest<CreditPricing>(`/api/v1/admin/pricing/${id}`),
+
+  updatePricing: (id: string, data: CreditPricingUpdate) =>
+    apiRequest<CreditPricing>(`/api/v1/admin/pricing/${id}`, {
+      method: "PUT",
+      body: data,
+    }),
 
   // Users
   listUsers: (page = 1, limit = 20, search?: string) => {
