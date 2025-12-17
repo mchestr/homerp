@@ -162,7 +162,8 @@
     "clearLocation": "Quitar ubicación",
     "applyChanges": "Aplicar Cambios",
     "batchUpdateSuccess": "Se actualizaron {count} artículos exitosamente",
-    "selectItems": "Selecciona artículos para actualizar en lote"
+    "selectItems": "Selecciona artículos para actualizar en lote",
+    "batchUpload": "Subida en Lote"
   },
   "categories": {
     "title": "Categorías",
