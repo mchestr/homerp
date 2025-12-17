@@ -394,6 +394,13 @@ export default function AdminPage() {
                   href="/admin/ai-usage"
                   testId="quick-action-ai-usage"
                 />
+                <QuickActionCard
+                  title={t("admin.pricing.title")}
+                  description={t("admin.pricing.description")}
+                  icon={Coins}
+                  href="/admin/pricing"
+                  testId="quick-action-pricing"
+                />
               </div>
             </div>
 

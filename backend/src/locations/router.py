@@ -12,6 +12,7 @@ from src.auth.dependencies import (
     InventoryContextDep,
 )
 from src.auth.service import AuthService, get_auth_service
+from src.billing.pricing_service import CreditPricingService, get_pricing_service
 from src.billing.router import CreditServiceDep
 from src.config import Settings, get_settings
 from src.database import AsyncSessionDep
@@ -67,16 +68,20 @@ async def analyze_location_image(
     ai_service: Annotated[AIClassificationService, Depends(get_ai_service)],
     ai_usage_service: Annotated[AIUsageService, Depends(get_ai_usage_service)],
     credit_service: CreditServiceDep,
+    pricing_service: Annotated[CreditPricingService, Depends(get_pricing_service)],
 ) -> LocationAnalysisResponse:
     """Analyze an image to suggest location structure using AI.
 
-    Consumes 1 credit on successful analysis.
+    Consumes credits based on configured pricing.
     """
+    # Get the cost for location analysis
+    operation_cost = await pricing_service.get_operation_cost("location_analysis")
+
     # Check if user has credits (use the actual user's credits)
-    if not await credit_service.has_credits(user_id):
+    if not await credit_service.has_credits(user_id, amount=operation_cost):
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
-            detail="Insufficient credits. Please purchase more credits to use AI analysis.",
+            detail=f"Insufficient credits. You need {operation_cost} credits for location analysis.",
         )
 
     # Get image record from the inventory context
@@ -103,6 +108,7 @@ async def analyze_location_image(
         credit_transaction = await credit_service.deduct_credit(
             user_id,
             f"Location analysis: {image.original_filename or 'image'}",
+            amount=operation_cost,
             commit=False,
         )
 
@@ -116,6 +122,7 @@ async def analyze_location_image(
             metadata={
                 "image_id": str(image.id),
                 "original_filename": image.original_filename,
+                "credits_charged": operation_cost,
             },
         )
 

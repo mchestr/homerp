@@ -688,6 +688,36 @@
       "locationAnalysis": "Location Analysis",
       "assistantQuery": "Assistant Query",
       "locationSuggestion": "Location Suggestion"
+    },
+    "pricing": {
+      "title": "Credit Pricing",
+      "description": "Configure credit costs for AI operations",
+      "subtitle": "Manage how many credits each AI operation costs",
+      "operationType": "Operation Type",
+      "creditsPerOperation": "Credits per Operation",
+      "displayName": "Display Name",
+      "operationDescription": "Description",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "lastUpdated": "Last Updated",
+      "editPricing": "Edit Pricing",
+      "editPricingDescription": "Adjust the credit cost and details for this operation",
+      "saveChanges": "Save Changes",
+      "noPricing": "No pricing configurations found",
+      "noPricingDescription": "Run the database migration to seed default pricing",
+      "operationTypes": {
+        "image_classification": "Image Classification",
+        "location_analysis": "Location Analysis",
+        "assistant_query": "AI Assistant Query",
+        "location_suggestion": "Location Suggestion"
+      },
+      "operationDescriptions": {
+        "image_classification": "AI-powered image classification to identify and categorize items",
+        "location_analysis": "AI analysis of location images to suggest storage organization",
+        "assistant_query": "Ask the AI assistant questions about your inventory",
+        "location_suggestion": "AI-powered suggestions for where to store items"
+      }
     }
   },
   "webhooks": {

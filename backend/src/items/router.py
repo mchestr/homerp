@@ -10,6 +10,7 @@ from src.auth.dependencies import (
     EditableInventoryContextDep,
     InventoryContextDep,
 )
+from src.billing.pricing_service import CreditPricingService, get_pricing_service
 from src.billing.router import CreditServiceDep
 from src.common.schemas import PaginatedResponse
 from src.database import AsyncSessionDep
@@ -389,19 +390,23 @@ async def suggest_item_location(
     inventory_owner_id: InventoryContextDep,
     ai_service: Annotated[AIClassificationService, Depends(get_ai_service)],
     credit_service: CreditServiceDep,
+    pricing_service: Annotated[CreditPricingService, Depends(get_pricing_service)],
 ) -> ItemLocationSuggestionResponse:
     """Suggest optimal storage locations for an item using AI.
 
     Analyzes the item's characteristics and the user's existing locations
     with their stored items to recommend suitable storage places.
 
-    Consumes 1 credit on successful suggestion.
+    Consumes credits based on configured pricing.
     """
+    # Get the cost for location suggestion
+    operation_cost = await pricing_service.get_operation_cost("location_suggestion")
+
     # Check if user has credits (use the actual user's credits, not the inventory owner)
-    if not await credit_service.has_credits(user_id):
+    if not await credit_service.has_credits(user_id, amount=operation_cost):
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
-            detail="Insufficient credits. Please purchase more credits to use AI suggestions.",
+            detail=f"Insufficient credits. You need {operation_cost} credits for location suggestions.",
         )
 
     # Get locations with sample items from the inventory context
@@ -460,6 +465,7 @@ async def suggest_item_location(
         await credit_service.deduct_credit(
             user_id,
             f"Location suggestion: {data.item_name}",
+            amount=operation_cost,
         )
 
         return ItemLocationSuggestionResponse(
