@@ -16,6 +16,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Coins,
+  MoreHorizontal,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,13 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function AdminUsersPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -265,38 +273,49 @@ export default function AdminUsersPage() {
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => openCreditAdjustment(u)}
-                          >
-                            <Coins className="mr-1 h-4 w-4" />
-                            Adjust Credits
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleAdminToggle(u)}
-                            disabled={u.id === user.id}
-                            title={
-                              u.id === user.id
-                                ? "Cannot change your own admin status"
-                                : ""
-                            }
-                          >
-                            {u.is_admin ? (
-                              <>
-                                <ShieldOff className="mr-1 h-4 w-4" />
-                                Revoke Admin
-                              </>
-                            ) : (
-                              <>
-                                <Shield className="mr-1 h-4 w-4" />
-                                Make Admin
-                              </>
-                            )}
-                          </Button>
+                        <div className="flex justify-end">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                data-testid={`user-actions-${u.id}`}
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Actions</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={() => openCreditAdjustment(u)}
+                              >
+                                <Coins className="mr-2 h-4 w-4" />
+                                Adjust Credits
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => handleAdminToggle(u)}
+                                disabled={u.id === user.id}
+                                className={
+                                  u.is_admin
+                                    ? "text-destructive focus:text-destructive"
+                                    : ""
+                                }
+                              >
+                                {u.is_admin ? (
+                                  <>
+                                    <ShieldOff className="mr-2 h-4 w-4" />
+                                    Revoke Admin
+                                  </>
+                                ) : (
+                                  <>
+                                    <Shield className="mr-2 h-4 w-4" />
+                                    Make Admin
+                                  </>
+                                )}
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </td>
                     </tr>
@@ -338,11 +357,56 @@ export default function AdminUsersPage() {
                       <p className="text-muted-foreground text-sm">{u.email}</p>
                     </div>
                   </div>
-                  {u.is_admin && (
-                    <span className="bg-primary/10 text-primary inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium">
-                      <Shield className="h-3 w-3" /> Admin
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {u.is_admin && (
+                      <span className="bg-primary/10 text-primary inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium">
+                        <Shield className="h-3 w-3" /> Admin
+                      </span>
+                    )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          data-testid={`user-actions-mobile-${u.id}`}
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Actions</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => openCreditAdjustment(u)}
+                        >
+                          <Coins className="mr-2 h-4 w-4" />
+                          Adjust Credits
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => handleAdminToggle(u)}
+                          disabled={u.id === user.id}
+                          className={
+                            u.is_admin
+                              ? "text-destructive focus:text-destructive"
+                              : ""
+                          }
+                        >
+                          {u.is_admin ? (
+                            <>
+                              <ShieldOff className="mr-2 h-4 w-4" />
+                              Revoke Admin
+                            </>
+                          ) : (
+                            <>
+                              <Shield className="mr-2 h-4 w-4" />
+                              Make Admin
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
                 <div className="mt-3 grid grid-cols-3 gap-2 text-sm">
                   <div>
@@ -357,36 +421,6 @@ export default function AdminUsersPage() {
                     <p className="text-muted-foreground">Joined</p>
                     <p className="font-medium">{formatDate(u.created_at)}</p>
                   </div>
-                </div>
-                <div className="mt-3 flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => openCreditAdjustment(u)}
-                  >
-                    <Coins className="mr-1 h-4 w-4" />
-                    Adjust
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => handleAdminToggle(u)}
-                    disabled={u.id === user.id}
-                  >
-                    {u.is_admin ? (
-                      <>
-                        <ShieldOff className="mr-1 h-4 w-4" />
-                        Revoke
-                      </>
-                    ) : (
-                      <>
-                        <Shield className="mr-1 h-4 w-4" />
-                        Admin
-                      </>
-                    )}
-                  </Button>
                 </div>
               </div>
             ))}
