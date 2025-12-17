@@ -532,6 +532,8 @@
     "credits": "credits",
     "generateComplete": "Analysis Complete",
     "generateCompleteDescription": "Found {count} items to review, used {credits} credits",
+    "noItemsToSuggest": "No Items to Declutter",
+    "noItemsToSuggestDescription": "Great news! Based on your profile settings, none of your items need decluttering right now.",
     "generateError": "Failed to generate suggestions. Please try again.",
     "updateError": "Failed to update recommendation",
     "resultsTitle": "Suggestions",

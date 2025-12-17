@@ -487,6 +487,8 @@
     "credits": "créditos",
     "generateComplete": "Análisis Completado",
     "generateCompleteDescription": "Se encontraron {count} artículos para revisar, se usaron {credits} créditos",
+    "noItemsToSuggest": "Sin Artículos para Ordenar",
+    "noItemsToSuggestDescription": "¡Buenas noticias! Según la configuración de tu perfil, ninguno de tus artículos necesita ser ordenado en este momento.",
     "generateError": "Error al generar sugerencias. Por favor, inténtalo de nuevo.",
     "updateError": "Error al actualizar la recomendación",
     "resultsTitle": "Sugerencias",

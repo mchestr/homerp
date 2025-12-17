@@ -487,6 +487,8 @@
     "credits": "クレジット",
     "generateComplete": "分析完了",
     "generateCompleteDescription": "レビューする{count}件のアイテムが見つかり、{credits}クレジットを使用しました",
+    "noItemsToSuggest": "整理するアイテムはありません",
+    "noItemsToSuggestDescription": "良いニュースです！プロフィール設定に基づくと、現在整理が必要なアイテムはありません。",
     "generateError": "提案の生成に失敗しました。もう一度お試しください。",
     "updateError": "推奨の更新に失敗しました",
     "resultsTitle": "提案",

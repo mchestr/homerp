@@ -530,6 +530,8 @@
     "credits": "Credits",
     "generateComplete": "Analyse abgeschlossen",
     "generateCompleteDescription": "{count} Artikel zur Überprüfung gefunden, {credits} Credits verwendet",
+    "noItemsToSuggest": "Keine Artikel zum Ausmisten",
+    "noItemsToSuggestDescription": "Gute Neuigkeiten! Basierend auf Ihren Profileinstellungen müssen derzeit keine Ihrer Artikel ausgemistet werden.",
     "generateError": "Vorschläge konnten nicht generiert werden. Bitte versuchen Sie es erneut.",
     "updateError": "Empfehlung konnte nicht aktualisiert werden",
     "resultsTitle": "Vorschläge",

@@ -487,6 +487,8 @@
     "credits": "créditos",
     "generateComplete": "Análise Concluída",
     "generateCompleteDescription": "Encontrados {count} itens para revisar, usados {credits} créditos",
+    "noItemsToSuggest": "Nenhum Item para Organizar",
+    "noItemsToSuggestDescription": "Ótimas notícias! Com base nas configurações do seu perfil, nenhum dos seus itens precisa ser organizado no momento.",
     "generateError": "Falha ao gerar sugestões. Por favor, tente novamente.",
     "updateError": "Falha ao atualizar recomendação",
     "resultsTitle": "Sugestões",
