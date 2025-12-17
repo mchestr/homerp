@@ -2,14 +2,26 @@ from typing import Annotated
 from uuid import UUID
 
 import stripe
-from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    Header,
+    HTTPException,
+    Query,
+    Request,
+    Response,
+    status,
+)
 
 from src.auth.dependencies import CurrentUserDep, CurrentUserIdDep
+from src.billing.pricing_service import CreditPricingService, get_pricing_service
 from src.billing.schemas import (
     CheckoutRequest,
     CheckoutResponse,
     CreditBalanceResponse,
     CreditPackResponse,
+    OperationCostResponse,
+    OperationCostsResponse,
     PaginatedTransactionResponse,
     PortalResponse,
     RefundRequest,
@@ -40,6 +52,45 @@ def get_stripe_service(
 
 CreditServiceDep = Annotated[CreditService, Depends(get_credit_service)]
 StripeServiceDep = Annotated[StripeService, Depends(get_stripe_service)]
+CreditPricingServiceDep = Annotated[CreditPricingService, Depends(get_pricing_service)]
+
+
+@router.get("/costs")
+@limiter.limit(RATE_LIMIT_BILLING)
+async def get_operation_costs(
+    request: Request,  # noqa: ARG001 - Required for rate limiting
+    response: Response,
+    pricing_service: CreditPricingServiceDep,
+) -> OperationCostsResponse:
+    """Get credit costs for all AI operations.
+
+    This is a public endpoint that returns the credit cost for each operation type.
+    Used by the frontend to display accurate costs in the UI.
+
+    Cache-Control: 5 minutes (300s) - pricing rarely changes and frontend
+    React Query also caches for 5 minutes, so HTTP caching aligns with that.
+    """
+    # Set cache headers - pricing rarely changes, cache for 5 minutes
+    response.headers["Cache-Control"] = "public, max-age=300"
+
+    pricing_list = await pricing_service.get_all_pricing()
+
+    # Build the response with active pricing
+    costs: dict[str, int] = {}
+    items: list[OperationCostResponse] = []
+
+    for pricing in pricing_list:
+        if pricing.is_active:
+            costs[pricing.operation_type] = pricing.credits_per_operation
+            items.append(
+                OperationCostResponse(
+                    operation_type=pricing.operation_type,
+                    credits=pricing.credits_per_operation,
+                    display_name=pricing.display_name,
+                )
+            )
+
+    return OperationCostsResponse(costs=costs, items=items)
 
 
 @router.get("/balance")

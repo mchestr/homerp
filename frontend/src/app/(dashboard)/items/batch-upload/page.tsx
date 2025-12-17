@@ -37,6 +37,7 @@ import {
 import { useInsufficientCreditsModal } from "@/components/billing/insufficient-credits-modal";
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
+import { useOperationCosts } from "@/hooks/use-operation-costs";
 
 // Add icons to location tree for display
 const LOCATION_TYPES: Record<string, string> = {
@@ -87,6 +88,8 @@ export default function BatchUploadPage() {
   const { show: showInsufficientCredits, InsufficientCreditsModal } =
     useInsufficientCreditsModal();
   const { refreshCredits } = useAuth();
+  const { getCost, isLoading: isCostsLoading } = useOperationCosts();
+  const imageClassificationCost = getCost("image_classification");
 
   const { data: categoryTree } = useQuery({
     queryKey: ["categories", "tree"],
@@ -635,7 +638,11 @@ export default function BatchUploadPage() {
                         data-testid={`classify-item-${item.id}`}
                       >
                         <Sparkles className="h-4 w-4" />
-                        {tBilling("identifyItem")}
+                        {isCostsLoading
+                          ? "..."
+                          : tBilling("identifyItem", {
+                              cost: imageClassificationCost ?? 1,
+                            })}
                       </Button>
                     )}
                   </div>

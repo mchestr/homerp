@@ -47,6 +47,7 @@ import {
   TREE_VIEW_MODES,
   type TreeViewMode,
 } from "@/hooks/use-view-mode";
+import { useOperationCosts } from "@/hooks/use-operation-costs";
 
 const LOCATION_TYPES = [
   { value: "room", label: "Room", icon: "🏠" },
@@ -106,6 +107,8 @@ export default function LocationsPage() {
   const { openQRModal, QRCodeModal } = useQRCodeModal();
   const { openLabelModal, LabelPrintModal } = useLabelPrintModal();
   const tLabels = useTranslations("labels");
+  const { getCost, isLoading: isCostsLoading } = useOperationCosts();
+  const locationAnalysisCost = getCost("location_analysis");
 
   const { data: locations, isLoading } = useQuery({
     queryKey: ["locations"],
@@ -489,7 +492,11 @@ export default function LocationsPage() {
                         ) : (
                           <>
                             <Sparkles className="h-4 w-4" />
-                            {t("analyzeWithAiCredit")}
+                            {isCostsLoading
+                              ? "..."
+                              : t("analyzeWithAiCredit", {
+                                  cost: locationAnalysisCost ?? 1,
+                                })}
                           </>
                         )}
                       </Button>

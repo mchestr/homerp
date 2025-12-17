@@ -20,6 +20,7 @@ import { cn, isInsufficientCreditsError } from "@/lib/utils";
 import { useInsufficientCreditsModal } from "@/components/billing/insufficient-credits-modal";
 import { useAuth } from "@/context/auth-context";
 import { useTranslations } from "next-intl";
+import { useOperationCosts } from "@/hooks/use-operation-costs";
 
 export type UploadedImage = {
   id: string;
@@ -60,6 +61,8 @@ export function MultiImageUpload({
   const { refreshCredits } = useAuth();
   const t = useTranslations("billing");
   const tImages = useTranslations("images");
+  const { getCost, isLoading: isCostsLoading } = useOperationCosts();
+  const classificationCostPerImage = getCost("image_classification");
 
   // Get the selected image or first image
   const selectedImage = uploadedImages.find(
@@ -73,7 +76,10 @@ export function MultiImageUpload({
     !allClassified &&
     unclassifiedImages.length > 0 &&
     uploadedImages.length > 0;
-  const creditCost = uploadedImages.length;
+  const creditCost =
+    classificationCostPerImage === undefined
+      ? undefined
+      : uploadedImages.length * classificationCostPerImage;
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -299,7 +305,9 @@ export function MultiImageUpload({
               ) : (
                 <>
                   <Sparkles className="h-4 w-4" />
-                  {t("identifyItemCostMultiple", { count: creditCost })}
+                  {isCostsLoading || creditCost === undefined
+                    ? "..."
+                    : t("identifyItemCostMultiple", { count: creditCost })}
                 </>
               )}
             </Button>

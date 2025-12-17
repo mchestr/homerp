@@ -93,6 +93,7 @@ import {
   getMostUsedItemsApiV1ItemsStatsMostUsedGet,
   getMyProfileApiV1ProfileMeGet,
   getNotificationPreferencesApiV1NotificationsPreferencesGet,
+  getOperationCostsApiV1BillingCostsGet,
   getPackApiV1AdminPacksPackIdGet,
   getPackBreakdownApiV1AdminStatsPacksGet,
   getPricingApiV1AdminPricingPricingIdGet,
@@ -409,6 +410,8 @@ import type {
   GetNotificationPreferencesApiV1NotificationsPreferencesGetData,
   GetNotificationPreferencesApiV1NotificationsPreferencesGetError,
   GetNotificationPreferencesApiV1NotificationsPreferencesGetResponse,
+  GetOperationCostsApiV1BillingCostsGetData,
+  GetOperationCostsApiV1BillingCostsGetResponse,
   GetPackApiV1AdminPacksPackIdGetData,
   GetPackApiV1AdminPacksPackIdGetError,
   GetPackApiV1AdminPacksPackIdGetResponse,
@@ -1950,6 +1953,39 @@ export const getAuthUrlApiV1AuthProviderGetOptions = (
       return data;
     },
     queryKey: getAuthUrlApiV1AuthProviderGetQueryKey(options),
+  });
+
+export const getOperationCostsApiV1BillingCostsGetQueryKey = (
+  options?: Options<GetOperationCostsApiV1BillingCostsGetData>
+) => createQueryKey("getOperationCostsApiV1BillingCostsGet", options);
+
+/**
+ * Get Operation Costs
+ *
+ * Get credit costs for all AI operations.
+ *
+ * This is a public endpoint that returns the credit cost for each operation type.
+ * Used by the frontend to display accurate costs in the UI.
+ */
+export const getOperationCostsApiV1BillingCostsGetOptions = (
+  options?: Options<GetOperationCostsApiV1BillingCostsGetData>
+) =>
+  queryOptions<
+    GetOperationCostsApiV1BillingCostsGetResponse,
+    DefaultError,
+    GetOperationCostsApiV1BillingCostsGetResponse,
+    ReturnType<typeof getOperationCostsApiV1BillingCostsGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getOperationCostsApiV1BillingCostsGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getOperationCostsApiV1BillingCostsGetQueryKey(options),
   });
 
 export const getBalanceApiV1BillingBalanceGetQueryKey = (

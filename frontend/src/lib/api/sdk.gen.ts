@@ -256,6 +256,8 @@ import type {
   GetNotificationPreferencesApiV1NotificationsPreferencesGetData,
   GetNotificationPreferencesApiV1NotificationsPreferencesGetErrors,
   GetNotificationPreferencesApiV1NotificationsPreferencesGetResponses,
+  GetOperationCostsApiV1BillingCostsGetData,
+  GetOperationCostsApiV1BillingCostsGetResponses,
   GetPackApiV1AdminPacksPackIdGetData,
   GetPackApiV1AdminPacksPackIdGetErrors,
   GetPackApiV1AdminPacksPackIdGetResponses,
@@ -1233,6 +1235,25 @@ export const getAuthUrlApiV1AuthProviderGet = <
     GetAuthUrlApiV1AuthProviderGetErrors,
     ThrowOnError
   >({ url: "/api/v1/auth/{provider}", ...options });
+
+/**
+ * Get Operation Costs
+ *
+ * Get credit costs for all AI operations.
+ *
+ * This is a public endpoint that returns the credit cost for each operation type.
+ * Used by the frontend to display accurate costs in the UI.
+ */
+export const getOperationCostsApiV1BillingCostsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<GetOperationCostsApiV1BillingCostsGetData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    GetOperationCostsApiV1BillingCostsGetResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/billing/costs", ...options });
 
 /**
  * Get Balance
