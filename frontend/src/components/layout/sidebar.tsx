@@ -184,7 +184,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     <>
       {open && (
         <div
-          className="bg-background/80 fixed inset-0 z-40 backdrop-blur-xs md:hidden"
+          className="bg-background/80 fixed inset-0 z-40 touch-none backdrop-blur-xs md:hidden"
           onClick={onClose}
         />
       )}
@@ -282,7 +282,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         )}
 
         {/* Navigation */}
-        <div className="flex-1 overflow-auto px-3 pb-4">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-3 pb-4">
           <nav className="space-y-6">
             {visibleSections.map((section) => (
               <div key={section.label}>

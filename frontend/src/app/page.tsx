@@ -3,7 +3,7 @@ import { Package, Camera, FolderOpen } from "lucide-react";
 
 export default function Home() {
   return (
-    <main className="bg-background flex min-h-screen flex-col">
+    <main className="bg-background flex min-h-dvh flex-col">
       <header className="border-b">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <div className="flex items-center gap-3">
