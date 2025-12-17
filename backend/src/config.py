@@ -94,19 +94,30 @@ class Settings(BaseSettings):
     # SECURITY: Ensure this is properly restricted in production environments.
     allowed_networks: str = ""
 
-    def _is_production_environment(self) -> bool:
+    @property
+    def is_production(self) -> bool:
         """
         Determine if this is a production environment.
 
-        Uses multiple signals to detect production even if debug=True is misconfigured:
-        1. Explicit environment setting
-        2. Non-localhost frontend URL
+        Priority:
+        1. Explicit prod environment ("production", "prod") -> True
+        2. Explicit non-prod environment ("development", "staging", "test", "local") -> False
+        3. Fallback heuristic: non-localhost frontend URL -> True
+
+        This ensures staging/test environments are never treated as production,
+        even if they use non-localhost URLs.
         """
+        env_lower = self.environment.lower()
+
         # Explicit production environment
-        if self.environment.lower() in ("production", "prod"):
+        if env_lower in ("production", "prod"):
             return True
 
-        # Non-localhost frontend URL suggests production
+        # Explicit non-production environment - trust it
+        if env_lower in ("development", "dev", "staging", "test", "local"):
+            return False
+
+        # Fallback heuristic: non-localhost frontend URL suggests production
         return bool(
             self.frontend_url
             and not any(
@@ -130,11 +141,11 @@ class Settings(BaseSettings):
 
         # Use production detection instead of just debug flag
         # This prevents accidentally deploying with DEBUG=true and weak secrets
-        is_production = self._is_production_environment()
-        is_development = not is_production and self.debug
+        is_prod = self.is_production
+        is_development = not is_prod and self.debug
 
         if self.jwt_secret.lower() in weak_secrets:
-            if is_production:
+            if is_prod:
                 # In production, raise an error for weak secrets
                 raise ValueError(
                     "JWT_SECRET is set to a known weak value. "
@@ -157,7 +168,7 @@ class Settings(BaseSettings):
 
         # Check minimum length (32 characters recommended)
         if len(self.jwt_secret) < 32:
-            if is_production:
+            if is_prod:
                 raise ValueError(
                     f"JWT_SECRET is too short ({len(self.jwt_secret)} chars). "
                     "Please use at least 32 characters for security. "
