@@ -203,6 +203,11 @@ STRIPE_SECRET_KEY=sk_test_your-stripe-secret-key
 STRIPE_PUBLISHABLE_KEY=pk_test_your-stripe-publishable-key
 STRIPE_WEBHOOK_SECRET=whsec_your-stripe-webhook-secret
 UPLOAD_DIR=./uploads
+
+# Redis (REQUIRED in production for distributed rate limiting)
+# Development/staging/test: Optional - uses in-memory storage if not set
+# Production: REQUIRED - app will fail to start without this
+REDIS_URL=redis://localhost:6379
 ```
 
 ### Frontend

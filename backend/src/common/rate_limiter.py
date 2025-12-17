@@ -67,7 +67,7 @@ def configure_rate_limiting(app) -> None:
 
     settings = get_settings()
 
-    is_production = settings._is_production_environment()
+    is_production = settings.is_production
 
     # Configure storage backend
     if settings.redis_url:
