@@ -1,10 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import {
-  billingApi,
-  type OperationCostsResponse,
-} from "@/lib/api/api-client";
+import { getOperationCostsApiV1BillingCostsGetOptions } from "@/lib/api/@tanstack/react-query.gen";
+import type { OperationCostsResponse } from "@/lib/api/types.gen";
 
 export type OperationType =
   | "image_classification"
@@ -31,8 +29,7 @@ export type OperationType =
  */
 export function useOperationCosts() {
   const { data, isLoading, error } = useQuery({
-    queryKey: ["billing", "costs"],
-    queryFn: () => billingApi.getCosts(),
+    ...getOperationCostsApiV1BillingCostsGetOptions(),
     staleTime: 5 * 60 * 1000, // 5 minutes - matches backend Cache-Control max-age
     gcTime: 30 * 60 * 1000, // 30 minutes - keep in cache longer for background tabs
   });

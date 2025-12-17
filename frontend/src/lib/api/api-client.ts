@@ -944,24 +944,8 @@ export type RefundResponse = {
   refunded_credits: number;
 };
 
-export type OperationCost = {
-  operation_type: string;
-  credits: number;
-  display_name: string;
-};
-
-export type OperationCostsResponse = {
-  costs: Record<string, number>;
-  items: OperationCost[];
-};
-
 // Billing API
 export const billingApi = {
-  getCosts: () =>
-    apiRequest<OperationCostsResponse>("/api/v1/billing/costs", {
-      skipInventoryContext: true,
-    }),
-
   getBalance: () => apiRequest<CreditBalance>("/api/v1/billing/balance"),
 
   getPacks: () => apiRequest<CreditPack[]>("/api/v1/billing/packs"),
