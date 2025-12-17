@@ -1,13 +1,17 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from slowapi.middleware import SlowAPIMiddleware
 
 from src.common.rate_limiter import configure_rate_limiting
 from src.common.security_headers import SecurityHeadersMiddleware
 from src.config import get_settings
-from src.database import close_db, init_db
+from src.database import check_db_connectivity, close_db, init_db
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -46,10 +50,24 @@ def create_app() -> FastAPI:
     configure_rate_limiting(app)
     app.add_middleware(SlowAPIMiddleware)
 
-    # Health check endpoint
+    # Health check endpoint for Kubernetes probes
     @app.get("/health")
     async def health_check():
-        return {"status": "healthy"}
+        """
+        Health check endpoint for Kubernetes liveness/readiness probes.
+
+        Returns 200 if healthy, 503 if database is unavailable.
+        """
+        db_connected = await check_db_connectivity()
+
+        if db_connected:
+            return {"status": "healthy", "database": "connected"}
+
+        logger.warning("Health check failed: database connectivity check failed")
+        return JSONResponse(
+            status_code=503,
+            content={"status": "unhealthy", "database": "disconnected"},
+        )
 
     # Include routers
     from src.admin.router import router as admin_router

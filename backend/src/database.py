@@ -95,3 +95,20 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
 
 # Type alias for dependency injection
 AsyncSessionDep = Annotated[AsyncSession, Depends(get_session)]
+
+
+async def check_db_connectivity() -> bool:
+    """
+    Check database connectivity by executing a simple query.
+
+    Returns True if the database is reachable, False otherwise.
+    """
+    if _session_factory is None:
+        return False
+
+    try:
+        async with _session_factory() as session:
+            await session.execute(text("SELECT 1"))
+            return True
+    except Exception:
+        return False
