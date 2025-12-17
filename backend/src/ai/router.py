@@ -11,6 +11,7 @@ from src.ai.schemas import (
 from src.ai.service import AIClassificationService, get_ai_service
 from src.ai.usage_service import AIUsageService, get_ai_usage_service
 from src.auth.dependencies import CurrentUserIdDep
+from src.billing.pricing_service import CreditPricingService, get_pricing_service
 from src.billing.router import CreditServiceDep
 from src.common.rate_limiter import RATE_LIMIT_AI, limiter
 from src.database import AsyncSessionDep
@@ -82,19 +83,23 @@ async def query_assistant(
     ai_service: Annotated[AIClassificationService, Depends(get_ai_service)],
     ai_usage_service: Annotated[AIUsageService, Depends(get_ai_usage_service)],
     credit_service: CreditServiceDep,
+    pricing_service: Annotated[CreditPricingService, Depends(get_pricing_service)],
 ) -> AssistantQueryResponse:
     """Query the AI assistant with a prompt.
 
     The assistant can provide personalized suggestions based on your inventory,
     such as planting schedules, craft project ideas, organization tips, and more.
 
-    Consumes 1 credit per query.
+    Consumes credits based on configured pricing.
     """
+    # Get the cost for assistant query
+    operation_cost = await pricing_service.get_operation_cost("assistant_query")
+
     # Check if user has credits
-    if not await credit_service.has_credits(user_id):
+    if not await credit_service.has_credits(user_id, amount=operation_cost):
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
-            detail="Insufficient credits. Please purchase more credits to use AI assistant.",
+            detail=f"Insufficient credits. You need {operation_cost} credits for AI assistant queries.",
         )
 
     # Build inventory context if requested
@@ -123,6 +128,7 @@ async def query_assistant(
         credit_transaction = await credit_service.deduct_credit(
             user_id,
             f"AI Assistant query: {data.prompt[:50]}...",
+            amount=operation_cost,
             commit=False,
         )
 
@@ -137,6 +143,7 @@ async def query_assistant(
                 "prompt_length": len(data.prompt),
                 "include_inventory_context": data.include_inventory_context,
                 "items_in_context": items_in_context,
+                "credits_charged": operation_cost,
             },
         )
 
@@ -148,7 +155,7 @@ async def query_assistant(
             response=response_text,
             context_used=data.include_inventory_context,
             items_in_context=items_in_context,
-            credits_used=1,
+            credits_used=operation_cost,
         )
 
     except Exception as e:

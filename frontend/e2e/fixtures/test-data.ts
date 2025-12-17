@@ -628,3 +628,47 @@ export const testGridfinityUnits = [
     updated_at: "2024-01-02T00:00:00Z",
   },
 ];
+
+// Admin pricing test data
+export const testAdminPricing = [
+  {
+    id: "pricing-1",
+    operation_type: "image_classification",
+    credits_per_operation: 1,
+    display_name: "Image Classification",
+    description: "AI-powered image classification and metadata extraction",
+    is_active: true,
+    created_at: "2024-01-01T00:00:00Z",
+    updated_at: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: "pricing-2",
+    operation_type: "location_suggestion",
+    credits_per_operation: 1,
+    display_name: "Location Suggestions",
+    description: "AI-powered location organization suggestions",
+    is_active: true,
+    created_at: "2024-01-01T00:00:00Z",
+    updated_at: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: "pricing-3",
+    operation_type: "declutter_analysis",
+    credits_per_operation: 1,
+    display_name: "Declutter Analysis",
+    description: "AI analysis of items to identify declutter opportunities",
+    is_active: true,
+    created_at: "2024-01-01T00:00:00Z",
+    updated_at: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: "pricing-4",
+    operation_type: "category_suggestion",
+    credits_per_operation: 0,
+    display_name: "Category Suggestions",
+    description: "AI-powered category suggestions for items",
+    is_active: false,
+    created_at: "2024-01-01T00:00:00Z",
+    updated_at: "2024-01-01T00:00:00Z",
+  },
+];

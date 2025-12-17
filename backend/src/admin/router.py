@@ -35,6 +35,8 @@ from src.admin.schemas import (
 from src.ai.usage_service import AIUsageService, get_ai_usage_service
 from src.auth.dependencies import AdminUserDep
 from src.billing.models import CreditPack, CreditTransaction
+from src.billing.pricing_service import CreditPricingService, get_pricing_service
+from src.billing.schemas import CreditPricingResponse, CreditPricingUpdate
 from src.config import Settings, get_settings
 from src.database import AsyncSessionDep
 from src.feedback.models import Feedback
@@ -143,6 +145,60 @@ async def delete_pack(
     # Soft delete - just mark as inactive
     pack.is_active = False
     await session.commit()
+
+
+# ============================================================================
+# Credit Pricing Management
+# ============================================================================
+
+
+@router.get("/pricing")
+async def list_pricing(
+    _admin: AdminUserDep,
+    pricing_service: Annotated[CreditPricingService, Depends(get_pricing_service)],
+) -> list[CreditPricingResponse]:
+    """List all credit pricing configurations."""
+    pricing_list = await pricing_service.get_all_pricing()
+    return [CreditPricingResponse.model_validate(p) for p in pricing_list]
+
+
+@router.get("/pricing/{pricing_id}")
+async def get_pricing(
+    pricing_id: UUID,
+    _admin: AdminUserDep,
+    pricing_service: Annotated[CreditPricingService, Depends(get_pricing_service)],
+) -> CreditPricingResponse:
+    """Get a specific credit pricing configuration."""
+    pricing = await pricing_service.get_pricing_by_id(pricing_id)
+    if not pricing:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Pricing configuration not found",
+        )
+    return CreditPricingResponse.model_validate(pricing)
+
+
+@router.put("/pricing/{pricing_id}")
+async def update_pricing(
+    pricing_id: UUID,
+    data: CreditPricingUpdate,
+    _admin: AdminUserDep,
+    pricing_service: Annotated[CreditPricingService, Depends(get_pricing_service)],
+) -> CreditPricingResponse:
+    """Update a credit pricing configuration."""
+    pricing = await pricing_service.update_pricing(
+        pricing_id=pricing_id,
+        credits_per_operation=data.credits_per_operation,
+        display_name=data.display_name,
+        description=data.description,
+        is_active=data.is_active,
+    )
+    if not pricing:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Pricing configuration not found",
+        )
+    return CreditPricingResponse.model_validate(pricing)
 
 
 # ============================================================================

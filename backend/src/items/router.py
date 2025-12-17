@@ -5,12 +5,14 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, s
 from fastapi.responses import Response
 
 from src.ai.service import AIClassificationService, get_ai_service
+from src.ai.usage_service import AIUsageService, get_ai_usage_service
 from src.auth.dependencies import (
     CurrentUserDep,
     CurrentUserIdDep,
     EditableInventoryContextDep,
     InventoryContextDep,
 )
+from src.billing.pricing_service import CreditPricingService, get_pricing_service
 from src.billing.router import CreditServiceDep
 from src.common.schemas import PaginatedResponse
 from src.database import AsyncSessionDep
@@ -390,20 +392,25 @@ async def suggest_item_location(
     user_id: CurrentUserIdDep,
     inventory_owner_id: InventoryContextDep,
     ai_service: Annotated[AIClassificationService, Depends(get_ai_service)],
+    ai_usage_service: Annotated[AIUsageService, Depends(get_ai_usage_service)],
     credit_service: CreditServiceDep,
+    pricing_service: Annotated[CreditPricingService, Depends(get_pricing_service)],
 ) -> ItemLocationSuggestionResponse:
     """Suggest optimal storage locations for an item using AI.
 
     Analyzes the item's characteristics and the user's existing locations
     with their stored items to recommend suitable storage places.
 
-    Consumes 1 credit on successful suggestion.
+    Consumes credits based on configured pricing.
     """
+    # Get the cost for location suggestion
+    operation_cost = await pricing_service.get_operation_cost("location_suggestion")
+
     # Check if user has credits (use the actual user's credits, not the inventory owner)
-    if not await credit_service.has_credits(user_id):
+    if not await credit_service.has_credits(user_id, amount=operation_cost):
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
-            detail="Insufficient credits. Please purchase more credits to use AI suggestions.",
+            detail=f"Insufficient credits. You need {operation_cost} credits for location suggestions.",
         )
 
     # Get locations with sample items from the inventory context
@@ -448,8 +455,8 @@ async def suggest_item_location(
         pass
 
     try:
-        # Get AI suggestions
-        result = await ai_service.suggest_item_location(
+        # Get AI suggestions with token usage tracking
+        result, token_usage = await ai_service.suggest_item_location_with_usage(
             item_name=data.item_name,
             item_category=data.item_category,
             item_description=data.item_description,
@@ -458,11 +465,30 @@ async def suggest_item_location(
             similar_items=similar_items_data,
         )
 
-        # Deduct credit after successful suggestion
-        await credit_service.deduct_credit(
+        # Deduct credit after successful suggestion (commit=False for atomicity)
+        credit_transaction = await credit_service.deduct_credit(
             user_id,
             f"Location suggestion: {data.item_name}",
+            amount=operation_cost,
+            commit=False,
         )
+
+        # Log token usage
+        await ai_usage_service.log_usage(
+            session=session,
+            user_id=user_id,
+            operation_type="location_suggestion",
+            token_usage=token_usage,
+            credit_transaction_id=credit_transaction.id if credit_transaction else None,
+            metadata={
+                "item_name": data.item_name,
+                "has_similar_items": similar_items_data is not None,
+                "credits_charged": operation_cost,
+            },
+        )
+
+        # Commit both credit deduction and usage logging together
+        await session.commit()
 
         return ItemLocationSuggestionResponse(
             success=True,

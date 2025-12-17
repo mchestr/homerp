@@ -7,6 +7,33 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.database import Base
 
 
+class CreditPricing(Base):
+    """Credit pricing - configurable credit costs per operation type."""
+
+    __tablename__ = "credit_pricing"
+
+    id: Mapped[UUID] = mapped_column(
+        primary_key=True, server_default=func.gen_random_uuid()
+    )
+    operation_type: Mapped[str] = mapped_column(
+        String(50), nullable=False, unique=True, index=True
+    )  # 'image_classification', 'location_analysis', 'assistant_query', 'location_suggestion'
+    credits_per_operation: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=1, server_default="1"
+    )
+    display_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    description: Mapped[str | None] = mapped_column(String(500))
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, default=True, server_default="true"
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
 class CreditPack(Base):
     """Credit pack - purchasable credit bundles."""
 

@@ -19,6 +19,7 @@ from src.ai.service import AIClassificationService, get_ai_service
 from src.ai.usage_service import AIUsageService, get_ai_usage_service
 from src.auth.dependencies import CurrentUserIdDep, InventoryContextDep
 from src.auth.service import AuthService, get_auth_service
+from src.billing.pricing_service import CreditPricingService, get_pricing_service
 from src.billing.router import CreditServiceDep
 from src.common.rate_limiter import RATE_LIMIT_AI, RATE_LIMIT_UPLOAD, limiter
 from src.config import Settings, get_settings
@@ -203,13 +204,14 @@ async def classify_images(
     ai_service: Annotated[AIClassificationService, Depends(get_ai_service)],
     ai_usage_service: Annotated[AIUsageService, Depends(get_ai_usage_service)],
     credit_service: CreditServiceDep,
+    pricing_service: Annotated[CreditPricingService, Depends(get_pricing_service)],
 ) -> ClassificationResponse:
     """Classify one or more uploaded images using AI.
 
     Multiple images are sent together in a single request, allowing the AI
     to see different angles/views of the same item for better identification.
 
-    Charges 1 credit per image.
+    Charges credits per image based on configured pricing.
     """
     num_images = len(data.image_ids)
     if num_images == 0:
@@ -218,11 +220,15 @@ async def classify_images(
             detail="At least one image ID is required",
         )
 
+    # Get the cost per image from pricing
+    cost_per_image = await pricing_service.get_operation_cost("image_classification")
+    total_credits = cost_per_image * num_images
+
     # Check if user has enough credits for all images
-    if not await credit_service.has_credits(user_id, amount=num_images):
+    if not await credit_service.has_credits(user_id, amount=total_credits):
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
-            detail=f"Insufficient credits. You need {num_images} credits to classify {num_images} image(s).",
+            detail=f"Insufficient credits. You need {total_credits} credits to classify {num_images} image(s).",
         )
 
     # Get all image records
@@ -250,13 +256,13 @@ async def classify_images(
             custom_prompt=data.custom_prompt,
         )
 
-        # Deduct credits after successful classification (1 per image)
+        # Deduct credits after successful classification
         # Use commit=False to ensure atomicity with usage logging
         filenames = [img.original_filename or "image" for img in images]
         credit_transaction = await credit_service.deduct_credit(
             user_id,
             f"AI classification ({num_images} images): {', '.join(filenames[:3])}{'...' if len(filenames) > 3 else ''}",
-            amount=num_images,
+            amount=total_credits,
             commit=False,
         )
 
@@ -271,6 +277,7 @@ async def classify_images(
                 "image_count": num_images,
                 "image_ids": [str(img.id) for img in images],
                 "has_custom_prompt": data.custom_prompt is not None,
+                "credits_per_image": cost_per_image,
             },
         )
 
@@ -288,7 +295,7 @@ async def classify_images(
             success=True,
             classification=classification,
             create_item_prefill=prefill,
-            credits_charged=num_images,
+            credits_charged=total_credits,
         )
 
     except Exception as e:

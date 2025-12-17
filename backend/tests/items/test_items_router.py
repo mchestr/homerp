@@ -1,12 +1,14 @@
 """HTTP integration tests for items router."""
 
 import uuid
+from decimal import Decimal
 from unittest.mock import AsyncMock, patch
 
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.ai.schemas import TokenUsage
 from src.categories.models import Category
 from src.items.models import Item
 from src.locations.models import Location
@@ -1477,10 +1479,18 @@ class TestSuggestLocationEndpoint:
             ]
         )
 
+        mock_token_usage = TokenUsage(
+            prompt_tokens=100,
+            completion_tokens=50,
+            total_tokens=150,
+            model="gpt-4o-mini",
+            estimated_cost_usd=Decimal("0.001"),
+        )
+
         with patch(
-            "src.items.router.AIClassificationService.suggest_item_location",
+            "src.items.router.AIClassificationService.suggest_item_location_with_usage",
             new_callable=AsyncMock,
-            return_value=mock_result,
+            return_value=(mock_result, mock_token_usage),
         ):
             response = await authenticated_client.post(
                 "/api/v1/items/suggest-location",
@@ -1537,10 +1547,18 @@ class TestSuggestLocationEndpoint:
             ]
         )
 
+        mock_token_usage = TokenUsage(
+            prompt_tokens=120,
+            completion_tokens=60,
+            total_tokens=180,
+            model="gpt-4o-mini",
+            estimated_cost_usd=Decimal("0.0012"),
+        )
+
         with patch(
-            "src.items.router.AIClassificationService.suggest_item_location",
+            "src.items.router.AIClassificationService.suggest_item_location_with_usage",
             new_callable=AsyncMock,
-            return_value=mock_result,
+            return_value=(mock_result, mock_token_usage),
         ):
             response = await authenticated_client.post(
                 "/api/v1/items/suggest-location",
