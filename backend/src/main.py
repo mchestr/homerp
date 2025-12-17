@@ -64,6 +64,7 @@ def create_app() -> FastAPI:
     from src.images.router import router as images_router
     from src.items.router import router as items_router
     from src.locations.router import router as locations_router
+    from src.notifications.router import router as notifications_router
     from src.profile.router import router as profile_router
     from src.webhooks.router import router as webhooks_router
 
@@ -86,6 +87,9 @@ def create_app() -> FastAPI:
     app.include_router(webhooks_router, prefix="/api/v1/webhooks", tags=["webhooks"])
     app.include_router(
         collaboration_router, prefix="/api/v1/collaboration", tags=["collaboration"]
+    )
+    app.include_router(
+        notifications_router, prefix="/api/v1/notifications", tags=["notifications"]
     )
 
     return app
