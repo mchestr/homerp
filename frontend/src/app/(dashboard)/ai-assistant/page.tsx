@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useInsufficientCreditsModal } from "@/components/billing/insufficient-credits-modal";
+import { useOperationCosts } from "@/hooks/use-operation-costs";
 
 interface Message {
   id: string;
@@ -38,6 +39,8 @@ export default function AIAssistantPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { show: showCreditsModal, InsufficientCreditsModal } =
     useInsufficientCreditsModal();
+  const { getCost } = useOperationCosts();
+  const assistantQueryCost = getCost("assistant_query");
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -279,7 +282,7 @@ export default function AIAssistantPage() {
               <span>{prompt.length}/2000</span>
               <span className="flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" />
-                {t("aiAssistant.creditCost")}
+                {t("aiAssistant.creditCost", { cost: assistantQueryCost })}
               </span>
             </div>
           </form>

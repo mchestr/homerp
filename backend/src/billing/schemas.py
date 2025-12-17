@@ -130,3 +130,22 @@ class CreditPricingUpdate(BaseModel):
         None, max_length=500, description="Description of the operation"
     )
     is_active: bool | None = Field(None, description="Whether pricing is active")
+
+
+class OperationCostResponse(BaseModel):
+    """Response schema for public operation costs."""
+
+    operation_type: str = Field(..., description="Operation type identifier")
+    credits: int = Field(..., description="Credits required for this operation")
+    display_name: str = Field(..., description="Human-readable name")
+
+
+class OperationCostsResponse(BaseModel):
+    """Response schema for all operation costs."""
+
+    costs: dict[str, int] = Field(
+        ..., description="Map of operation_type to credit cost"
+    )
+    items: list[OperationCostResponse] = Field(
+        ..., description="Detailed list of operation costs"
+    )

@@ -49,6 +49,7 @@ import {
   LocationSuggestionItem,
 } from "@/lib/api/api-client";
 import { parseQuantityEstimate } from "@/lib/utils";
+import { useOperationCosts } from "@/hooks/use-operation-costs";
 
 // Add icons to location tree for display
 const LOCATION_TYPES: Record<string, string> = {
@@ -79,6 +80,8 @@ export default function NewItemPage() {
   const tCommon = useTranslations("common");
   const tImages = useTranslations("images");
   const tSimilarItems = useTranslations("similarItems");
+  const { getCost } = useOperationCosts();
+  const locationSuggestionCost = getCost("location_suggestion");
 
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [classification, setClassification] =
@@ -628,7 +631,7 @@ export default function NewItemPage() {
               <Sparkles className="mr-2 h-4 w-4" />
               {t("locationSuggestion.suggestLocation")}
               <span className="ml-2 text-xs opacity-70">
-                ({t("billing.creditCost")})
+                ({t("billing.creditCost", { cost: locationSuggestionCost })})
               </span>
             </Button>
           </div>

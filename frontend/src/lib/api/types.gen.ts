@@ -3410,6 +3410,54 @@ export type OperationBreakdown = {
 };
 
 /**
+ * OperationCostResponse
+ *
+ * Response schema for public operation costs.
+ */
+export type OperationCostResponse = {
+  /**
+   * Operation Type
+   *
+   * Operation type identifier
+   */
+  operation_type: string;
+  /**
+   * Credits
+   *
+   * Credits required for this operation
+   */
+  credits: number;
+  /**
+   * Display Name
+   *
+   * Human-readable name
+   */
+  display_name: string;
+};
+
+/**
+ * OperationCostsResponse
+ *
+ * Response schema for all operation costs.
+ */
+export type OperationCostsResponse = {
+  /**
+   * Costs
+   *
+   * Map of operation_type to credit cost
+   */
+  costs: {
+    [key: string]: number;
+  };
+  /**
+   * Items
+   *
+   * Detailed list of operation costs
+   */
+  items: Array<OperationCostResponse>;
+};
+
+/**
  * PackBreakdownItem
  *
  * Credit pack sales breakdown item.
@@ -6384,6 +6432,23 @@ export type GetAuthUrlApiV1AuthProviderGetResponses = {
 
 export type GetAuthUrlApiV1AuthProviderGetResponse =
   GetAuthUrlApiV1AuthProviderGetResponses[keyof GetAuthUrlApiV1AuthProviderGetResponses];
+
+export type GetOperationCostsApiV1BillingCostsGetData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/billing/costs";
+};
+
+export type GetOperationCostsApiV1BillingCostsGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: OperationCostsResponse;
+};
+
+export type GetOperationCostsApiV1BillingCostsGetResponse =
+  GetOperationCostsApiV1BillingCostsGetResponses[keyof GetOperationCostsApiV1BillingCostsGetResponses];
 
 export type GetBalanceApiV1BillingBalanceGetData = {
   body?: never;

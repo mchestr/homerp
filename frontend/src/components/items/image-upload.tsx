@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { useInsufficientCreditsModal } from "@/components/billing/insufficient-credits-modal";
 import { useAuth } from "@/context/auth-context";
 import { useTranslations } from "next-intl";
+import { useOperationCosts } from "@/hooks/use-operation-costs";
 
 type UploadedImage = {
   id: string;
@@ -57,6 +58,8 @@ export function ImageUpload({
   const { refreshCredits } = useAuth();
   const t = useTranslations("billing");
   const tImages = useTranslations("images");
+  const { getCost } = useOperationCosts();
+  const classificationCost = getCost("image_classification");
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -262,7 +265,7 @@ export function ImageUpload({
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4" />
-                    {t("reclassifyCost")}
+                    {t("reclassifyCost", { cost: classificationCost })}
                   </>
                 )}
               </Button>
@@ -284,7 +287,7 @@ export function ImageUpload({
               ) : (
                 <>
                   <Sparkles className="h-4 w-4" />
-                  {t("identifyItemCost")}
+                  {t("identifyItemCost", { cost: classificationCost })}
                 </>
               )}
             </Button>

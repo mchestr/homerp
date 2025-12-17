@@ -27,6 +27,7 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useOperationCosts } from "@/hooks/use-operation-costs";
 
 function formatPrice(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
@@ -126,6 +127,8 @@ function TransactionRow({ transaction }: { transaction: CreditTransaction }) {
 function CreditsInfoCard() {
   const [isExpanded, setIsExpanded] = useState(false);
   const t = useTranslations("billing");
+  const { getCost } = useOperationCosts();
+  const imageClassificationCost = getCost("image_classification");
 
   return (
     <div className="bg-card rounded-xl border">
@@ -146,7 +149,7 @@ function CreditsInfoCard() {
       {isExpanded && (
         <div className="border-t px-6 pt-4 pb-6">
           <p className="text-muted-foreground text-sm">
-            {t("creditsExplanation")}
+            {t("creditsExplanation", { cost: imageClassificationCost })}
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             <div className="bg-muted/50 rounded-lg p-4">
@@ -175,7 +178,7 @@ function CreditsInfoCard() {
                 <h3 className="text-sm font-medium">{t("creditCostInfo")}</h3>
               </div>
               <p className="text-muted-foreground mt-2 text-xs">
-                {t("creditCostDescription")}
+                {t("creditCostDescription", { cost: imageClassificationCost })}
               </p>
             </div>
           </div>

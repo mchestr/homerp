@@ -5,11 +5,14 @@ import stripe
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, status
 
 from src.auth.dependencies import CurrentUserDep, CurrentUserIdDep
+from src.billing.pricing_service import CreditPricingService, get_pricing_service
 from src.billing.schemas import (
     CheckoutRequest,
     CheckoutResponse,
     CreditBalanceResponse,
     CreditPackResponse,
+    OperationCostResponse,
+    OperationCostsResponse,
     PaginatedTransactionResponse,
     PortalResponse,
     RefundRequest,
@@ -40,6 +43,36 @@ def get_stripe_service(
 
 CreditServiceDep = Annotated[CreditService, Depends(get_credit_service)]
 StripeServiceDep = Annotated[StripeService, Depends(get_stripe_service)]
+CreditPricingServiceDep = Annotated[CreditPricingService, Depends(get_pricing_service)]
+
+
+@router.get("/costs")
+async def get_operation_costs(
+    pricing_service: CreditPricingServiceDep,
+) -> OperationCostsResponse:
+    """Get credit costs for all AI operations.
+
+    This is a public endpoint that returns the credit cost for each operation type.
+    Used by the frontend to display accurate costs in the UI.
+    """
+    pricing_list = await pricing_service.get_all_pricing()
+
+    # Build the response with active pricing
+    costs: dict[str, int] = {}
+    items: list[OperationCostResponse] = []
+
+    for pricing in pricing_list:
+        if pricing.is_active:
+            costs[pricing.operation_type] = pricing.credits_per_operation
+            items.append(
+                OperationCostResponse(
+                    operation_type=pricing.operation_type,
+                    credits=pricing.credits_per_operation,
+                    display_name=pricing.display_name,
+                )
+            )
+
+    return OperationCostsResponse(costs=costs, items=items)
 
 
 @router.get("/balance")
