@@ -200,11 +200,9 @@ export default function SettingsPage() {
                 <Brain className="text-primary h-5 w-5" />
               </div>
               <div>
-                <h2 className="font-semibold">
-                  {t("settings.aiSystemProfile")}
-                </h2>
+                <h2 className="font-semibold">{t("settings.systemProfile")}</h2>
                 <p className="text-muted-foreground text-sm">
-                  {t("settings.aiSystemProfileDescription")}
+                  {t("settings.systemProfileDescription")}
                 </p>
               </div>
             </div>
