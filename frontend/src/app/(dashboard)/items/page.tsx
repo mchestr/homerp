@@ -21,6 +21,7 @@ import {
   Square,
   FolderX,
   MapPinOff,
+  Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InlineFacetedFilter } from "@/components/items/faceted-filter";
@@ -351,6 +352,15 @@ export default function ItemsPage() {
                 <Square className="h-4 w-4" />
                 {t("selectItems")}
               </Button>
+              <Link
+                href="/items/batch-upload"
+                data-testid="batch-upload-button"
+              >
+                <Button variant="outline" className="w-full gap-2 sm:w-auto">
+                  <Upload className="h-4 w-4" />
+                  {t("batchUpload")}
+                </Button>
+              </Link>
               <Link href="/items/new" data-testid="add-item-button">
                 <Button className="w-full sm:w-auto">
                   <Plus className="mr-2 h-4 w-4" />

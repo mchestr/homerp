@@ -162,7 +162,8 @@
     "clearLocation": "Effacer l'emplacement",
     "applyChanges": "Appliquer les Modifications",
     "batchUpdateSuccess": "{count} articles mis à jour avec succès",
-    "selectItems": "Sélectionnez des articles pour la mise à jour groupée"
+    "selectItems": "Sélectionnez des articles pour la mise à jour groupée",
+    "batchUpload": "Téléversement Groupé"
   },
   "categories": {
     "title": "Catégories",

@@ -195,7 +195,8 @@
     "createCategoryHierarchy": "Kategorie-Hierarchie erstellen?",
     "categoryCreationDescription": "Dies erstellt die folgenden Kategorien:",
     "underParent": "unter {parent}",
-    "existingCategoriesReused": "Vorhandene Kategorien mit übereinstimmenden Namen werden wiederverwendet."
+    "existingCategoriesReused": "Vorhandene Kategorien mit übereinstimmenden Namen werden wiederverwendet.",
+    "batchUpload": "Stapel-Upload"
   },
   "categories": {
     "title": "Kategorien",

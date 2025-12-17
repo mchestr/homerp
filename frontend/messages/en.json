@@ -195,7 +195,8 @@
     "createCategoryHierarchy": "Create Category Hierarchy?",
     "categoryCreationDescription": "This will create the following categories:",
     "underParent": "under {parent}",
-    "existingCategoriesReused": "Existing categories with matching names will be reused."
+    "existingCategoriesReused": "Existing categories with matching names will be reused.",
+    "batchUpload": "Batch Upload"
   },
   "categories": {
     "title": "Categories",

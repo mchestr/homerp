@@ -162,7 +162,8 @@
     "clearLocation": "Limpar local",
     "applyChanges": "Aplicar Alterações",
     "batchUpdateSuccess": "{count} itens atualizados com sucesso",
-    "selectItems": "Selecione itens para atualização em lote"
+    "selectItems": "Selecione itens para atualização em lote",
+    "batchUpload": "Upload em Lote"
   },
   "categories": {
     "title": "Categorias",
