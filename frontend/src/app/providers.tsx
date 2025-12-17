@@ -1,5 +1,8 @@
 "use client";
 
+// IMPORTANT: Import client-setup first to configure the API client before any API calls
+import "@/lib/api/client-setup";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { AuthProvider } from "@/context/auth-context";

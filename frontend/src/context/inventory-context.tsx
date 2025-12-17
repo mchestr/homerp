@@ -8,10 +8,8 @@ import {
   useState,
 } from "react";
 import { useAuth } from "@/context/auth-context";
-import {
-  apiRequest,
-  setInventoryContext as setApiInventoryContext,
-} from "@/lib/api/api-client";
+import { apiRequest } from "@/lib/api/api-client";
+import { setInventoryContext as setApiInventoryContext } from "@/lib/api/client-setup";
 
 type CollaboratorRole = "viewer" | "editor";
 
