@@ -450,4 +450,30 @@ test.describe("Storage Planner Create", () => {
     await page.getByTestId("gridfinity-name-input").click();
     await expect(heightInput).toHaveValue("7");
   });
+
+  test("restores minimum value on blur when dimension input is below minimum", async ({
+    page,
+  }) => {
+    await page.goto("/gridfinity");
+    await page.getByTestId("open-wizard-button").click();
+
+    // Select Gridfinity and proceed to configuration
+    await page.getByTestId("storage-type-gridfinity").click();
+    await page.getByTestId("wizard-next-button").click();
+
+    // Fill in name
+    await page.getByTestId("gridfinity-name-input").fill("Test");
+
+    // Test width below minimum (42) - enter 10
+    const widthInput = page.getByTestId("gridfinity-width-input");
+    await widthInput.fill("10");
+    await page.getByTestId("gridfinity-name-input").click();
+    await expect(widthInput).toHaveValue("42");
+
+    // Test height below minimum (7) - enter 3
+    const heightInput = page.getByTestId("gridfinity-height-input");
+    await heightInput.fill("3");
+    await page.getByTestId("gridfinity-name-input").click();
+    await expect(heightInput).toHaveValue("7");
+  });
 });
