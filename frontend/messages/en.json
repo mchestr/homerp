@@ -717,7 +717,10 @@
         "location_analysis": "AI analysis of location images to suggest storage organization",
         "assistant_query": "Ask the AI assistant questions about your inventory",
         "location_suggestion": "AI-powered suggestions for where to store items"
-      }
+      },
+      "updateSuccess": "Pricing Updated",
+      "pricingUpdated": "The pricing configuration has been saved.",
+      "updateFailed": "Update Failed"
     }
   },
   "webhooks": {
