@@ -1,5 +1,4 @@
 import asyncio
-from logging.config import fileConfig
 
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
@@ -18,8 +17,8 @@ from src.users.models import User  # noqa: F401
 
 config = context.config
 
-if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+# Note: Removed fileConfig(config.config_file_name) to prevent interference
+# with application logging configuration. Alembic will use default logging.
 
 target_metadata = Base.metadata
 

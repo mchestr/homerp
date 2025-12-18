@@ -1,3 +1,4 @@
+import logging
 from typing import Annotated
 from uuid import UUID
 
@@ -10,6 +11,8 @@ from src.auth.service import AuthService, get_auth_service
 from src.database import AsyncSessionDep
 from src.users.models import User
 from src.users.repository import UserRepository
+
+logger = logging.getLogger(__name__)
 
 # HTTP Bearer token security (auto_error=False to allow API key fallback)
 security = HTTPBearer(auto_error=False)
@@ -31,16 +34,21 @@ async def get_current_user_id(
     if credentials is not None:
         user_id = auth_service.verify_token(credentials.credentials)
         if user_id is not None:
+            logger.debug(f"Authenticated via Bearer token: user_id={user_id}")
             return user_id
+        logger.info("Bearer token provided but invalid or expired")
 
     # Try API key
     if x_api_key is not None:
         api_key_service = ApiKeyService(session)
         api_key = await api_key_service.validate_key(x_api_key)
         if api_key is not None:
+            logger.debug(f"Authenticated via API key: user_id={api_key.user_id}")
             return api_key.user_id
+        logger.info("API key provided but invalid")
 
     # Neither worked
+    logger.warning("Authentication failed: no valid credentials provided")
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid or expired authentication",
@@ -60,6 +68,7 @@ async def get_current_user(
     repo = UserRepository(session)
     user = await repo.get_by_id(user_id)
     if user is None:
+        logger.warning(f"User not found in database: user_id={user_id}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found",
@@ -131,6 +140,10 @@ async def get_inventory_context(
     try:
         owner_id = UUID(x_inventory_context)
     except ValueError:
+        logger.warning(
+            f"Invalid inventory context header: user_id={user_id}, "
+            f"header_value={x_inventory_context}"
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid X-Inventory-Context header. Must be a valid UUID.",
@@ -147,11 +160,18 @@ async def get_inventory_context(
     can_access = await collab_repo.can_access_inventory(owner_id)
 
     if not can_access:
+        logger.warning(
+            f"Inventory access denied: user_id={user_id}, "
+            f"requested_inventory_owner={owner_id}"
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have access to this inventory",
         )
 
+    logger.debug(
+        f"Accessing shared inventory: user_id={user_id}, inventory_owner={owner_id}"
+    )
     return owner_id
 
 
@@ -173,6 +193,10 @@ async def get_editable_inventory_context(
     try:
         owner_id = UUID(x_inventory_context)
     except ValueError:
+        logger.warning(
+            f"Invalid inventory context header (editable): user_id={user_id}, "
+            f"header_value={x_inventory_context}"
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid X-Inventory-Context header. Must be a valid UUID.",
@@ -189,11 +213,18 @@ async def get_editable_inventory_context(
     can_edit = await collab_repo.can_edit_inventory(owner_id)
 
     if not can_edit:
+        logger.warning(
+            f"Inventory edit access denied: user_id={user_id}, "
+            f"requested_inventory_owner={owner_id}"
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have edit access to this inventory",
         )
 
+    logger.debug(
+        f"Editing shared inventory: user_id={user_id}, inventory_owner={owner_id}"
+    )
     return owner_id
 
 

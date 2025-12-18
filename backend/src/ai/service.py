@@ -1,5 +1,6 @@
 import base64
 import json
+import logging
 import re
 from decimal import Decimal
 from typing import Any
@@ -17,6 +18,8 @@ from src.locations.schemas import (
     LocationSuggestion,
     LocationSuggestionItem,
 )
+
+logger = logging.getLogger(__name__)
 
 # OpenAI pricing per 1M tokens
 # Last updated: December 15, 2024
@@ -244,6 +247,12 @@ class AIClassificationService:
         if not images:
             raise ValueError("At least one image is required")
 
+        logger.info(
+            f"Starting image classification: image_count={len(images)}, "
+            f"has_custom_prompt={custom_prompt is not None}, "
+            f"model={self.settings.openai_model}"
+        )
+
         # Get prompts from templates
         system_prompt = self._template_manager.get_system_prompt(
             TEMPLATE_ITEM_CLASSIFICATION
@@ -297,6 +306,14 @@ class AIClassificationService:
         # Extract token usage
         token_usage = extract_token_usage(response)
 
+        logger.info(
+            f"OpenAI API response: model={token_usage.model}, "
+            f"prompt_tokens={token_usage.prompt_tokens}, "
+            f"completion_tokens={token_usage.completion_tokens}, "
+            f"total_tokens={token_usage.total_tokens}, "
+            f"estimated_cost_usd={token_usage.estimated_cost_usd}"
+        )
+
         # Parse response
         response_content = response.choices[0].message.content or "{}"
 
@@ -313,8 +330,17 @@ class AIClassificationService:
                 )
 
             data = json.loads(response_content)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
             # Fallback if parsing fails
+            snippet = (
+                response_content[:200] + "..."
+                if len(response_content) > 200
+                else response_content
+            )
+            logger.warning(
+                f"Failed to parse AI classification response as JSON: error={e}, "
+                f"response_length={len(response_content)}, snippet={snippet!r}"
+            )
             data = {
                 "identified_name": "Unknown Item",
                 "confidence": 0.0,
@@ -331,6 +357,11 @@ class AIClassificationService:
             specifications=data.get("specifications", {}),
             alternative_suggestions=data.get("alternative_suggestions"),
             quantity_estimate=data.get("quantity_estimate"),
+        )
+
+        logger.info(
+            f"Classification complete: identified_name={result.identified_name}, "
+            f"confidence={result.confidence}, category={result.category_path}"
         )
 
         return result, token_usage
@@ -420,6 +451,10 @@ class AIClassificationService:
         Returns:
             Tuple of (LocationAnalysisResult, TokenUsage)
         """
+        logger.info(
+            f"Starting location image analysis: model={self.settings.openai_model}"
+        )
+
         # Get prompts from templates
         system_prompt = self._template_manager.get_system_prompt(
             TEMPLATE_LOCATION_ANALYSIS
@@ -454,6 +489,12 @@ class AIClassificationService:
         # Extract token usage
         token_usage = extract_token_usage(response)
 
+        logger.info(
+            f"Location analysis API response: model={token_usage.model}, "
+            f"total_tokens={token_usage.total_tokens}, "
+            f"estimated_cost_usd={token_usage.estimated_cost_usd}"
+        )
+
         # Parse response
         content = response.choices[0].message.content or "{}"
 
@@ -466,8 +507,13 @@ class AIClassificationService:
                 content = content.split("```")[1].split("```")[0].strip()
 
             data = json.loads(content)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
             # Fallback if parsing fails
+            snippet = content[:200] + "..." if len(content) > 200 else content
+            logger.warning(
+                f"Failed to parse location analysis response as JSON: error={e}, "
+                f"response_length={len(content)}, snippet={snippet!r}"
+            )
             data = {
                 "parent": {
                     "name": "Unknown Storage",
@@ -503,6 +549,11 @@ class AIClassificationService:
             children=children,
             confidence=float(data.get("confidence", 0.0)),
             reasoning=data.get("reasoning", ""),
+        )
+
+        logger.info(
+            f"Location analysis complete: parent_name={result.parent.name}, "
+            f"children_count={len(result.children)}, confidence={result.confidence}"
         )
 
         return result, token_usage
@@ -549,6 +600,12 @@ class AIClassificationService:
         Returns:
             Tuple of (ItemLocationSuggestionResult, TokenUsage)
         """
+        logger.info(
+            f"Starting location suggestion: item_name={item_name}, "
+            f"locations_count={len(locations)}, "
+            f"similar_items_count={len(similar_items) if similar_items else 0}"
+        )
+
         # Get prompts from templates
         system_prompt = self._template_manager.get_system_prompt(
             TEMPLATE_LOCATION_SUGGESTION
@@ -581,6 +638,12 @@ class AIClassificationService:
         # Extract token usage
         token_usage = extract_token_usage(response)
 
+        logger.info(
+            f"Location suggestion API response: model={token_usage.model}, "
+            f"total_tokens={token_usage.total_tokens}, "
+            f"estimated_cost_usd={token_usage.estimated_cost_usd}"
+        )
+
         # Parse response
         content = response.choices[0].message.content or "{}"
 
@@ -593,8 +656,13 @@ class AIClassificationService:
                 content = content.split("```")[1].split("```")[0].strip()
 
             data = json.loads(content)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
             # Fallback if parsing fails
+            snippet = content[:200] + "..." if len(content) > 200 else content
+            logger.warning(
+                f"Failed to parse location suggestion response as JSON: error={e}, "
+                f"response_length={len(content)}, snippet={snippet!r}"
+            )
             return ItemLocationSuggestionResult(suggestions=[]), token_usage
 
         # Parse suggestions
@@ -620,6 +688,11 @@ class AIClassificationService:
             except (ValueError, TypeError):
                 # Skip invalid suggestion entries
                 continue
+
+        logger.info(
+            f"Location suggestion complete: item_name={item_name}, "
+            f"suggestions_count={len(suggestions)}"
+        )
 
         return ItemLocationSuggestionResult(suggestions=suggestions), token_usage
 
@@ -675,6 +748,11 @@ class AIClassificationService:
         Returns:
             Tuple of (response_text, TokenUsage)
         """
+        logger.info(
+            f"Starting assistant query: prompt_length={len(user_prompt)}, "
+            f"has_inventory_context={inventory_context is not None}"
+        )
+
         # Get prompts from templates
         system_prompt = self._template_manager.get_system_prompt(TEMPLATE_ASSISTANT)
 
@@ -697,6 +775,12 @@ class AIClassificationService:
 
         # Extract token usage
         token_usage = extract_token_usage(response)
+
+        logger.info(
+            f"Assistant query API response: model={token_usage.model}, "
+            f"total_tokens={token_usage.total_tokens}, "
+            f"estimated_cost_usd={token_usage.estimated_cost_usd}"
+        )
 
         return response.choices[0].message.content or "", token_usage
 

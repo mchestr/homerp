@@ -5,6 +5,7 @@ from urllib.parse import urlencode
 
 import httpx
 
+from src.common.logging_utils import mask_email
 from src.config import Settings, get_settings
 
 logger = logging.getLogger(__name__)
@@ -76,6 +77,7 @@ class OAuthProvider(ABC):
 
     async def exchange_code(self, code: str, redirect_uri: str) -> str:
         """Exchange authorization code for access token."""
+        logger.debug(f"Exchanging authorization code: provider={self.PROVIDER_NAME}")
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 self.TOKEN_URL,
@@ -90,6 +92,7 @@ class OAuthProvider(ABC):
             )
             response.raise_for_status()
             data = response.json()
+            logger.info(f"Token exchange successful: provider={self.PROVIDER_NAME}")
             return data["access_token"]
 
     @abstractmethod
@@ -132,6 +135,7 @@ class GoogleOAuth(OAuthProvider):
 
     async def get_user_info(self, access_token: str) -> OAuthUserInfo:
         """Get user info from Google."""
+        logger.debug("Fetching user info from Google")
         async with httpx.AsyncClient() as client:
             response = await client.get(
                 self.USERINFO_URL,
@@ -140,6 +144,10 @@ class GoogleOAuth(OAuthProvider):
             response.raise_for_status()
             data = response.json()
 
+            logger.info(
+                f"Google user info retrieved: oauth_id={data['id']}, "
+                f"email={mask_email(data['email'])}"
+            )
             return OAuthUserInfo(
                 provider=self.PROVIDER_NAME,
                 oauth_id=data["id"],
@@ -170,6 +178,7 @@ class GitHubOAuth(OAuthProvider):
 
     async def get_user_info(self, access_token: str) -> OAuthUserInfo:
         """Get user info from GitHub."""
+        logger.debug("Fetching user info from GitHub")
         async with httpx.AsyncClient() as client:
             # Get user profile
             response = await client.get(
@@ -186,6 +195,10 @@ class GitHubOAuth(OAuthProvider):
             # Need to fetch from /user/emails endpoint
             email = data.get("email")
             if not email:
+                logger.debug(
+                    f"GitHub profile email not public, fetching from /user/emails: "
+                    f"github_id={data['id']}"
+                )
                 email_response = await client.get(
                     "https://api.github.com/user/emails",
                     headers={
@@ -208,8 +221,14 @@ class GitHubOAuth(OAuthProvider):
                             break
 
             if not email:
+                logger.warning(
+                    f"No email found for GitHub user: github_id={data['id']}"
+                )
                 raise ValueError("No email found for GitHub user")
 
+            logger.info(
+                f"GitHub user info retrieved: oauth_id={data['id']}, email={mask_email(email)}"
+            )
             return OAuthUserInfo(
                 provider=self.PROVIDER_NAME,
                 oauth_id=str(data["id"]),
