@@ -1,4 +1,5 @@
 import hashlib
+import logging
 import os
 import re
 from typing import Annotated
@@ -34,6 +35,8 @@ from src.images.schemas import (
     PaginatedImagesResponse,
 )
 from src.images.storage import LocalStorage, get_storage
+
+logger = logging.getLogger(__name__)
 
 
 def compute_content_hash(content: bytes) -> str:
@@ -136,6 +139,10 @@ async def upload_image(
     # Validate declared file type
     allowed_types = {"image/jpeg", "image/png", "image/webp", "image/gif"}
     if file.content_type not in allowed_types:
+        logger.warning(
+            f"Image upload rejected - invalid type: user_id={user_id}, "
+            f"content_type={file.content_type}, filename={file.filename}"
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"File type {file.content_type} not allowed. Allowed: {allowed_types}",
@@ -147,6 +154,10 @@ async def upload_image(
     # Validate file size
     max_size = settings.max_upload_size_mb * 1024 * 1024
     if len(content) > max_size:
+        logger.warning(
+            f"Image upload rejected - too large: user_id={user_id}, "
+            f"size_bytes={len(content)}, max_bytes={max_size}"
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"File too large. Maximum size: {settings.max_upload_size_mb}MB",
@@ -154,6 +165,10 @@ async def upload_image(
 
     # Validate file content matches declared MIME type (prevent content-type spoofing)
     if not validate_image_magic_bytes(content, file.content_type):
+        logger.warning(
+            f"Image upload rejected - MIME type mismatch: user_id={user_id}, "
+            f"declared_type={file.content_type}, filename={file.filename}"
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="File content does not match declared content type. "
@@ -171,6 +186,10 @@ async def upload_image(
     existing_image = await repo.get_by_content_hash(content_hash)
     if existing_image:
         # Return existing image - this preserves any AI classification results
+        logger.info(
+            f"Image upload - duplicate detected: user_id={user_id}, "
+            f"existing_image_id={existing_image.id}, content_hash={content_hash[:16]}..."
+        )
         return ImageUploadResponse.model_validate(existing_image)
 
     # Save to storage
@@ -188,6 +207,11 @@ async def upload_image(
         size_bytes=len(content),
         content_hash=content_hash,
         thumbnail_path=thumbnail_path,
+    )
+
+    logger.info(
+        f"Image uploaded: user_id={user_id}, image_id={image.id}, "
+        f"size_bytes={len(content)}, mime_type={file.content_type}"
     )
 
     return ImageUploadResponse.model_validate(image)
@@ -220,12 +244,21 @@ async def classify_images(
             detail="At least one image ID is required",
         )
 
+    logger.info(
+        f"Classification request: user_id={user_id}, image_count={num_images}, "
+        f"image_ids={[str(id) for id in data.image_ids]}"
+    )
+
     # Get the cost per image from pricing
     cost_per_image = await pricing_service.get_operation_cost("image_classification")
     total_credits = cost_per_image * num_images
 
     # Check if user has enough credits for all images
     if not await credit_service.has_credits(user_id, amount=total_credits):
+        logger.info(
+            f"Classification rejected - insufficient credits: user_id={user_id}, "
+            f"required={total_credits}"
+        )
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
             detail=f"Insufficient credits. You need {total_credits} credits to classify {num_images} image(s).",
@@ -237,6 +270,10 @@ async def classify_images(
     for image_id in data.image_ids:
         image = await repo.get_by_id(image_id)
         if not image:
+            logger.warning(
+                f"Classification failed - image not found: user_id={user_id}, "
+                f"image_id={image_id}"
+            )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Image {image_id} not found",
@@ -291,6 +328,13 @@ async def classify_images(
         # Create prefill data
         prefill = ai_service.create_item_prefill(classification)
 
+        logger.info(
+            f"Classification complete: user_id={user_id}, "
+            f"identified_name={classification.identified_name}, "
+            f"confidence={classification.confidence}, "
+            f"credits_charged={total_credits}"
+        )
+
         return ClassificationResponse(
             success=True,
             classification=classification,
@@ -299,6 +343,12 @@ async def classify_images(
         )
 
     except Exception as e:
+        logger.error(
+            f"Classification failed: user_id={user_id}, "
+            f"image_ids={[str(id) for id in data.image_ids]}, "
+            f"error={type(e).__name__}: {e}",
+            exc_info=True,
+        )
         return ClassificationResponse(
             success=False,
             error=str(e),

@@ -1,3 +1,4 @@
+import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Annotated
@@ -9,6 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.orm import DeclarativeBase
 
 from src.config import Settings
+
+logger = logging.getLogger(__name__)
 
 
 class Base(DeclarativeBase):
@@ -47,6 +50,7 @@ def init_db(settings: Settings):
     global _engine, _session_factory
     _engine = create_engine(settings)
     _session_factory = create_session_factory(_engine)
+    logger.info("Database engine initialized")
 
 
 async def close_db():
@@ -104,11 +108,15 @@ async def check_db_connectivity() -> bool:
     Returns True if the database is reachable, False otherwise.
     """
     if _session_factory is None:
+        logger.warning(
+            "Database connectivity check failed: session factory not initialized"
+        )
         return False
 
     try:
         async with _session_factory() as session:
             await session.execute(text("SELECT 1"))
             return True
-    except Exception:
+    except Exception as e:
+        logger.error(f"Database connectivity check failed: {type(e).__name__}: {e}")
         return False

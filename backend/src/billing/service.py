@@ -1,3 +1,4 @@
+import logging
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
@@ -10,6 +11,8 @@ from src.billing.models import CreditPack, CreditTransaction
 from src.billing.schemas import CreditBalanceResponse, TransactionResponse
 from src.config import Settings
 from src.users.models import User
+
+logger = logging.getLogger(__name__)
 
 
 class CreditService:
@@ -66,6 +69,10 @@ class CreditService:
             # Ensure new users have their initial free credits
             if user.free_credits_remaining == 0:
                 user.free_credits_remaining = self.settings.free_monthly_credits
+                logger.info(
+                    f"Initialized free credits for new user: user_id={user.id}, "
+                    f"credits={self.settings.free_monthly_credits}"
+                )
             await self.session.commit()
             return
 
@@ -85,6 +92,11 @@ class CreditService:
             )
             self.session.add(transaction)
             await self.session.commit()
+            logger.info(
+                f"Reset monthly free credits: user_id={user.id}, "
+                f"credits={self.settings.free_monthly_credits}, "
+                f"next_reset={user.free_credits_reset_at}"
+            )
 
     async def has_credits(self, user_id: UUID, amount: int = 1) -> bool:
         """Check if user has enough credits. Admins always have credits."""
@@ -122,10 +134,14 @@ class CreditService:
         # Use row-level locking to prevent race conditions
         user = await self.get_user_for_update(user_id)
         if not user:
+            logger.warning(
+                f"Credit deduction failed: user not found, user_id={user_id}"
+            )
             return None
 
         # Admins bypass credit system
         if user.is_admin:
+            logger.debug(f"Admin bypass for credit deduction: user_id={user_id}")
             return None
 
         # Check and reset free credits first
@@ -133,17 +149,25 @@ class CreditService:
 
         total_available = user.free_credits_remaining + user.credit_balance
         if total_available < amount:
+            logger.info(
+                f"Insufficient credits: user_id={user_id}, "
+                f"requested={amount}, available={total_available}"
+            )
             return None
 
         # Deduct from free credits first, then purchased credits
         remaining_to_deduct = amount
+        free_used = 0
+        purchased_used = 0
         if user.free_credits_remaining > 0:
             free_to_use = min(user.free_credits_remaining, remaining_to_deduct)
             user.free_credits_remaining -= free_to_use
             remaining_to_deduct -= free_to_use
+            free_used = free_to_use
 
         if remaining_to_deduct > 0:
             user.credit_balance -= remaining_to_deduct
+            purchased_used = remaining_to_deduct
 
         # Log the usage transaction
         transaction = CreditTransaction(
@@ -158,6 +182,11 @@ class CreditService:
         else:
             await self.session.flush()
 
+        logger.info(
+            f"Credits deducted: user_id={user_id}, amount={amount}, "
+            f"free_used={free_used}, purchased_used={purchased_used}, "
+            f"transaction_id={transaction.id}, description={description}"
+        )
         return transaction
 
     async def add_credits(
@@ -173,6 +202,7 @@ class CreditService:
         """Add credits to user's balance."""
         user = await self.get_user(user_id)
         if not user:
+            logger.error(f"Failed to add credits: user not found, user_id={user_id}")
             raise ValueError("User not found")
 
         user.credit_balance += amount
@@ -190,6 +220,12 @@ class CreditService:
         await self.session.commit()
         await self.session.refresh(transaction)
 
+        logger.info(
+            f"Credits added: user_id={user_id}, amount={amount}, "
+            f"type={transaction_type}, transaction_id={transaction.id}, "
+            f"credit_pack_id={credit_pack_id}, "
+            f"stripe_checkout_session_id={stripe_checkout_session_id}"
+        )
         return transaction
 
     async def get_transaction_history(
@@ -287,6 +323,10 @@ class CreditService:
         """
         can_refund, message = await self.can_refund_purchase(transaction_id, user_id)
         if not can_refund:
+            logger.info(
+                f"Refund not eligible: user_id={user_id}, "
+                f"transaction_id={transaction_id}, reason={message}"
+            )
             return False, message, 0
 
         # Get the original transaction
@@ -316,6 +356,12 @@ class CreditService:
 
         await self.session.commit()
 
+        logger.info(
+            f"Refund processed: user_id={user_id}, "
+            f"original_transaction_id={transaction_id}, "
+            f"refund_transaction_id={refund_transaction.id}, "
+            f"amount={transaction.amount}"
+        )
         return True, "Refund processed successfully", transaction.amount
 
 
@@ -329,6 +375,10 @@ class StripeService:
     async def get_or_create_customer(self, session: AsyncSession, user: User) -> str:
         """Get or create a Stripe customer for a user."""
         if user.stripe_customer_id:
+            logger.debug(
+                f"Using existing Stripe customer: user_id={user.id}, "
+                f"customer_id={user.stripe_customer_id}"
+            )
             return user.stripe_customer_id
 
         # Create new Stripe customer
@@ -341,6 +391,10 @@ class StripeService:
         user.stripe_customer_id = customer.id
         await session.commit()
 
+        logger.info(
+            f"Created Stripe customer: user_id={user.id}, "
+            f"customer_id={customer.id}, email={user.email}"
+        )
         return customer.id
 
     async def create_checkout_session(
@@ -372,6 +426,11 @@ class StripeService:
             },
         )
 
+        logger.info(
+            f"Created Stripe checkout session: user_id={user.id}, "
+            f"pack_id={pack.id}, pack_name={pack.name}, credits={pack.credits}, "
+            f"session_id={checkout_session.id}"
+        )
         return checkout_session.url
 
     async def create_portal_session(
@@ -389,7 +448,13 @@ class StripeService:
 
     async def create_refund(self, payment_intent_id: str) -> stripe.Refund:
         """Create a Stripe refund for a payment."""
-        return stripe.Refund.create(payment_intent=payment_intent_id)
+        logger.info(f"Creating Stripe refund: payment_intent_id={payment_intent_id}")
+        refund = stripe.Refund.create(payment_intent=payment_intent_id)
+        logger.info(
+            f"Stripe refund created: refund_id={refund.id}, "
+            f"payment_intent_id={payment_intent_id}, status={refund.status}"
+        )
+        return refund
 
     def construct_webhook_event(self, payload: bytes, signature: str) -> stripe.Event:
         """Construct and verify a Stripe webhook event."""

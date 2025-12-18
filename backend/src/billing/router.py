@@ -1,3 +1,4 @@
+import logging
 from typing import Annotated
 from uuid import UUID
 
@@ -31,6 +32,8 @@ from src.billing.service import CreditService, StripeService
 from src.common.rate_limiter import RATE_LIMIT_BILLING, limiter
 from src.config import Settings, get_settings
 from src.database import AsyncSessionDep
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -262,10 +265,15 @@ async def handle_webhook(
     try:
         event = stripe_service.construct_webhook_event(payload, stripe_signature)
     except stripe.SignatureVerificationError as e:
+        logger.warning(f"Stripe webhook signature verification failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid signature: {e}",
         ) from None
+
+    logger.info(
+        f"Stripe webhook received: event_type={event.type}, event_id={event.id}"
+    )
 
     # Handle checkout.session.completed
     if event.type == "checkout.session.completed":
@@ -274,6 +282,11 @@ async def handle_webhook(
         user_id = checkout_session.metadata.get("user_id")
         credit_pack_id = checkout_session.metadata.get("credit_pack_id")
         credits = int(checkout_session.metadata.get("credits", 0))
+
+        logger.info(
+            f"Processing checkout completion: session_id={checkout_session.id}, "
+            f"user_id={user_id}, credit_pack_id={credit_pack_id}, credits={credits}"
+        )
 
         if user_id and credit_pack_id and credits > 0:
             pack = await credit_service.get_credit_pack(UUID(credit_pack_id))
@@ -286,11 +299,27 @@ async def handle_webhook(
                 stripe_checkout_session_id=checkout_session.id,
                 stripe_payment_intent_id=checkout_session.payment_intent,
             )
+            logger.info(
+                f"Credits added from checkout: user_id={user_id}, credits={credits}, "
+                f"pack_name={pack.name if pack else 'unknown'}"
+            )
+        else:
+            logger.warning(
+                f"Missing metadata in checkout session: session_id={checkout_session.id}, "
+                f"user_id={user_id}, credit_pack_id={credit_pack_id}, credits={credits}"
+            )
 
     # Handle charge.refunded
     elif event.type == "charge.refunded":
         # This is triggered after we initiate a refund
         # The credit deduction is already handled in process_refund
-        pass
+        charge = event.data.object
+        logger.info(
+            f"Stripe charge refunded: charge_id={charge.id}, "
+            f"amount_refunded={charge.amount_refunded}"
+        )
+
+    else:
+        logger.debug(f"Unhandled Stripe webhook event type: {event.type}")
 
     return {"status": "success"}
