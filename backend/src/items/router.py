@@ -1,3 +1,4 @@
+import logging
 from typing import Annotated
 from uuid import UUID
 
@@ -47,6 +48,8 @@ from src.locations.schemas import (
 )
 from src.locations.service import LocationService
 from src.notifications.alert_service import AlertService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -750,45 +753,84 @@ async def check_out_item(
     a low stock alert email will be sent (subject to user preferences and
     24-hour deduplication).
     """
+    logger.info(
+        f"POST /items/{item_id}/check-out called: quantity={data.quantity}, "
+        f"user_id={user.id}, inventory_owner_id={inventory_owner_id}"
+    )
+
     repo = ItemRepository(session, inventory_owner_id)
 
     # Acquire a row-level lock on the item to prevent race conditions
     # This ensures no concurrent check-outs can exceed available quantity
     item = await repo.get_by_id_for_update(item_id)
     if not item:
+        logger.warning(f"Check-out failed - item not found: item_id={item_id}")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Item not found",
         )
 
+    logger.info(
+        f"Item found for check-out: item_id={item_id}, item_name={item.name}, "
+        f"current_quantity={item.quantity}, min_quantity={item.min_quantity}"
+    )
+
     # Calculate available quantity: total stock minus currently checked out
     usage_stats = await repo.get_usage_stats(item_id)
     available_quantity = item.quantity - usage_stats.currently_checked_out
+    logger.info(
+        f"Check-out availability: item_id={item_id}, "
+        f"total_quantity={item.quantity}, checked_out={usage_stats.currently_checked_out}, "
+        f"available={available_quantity}, requested={data.quantity}"
+    )
 
     # Validate that check-out quantity doesn't exceed available stock
     if data.quantity > available_quantity:
         if available_quantity <= 0:
+            logger.warning(
+                f"Check-out rejected - no items available: item_id={item_id}"
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="No items available for checkout",
             )
+        logger.warning(
+            f"Check-out rejected - insufficient quantity: item_id={item_id}, "
+            f"requested={data.quantity}, available={available_quantity}"
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Cannot check out {data.quantity} items. Only {available_quantity} available",
         )
 
     record = await repo.create_check_in_out(item_id, "check_out", data)
+    logger.info(f"Check-out record created: item_id={item_id}, record_id={record.id}")
 
     # Check for low stock and trigger alert if needed
     # Refresh item to get updated state after check-out record is created
     item = await repo.get_by_id(item_id)
-    if item and item.is_low_stock:
-        alert_service = AlertService(session, inventory_owner_id)
-        await alert_service.check_and_send_low_stock_alert(
-            item=item,
-            user=user,
-            background_tasks=background_tasks,
+    if item:
+        logger.info(
+            f"Checking low stock after check-out: item_id={item_id}, "
+            f"quantity={item.quantity}, min_quantity={item.min_quantity}, "
+            f"is_low_stock={item.is_low_stock}"
         )
+        if item.is_low_stock:
+            logger.info(
+                f"Item is low stock after check-out, triggering alert: "
+                f"item_id={item_id}, item_name={item.name}, "
+                f"quantity={item.quantity}, min_quantity={item.min_quantity}"
+            )
+            alert_service = AlertService(session, inventory_owner_id)
+            await alert_service.check_and_send_low_stock_alert(
+                item=item,
+                user=user,
+                background_tasks=background_tasks,
+            )
+        else:
+            logger.info(
+                f"Item not low stock after check-out, no alert needed: item_id={item_id}"
+            )
 
     return CheckInOutResponse.model_validate(record)
 

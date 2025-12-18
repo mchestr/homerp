@@ -1,5 +1,6 @@
 """Repository for notification database operations."""
 
+import logging
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
@@ -10,6 +11,8 @@ from sqlalchemy.orm import selectinload
 from src.items.models import Item
 from src.notifications.models import AlertHistory, AlertStatus, NotificationPreferences
 from src.notifications.schemas import NotificationPreferencesUpdate
+
+logger = logging.getLogger(__name__)
 
 
 class NotificationRepository:
@@ -30,8 +33,12 @@ class NotificationRepository:
 
     async def get_or_create_preferences(self) -> NotificationPreferences:
         """Get notification preferences, creating defaults if not exists."""
+        logger.info(f"Getting notification preferences for user_id={self.user_id}")
         prefs = await self.get_preferences()
         if prefs is None:
+            logger.info(
+                f"No preferences found, creating defaults for user_id={self.user_id}"
+            )
             prefs = NotificationPreferences(
                 user_id=self.user_id,
                 email_notifications_enabled=True,
@@ -40,6 +47,13 @@ class NotificationRepository:
             self.session.add(prefs)
             await self.session.commit()
             await self.session.refresh(prefs)
+            logger.info(f"Created default preferences for user_id={self.user_id}")
+        else:
+            logger.info(
+                f"Found existing preferences for user_id={self.user_id}: "
+                f"email_enabled={prefs.email_notifications_enabled}, "
+                f"low_stock_enabled={prefs.low_stock_email_enabled}"
+            )
         return prefs
 
     async def update_preferences(
@@ -64,6 +78,10 @@ class NotificationRepository:
     ) -> bool:
         """Check if an alert was sent for this item within the time window."""
         cutoff = datetime.now(UTC) - timedelta(hours=within_hours)
+        logger.info(
+            f"Checking deduplication: item_id={item_id}, alert_type={alert_type}, "
+            f"user_id={self.user_id}, within_hours={within_hours}, cutoff={cutoff}"
+        )
         result = await self.session.execute(
             select(func.count(AlertHistory.id)).where(
                 AlertHistory.user_id == self.user_id,
@@ -74,7 +92,12 @@ class NotificationRepository:
             )
         )
         count = result.scalar_one()
-        return count > 0
+        was_alerted = count > 0
+        logger.info(
+            f"Deduplication check result: item_id={item_id}, "
+            f"alerts_in_window={count}, was_alerted_recently={was_alerted}"
+        )
+        return was_alerted
 
     async def create_alert_history(
         self,
@@ -89,6 +112,11 @@ class NotificationRepository:
         error_message: str | None = None,
     ) -> AlertHistory:
         """Create an alert history record."""
+        logger.info(
+            f"Creating alert history: item_id={item_id}, user_id={self.user_id}, "
+            f"alert_type={alert_type}, channel={channel}, status={status}, "
+            f"recipient={recipient_email}"
+        )
         alert = AlertHistory(
             user_id=self.user_id,
             item_id=item_id,
@@ -105,6 +133,7 @@ class NotificationRepository:
         self.session.add(alert)
         await self.session.commit()
         await self.session.refresh(alert)
+        logger.info(f"Alert history created: alert_id={alert.id}, item_id={item_id}")
         return alert
 
     async def update_alert_status(
@@ -114,6 +143,10 @@ class NotificationRepository:
         error_message: str | None = None,
     ) -> AlertHistory | None:
         """Update the status of an alert history record."""
+        logger.info(
+            f"Updating alert status: alert_id={alert_id}, new_status={status}, "
+            f"error_message={error_message}"
+        )
         result = await self.session.execute(
             select(AlertHistory).where(
                 AlertHistory.id == alert_id,
@@ -122,11 +155,21 @@ class NotificationRepository:
         )
         alert = result.scalar_one_or_none()
         if alert:
+            old_status = alert.status
             alert.status = status
             if error_message:
                 alert.error_message = error_message
             await self.session.commit()
             await self.session.refresh(alert)
+            logger.info(
+                f"Alert status updated: alert_id={alert_id}, "
+                f"old_status={old_status}, new_status={status}"
+            )
+        else:
+            logger.warning(
+                f"Alert not found for status update: alert_id={alert_id}, "
+                f"user_id={self.user_id}"
+            )
         return alert
 
     async def get_alert_history(
@@ -168,6 +211,10 @@ class NotificationRepository:
         item_ids: list[UUID] | None = None,
     ) -> list[Item]:
         """Get low stock items for the current user, optionally filtered by IDs."""
+        logger.info(
+            f"Querying low stock items: user_id={self.user_id}, "
+            f"item_ids_filter={item_ids}"
+        )
         query = select(Item).where(
             Item.user_id == self.user_id,
             Item.min_quantity.isnot(None),
@@ -178,4 +225,9 @@ class NotificationRepository:
             query = query.where(Item.id.in_(item_ids))
 
         result = await self.session.execute(query)
-        return list(result.scalars().all())
+        items = list(result.scalars().all())
+        logger.info(
+            f"Found {len(items)} low stock items for user_id={self.user_id}: "
+            f"item_ids={[str(item.id) for item in items]}"
+        )
+        return items

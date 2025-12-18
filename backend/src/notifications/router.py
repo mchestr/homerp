@@ -1,5 +1,7 @@
 """Notification router for API endpoints."""
 
+import logging
+
 from fastapi import APIRouter, Query
 
 from src.auth.dependencies import CurrentUserDep, CurrentUserIdDep
@@ -15,6 +17,8 @@ from src.notifications.schemas import (
     NotificationPreferencesUpdate,
 )
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
 
 
@@ -24,8 +28,14 @@ async def get_notification_preferences(
     user_id: CurrentUserIdDep,
 ) -> NotificationPreferencesResponse:
     """Get current user's notification preferences."""
+    logger.info(f"GET /notifications/preferences called: user_id={user_id}")
     repo = NotificationRepository(session, user_id)
     prefs = await repo.get_or_create_preferences()
+    logger.info(
+        f"Returning preferences: user_id={user_id}, "
+        f"email_enabled={prefs.email_notifications_enabled}, "
+        f"low_stock_enabled={prefs.low_stock_email_enabled}"
+    )
     return NotificationPreferencesResponse.model_validate(prefs)
 
 
@@ -36,8 +46,16 @@ async def update_notification_preferences(
     user_id: CurrentUserIdDep,
 ) -> NotificationPreferencesResponse:
     """Update notification preferences."""
+    logger.info(
+        f"PUT /notifications/preferences called: user_id={user_id}, data={data}"
+    )
     repo = NotificationRepository(session, user_id)
     prefs = await repo.update_preferences(data)
+    logger.info(
+        f"Preferences updated: user_id={user_id}, "
+        f"email_enabled={prefs.email_notifications_enabled}, "
+        f"low_stock_enabled={prefs.low_stock_email_enabled}"
+    )
     return NotificationPreferencesResponse.model_validate(prefs)
 
 
@@ -53,9 +71,19 @@ async def trigger_low_stock_alerts(
     currently below their minimum quantity threshold and haven't been alerted
     in the last 24 hours.
     """
-    alert_service = AlertService(session, user.id)
     item_ids = data.item_ids if data else None
-    return await alert_service.trigger_low_stock_alerts(user, item_ids)
+    logger.info(
+        f"POST /notifications/low-stock/trigger called: user_id={user.id}, "
+        f"user_email={user.email}, item_ids={item_ids}"
+    )
+    alert_service = AlertService(session, user.id)
+    result = await alert_service.trigger_low_stock_alerts(user, item_ids)
+    logger.info(
+        f"Low stock trigger complete: user_id={user.id}, "
+        f"triggered={result.triggered_count}, skipped={result.skipped_count}, "
+        f"failed={result.failed_count}"
+    )
+    return result
 
 
 @router.get("/history")
@@ -67,11 +95,18 @@ async def get_alert_history(
     limit: int = Query(20, ge=1, le=100),
 ) -> PaginatedResponse[AlertHistoryResponse]:
     """Get alert history for the current user."""
+    logger.info(
+        f"GET /notifications/history called: user_id={user_id}, "
+        f"alert_type={alert_type}, page={page}, limit={limit}"
+    )
     repo = NotificationRepository(session, user_id)
     alerts, total = await repo.get_alert_history(
         alert_type=alert_type,
         page=page,
         limit=limit,
+    )
+    logger.info(
+        f"Returning {len(alerts)} alerts (total: {total}) for user_id={user_id}"
     )
 
     # Build response with item names

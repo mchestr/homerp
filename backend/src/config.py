@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     app_name: str = "HomERP"
     debug: bool = False
     environment: str = "development"  # development, staging, production
+    log_level: str = "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
     # Database
     database_url: str = "postgresql+asyncpg://homerp:homerp@localhost:5432/homerp"

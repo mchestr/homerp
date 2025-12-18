@@ -71,19 +71,40 @@ class AlertService:
         This method is called after a check-out to trigger automatic alerts.
         It queues the alert in the background to not block the API response.
         """
+        logger.info(
+            f"Checking low stock alert: item_id={item.id}, item_name={item.name}, "
+            f"quantity={item.quantity}, min_quantity={item.min_quantity}, "
+            f"is_low_stock={item.is_low_stock}, user_id={self.user_id}"
+        )
+
         if not item.is_low_stock:
+            logger.info(
+                f"Item not low stock, skipping alert: item_id={item.id}, "
+                f"quantity={item.quantity}, min_quantity={item.min_quantity}"
+            )
             return
 
         # Check user preferences
         prefs = await self.repository.get_or_create_preferences()
+        logger.info(
+            f"User notification preferences: user_id={self.user_id}, "
+            f"email_enabled={prefs.email_notifications_enabled}, "
+            f"low_stock_enabled={prefs.low_stock_email_enabled}"
+        )
+
         if not prefs.email_notifications_enabled or not prefs.low_stock_email_enabled:
-            logger.debug(f"Skipping alert for item {item.id}: notifications disabled")
+            logger.info(
+                f"Skipping alert - notifications disabled: item_id={item.id}, "
+                f"user_id={self.user_id}, email_enabled={prefs.email_notifications_enabled}, "
+                f"low_stock_enabled={prefs.low_stock_email_enabled}"
+            )
             return
 
         # Check deduplication (24-hour window)
         if await self.repository.was_alerted_recently(item.id, "low_stock"):
-            logger.debug(
-                f"Skipping alert for item {item.id}: already alerted within 24 hours"
+            logger.info(
+                f"Skipping alert - already alerted within 24 hours: "
+                f"item_id={item.id}, user_id={self.user_id}"
             )
             return
 
@@ -98,7 +119,10 @@ class AlertService:
             user_email=user.email,
             user_name=user.name or user.email.split("@")[0],
         )
-        logger.info(f"Queued low stock alert for item {item.id}")
+        logger.info(
+            f"Queued low stock alert background task: item_id={item.id}, "
+            f"item_name={item.name}, user_email={user.email}, user_id={self.user_id}"
+        )
 
     async def _send_low_stock_email(
         self,
@@ -116,6 +140,11 @@ class AlertService:
         """
         from src.database import get_session
 
+        logger.info(
+            f"Background task started: sending low stock email for item_id={item_id}, "
+            f"item_name={item_name}, user_email={user_email}, user_id={self.user_id}"
+        )
+
         async for session in get_session():
             try:
                 repo = NotificationRepository(session, self.user_id)
@@ -132,12 +161,17 @@ class AlertService:
                 }
 
                 # Render templates
+                logger.info(f"Rendering email templates for item_id={item_id}")
                 html_body = self._render_template("low_stock_alert.html", **context)
                 text_body = self._render_template("low_stock_alert.txt", **context)
 
                 subject = f"Low Stock Alert: {item_name}"
 
                 # Create alert history record (pending)
+                logger.info(
+                    f"Creating alert history record: item_id={item_id}, "
+                    f"recipient={user_email}, status=PENDING"
+                )
                 alert = await repo.create_alert_history(
                     item_id=item_id,
                     alert_type="low_stock",
@@ -148,8 +182,13 @@ class AlertService:
                     item_min_quantity=item_min_quantity,
                     status=AlertStatus.PENDING.value,
                 )
+                logger.info(f"Alert history record created: alert_id={alert.id}")
 
                 # Send email
+                logger.info(
+                    f"Sending email via EmailService: to={user_email}, "
+                    f"subject={subject}, item_id={item_id}"
+                )
                 success = await self.email_service.send_email(
                     to_email=user_email,
                     subject=subject,
@@ -160,12 +199,19 @@ class AlertService:
                 # Update alert status
                 if success:
                     await repo.update_alert_status(alert.id, AlertStatus.SENT.value)
-                    logger.info(f"Low stock alert sent for item {item_id}")
+                    logger.info(
+                        f"Low stock alert sent successfully: item_id={item_id}, "
+                        f"alert_id={alert.id}, recipient={user_email}"
+                    )
                 else:
                     await repo.update_alert_status(
                         alert.id, AlertStatus.FAILED.value, "Email send failed"
                     )
-                    logger.error(f"Failed to send low stock alert for item {item_id}")
+                    logger.error(
+                        f"Failed to send low stock alert: item_id={item_id}, "
+                        f"alert_id={alert.id}, recipient={user_email} - "
+                        f"EmailService.send_email returned False"
+                    )
 
             except Exception as e:
                 # Provide specific logging for common failure scenarios
@@ -201,8 +247,18 @@ class AlertService:
         Returns:
             Summary of triggered alerts
         """
+        logger.info(
+            f"Manual trigger_low_stock_alerts called: user_id={self.user_id}, "
+            f"item_ids={item_ids}"
+        )
+
         # Check user preferences
         prefs = await self.repository.get_or_create_preferences()
+        logger.info(
+            f"User preferences for manual trigger: user_id={self.user_id}, "
+            f"email_enabled={prefs.email_notifications_enabled}"
+        )
+
         if not prefs.email_notifications_enabled:
             return LowStockAlertResponse(
                 triggered_count=0,
@@ -220,8 +276,12 @@ class AlertService:
 
         # Get low stock items
         items = await self.repository.get_low_stock_items(item_ids)
+        logger.info(
+            f"Found {len(items)} low stock items for manual trigger: user_id={self.user_id}"
+        )
 
         if not items:
+            logger.info(f"No low stock items to alert: user_id={self.user_id}")
             return LowStockAlertResponse(
                 triggered_count=0,
                 skipped_count=0,
@@ -235,8 +295,17 @@ class AlertService:
         item_summaries: list[AlertedItemSummary] = []
 
         for item in items:
+            logger.info(
+                f"Processing manual alert for item: item_id={item.id}, "
+                f"item_name={item.name}, quantity={item.quantity}, "
+                f"min_quantity={item.min_quantity}"
+            )
+
             # Check deduplication
             if await self.repository.was_alerted_recently(item.id, "low_stock"):
+                logger.info(
+                    f"Skipping - recently alerted: item_id={item.id}, user_id={self.user_id}"
+                )
                 skipped_count += 1
                 item_summaries.append(
                     AlertedItemSummary(
@@ -250,8 +319,10 @@ class AlertService:
 
             # Send alert immediately (not in background for manual trigger)
             try:
+                logger.info(f"Sending sync alert for item: item_id={item.id}")
                 await self._send_low_stock_alert_sync(item, user)
                 triggered_count += 1
+                logger.info(f"Successfully sent alert for item: item_id={item.id}")
                 item_summaries.append(
                     AlertedItemSummary(
                         item_id=item.id,
@@ -261,6 +332,10 @@ class AlertService:
                 )
             except Exception as e:
                 failed_count += 1
+                logger.error(
+                    f"Failed to send manual alert: item_id={item.id}, error={e}",
+                    exc_info=True,
+                )
                 item_summaries.append(
                     AlertedItemSummary(
                         item_id=item.id,
@@ -270,6 +345,10 @@ class AlertService:
                     )
                 )
 
+        logger.info(
+            f"Manual trigger complete: user_id={self.user_id}, "
+            f"triggered={triggered_count}, skipped={skipped_count}, failed={failed_count}"
+        )
         return LowStockAlertResponse(
             triggered_count=triggered_count,
             skipped_count=skipped_count,
@@ -279,6 +358,11 @@ class AlertService:
 
     async def _send_low_stock_alert_sync(self, item: Item, user: User) -> None:
         """Send a low stock alert synchronously (for manual triggers)."""
+        logger.info(
+            f"Sending sync low stock alert: item_id={item.id}, "
+            f"item_name={item.name}, user_email={user.email}"
+        )
+
         context = {
             "user_name": user.name or user.email.split("@")[0],
             "item_name": item.name,
@@ -295,6 +379,9 @@ class AlertService:
         subject = f"Low Stock Alert: {item.name}"
 
         # Create alert history record
+        logger.info(
+            f"Creating alert history (sync): item_id={item.id}, recipient={user.email}"
+        )
         alert = await self.repository.create_alert_history(
             item_id=item.id,
             alert_type="low_stock",
@@ -305,8 +392,12 @@ class AlertService:
             item_min_quantity=item.min_quantity,
             status=AlertStatus.PENDING.value,
         )
+        logger.info(f"Alert history created (sync): alert_id={alert.id}")
 
         # Send email
+        logger.info(
+            f"Calling EmailService.send_email (sync): to={user.email}, item_id={item.id}"
+        )
         success = await self.email_service.send_email(
             to_email=user.email,
             subject=subject,
@@ -316,9 +407,16 @@ class AlertService:
 
         if success:
             await self.repository.update_alert_status(alert.id, AlertStatus.SENT.value)
+            logger.info(
+                f"Sync alert sent successfully: item_id={item.id}, alert_id={alert.id}"
+            )
         else:
             await self.repository.update_alert_status(
                 alert.id, AlertStatus.FAILED.value, "Email send failed"
+            )
+            logger.error(
+                f"Sync alert failed - EmailService returned False: "
+                f"item_id={item.id}, alert_id={alert.id}"
             )
             raise RuntimeError("Failed to send email")
 

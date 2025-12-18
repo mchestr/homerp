@@ -1,4 +1,5 @@
 import logging
+import sys
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -10,6 +11,42 @@ from src.common.rate_limiter import configure_rate_limiting
 from src.common.security_headers import SecurityHeadersMiddleware
 from src.config import get_settings
 from src.database import check_db_connectivity, close_db, init_db
+
+
+def configure_logging() -> None:
+    """Configure application logging.
+
+    Sets up structured logging with timestamps and log levels.
+    Log level is configurable via LOG_LEVEL environment variable.
+    """
+    settings = get_settings()
+
+    # Get log level from settings (default INFO)
+    log_level = getattr(logging, settings.log_level.upper(), logging.INFO)
+
+    # Configure root logger
+    logging.basicConfig(
+        level=log_level,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        stream=sys.stdout,
+        force=True,  # Override any existing configuration
+    )
+
+    # Set uvicorn access logs to same level (prevents duplicate logs)
+    logging.getLogger("uvicorn.access").setLevel(log_level)
+
+    # Reduce noise from third-party libraries
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("aiosmtplib").setLevel(logging.INFO)
+
+    logger = logging.getLogger(__name__)
+    logger.info(f"Logging configured: level={settings.log_level.upper()}")
+
+
+# Configure logging on module load
+configure_logging()
 
 logger = logging.getLogger(__name__)
 
