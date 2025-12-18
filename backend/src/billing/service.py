@@ -9,6 +9,7 @@ from sqlalchemy.orm import selectinload
 
 from src.billing.models import CreditPack, CreditTransaction
 from src.billing.schemas import CreditBalanceResponse, TransactionResponse
+from src.common.logging_utils import mask_email
 from src.config import Settings
 from src.users.models import User
 
@@ -393,7 +394,7 @@ class StripeService:
 
         logger.info(
             f"Created Stripe customer: user_id={user.id}, "
-            f"customer_id={customer.id}, email={user.email}"
+            f"customer_id={customer.id}, email={mask_email(user.email)}"
         )
         return customer.id
 

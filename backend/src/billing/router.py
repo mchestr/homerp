@@ -320,6 +320,6 @@ async def handle_webhook(
         )
 
     else:
-        logger.debug(f"Unhandled Stripe webhook event type: {event.type}")
+        logger.info(f"Unhandled Stripe webhook event type: {event.type}")
 
     return {"status": "success"}

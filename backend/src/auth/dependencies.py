@@ -36,7 +36,7 @@ async def get_current_user_id(
         if user_id is not None:
             logger.debug(f"Authenticated via Bearer token: user_id={user_id}")
             return user_id
-        logger.debug("Bearer token provided but invalid or expired")
+        logger.info("Bearer token provided but invalid or expired")
 
     # Try API key
     if x_api_key is not None:
@@ -45,7 +45,7 @@ async def get_current_user_id(
         if api_key is not None:
             logger.debug(f"Authenticated via API key: user_id={api_key.user_id}")
             return api_key.user_id
-        logger.debug("API key provided but invalid")
+        logger.info("API key provided but invalid")
 
     # Neither worked
     logger.warning("Authentication failed: no valid credentials provided")

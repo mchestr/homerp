@@ -332,9 +332,14 @@ class AIClassificationService:
             data = json.loads(response_content)
         except json.JSONDecodeError as e:
             # Fallback if parsing fails
+            snippet = (
+                response_content[:200] + "..."
+                if len(response_content) > 200
+                else response_content
+            )
             logger.warning(
                 f"Failed to parse AI classification response as JSON: error={e}, "
-                f"response_length={len(response_content)}"
+                f"response_length={len(response_content)}, snippet={snippet!r}"
             )
             data = {
                 "identified_name": "Unknown Item",
@@ -504,8 +509,10 @@ class AIClassificationService:
             data = json.loads(content)
         except json.JSONDecodeError as e:
             # Fallback if parsing fails
+            snippet = content[:200] + "..." if len(content) > 200 else content
             logger.warning(
-                f"Failed to parse location analysis response as JSON: error={e}"
+                f"Failed to parse location analysis response as JSON: error={e}, "
+                f"response_length={len(content)}, snippet={snippet!r}"
             )
             data = {
                 "parent": {
@@ -651,8 +658,10 @@ class AIClassificationService:
             data = json.loads(content)
         except json.JSONDecodeError as e:
             # Fallback if parsing fails
+            snippet = content[:200] + "..." if len(content) > 200 else content
             logger.warning(
-                f"Failed to parse location suggestion response as JSON: error={e}"
+                f"Failed to parse location suggestion response as JSON: error={e}, "
+                f"response_length={len(content)}, snippet={snippet!r}"
             )
             return ItemLocationSuggestionResult(suggestions=[]), token_usage
 

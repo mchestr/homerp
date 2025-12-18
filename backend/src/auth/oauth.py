@@ -5,6 +5,7 @@ from urllib.parse import urlencode
 
 import httpx
 
+from src.common.logging_utils import mask_email
 from src.config import Settings, get_settings
 
 logger = logging.getLogger(__name__)
@@ -144,7 +145,8 @@ class GoogleOAuth(OAuthProvider):
             data = response.json()
 
             logger.info(
-                f"Google user info retrieved: oauth_id={data['id']}, email={data['email']}"
+                f"Google user info retrieved: oauth_id={data['id']}, "
+                f"email={mask_email(data['email'])}"
             )
             return OAuthUserInfo(
                 provider=self.PROVIDER_NAME,
@@ -225,7 +227,7 @@ class GitHubOAuth(OAuthProvider):
                 raise ValueError("No email found for GitHub user")
 
             logger.info(
-                f"GitHub user info retrieved: oauth_id={data['id']}, email={email}"
+                f"GitHub user info retrieved: oauth_id={data['id']}, email={mask_email(email)}"
             )
             return OAuthUserInfo(
                 provider=self.PROVIDER_NAME,

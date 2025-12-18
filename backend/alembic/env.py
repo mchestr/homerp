@@ -17,6 +17,9 @@ from src.users.models import User  # noqa: F401
 
 config = context.config
 
+# Note: Removed fileConfig(config.config_file_name) to prevent interference
+# with application logging configuration. Alembic will use default logging.
+
 target_metadata = Base.metadata
 
 

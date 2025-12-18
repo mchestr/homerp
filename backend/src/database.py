@@ -43,14 +43,27 @@ def create_session_factory(engine) -> async_sessionmaker[AsyncSession]:
 # Global engine and session factory (initialized on startup)
 _engine = None
 _session_factory = None
+_db_host = "unknown"  # Stored for logging (without credentials)
+
+
+def _extract_db_host(database_url: str) -> str:
+    """Extract host info from database URL for safe logging (without credentials)."""
+    try:
+        # URL format: postgresql+asyncpg://user:pass@host:port/dbname
+        if "@" in database_url:
+            return database_url.split("@")[-1].split("?")[0]
+        return "unknown"
+    except Exception:
+        return "unknown"
 
 
 def init_db(settings: Settings):
     """Initialize database engine and session factory."""
-    global _engine, _session_factory
+    global _engine, _session_factory, _db_host
     _engine = create_engine(settings)
     _session_factory = create_session_factory(_engine)
-    logger.info("Database engine initialized")
+    _db_host = _extract_db_host(settings.database_url)
+    logger.info(f"Database engine initialized: host={_db_host}")
 
 
 async def close_db():
@@ -118,5 +131,8 @@ async def check_db_connectivity() -> bool:
             await session.execute(text("SELECT 1"))
             return True
     except Exception as e:
-        logger.error(f"Database connectivity check failed: {type(e).__name__}: {e}")
+        logger.error(
+            f"Database connectivity check failed: host={_db_host}, "
+            f"error={type(e).__name__}: {e}"
+        )
         return False

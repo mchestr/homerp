@@ -244,9 +244,13 @@ async def classify_images(
             detail="At least one image ID is required",
         )
 
+    # Limit logged image IDs to first 5 for performance
+    image_ids_preview = [str(id) for id in data.image_ids[:5]]
+    if num_images > 5:
+        image_ids_preview.append(f"...and {num_images - 5} more")
     logger.info(
         f"Classification request: user_id={user_id}, image_count={num_images}, "
-        f"image_ids={[str(id) for id in data.image_ids]}"
+        f"image_ids={image_ids_preview}"
     )
 
     # Get the cost per image from pricing
@@ -345,7 +349,7 @@ async def classify_images(
     except Exception as e:
         logger.error(
             f"Classification failed: user_id={user_id}, "
-            f"image_ids={[str(id) for id in data.image_ids]}, "
+            f"image_ids={image_ids_preview}, "
             f"error={type(e).__name__}: {e}",
             exc_info=True,
         )
