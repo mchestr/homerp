@@ -1081,6 +1081,76 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
       await route.continue();
     }
   });
+
+  // Admin API Keys endpoints
+  await page.route("**/api/v1/admin/apikeys*", async (route) => {
+    if (!user.is_admin) {
+      await route.fulfill({
+        status: 403,
+        contentType: "application/json",
+        body: JSON.stringify({ detail: "Admin access required" }),
+      });
+      return;
+    }
+
+    if (route.request().method() === "GET") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          items: fixtures.testAdminApiKeys,
+          total: fixtures.testAdminApiKeys.length,
+          page: 1,
+          limit: 20,
+          total_pages: 1,
+        }),
+      });
+    } else if (route.request().method() === "POST") {
+      const body = route.request().postDataJSON();
+      await route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ...fixtures.testApiKeyCreatedResponse,
+          ...body,
+        }),
+      });
+    } else {
+      await route.continue();
+    }
+  });
+
+  await page.route(/\/api\/v1\/admin\/apikeys\/[^/]+$/, async (route) => {
+    if (!user.is_admin) {
+      await route.fulfill({
+        status: 403,
+        contentType: "application/json",
+        body: JSON.stringify({ detail: "Admin access required" }),
+      });
+      return;
+    }
+
+    const method = route.request().method();
+    const url = route.request().url();
+    const keyId = url.split("/").pop();
+
+    if (method === "PUT") {
+      const body = route.request().postDataJSON();
+      const key = fixtures.testAdminApiKeys.find((k) => k.id === keyId);
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ...key,
+          ...body,
+        }),
+      });
+    } else if (method === "DELETE") {
+      await route.fulfill({ status: 204 });
+    } else {
+      await route.continue();
+    }
+  });
 }
 
 /**
