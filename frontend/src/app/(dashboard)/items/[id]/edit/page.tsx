@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { TreeSelect } from "@/components/ui/tree-view";
 import { DynamicAttributeForm } from "@/components/items/dynamic-attribute-form";
+import { SpecificationEditor } from "@/components/items/specification-editor";
 import {
   itemsApi,
   categoriesApi,
@@ -44,6 +45,10 @@ export default function EditItemPage() {
   const [categoryAttributes, setCategoryAttributes] = useState<
     Record<string, unknown>
   >({});
+
+  const [specifications, setSpecifications] = useState<Record<string, unknown>>(
+    {}
+  );
 
   const [formData, setFormData] = useState<ItemUpdate>({
     name: "",
@@ -82,16 +87,24 @@ export default function EditItemPage() {
   useEffect(() => {
     if (item) {
       const { attributes, ...rest } = item;
-      // Separate category-specific attributes from other attributes
+      // Separate specifications, category-specific attributes, and other attributes
       const categoryAttrs: Record<string, unknown> = {};
       const otherAttrs: Record<string, unknown> = {};
+      let specs: Record<string, unknown> = {};
 
       if (attributes && typeof attributes === "object") {
         for (const [key, value] of Object.entries(attributes)) {
-          // Keep specifications and ai_ prefixed fields in main attributes
-          if (key === "specifications" || key.startsWith("ai_")) {
+          if (key === "specifications") {
+            // Extract specifications for editing
+            specs =
+              typeof value === "object" && value !== null
+                ? (value as Record<string, unknown>)
+                : {};
+          } else if (key.startsWith("ai_")) {
+            // Keep ai_ prefixed fields in main attributes
             otherAttrs[key] = value;
           } else {
+            // Category-specific attributes
             categoryAttrs[key] = value;
           }
         }
@@ -109,6 +122,7 @@ export default function EditItemPage() {
         attributes: otherAttrs,
       });
       setCategoryAttributes(categoryAttrs);
+      setSpecifications(specs);
     }
   }, [item]);
 
@@ -127,6 +141,7 @@ export default function EditItemPage() {
     const finalAttributes = {
       ...formData.attributes,
       ...categoryAttributes,
+      specifications,
     };
 
     updateMutation.mutate({
@@ -351,6 +366,13 @@ export default function EditItemPage() {
               />
             </div>
           )}
+
+          <div className="border-t pt-5">
+            <SpecificationEditor
+              specifications={specifications}
+              onChange={setSpecifications}
+            />
+          </div>
         </div>
 
         <div className="mt-8 flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-end">
