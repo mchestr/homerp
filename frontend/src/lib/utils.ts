@@ -347,6 +347,13 @@ export function isInsufficientCreditsError(err: unknown): boolean {
 // Item Attribute Utilities
 // ============================================================================
 
+/**
+ * Type guard to check if a value is a valid specifications object
+ */
+function isSpecificationsObject(obj: unknown): obj is Record<string, unknown> {
+  return obj !== null && typeof obj === "object" && !Array.isArray(obj);
+}
+
 interface ItemSubtitleParams {
   attributes?: Record<string, unknown> | null;
   category?: {
@@ -390,11 +397,10 @@ export function getItemSubtitle({
 }: ItemSubtitleParams): string | null {
   if (!attributes) return null;
 
-  const specs = (attributes as Record<string, unknown>)["specifications"];
-  if (!specs || typeof specs !== "object") return null;
+  const specs = attributes["specifications"];
+  if (!isSpecificationsObject(specs)) return null;
 
-  const specsObj = specs as Record<string, unknown>;
-  const specEntries = Object.entries(specsObj);
+  const specEntries = Object.entries(specs);
   if (specEntries.length === 0) return null;
 
   // If category has an attribute template, use it to prioritize attributes
@@ -404,7 +410,7 @@ export function getItemSubtitle({
   if (templateFields && templateFields.length > 0) {
     // Use template field order to prioritize attributes
     for (const field of templateFields.slice(0, maxAttributes)) {
-      const value = specsObj[field.name];
+      const value = specs[field.name];
       if (value != null && value !== "") {
         subtitleParts.push(String(value));
       }
@@ -418,14 +424,12 @@ export function getItemSubtitle({
       .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
       .slice(0, maxAttributes);
 
-    subtitleParts = sortedEntries
-      .map(([, value]) => {
-        if (value != null && value !== "") {
-          return String(value);
-        }
-        return null;
-      })
-      .filter((v): v is string => v !== null);
+    subtitleParts = sortedEntries.reduce((acc, [, value]) => {
+      if (value != null && value !== "") {
+        acc.push(String(value));
+      }
+      return acc;
+    }, [] as string[]);
   }
 
   return subtitleParts.length > 0 ? subtitleParts.join(", ") : null;

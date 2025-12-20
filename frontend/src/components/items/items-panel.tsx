@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   Package,
   ChevronLeft,
@@ -35,6 +36,7 @@ export function ItemsPanel({
 }: ItemsPanelProps) {
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const tCommon = useTranslations("common");
   const [page, setPage] = useState(1);
 
   const hasSelection = !!categoryId || !!locationId;
@@ -198,7 +200,8 @@ export function ItemsPanel({
                   ) : null;
                 })()}
                 <p className="text-muted-foreground truncate text-xs">
-                  {item.category?.icon} {item.category?.name ?? "Uncategorized"}
+                  {item.category?.icon}{" "}
+                  {item.category?.name ?? tCommon("uncategorized")}
                 </p>
               </div>
 

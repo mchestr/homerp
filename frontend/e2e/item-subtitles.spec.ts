@@ -212,14 +212,10 @@ test.describe("Item Subtitles", () => {
       if (await componentsCategory.isVisible()) {
         await componentsCategory.click();
 
-        // Wait for items panel to load
-        await page.waitForTimeout(500);
-
-        // Verify subtitle is visible in items panel
+        // Wait for items panel to load and subtitle to appear
         const panelSubtitle = page.getByTestId("item-subtitle").first();
-        if (await panelSubtitle.isVisible()) {
-          await expect(panelSubtitle).toContainText(/V|SMD|THT/);
-        }
+        await expect(panelSubtitle).toBeVisible({ timeout: 2000 });
+        await expect(panelSubtitle).toContainText(/V|SMD|THT/);
       }
     });
   });
