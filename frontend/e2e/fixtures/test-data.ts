@@ -733,3 +733,49 @@ export const testNotificationPreferencesDisabled = {
   email_notifications_enabled: false,
   low_stock_email_enabled: false,
 };
+
+// Admin API Keys test data
+export const testAdminApiKeys = [
+  {
+    id: "key-1",
+    name: "GitHub Actions",
+    key_prefix: "homerp_live_abc",
+    scopes: ["feedback:read", "feedback:write"],
+    is_active: true,
+    last_used_at: "2024-06-15T10:30:00Z",
+    expires_at: "2025-12-31T23:59:59Z",
+    created_at: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: "key-2",
+    name: "Monitoring Service",
+    key_prefix: "homerp_live_xyz",
+    scopes: ["admin:*"],
+    is_active: true,
+    last_used_at: null,
+    expires_at: null,
+    created_at: "2024-03-15T00:00:00Z",
+  },
+  {
+    id: "key-3",
+    name: "Deprecated Integration",
+    key_prefix: "homerp_live_old",
+    scopes: ["feedback:read"],
+    is_active: false,
+    last_used_at: "2024-02-01T08:00:00Z",
+    expires_at: "2024-06-01T00:00:00Z",
+    created_at: "2023-12-01T00:00:00Z",
+  },
+];
+
+export const testApiKeyCreatedResponse = {
+  id: "key-new-123",
+  name: "New Test API Key",
+  key: "homerp_live_aBcDeFgHiJkLmNoPqRsTuVwXyZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+  key_prefix: "homerp_live_aBc",
+  scopes: ["feedback:read", "feedback:write"],
+  is_active: true,
+  last_used_at: null,
+  expires_at: "2025-12-31T23:59:59Z",
+  created_at: new Date().toISOString(),
+};

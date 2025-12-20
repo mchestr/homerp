@@ -129,9 +129,9 @@ function ApiKeyFormDialog({
             {apiKey ? t("description") : t("description")}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
+        <form onSubmit={handleSubmit} className="min-w-0">
+          <div className="min-w-0 space-y-4 py-4">
+            <div className="min-w-0 space-y-2">
               <Label htmlFor="name">{t("name")}</Label>
               <Input
                 id="name"
@@ -174,7 +174,7 @@ function ApiKeyFormDialog({
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label htmlFor="expires_at">{t("expiresAt")}</Label>
               <Input
                 id="expires_at"
@@ -245,8 +245,8 @@ function KeyCreatedDialog({
             {t("keyCreatedWarning")}
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
+        <div className="min-w-0 space-y-4 py-4">
+          <div className="min-w-0 space-y-2">
             <Label>{t("key")}</Label>
             <div className="flex items-center gap-2">
               <code className="bg-muted min-w-0 flex-1 rounded p-2 text-xs break-all sm:p-3 sm:text-sm">
