@@ -152,6 +152,8 @@
     "noSpecifications": "Noch keine Spezifikationen hinzugefügt. Klicken Sie auf die Schaltfläche oben, um eine hinzuzufügen.",
     "specificationKey": "Schlüssel (z.B. Farbe, Material)",
     "specificationValue": "Wert",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten",
     "images": "Bilder",
     "notes": "Notizen",
     "price": "Preis",

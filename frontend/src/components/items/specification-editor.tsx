@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Plus, X } from "lucide-react";
+import { Plus, X, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -26,28 +26,20 @@ export function SpecificationEditor({
     onChange({ ...specifications, [newKey]: "" });
   };
 
-  const handleRemove = (key: string) => {
-    const newSpecs = { ...specifications };
-    delete newSpecs[key];
+  const handleRemove = (index: number) => {
+    const newEntries = entries.filter((_, i) => i !== index);
+    const newSpecs = Object.fromEntries(newEntries);
     onChange(newSpecs);
   };
 
-  const handleKeyChange = (oldKey: string, newKey: string) => {
-    if (oldKey === newKey) return;
-
-    // Create new object with updated key
-    const newSpecs: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(specifications)) {
-      if (k === oldKey) {
-        newSpecs[newKey] = v;
-      } else {
-        newSpecs[k] = v;
-      }
-    }
+  const handleKeyChange = (index: number, newKey: string) => {
+    const newEntries = [...entries];
+    newEntries[index] = [newKey, newEntries[index][1]];
+    const newSpecs = Object.fromEntries(newEntries);
     onChange(newSpecs);
   };
 
-  const handleValueChange = (key: string, value: string) => {
+  const handleValueChange = (index: number, value: string) => {
     // Try to parse as number or boolean if possible
     let parsedValue: unknown = value;
 
@@ -59,7 +51,32 @@ export function SpecificationEditor({
       parsedValue = Number(value);
     }
 
-    onChange({ ...specifications, [key]: parsedValue });
+    const newEntries = [...entries];
+    newEntries[index] = [newEntries[index][0], parsedValue];
+    const newSpecs = Object.fromEntries(newEntries);
+    onChange(newSpecs);
+  };
+
+  const handleMoveUp = (index: number) => {
+    if (index === 0) return;
+    const newEntries = [...entries];
+    [newEntries[index - 1], newEntries[index]] = [
+      newEntries[index],
+      newEntries[index - 1],
+    ];
+    const newSpecs = Object.fromEntries(newEntries);
+    onChange(newSpecs);
+  };
+
+  const handleMoveDown = (index: number) => {
+    if (index === entries.length - 1) return;
+    const newEntries = [...entries];
+    [newEntries[index], newEntries[index + 1]] = [
+      newEntries[index + 1],
+      newEntries[index],
+    ];
+    const newSpecs = Object.fromEntries(newEntries);
+    onChange(newSpecs);
   };
 
   const getDisplayValue = (value: unknown): string => {
@@ -94,31 +111,57 @@ export function SpecificationEditor({
         <p className="text-muted-foreground text-sm">{t("noSpecifications")}</p>
       ) : (
         <div className="space-y-3">
-          {entries.map(([key, value]) => (
-            <div key={key} className="flex gap-2">
+          {entries.map(([key, value], index) => (
+            <div key={index} className="flex gap-2">
+              <div className="flex flex-col gap-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleMoveUp(index)}
+                  disabled={index === 0}
+                  className="text-muted-foreground hover:text-foreground h-4 w-8 shrink-0 disabled:opacity-30"
+                  data-testid={`move-up-specification-${index}`}
+                  title={t("moveUp")}
+                >
+                  <ChevronUp className="h-3 w-3" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleMoveDown(index)}
+                  disabled={index === entries.length - 1}
+                  className="text-muted-foreground hover:text-foreground h-4 w-8 shrink-0 disabled:opacity-30"
+                  data-testid={`move-down-specification-${index}`}
+                  title={t("moveDown")}
+                >
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </div>
               <input
                 type="text"
                 value={key}
-                onChange={(e) => handleKeyChange(key, e.target.value)}
+                onChange={(e) => handleKeyChange(index, e.target.value)}
                 placeholder={t("specificationKey")}
                 className="bg-background focus:border-primary focus:ring-primary/20 h-10 flex-1 rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden"
-                data-testid={`specification-key-${key}`}
+                data-testid={`specification-key-${index}`}
               />
               <input
                 type="text"
                 value={getDisplayValue(value)}
-                onChange={(e) => handleValueChange(key, e.target.value)}
+                onChange={(e) => handleValueChange(index, e.target.value)}
                 placeholder={t("specificationValue")}
                 className="bg-background focus:border-primary focus:ring-primary/20 h-10 flex-1 rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden"
-                data-testid={`specification-value-${key}`}
+                data-testid={`specification-value-${index}`}
               />
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                onClick={() => handleRemove(key)}
+                onClick={() => handleRemove(index)}
                 className="text-muted-foreground hover:text-destructive h-10 w-10 shrink-0"
-                data-testid={`remove-specification-${key}`}
+                data-testid={`remove-specification-${index}`}
               >
                 <X className="h-4 w-4" />
               </Button>

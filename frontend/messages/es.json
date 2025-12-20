@@ -152,6 +152,8 @@
     "noSpecifications": "Aún no se han agregado especificaciones. Haga clic en el botón de arriba para agregar una.",
     "specificationKey": "Clave (ej. color, material)",
     "specificationValue": "Valor",
+    "moveUp": "Mover arriba",
+    "moveDown": "Mover abajo",
     "images": "Imágenes",
     "notes": "Notas",
     "price": "Precio",

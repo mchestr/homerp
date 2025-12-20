@@ -370,7 +370,7 @@ interface ItemSubtitleParams {
 /**
  * Extract a subtitle from item attributes to display under the item title.
  * Uses the category's attribute template to prioritize which attributes to show.
- * Falls back to showing the first attributes alphabetically if no template exists.
+ * Falls back to showing the first attributes in insertion order if no template exists.
  *
  * @example
  * // With template (e.g., filament category with "type" and "color" fields)
@@ -381,7 +381,7 @@ interface ItemSubtitleParams {
  * // Returns: "PLA, Blue"
  *
  * @example
- * // Without template (shows first 2-3 attributes alphabetically)
+ * // Without template (shows first 2-3 attributes in insertion order)
  * getItemSubtitle({
  *   attributes: { specifications: { material: "Wood", size: "Large" } }
  * })
@@ -418,13 +418,11 @@ export function getItemSubtitle({
   }
 
   // If no template or template didn't provide enough attributes,
-  // fall back to showing first attributes alphabetically
+  // fall back to showing first attributes in insertion order
   if (subtitleParts.length === 0) {
-    const sortedEntries = specEntries
-      .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
-      .slice(0, maxAttributes);
+    const firstEntries = specEntries.slice(0, maxAttributes);
 
-    subtitleParts = sortedEntries.reduce((acc, [, value]) => {
+    subtitleParts = firstEntries.reduce((acc, [, value]) => {
       if (value != null && value !== "") {
         acc.push(String(value));
       }
