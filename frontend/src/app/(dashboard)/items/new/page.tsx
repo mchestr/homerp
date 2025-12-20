@@ -25,6 +25,7 @@ import {
   UploadedImage,
 } from "@/components/items/multi-image-upload";
 import { DynamicAttributeForm } from "@/components/items/dynamic-attribute-form";
+import { SpecificationEditor } from "@/components/items/specification-editor";
 import { SimilarItemsDisplay } from "@/components/items/similar-items-display";
 import { LocationSuggestionDisplay } from "@/components/items/location-suggestion-display";
 import {
@@ -89,6 +90,9 @@ export default function NewItemPage() {
   const [categoryAttributes, setCategoryAttributes] = useState<
     Record<string, unknown>
   >({});
+  const [specifications, setSpecifications] = useState<Record<string, unknown>>(
+    {}
+  );
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [categoriesCreated, setCategoriesCreated] = useState(false);
   const [initialImageLoaded, setInitialImageLoaded] = useState(false);
@@ -164,11 +168,12 @@ export default function NewItemPage() {
               quantity_unit: parsedQuantity.quantity_unit,
               attributes: {
                 ...prev.attributes,
-                specifications: result.specifications,
                 ai_confidence: result.confidence,
                 ai_category_suggestion: result.category_path,
               },
             }));
+            // Set specifications state for editing
+            setSpecifications(result.specifications || {});
             // Search for similar items
             searchForSimilarItems(result);
           }
@@ -353,11 +358,13 @@ export default function NewItemPage() {
       quantity_unit: parsedQuantity.quantity_unit,
       attributes: {
         ...prev.attributes,
-        specifications: result.specifications,
         ai_confidence: result.confidence,
         ai_category_suggestion: result.category_path,
       },
     }));
+
+    // Set specifications state for editing
+    setSpecifications(result.specifications || {});
 
     // Search for similar items in the background
     searchForSimilarItems(result);
@@ -366,10 +373,11 @@ export default function NewItemPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Merge category attributes into the main attributes
+    // Merge category attributes and specifications into the main attributes
     const finalAttributes = {
       ...formData.attributes,
       ...categoryAttributes,
+      specifications,
     };
 
     createMutation.mutate({
@@ -848,6 +856,14 @@ export default function NewItemPage() {
               />
             </div>
           )}
+
+          {/* Specifications Editor */}
+          <div className="border-t pt-5">
+            <SpecificationEditor
+              specifications={specifications}
+              onChange={setSpecifications}
+            />
+          </div>
         </div>
 
         <div className="mt-8 flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-end">
