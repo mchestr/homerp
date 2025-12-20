@@ -35,6 +35,7 @@ from src.images.schemas import (
     PaginatedImagesResponse,
 )
 from src.images.storage import LocalStorage, get_storage
+from src.items.repository import ItemRepository
 
 logger = logging.getLogger(__name__)
 
@@ -291,10 +292,24 @@ async def classify_images(
             image_data = await storage.read(image.storage_path)
             image_data_list.append((image_data, image.mime_type or "image/jpeg"))
 
+        # Get common specification keys from user's inventory to help AI
+        # identify relevant specifications
+        item_repo = ItemRepository(session, user_id)
+        spec_hints = await item_repo.get_common_specification_keys(
+            min_frequency=2, limit=15
+        )
+
+        logger.info(
+            f"Using {len(spec_hints)} specification hints for classification: "
+            f"{spec_hints[:5]}"
+            + (f"...and {len(spec_hints) - 5} more" if len(spec_hints) > 5 else "")
+        )
+
         # Classify all images together with AI (with token usage tracking)
         classification, token_usage = await ai_service.classify_images_with_usage(
             image_data_list,
             custom_prompt=data.custom_prompt,
+            spec_hints=spec_hints if spec_hints else None,
         )
 
         # Deduct credits after successful classification
