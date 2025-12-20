@@ -832,6 +832,143 @@ class TestFindSimilarEndpoint:
         data = response.json()
         assert "similar_items" in data
 
+    async def test_find_similar_items_different_specifications_not_duplicates(
+        self,
+        authenticated_client: AsyncClient,
+        async_session: AsyncSession,
+        test_user: User,
+        test_category: Category,
+        test_location: Location,
+    ):
+        """Test that items with different specifications are not considered duplicates.
+
+        This test verifies the fix for bug #186 where Bambulab filaments with
+        different colors were incorrectly identified as duplicates.
+        """
+        # Create three Bambulab filament items with different colors
+        red_filament = Item(
+            id=uuid.uuid4(),
+            user_id=test_user.id,
+            name="Bambulab PLA Filament",
+            description="1kg spool of PLA filament",
+            quantity=1,
+            quantity_unit="spool",
+            category_id=test_category.id,
+            location_id=test_location.id,
+            attributes={
+                "specifications": {
+                    "color": "red",
+                    "material": "PLA",
+                    "weight": "1kg",
+                    "brand": "Bambulab",
+                }
+            },
+            tags=["filament", "3d-printing"],
+        )
+
+        blue_filament = Item(
+            id=uuid.uuid4(),
+            user_id=test_user.id,
+            name="Bambulab PLA Filament",
+            description="1kg spool of PLA filament",
+            quantity=2,
+            quantity_unit="spool",
+            category_id=test_category.id,
+            location_id=test_location.id,
+            attributes={
+                "specifications": {
+                    "color": "blue",
+                    "material": "PLA",
+                    "weight": "1kg",
+                    "brand": "Bambulab",
+                }
+            },
+            tags=["filament", "3d-printing"],
+        )
+
+        green_filament = Item(
+            id=uuid.uuid4(),
+            user_id=test_user.id,
+            name="Bambulab PLA Filament",
+            description="1kg spool of PLA filament",
+            quantity=1,
+            quantity_unit="spool",
+            category_id=test_category.id,
+            location_id=test_location.id,
+            attributes={
+                "specifications": {
+                    "color": "green",
+                    "material": "PLA",
+                    "weight": "1kg",
+                    "brand": "Bambulab",
+                }
+            },
+            tags=["filament", "3d-printing"],
+        )
+
+        async_session.add_all([red_filament, blue_filament, green_filament])
+        await async_session.commit()
+
+        # Search for red filament
+        response = await authenticated_client.post(
+            "/api/v1/items/find-similar",
+            json={
+                "identified_name": "Bambulab PLA Filament",
+                "specifications": {
+                    "color": "red",
+                    "material": "PLA",
+                    "weight": "1kg",
+                    "brand": "Bambulab",
+                },
+                "limit": 5,
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+
+        # Should find similar items
+        assert len(data["similar_items"]) > 0
+
+        # The red filament should be the top match (or tied for top)
+        result_ids = [item["id"] for item in data["similar_items"]]
+        assert str(red_filament.id) in result_ids
+
+        # Get the match scores for each filament
+        red_match = next(
+            item for item in data["similar_items"] if item["id"] == str(red_filament.id)
+        )
+
+        # Red should have high similarity (name + all specs match including color)
+        assert red_match["similarity_score"] > 0.5
+
+        # Verify the specification matching logic by checking match reasons
+        # Red should have "Specs: color: red" or similar in match_reasons
+        match_reasons_str = " ".join(red_match["match_reasons"])
+
+        # Check that color is mentioned in the spec matching for red
+        # This verifies that specifications are being accessed correctly
+        # (this would fail with the bug where specs weren't in the right place)
+        has_color_match = any(
+            "color" in reason.lower() for reason in red_match["match_reasons"]
+        )
+        assert has_color_match, (
+            f"Expected color to be in match reasons for red filament, "
+            f"got: {red_match['match_reasons']}"
+        )
+
+        # If blue is in results, it should NOT have color in its spec matches
+        # (or should have lower similarity score due to missing color match)
+        if str(blue_filament.id) in result_ids:
+            blue_match = next(
+                item
+                for item in data["similar_items"]
+                if item["id"] == str(blue_filament.id)
+            )
+            # Blue should either have equal/lower score than red
+            # The key test is that red has the color match in reasons
+            assert blue_match["similarity_score"] <= red_match["similarity_score"]
+
     async def test_find_similar_items_validation_error(
         self, authenticated_client: AsyncClient
     ):

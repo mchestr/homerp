@@ -1163,10 +1163,11 @@ class ItemRepository:
 
             # 4. Specification matching (weight: 0.1)
             if specifications and item_attrs:
+                item_specs = item_attrs.get("specifications", {})
                 matching_specs = []
                 for key, value in specifications.items():
-                    if key in item_attrs:
-                        item_val = str(item_attrs[key]).lower()
+                    if key in item_specs:
+                        item_val = str(item_specs[key]).lower()
                         spec_val = str(value).lower()
                         if item_val == spec_val:
                             matching_specs.append(f"{key}: {value}")
