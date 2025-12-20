@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
 import { itemsApi } from "@/lib/api/api";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn, formatPrice, getItemSubtitle } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 
 interface ItemsPanelProps {
@@ -182,6 +182,21 @@ export function ItemsPanel({
                     </span>
                   )}
                 </div>
+                {(() => {
+                  const subtitle = getItemSubtitle({
+                    attributes: item.attributes,
+                    category: item.category,
+                    maxAttributes: 2,
+                  });
+                  return subtitle ? (
+                    <p
+                      className="text-muted-foreground truncate text-xs"
+                      data-testid="item-subtitle"
+                    >
+                      {subtitle}
+                    </p>
+                  ) : null;
+                })()}
                 <p className="text-muted-foreground truncate text-xs">
                   {item.category?.icon} {item.category?.name ?? "Uncategorized"}
                 </p>
