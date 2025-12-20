@@ -1162,6 +1162,7 @@ class ItemRepository:
                         break
 
             # 4. Specification matching (weight: 0.1)
+            # Specifications are stored in attributes.specifications (nested JSONB)
             if specifications and item_attrs:
                 item_specs = item_attrs.get("specifications", {})
                 matching_specs = []
