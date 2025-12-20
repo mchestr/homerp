@@ -29,7 +29,7 @@ test.describe("Items", () => {
     // Create new item
     await page.goto("/items/new");
     await page.getByTestId("item-name-input").fill("Test Item");
-    await page.getByRole("button", { name: /create|save|add/i }).click();
+    await page.getByTestId("create-item-button").click();
     await expect(page).toHaveURL(/.*\/items/);
   });
 
