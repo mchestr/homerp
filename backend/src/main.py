@@ -8,15 +8,33 @@ from fastapi.responses import JSONResponse
 from slowapi.middleware import SlowAPIMiddleware
 
 from src.common.rate_limiter import configure_rate_limiting
+from src.common.request_id_middleware import RequestIDMiddleware
 from src.common.security_headers import SecurityHeadersMiddleware
 from src.config import get_settings
 from src.database import check_db_connectivity, close_db, init_db
 
 
+class RequestIDFilter(logging.Filter):
+    """
+    Logging filter that adds request ID to log records.
+
+    If a request ID is available in the current context, it will be
+    included in the log record. Otherwise, a placeholder is used.
+    """
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        from src.common.request_context import get_request_id
+
+        # Add request_id attribute to every log record
+        request_id = get_request_id()
+        record.request_id = request_id if request_id else "-"
+        return True
+
+
 def configure_logging() -> None:
     """Configure application logging.
 
-    Sets up structured logging with timestamps and log levels.
+    Sets up structured logging with timestamps, request IDs, and log levels.
     Log level is configurable via LOG_LEVEL environment variable.
     """
     settings = get_settings()
@@ -27,11 +45,15 @@ def configure_logging() -> None:
     # Configure root logger
     logging.basicConfig(
         level=log_level,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        format="%(asctime)s - %(request_id)s - %(name)s - %(levelname)s - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
         stream=sys.stdout,
         force=True,  # Override any existing configuration
     )
+
+    # Add request ID filter to root logger
+    request_id_filter = RequestIDFilter()
+    logging.getLogger().addFilter(request_id_filter)
 
     # Set uvicorn access logs to same level (prevents duplicate logs)
     logging.getLogger("uvicorn.access").setLevel(log_level)
@@ -79,6 +101,9 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # Add request ID tracking for distributed tracing and log correlation
+    app.add_middleware(RequestIDMiddleware)
 
     # Add security headers to all responses
     app.add_middleware(SecurityHeadersMiddleware)
