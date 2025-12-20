@@ -106,7 +106,7 @@ class FeedbackRepository:
 
     async def update(self, feedback: Feedback, data: FeedbackAdminUpdate) -> Feedback:
         """Update feedback (admin only)."""
-        update_data = data.model_dump(exclude_unset=True)
+        update_data = data.model_dump(exclude_unset=True, exclude_none=True)
         for field, value in update_data.items():
             setattr(feedback, field, value)
         await self.session.commit()

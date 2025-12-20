@@ -188,6 +188,49 @@ class TestUpdateFeedbackAdminEndpoint:
 
         assert response.status_code == 404
 
+    async def test_update_feedback_with_null_status_preserves_existing(
+        self, admin_client: AsyncClient, test_feedback: Feedback
+    ):
+        """Test that passing null status preserves the existing status."""
+        # First, set a specific status
+        response = await admin_client.put(
+            f"/api/v1/feedback/admin/{test_feedback.id}",
+            json={"status": "in_progress"},
+        )
+        assert response.status_code == 200
+        assert response.json()["status"] == "in_progress"
+
+        # Now update with null status (should preserve "in_progress")
+        response = await admin_client.put(
+            f"/api/v1/feedback/admin/{test_feedback.id}",
+            json={"status": None, "admin_notes": "Updated notes"},
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "in_progress"  # Status should be unchanged
+        assert data["admin_notes"] == "Updated notes"  # Notes should be updated
+
+    async def test_update_feedback_with_only_admin_notes(
+        self, admin_client: AsyncClient, test_feedback: Feedback
+    ):
+        """Test updating only admin notes without changing status."""
+        # Set initial status
+        response = await admin_client.put(
+            f"/api/v1/feedback/admin/{test_feedback.id}",
+            json={"status": "in_progress"},
+        )
+        assert response.status_code == 200
+
+        # Update only admin_notes (omit status entirely)
+        response = await admin_client.put(
+            f"/api/v1/feedback/admin/{test_feedback.id}",
+            json={"admin_notes": "Just updating notes"},
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "in_progress"  # Status should be unchanged
+        assert data["admin_notes"] == "Just updating notes"
+
 
 class TestDeleteFeedbackAdminEndpoint:
     """Tests for DELETE /api/v1/feedback/admin/{feedback_id}."""
