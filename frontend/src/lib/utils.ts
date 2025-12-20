@@ -342,3 +342,95 @@ export function isInsufficientCreditsError(err: unknown): boolean {
     (err as { status: number }).status === 402
   );
 }
+
+// ============================================================================
+// Item Attribute Utilities
+// ============================================================================
+
+/**
+ * Type guard to check if a value is a valid specifications object
+ */
+function isSpecificationsObject(obj: unknown): obj is Record<string, unknown> {
+  return obj !== null && typeof obj === "object" && !Array.isArray(obj);
+}
+
+interface ItemSubtitleParams {
+  attributes?: Record<string, unknown> | null;
+  category?: {
+    attribute_template?: {
+      fields?: Array<{
+        name: string;
+        label: string;
+      }>;
+    } | null;
+  } | null;
+  maxAttributes?: number;
+}
+
+/**
+ * Extract a subtitle from item attributes to display under the item title.
+ * Uses the category's attribute template to prioritize which attributes to show.
+ * Falls back to showing the first attributes alphabetically if no template exists.
+ *
+ * @example
+ * // With template (e.g., filament category with "type" and "color" fields)
+ * getItemSubtitle({
+ *   attributes: { specifications: { type: "PLA", color: "Blue", diameter: "1.75mm" } },
+ *   category: { attribute_template: { fields: [{ name: "type", label: "Type" }, { name: "color", label: "Color" }] } }
+ * })
+ * // Returns: "PLA, Blue"
+ *
+ * @example
+ * // Without template (shows first 2-3 attributes alphabetically)
+ * getItemSubtitle({
+ *   attributes: { specifications: { material: "Wood", size: "Large" } }
+ * })
+ * // Returns: "Wood, Large"
+ *
+ * @param params - Item attributes and category information
+ * @returns Formatted subtitle string or null if no attributes exist
+ */
+export function getItemSubtitle({
+  attributes,
+  category,
+  maxAttributes = 3,
+}: ItemSubtitleParams): string | null {
+  if (!attributes) return null;
+
+  const specs = attributes["specifications"];
+  if (!isSpecificationsObject(specs)) return null;
+
+  const specEntries = Object.entries(specs);
+  if (specEntries.length === 0) return null;
+
+  // If category has an attribute template, use it to prioritize attributes
+  const templateFields = category?.attribute_template?.fields;
+  let subtitleParts: string[] = [];
+
+  if (templateFields && templateFields.length > 0) {
+    // Use template field order to prioritize attributes
+    for (const field of templateFields.slice(0, maxAttributes)) {
+      const value = specs[field.name];
+      if (value != null && value !== "") {
+        subtitleParts.push(String(value));
+      }
+    }
+  }
+
+  // If no template or template didn't provide enough attributes,
+  // fall back to showing first attributes alphabetically
+  if (subtitleParts.length === 0) {
+    const sortedEntries = specEntries
+      .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+      .slice(0, maxAttributes);
+
+    subtitleParts = sortedEntries.reduce((acc, [, value]) => {
+      if (value != null && value !== "") {
+        acc.push(String(value));
+      }
+      return acc;
+    }, [] as string[]);
+  }
+
+  return subtitleParts.length > 0 ? subtitleParts.join(", ") : null;
+}

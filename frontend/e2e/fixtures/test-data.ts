@@ -112,6 +112,22 @@ export const testCategories = [
     },
     created_at: "2024-01-01T00:00:00Z",
   },
+  {
+    id: "cat-3",
+    name: "Filament",
+    icon: "Spooler",
+    description: "3D printing filament",
+    parent_id: null,
+    path: "Filament",
+    attribute_template: {
+      fields: [
+        { name: "type", label: "Type", type: "text" },
+        { name: "color", label: "Color", type: "text" },
+        { name: "diameter", label: "Diameter", type: "text" },
+      ],
+    },
+    created_at: "2024-01-01T00:00:00Z",
+  },
 ];
 
 export const testCategoryTree = [
@@ -203,6 +219,7 @@ export const testItems = [
     category: testCategories[0],
     location: testLocations[0],
     primary_image_url: null,
+    attributes: {},
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-01-01T00:00:00Z",
   },
@@ -217,6 +234,12 @@ export const testItems = [
     category: testCategories[1],
     location: testLocations[1],
     primary_image_url: null,
+    attributes: {
+      specifications: {
+        voltage: "5V",
+        package: "SMD",
+      },
+    },
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-01-01T00:00:00Z",
   },
@@ -231,6 +254,33 @@ export const testItems = [
     category: testCategories[1],
     location: testLocations[1],
     primary_image_url: null,
+    attributes: {
+      specifications: {
+        voltage: "25V",
+        package: "THT",
+      },
+    },
+    created_at: "2024-01-01T00:00:00Z",
+    updated_at: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: "item-4",
+    name: "PLA Filament",
+    description: "Blue PLA 3D printing filament",
+    quantity: 5,
+    quantity_unit: "rolls",
+    is_low_stock: false,
+    tags: ["3d-printing", "filament"],
+    category: testCategories[2],
+    location: testLocations[0],
+    primary_image_url: null,
+    attributes: {
+      specifications: {
+        type: "PLA",
+        color: "Blue",
+        diameter: "1.75mm",
+      },
+    },
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-01-01T00:00:00Z",
   },

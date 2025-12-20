@@ -29,7 +29,7 @@ import { AuthenticatedImage } from "@/components/ui/authenticated-image";
 import { SpecificationTags } from "@/components/items/specification-tags";
 import { ViewModeToggle } from "@/components/ui/view-mode-toggle";
 import { itemsApi, categoriesApi, locationsApi } from "@/lib/api/api";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn, formatPrice, getItemSubtitle } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import { useViewMode, VIEW_MODES, type ViewMode } from "@/hooks/use-view-mode";
 
@@ -866,6 +866,21 @@ export default function ItemsPage() {
                         </span>
                       )}
                     </div>
+                    {(() => {
+                      const subtitle = getItemSubtitle({
+                        attributes: item.attributes,
+                        category: item.category,
+                        maxAttributes: 2,
+                      });
+                      return subtitle ? (
+                        <p
+                          className="text-muted-foreground mt-0.5 truncate text-sm"
+                          data-testid="item-subtitle"
+                        >
+                          {subtitle}
+                        </p>
+                      ) : null;
+                    })()}
                     <p className="text-muted-foreground mt-0.5 truncate text-sm">
                       {item.category?.icon}{" "}
                       {item.category?.name ?? t("uncategorized")}
@@ -1027,6 +1042,21 @@ export default function ItemsPage() {
                               <span className="block truncate font-medium">
                                 {item.name}
                               </span>
+                              {(() => {
+                                const subtitle = getItemSubtitle({
+                                  attributes: item.attributes,
+                                  category: item.category,
+                                  maxAttributes: 2,
+                                });
+                                return subtitle ? (
+                                  <span
+                                    className="text-muted-foreground block truncate text-xs"
+                                    data-testid="item-subtitle"
+                                  >
+                                    {subtitle}
+                                  </span>
+                                ) : null;
+                              })()}
                               {item.is_low_stock && (
                                 <span className="inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
                                   <AlertTriangle className="h-3 w-3" />
@@ -1065,6 +1095,21 @@ export default function ItemsPage() {
                               <span className="group-hover:text-primary block truncate font-medium transition-colors">
                                 {item.name}
                               </span>
+                              {(() => {
+                                const subtitle = getItemSubtitle({
+                                  attributes: item.attributes,
+                                  category: item.category,
+                                  maxAttributes: 2,
+                                });
+                                return subtitle ? (
+                                  <span
+                                    className="text-muted-foreground block truncate text-xs"
+                                    data-testid="item-subtitle"
+                                  >
+                                    {subtitle}
+                                  </span>
+                                ) : null;
+                              })()}
                               {item.is_low_stock && (
                                 <span className="inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
                                   <AlertTriangle className="h-3 w-3" />
