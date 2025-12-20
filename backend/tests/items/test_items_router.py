@@ -943,9 +943,6 @@ class TestFindSimilarEndpoint:
         assert red_match["similarity_score"] > 0.5
 
         # Verify the specification matching logic by checking match reasons
-        # Red should have "Specs: color: red" or similar in match_reasons
-        match_reasons_str = " ".join(red_match["match_reasons"])
-
         # Check that color is mentioned in the spec matching for red
         # This verifies that specifications are being accessed correctly
         # (this would fail with the bug where specs weren't in the right place)
