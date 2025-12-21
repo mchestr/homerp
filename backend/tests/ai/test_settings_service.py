@@ -1,12 +1,10 @@
 """Unit tests for AIModelSettingsService."""
 
-from decimal import Decimal
-
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.ai.models import AIModelSettings
-from src.ai.settings_service import AIModelSettingsService, DEFAULT_SETTINGS
+from src.ai.settings_service import DEFAULT_SETTINGS, AIModelSettingsService
 
 
 class TestAIModelSettingsService:
