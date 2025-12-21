@@ -31,6 +31,21 @@ class RequestIDFilter(logging.Filter):
         return True
 
 
+class SafeFormatter(logging.Formatter):
+    """
+    Formatter that ensures request_id attribute exists before formatting.
+
+    This prevents KeyError when formatting log records that haven't
+    been processed by RequestIDFilter yet.
+    """
+
+    def format(self, record: logging.LogRecord) -> str:
+        # Ensure request_id exists, even if filter hasn't run
+        if not hasattr(record, "request_id"):
+            record.request_id = "-"
+        return super().format(record)
+
+
 def configure_logging() -> None:
     """Configure application logging.
 
@@ -42,18 +57,27 @@ def configure_logging() -> None:
     # Get log level from settings (default INFO)
     log_level = getattr(logging, settings.log_level.upper(), logging.INFO)
 
-    # Configure root logger
-    logging.basicConfig(
-        level=log_level,
-        format="%(asctime)s - %(request_id)s - %(name)s - %(levelname)s - %(message)s",
+    # Create custom formatter
+    formatter = SafeFormatter(
+        fmt="%(asctime)s - %(request_id)s - %(name)s - %(levelname)s - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
-        stream=sys.stdout,
-        force=True,  # Override any existing configuration
     )
+
+    # Create handler with custom formatter
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(log_level)
+    handler.setFormatter(formatter)
+
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level)
+    # Clear existing handlers to avoid duplicates
+    root_logger.handlers.clear()
+    root_logger.addHandler(handler)
 
     # Add request ID filter to root logger
     request_id_filter = RequestIDFilter()
-    logging.getLogger().addFilter(request_id_filter)
+    root_logger.addFilter(request_id_filter)
 
     # Set uvicorn access logs to same level (prevents duplicate logs)
     logging.getLogger("uvicorn.access").setLevel(log_level)
