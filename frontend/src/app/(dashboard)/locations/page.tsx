@@ -369,13 +369,13 @@ export default function LocationsPage() {
   const treeStats = getTreeStats();
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+    <div className="space-y-4 pb-4 md:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold tracking-tight md:text-2xl lg:text-3xl">
             {t("title")}
           </h1>
-          <p className="text-muted-foreground mt-1">{t("subtitle")}</p>
+          <p className="text-muted-foreground mt-0.5 text-sm md:mt-1">{t("subtitle")}</p>
         </div>
         <div className="flex gap-2">
           {/* View toggle */}
@@ -403,11 +403,12 @@ export default function LocationsPage() {
           {!isFormVisible && (
             <Button
               onClick={() => setIsCreating(true)}
-              className="w-full sm:w-auto"
+              className="flex-1 sm:flex-none sm:w-auto"
               data-testid="add-location-button"
             >
               <Plus className="mr-2 h-4 w-4" />
-              {t("addLocation")}
+              <span className="hidden sm:inline">{t("addLocation")}</span>
+              <span className="sm:hidden">{tCommon("add")}</span>
             </Button>
           )}
         </div>
@@ -722,7 +723,7 @@ export default function LocationsPage() {
         </div>
       ) : viewMode === "tree" ? (
         <div
-          className="grid gap-6 lg:grid-cols-2"
+          className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-6"
           data-testid="locations-tree-view"
         >
           <div className="bg-card rounded-xl border p-4">
@@ -808,8 +809,8 @@ export default function LocationsPage() {
           </div>
         </div>
       ) : viewMode === "grid" ? (
-        <div className="space-y-6" data-testid="locations-grid-view">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-4" data-testid="locations-grid-view">
+          <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
             {locations?.map((location) => {
               const typeInfo = getLocationTypeInfo(location.location_type);
               return (
@@ -962,9 +963,12 @@ export default function LocationsPage() {
           )}
         </div>
       ) : (
-        <div className="space-y-6" data-testid="locations-list-view">
-          <div className="overflow-x-auto rounded-lg border">
-            <table className="w-full">
+        <div className="space-y-4" data-testid="locations-list-view">
+          <div
+            className="-mx-4 overflow-x-auto rounded-lg border md:mx-0"
+            style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x pan-y' }}
+          >
+            <table className="w-full min-w-[640px]">
               <thead className="bg-muted/50 border-b">
                 <tr>
                   <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">

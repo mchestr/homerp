@@ -192,14 +192,14 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-4 pb-4 sm:space-y-6 md:space-y-8">
       {/* Header with Time Range Selector */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold tracking-tight md:text-2xl lg:text-3xl">
             {t("admin.title")}
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-0.5 text-sm md:mt-1">
             {t("admin.dashboardSubtitle")}
           </p>
         </div>
@@ -259,68 +259,68 @@ export default function AdminPage() {
           </div>
 
           {/* Charts Row 1: Revenue */}
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
             {/* Revenue Over Time */}
-            <div className="bg-card rounded-xl border lg:col-span-2">
-              <div className="border-b px-5 py-4">
-                <h2 className="font-medium">
+            <div className="bg-card overflow-hidden rounded-xl border lg:col-span-2">
+              <div className="border-b px-4 py-3 sm:px-5 sm:py-4">
+                <h2 className="text-sm font-medium sm:text-base">
                   {t("admin.charts.revenueOverTime")}
                 </h2>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-xs sm:text-sm">
                   {revenueData?.period_label || timeRange}
                 </p>
               </div>
-              <div className="p-5">
+              <div className="p-4 sm:p-5">
                 <RevenueChart data={revenueData} isLoading={revenueLoading} />
               </div>
             </div>
 
             {/* Revenue by Pack */}
-            <div className="bg-card rounded-xl border">
-              <div className="border-b px-5 py-4">
-                <h2 className="font-medium">
+            <div className="bg-card overflow-hidden rounded-xl border">
+              <div className="border-b px-4 py-3 sm:px-5 sm:py-4">
+                <h2 className="text-sm font-medium sm:text-base">
                   {t("admin.charts.revenueByPack")}
                 </h2>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-xs sm:text-sm">
                   {packData?.period_label || timeRange}
                 </p>
               </div>
-              <div className="p-5">
+              <div className="p-4 sm:p-5">
                 <PackBreakdownChart data={packData} isLoading={packLoading} />
               </div>
             </div>
           </div>
 
           {/* Charts Row 2: Users & Credits */}
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
             {/* User Signups */}
-            <div className="bg-card rounded-xl border">
-              <div className="border-b px-5 py-4">
-                <h2 className="font-medium">{t("admin.charts.userSignups")}</h2>
-                <p className="text-muted-foreground text-sm">
+            <div className="bg-card overflow-hidden rounded-xl border">
+              <div className="border-b px-4 py-3 sm:px-5 sm:py-4">
+                <h2 className="text-sm font-medium sm:text-base">{t("admin.charts.userSignups")}</h2>
+                <p className="text-muted-foreground text-xs sm:text-sm">
                   {signupsData
                     ? `${signupsData.period_signups} ${t("admin.stats.newUsers")} · ${signupsData.period_label}`
                     : timeRange}
                 </p>
               </div>
-              <div className="p-5">
+              <div className="p-4 sm:p-5">
                 <SignupsChart data={signupsData} isLoading={signupsLoading} />
               </div>
             </div>
 
             {/* Credit Activity */}
-            <div className="bg-card rounded-xl border">
-              <div className="border-b px-5 py-4">
-                <h2 className="font-medium">
+            <div className="bg-card overflow-hidden rounded-xl border">
+              <div className="border-b px-4 py-3 sm:px-5 sm:py-4">
+                <h2 className="text-sm font-medium sm:text-base">
                   {t("admin.charts.creditActivity")}
                 </h2>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-xs sm:text-sm">
                   {creditData
                     ? `${t("admin.charts.purchases")}: ${creditData.period_purchased} · ${t("admin.charts.usage")}: ${creditData.period_used}`
                     : timeRange}
                 </p>
               </div>
-              <div className="p-5">
+              <div className="p-4 sm:p-5">
                 <CreditActivityChart
                   data={creditData}
                   isLoading={creditLoading}
@@ -330,14 +330,14 @@ export default function AdminPage() {
           </div>
 
           {/* Quick Actions and Activity Feed */}
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
             {/* Quick Actions */}
             <div className="lg:col-span-2">
-              <h2 className="mb-4 text-lg font-semibold">
+              <h2 className="mb-3 text-base font-semibold sm:mb-4 sm:text-lg">
                 {t("admin.quickActions")}
               </h2>
               <div
-                className="grid gap-3 sm:grid-cols-3"
+                className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
                 data-testid="quick-actions-grid"
               >
                 <QuickActionCard
@@ -406,10 +406,12 @@ export default function AdminPage() {
 
             {/* Activity Feed */}
             <div className="order-first lg:order-none">
-              <h2 className="mb-4 text-lg font-semibold">
+              <h2 className="mb-3 text-base font-semibold sm:mb-4 sm:text-lg">
                 {t("admin.recentActivity")}
               </h2>
-              <ActivityFeed />
+              <div className="overflow-hidden">
+                <ActivityFeed />
+              </div>
             </div>
           </div>
 

@@ -309,32 +309,32 @@ export default function ItemsPage() {
     Object.keys(attrFiltersFromUrl).length > 0;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+    <div className="space-y-4 pb-4 md:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold tracking-tight md:text-2xl lg:text-3xl">
             {t("title")}
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-0.5 text-sm md:mt-1">
             {t("itemCount", { count: itemsData?.total ?? 0 })}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {isSelectionMode ? (
             <>
               <Button
                 variant="outline"
                 onClick={exitSelectionMode}
-                className="gap-2"
+                className="flex-1 gap-2 sm:flex-none"
               >
                 <X className="h-4 w-4" />
-                {tCommon("cancel")}
+                <span className="hidden sm:inline">{tCommon("cancel")}</span>
               </Button>
               <Button
                 variant="default"
                 onClick={() => setShowBatchPanel(true)}
                 disabled={selectedItems.size === 0}
-                className="gap-2"
+                className="flex-1 gap-2 sm:flex-none"
                 data-testid="batch-update-button"
               >
                 <CheckSquare className="h-4 w-4" />
@@ -350,19 +350,20 @@ export default function ItemsPage() {
                 data-testid="enter-selection-mode"
               >
                 <Square className="h-4 w-4" />
-                {t("selectItems")}
+                <span className="hidden sm:inline">{t("selectItems")}</span>
               </Button>
               <Link
                 href="/items/batch-upload"
                 data-testid="batch-upload-button"
+                className="flex-1 sm:flex-none"
               >
-                <Button variant="outline" className="w-full gap-2 sm:w-auto">
+                <Button variant="outline" className="w-full gap-2">
                   <Upload className="h-4 w-4" />
-                  {t("batchUpload")}
+                  <span className="hidden sm:inline">{t("batchUpload")}</span>
                 </Button>
               </Link>
-              <Link href="/items/new" data-testid="add-item-button">
-                <Button className="w-full sm:w-auto">
+              <Link href="/items/new" data-testid="add-item-button" className="flex-1 sm:flex-none">
+                <Button className="w-full">
                   <Plus className="mr-2 h-4 w-4" />
                   {t("addItem")}
                 </Button>
@@ -477,8 +478,8 @@ export default function ItemsPage() {
         </div>
       )}
 
-      <div className="space-y-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="space-y-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <form onSubmit={handleSearch} className="flex flex-1 gap-2">
             <div className="relative flex-1">
               <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
@@ -490,56 +491,60 @@ export default function ItemsPage() {
                 className="bg-background focus:border-primary focus:ring-primary/20 h-10 w-full rounded-lg border pr-4 pl-10 text-sm transition-colors focus:ring-2 focus:outline-hidden"
               />
             </div>
-            <Button type="submit" variant="secondary" className="shrink-0">
-              {tCommon("search")}
+            <Button type="submit" variant="secondary" className="shrink-0 px-3 sm:px-4">
+              <Search className="h-4 w-4 sm:hidden" />
+              <span className="hidden sm:inline">{tCommon("search")}</span>
             </Button>
           </form>
 
-          <Button
-            variant="outline"
-            onClick={() => setShowFilters(!showFilters)}
-            className={cn(
-              "shrink-0 gap-2",
-              hasActiveFilters && "border-primary text-primary"
-            )}
-          >
-            <Filter className="h-4 w-4" />
-            <span className="hidden sm:inline">{tCommon("filters")}</span>
-            {hasActiveFilters && (
-              <span className="bg-primary text-primary-foreground flex h-5 w-5 items-center justify-center rounded-full text-xs">
-                {
-                  [
-                    categoryId,
-                    locationId,
-                    noCategory,
-                    noLocation,
-                    lowStock,
-                    searchQuery,
-                    tagsFromUrl.length > 0,
-                    Object.keys(attrFiltersFromUrl).length > 0,
-                  ].filter(Boolean).length
-                }
-              </span>
-            )}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(!showFilters)}
+              className={cn(
+                "flex-1 gap-2 sm:flex-none",
+                hasActiveFilters && "border-primary text-primary"
+              )}
+            >
+              <Filter className="h-4 w-4" />
+              <span className="sm:hidden">{tCommon("filters")}</span>
+              <span className="hidden sm:inline">{tCommon("filters")}</span>
+              {hasActiveFilters && (
+                <span className="bg-primary text-primary-foreground flex h-5 w-5 items-center justify-center rounded-full text-xs">
+                  {
+                    [
+                      categoryId,
+                      locationId,
+                      noCategory,
+                      noLocation,
+                      lowStock,
+                      searchQuery,
+                      tagsFromUrl.length > 0,
+                      Object.keys(attrFiltersFromUrl).length > 0,
+                    ].filter(Boolean).length
+                  }
+                </span>
+              )}
+            </Button>
 
-          {/* View Mode Toggle */}
-          <ViewModeToggle
-            value={viewMode}
-            onChange={setViewMode}
-            options={[
-              {
-                value: "grid",
-                icon: LayoutGrid,
-                label: tCommon("viewMode.grid"),
-              },
-              {
-                value: "list",
-                icon: LayoutList,
-                label: tCommon("viewMode.list"),
-              },
-            ]}
-          />
+            {/* View Mode Toggle */}
+            <ViewModeToggle
+              value={viewMode}
+              onChange={setViewMode}
+              options={[
+                {
+                  value: "grid",
+                  icon: LayoutGrid,
+                  label: tCommon("viewMode.grid"),
+                },
+                {
+                  value: "list",
+                  icon: LayoutList,
+                  label: tCommon("viewMode.list"),
+                },
+              ]}
+            />
+          </div>
         </div>
 
         {showFilters && (
@@ -758,7 +763,7 @@ export default function ItemsPage() {
 
           {viewMode === "grid" ? (
             <div
-              className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4"
               data-testid="items-grid-view"
             >
               {itemsData?.items.map((item) => (
@@ -948,10 +953,11 @@ export default function ItemsPage() {
             </div>
           ) : (
             <div
-              className="overflow-x-auto rounded-lg border"
+              className="-mx-4 overflow-x-auto rounded-lg border md:mx-0"
+              style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x pan-y' }}
               data-testid="items-list-view"
             >
-              <table className="w-full">
+              <table className="w-full min-w-[640px]">
                 <thead className="bg-muted/50 border-b">
                   <tr>
                     {isSelectionMode && (
@@ -1208,21 +1214,22 @@ export default function ItemsPage() {
           )}
 
           {itemsData && itemsData.total_pages > 1 && (
-            <div className="flex items-center justify-center gap-4 pt-4">
+            <div className="flex items-center justify-center gap-3 pt-4 md:gap-4">
               <Button
                 variant="outline"
                 size="sm"
                 disabled={page <= 1}
                 onClick={() => updateFilters({ page: String(page - 1) })}
-                className="gap-1"
+                className="min-h-[44px] gap-1 px-3 md:px-4"
               >
                 <ChevronLeft className="h-4 w-4" />
-                {tCommon("previous")}
+                <span className="hidden sm:inline">{tCommon("previous")}</span>
               </Button>
               <span className="text-muted-foreground text-sm">
-                {tCommon("page")}{" "}
-                <span className="text-foreground font-medium">{page}</span>{" "}
-                {tCommon("of")}{" "}
+                <span className="hidden sm:inline">{tCommon("page")} </span>
+                <span className="text-foreground font-medium">{page}</span>
+                <span className="hidden sm:inline"> {tCommon("of")} </span>
+                <span className="sm:hidden">/</span>
                 <span className="text-foreground font-medium">
                   {itemsData.total_pages}
                 </span>
@@ -1232,9 +1239,9 @@ export default function ItemsPage() {
                 size="sm"
                 disabled={page >= itemsData.total_pages}
                 onClick={() => updateFilters({ page: String(page + 1) })}
-                className="gap-1"
+                className="min-h-[44px] gap-1 px-3 md:px-4"
               >
-                {tCommon("next")}
+                <span className="hidden sm:inline">{tCommon("next")}</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
