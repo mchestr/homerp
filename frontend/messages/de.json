@@ -176,6 +176,7 @@
     "itemNotFoundDescription": "Dieser Artikel wurde möglicherweise gelöscht",
     "backToItems": "Zurück zu Artikeln",
     "deleting": "Wird gelöscht...",
+    "saving": "Wird gespeichert...",
     "stockBelowMinimum": "Bestand ist unter der Mindestmenge",
     "organization": "Organisation",
     "addNewItem": "Neuen Artikel hinzufügen",

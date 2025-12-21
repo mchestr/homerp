@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -23,28 +23,59 @@ import {
   BarChart3,
   Clock,
   Printer,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useConfirmModal } from "@/components/ui/confirm-modal";
+import { TreeSelect } from "@/components/ui/tree-view";
 import { ImageGallery } from "@/components/items/image-gallery";
 import {
   MultiImageUpload,
   UploadedImage,
 } from "@/components/items/multi-image-upload";
+import { DynamicAttributeForm } from "@/components/items/dynamic-attribute-form";
+import { SpecificationEditor } from "@/components/items/specification-editor";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { itemsApi, imagesApi, CheckInOutCreate } from "@/lib/api/api";
+import {
+  itemsApi,
+  imagesApi,
+  categoriesApi,
+  locationsApi,
+  CheckInOutCreate,
+  ItemUpdate,
+  LocationTreeNode,
+} from "@/lib/api/api";
 import { cn, formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import { useTranslations } from "next-intl";
 import { useLabelPrintModal } from "@/components/labels";
 import type { LabelData } from "@/lib/labels";
 import { useToast } from "@/hooks/use-toast";
+
+const LOCATION_TYPES: Record<string, string> = {
+  room: "🏠",
+  shelf: "📚",
+  bin: "🗑️",
+  drawer: "🗄️",
+  box: "📦",
+  cabinet: "🚪",
+};
+
+function addIconsToLocationTree(
+  nodes: LocationTreeNode[]
+): (LocationTreeNode & { icon: string })[] {
+  return nodes.map((node) => ({
+    ...node,
+    icon: LOCATION_TYPES[node.location_type || ""] || "📍",
+    children: addIconsToLocationTree(node.children ?? []),
+  }));
+}
 
 export default function ItemDetailPage() {
   const params = useParams();
@@ -59,6 +90,29 @@ export default function ItemDetailPage() {
   const [checkInOutQuantity, setCheckInOutQuantity] = useState(1);
   const [checkInOutNotes, setCheckInOutNotes] = useState("");
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
+
+  // Edit mode state
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [formData, setFormData] = useState<ItemUpdate>({
+    name: "",
+    description: "",
+    category_id: undefined,
+    location_id: undefined,
+    quantity: 1,
+    quantity_unit: "pcs",
+    min_quantity: undefined,
+    price: undefined,
+    attributes: {},
+  });
+  const [categoryAttributes, setCategoryAttributes] = useState<
+    Record<string, unknown>
+  >({});
+  const [specifications, setSpecifications] = useState<Record<string, unknown>>(
+    {}
+  );
+  const [initialCategoryId, setInitialCategoryId] = useState<string | null>(
+    null
+  );
 
   const {
     confirm,
@@ -87,6 +141,29 @@ export default function ItemDetailPage() {
     queryFn: () => itemsApi.getHistory(itemId, 1, 5),
     enabled: !!item,
   });
+
+  // Edit mode queries
+  const { data: categoryTree } = useQuery({
+    queryKey: ["categories", "tree"],
+    queryFn: () => categoriesApi.tree(),
+    enabled: isEditMode,
+  });
+
+  const { data: locationTree } = useQuery({
+    queryKey: ["locations", "tree"],
+    queryFn: () => locationsApi.tree(),
+    enabled: isEditMode,
+  });
+
+  const { data: categoryTemplate } = useQuery({
+    queryKey: ["categories", formData.category_id, "template"],
+    queryFn: () => categoriesApi.getTemplate(formData.category_id!),
+    enabled: !!formData.category_id && isEditMode,
+  });
+
+  const locationTreeWithIcons = locationTree
+    ? addIconsToLocationTree(locationTree)
+    : [];
 
   const updateQuantityMutation = useMutation({
     mutationFn: (quantity: number) => itemsApi.updateQuantity(itemId, quantity),
@@ -150,6 +227,83 @@ export default function ItemDetailPage() {
       });
     },
   });
+
+  const updateMutation = useMutation({
+    mutationFn: (data: ItemUpdate) => itemsApi.update(itemId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ["item", itemId] });
+      setIsEditMode(false);
+      toast({
+        title: tCommon("success"),
+        description: tItems("itemUpdated"),
+      });
+    },
+    onError: () => {
+      toast({
+        title: tCommon("error"),
+        description: tCommon("unknownError"),
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Populate form when entering edit mode
+  useEffect(() => {
+    if (isEditMode && item) {
+      const { attributes, ...rest } = item;
+      const categoryAttrs: Record<string, unknown> = {};
+      const otherAttrs: Record<string, unknown> = {};
+      let specs: Record<string, unknown> = {};
+
+      if (attributes && typeof attributes === "object") {
+        for (const [key, value] of Object.entries(attributes)) {
+          if (key === "specifications") {
+            specs =
+              typeof value === "object" && value !== null
+                ? (value as Record<string, unknown>)
+                : {};
+          } else if (key.startsWith("ai_")) {
+            otherAttrs[key] = value;
+          } else {
+            categoryAttrs[key] = value;
+          }
+        }
+      }
+
+      setFormData({
+        name: rest.name,
+        description: rest.description || "",
+        category_id: rest.category_id || undefined,
+        location_id: rest.location_id || undefined,
+        quantity: rest.quantity,
+        quantity_unit: rest.quantity_unit,
+        min_quantity: rest.min_quantity || undefined,
+        price: rest.price != null ? Number(rest.price) : undefined,
+        attributes: otherAttrs,
+      });
+      setCategoryAttributes(categoryAttrs);
+      setSpecifications(specs);
+    }
+  }, [isEditMode, item]);
+
+  // Track initial category ID
+  useEffect(() => {
+    if (item && initialCategoryId === null) {
+      setInitialCategoryId(item.category_id ?? null);
+    }
+  }, [item, initialCategoryId]);
+
+  // Reset category attributes when category changes
+  useEffect(() => {
+    if (
+      isEditMode &&
+      initialCategoryId !== null &&
+      formData.category_id !== initialCategoryId
+    ) {
+      setCategoryAttributes({});
+    }
+  }, [formData.category_id, initialCategoryId, isEditMode]);
 
   const handleSetPrimary = async (imageId: string) => {
     await setPrimaryImageMutation.mutateAsync(imageId);
@@ -252,6 +406,40 @@ export default function ItemDetailPage() {
     openLabelModal(labelData);
   };
 
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]:
+        name === "quantity" || name === "min_quantity" || name === "price"
+          ? value
+            ? Number(value)
+            : undefined
+          : value || undefined,
+    }));
+  };
+
+  const handleSaveEdit = () => {
+    const finalAttributes = {
+      ...formData.attributes,
+      ...categoryAttributes,
+      specifications,
+    };
+
+    updateMutation.mutate({
+      ...formData,
+      attributes: finalAttributes,
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -318,459 +506,709 @@ export default function ItemDetailPage() {
         </div>
 
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={handlePrintLabel}
-            className="gap-2"
-            data-testid="print-label-button"
-          >
-            <Printer className="h-4 w-4" />
-            <span className="hidden sm:inline">{tLabels("printLabel")}</span>
-          </Button>
-          <Link href={`/items/${itemId}/edit`}>
-            <Button variant="outline" className="gap-2">
-              <Edit className="h-4 w-4" />
-              <span className="hidden sm:inline">{tCommon("edit")}</span>
-            </Button>
-          </Link>
-          <Button
-            variant="destructive"
-            onClick={handleDelete}
-            disabled={deleteMutation.isPending}
-            className="gap-2"
-          >
-            <Trash2 className="h-4 w-4" />
-            <span className="hidden sm:inline">
-              {deleteMutation.isPending
-                ? tItems("deleting")
-                : tCommon("delete")}
-            </span>
-          </Button>
+          {!isEditMode && (
+            <>
+              <Button
+                variant="outline"
+                onClick={handlePrintLabel}
+                className="gap-2"
+                data-testid="print-label-button"
+              >
+                <Printer className="h-4 w-4" />
+                <span className="hidden sm:inline">
+                  {tLabels("printLabel")}
+                </span>
+              </Button>
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => setIsEditMode(true)}
+              >
+                <Edit className="h-4 w-4" />
+                <span className="hidden sm:inline">{tCommon("edit")}</span>
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={deleteMutation.isPending}
+                className="gap-2"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="hidden sm:inline">
+                  {deleteMutation.isPending
+                    ? tItems("deleting")
+                    : tCommon("delete")}
+                </span>
+              </Button>
+            </>
+          )}
+          {isEditMode && (
+            <>
+              <Button
+                variant="outline"
+                onClick={handleCancelEdit}
+                className="w-full sm:w-auto"
+              >
+                {tCommon("cancel")}
+              </Button>
+              <Button
+                onClick={handleSaveEdit}
+                disabled={updateMutation.isPending || !formData.name}
+                className="w-full sm:w-auto"
+              >
+                {updateMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <span className="hidden sm:inline">{tItems("saving")}</span>
+                    <span className="sm:hidden">...</span>
+                  </>
+                ) : (
+                  <span>{tCommon("save")}</span>
+                )}
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
+        {/* Left column */}
         <div className="space-y-4">
-          <div className="bg-card overflow-hidden rounded-xl border p-4">
-            <ImageGallery
-              images={item.images || []}
-              onSetPrimary={handleSetPrimary}
-              editable={true}
-            />
-          </div>
-          <div className="bg-card rounded-xl border p-4">
-            <h2 className="mb-4 font-semibold">{tImages("uploadImage")}</h2>
-            <MultiImageUpload
-              onImageUploaded={handleImageUploaded}
-              onClassificationComplete={handleClassificationComplete}
-              uploadedImages={uploadedImages}
-              onRemoveImage={handleRemoveUploadedImage}
-              onSetPrimary={handleSetUploadedPrimary}
-              maxImages={10}
-            />
-          </div>
+          {!isEditMode && (
+            <>
+              <div className="bg-card overflow-hidden rounded-xl border p-4">
+                <ImageGallery
+                  images={item.images || []}
+                  onSetPrimary={handleSetPrimary}
+                  editable={true}
+                />
+              </div>
+              <div className="bg-card rounded-xl border p-4">
+                <h2 className="mb-4 font-semibold">{tImages("uploadImage")}</h2>
+                <MultiImageUpload
+                  onImageUploaded={handleImageUploaded}
+                  onClassificationComplete={handleClassificationComplete}
+                  uploadedImages={uploadedImages}
+                  onRemoveImage={handleRemoveUploadedImage}
+                  onSetPrimary={handleSetUploadedPrimary}
+                  maxImages={10}
+                />
+              </div>
+            </>
+          )}
+
+          {isEditMode && (
+            <div className="bg-card rounded-xl border p-4 sm:p-6">
+              <h2 className="mb-4 text-lg font-semibold">
+                {tItems("itemDetails")}
+              </h2>
+              <div className="space-y-5">
+                {/* Name field */}
+                <div>
+                  <label className="mb-2 block text-sm font-medium">
+                    {tCommon("name")}{" "}
+                    <span className="text-destructive">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name ?? ""}
+                    onChange={handleInputChange}
+                    required
+                    className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
+                    placeholder={tItems("namePlaceholder")}
+                  />
+                </div>
+
+                {/* Description field */}
+                <div>
+                  <label className="mb-2 block text-sm font-medium">
+                    {tCommon("description")}
+                  </label>
+                  <textarea
+                    name="description"
+                    value={formData.description || ""}
+                    onChange={handleInputChange}
+                    rows={3}
+                    className="bg-background focus:border-primary focus:ring-primary/20 w-full rounded-lg border px-4 py-3 text-base transition-colors focus:ring-2 focus:outline-hidden"
+                    placeholder={tItems("descriptionPlaceholder")}
+                  />
+                </div>
+
+                {/* Category and Location - side by side on desktop */}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">
+                      {tItems("category")}
+                    </label>
+                    <TreeSelect
+                      nodes={categoryTree ?? []}
+                      value={formData.category_id ?? null}
+                      onChange={(value) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          category_id: value ?? undefined,
+                        }))
+                      }
+                      placeholder={tItems("selectCategory")}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">
+                      {tItems("location")}
+                    </label>
+                    <TreeSelect
+                      nodes={locationTreeWithIcons}
+                      value={formData.location_id ?? null}
+                      onChange={(value) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          location_id: value ?? undefined,
+                        }))
+                      }
+                      placeholder={tItems("selectLocation")}
+                    />
+                  </div>
+                </div>
+
+                {/* Quantity, Unit, Min Quantity, Price - grid on desktop */}
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">
+                      {tItems("quantity")}
+                    </label>
+                    <input
+                      type="number"
+                      name="quantity"
+                      value={formData.quantity ?? ""}
+                      onChange={handleInputChange}
+                      min={0}
+                      className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">
+                      {tItems("quantityUnit")}
+                    </label>
+                    <input
+                      type="text"
+                      name="quantity_unit"
+                      value={formData.quantity_unit ?? ""}
+                      onChange={handleInputChange}
+                      className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
+                      placeholder={tItems("unitPlaceholder")}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">
+                      {tItems("minQuantity")}
+                    </label>
+                    <input
+                      type="number"
+                      name="min_quantity"
+                      value={formData.min_quantity ?? ""}
+                      onChange={handleInputChange}
+                      min={0}
+                      className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
+                      placeholder={tItems("alertThreshold")}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">
+                      {tItems("price")}
+                    </label>
+                    <input
+                      type="number"
+                      name="price"
+                      value={formData.price ?? ""}
+                      onChange={handleInputChange}
+                      min={0}
+                      step={0.01}
+                      className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+
+                {/* Category-specific attributes */}
+                {categoryTemplate &&
+                  (categoryTemplate.fields?.length ?? 0) > 0 && (
+                    <div className="border-t pt-5">
+                      <DynamicAttributeForm
+                        fields={categoryTemplate.fields!}
+                        values={categoryAttributes}
+                        onChange={setCategoryAttributes}
+                      />
+                    </div>
+                  )}
+
+                {/* Specifications editor */}
+                <div className="border-t pt-5">
+                  <SpecificationEditor
+                    specifications={specifications}
+                    onChange={setSpecifications}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
+        {/* Right column */}
         <div className="space-y-4">
-          <div className="bg-card rounded-xl border p-5">
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold">{tItems("quantity")}</h2>
-              {item.min_quantity != null && (
-                <span className="text-muted-foreground text-sm">
-                  {tItems("minQuantity")}: {String(item.min_quantity)}{" "}
-                  {item.quantity_unit}
-                </span>
-              )}
-            </div>
-            <div className="mt-4 flex items-center justify-center gap-4">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => handleQuantityChange(-1)}
-                disabled={
-                  (item.quantity ?? 0) === 0 || updateQuantityMutation.isPending
-                }
-                className="h-12 w-12 rounded-full"
-              >
-                <Minus className="h-5 w-5" />
-              </Button>
-              <div className="text-center">
-                <span
-                  className={cn(
-                    "text-4xl font-bold tabular-nums",
-                    item.is_low_stock && "text-amber-600 dark:text-amber-400"
-                  )}
-                >
-                  {item.quantity ?? 0}
-                </span>
-                <p className="text-muted-foreground text-sm">
-                  {item.quantity_unit}
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => handleQuantityChange(1)}
-                disabled={updateQuantityMutation.isPending}
-                className="h-12 w-12 rounded-full"
-              >
-                <Plus className="h-5 w-5" />
-              </Button>
-            </div>
-            {item.is_low_stock && (
-              <div className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
-                <AlertTriangle className="h-4 w-4" />
-                {tItems("stockBelowMinimum")}
-              </div>
-            )}
-          </div>
-
-          <div className="bg-card rounded-xl border p-5">
-            <h2 className="font-semibold">{tItems("organization")}</h2>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <div className="bg-muted/50 flex items-start gap-3 rounded-lg p-3">
-                <div className="rounded-lg bg-emerald-500/10 p-2 dark:bg-emerald-400/10">
-                  <FolderOpen className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-muted-foreground text-xs">
-                    {tItems("category")}
-                  </p>
-                  <p className="truncate font-medium">
-                    {item.category?.icon}{" "}
-                    {item.category?.name ?? tItems("uncategorized")}
-                  </p>
-                </div>
-              </div>
-              <div className="bg-muted/50 flex items-start gap-3 rounded-lg p-3">
-                <div className="rounded-lg bg-violet-500/10 p-2 dark:bg-violet-400/10">
-                  <MapPin className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-muted-foreground text-xs">
-                    {tItems("location")}
-                  </p>
-                  <p className="truncate font-medium">
-                    {item.location?.name ?? tItems("noLocation")}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {item.price != null && (
-            <div className="bg-card rounded-xl border p-5">
-              <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-green-500/10 p-2 dark:bg-green-400/10">
-                  <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
-                </div>
-                <div>
-                  <p className="text-muted-foreground text-xs">
-                    {tItems("price")}
-                  </p>
-                  <p className="text-2xl font-bold tabular-nums">
-                    {formatPrice(item.price, user?.currency)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {item.description && (
-            <div className="bg-card rounded-xl border p-5">
-              <h2 className="font-semibold">{tCommon("description")}</h2>
-              <p className="text-muted-foreground mt-2 leading-relaxed">
-                {item.description}
-              </p>
-            </div>
-          )}
-
-          {(() => {
-            const attrs = item.attributes;
-            if (!attrs || typeof attrs !== "object") return null;
-            const specs = (attrs as Record<string, unknown>)["specifications"];
-            if (!specs || typeof specs !== "object") return null;
-            const entries = Object.entries(specs as Record<string, unknown>);
-            if (entries.length === 0) return null;
-            return (
+          {!isEditMode && (
+            <>
               <div className="bg-card rounded-xl border p-5">
-                <div className="flex items-center gap-2">
-                  <Tag className="text-muted-foreground h-4 w-4" />
-                  <h2 className="font-semibold">{tItems("specifications")}</h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="font-semibold">{tItems("quantity")}</h2>
+                  {item.min_quantity != null && (
+                    <span className="text-muted-foreground text-sm">
+                      {tItems("minQuantity")}: {String(item.min_quantity)}{" "}
+                      {item.quantity_unit}
+                    </span>
+                  )}
                 </div>
-                <dl className="mt-4 space-y-3">
-                  {entries.map(([key, value]) => (
-                    <div
-                      key={key}
-                      className="bg-muted/50 flex items-center justify-between rounded-lg px-3 py-2"
-                    >
-                      <dt className="text-muted-foreground text-sm capitalize">
-                        {key.replace(/_/g, " ")}
-                      </dt>
-                      <dd className="text-sm font-medium">
-                        {typeof value === "string" || typeof value === "number"
-                          ? String(value)
-                          : JSON.stringify(value)}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            );
-          })()}
-
-          {/* Check-in/out Card */}
-          <div className="bg-card rounded-xl border p-5">
-            <div className="flex items-center gap-2">
-              <LogOut className="text-muted-foreground h-4 w-4" />
-              <h2 className="font-semibold">{t("checkInOut")}</h2>
-            </div>
-            <div className="mt-4 space-y-4">
-              <div className="flex items-center gap-2">
-                <label className="text-muted-foreground w-20 text-sm">
-                  {t("quantity")}
-                </label>
-                <Input
-                  type="number"
-                  min={1}
-                  value={checkInOutQuantity}
-                  onChange={(e) =>
-                    setCheckInOutQuantity(
-                      Math.max(1, parseInt(e.target.value) || 1)
-                    )
-                  }
-                  className="w-20"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <label className="text-muted-foreground w-20 text-sm">
-                  {t("notes")}
-                </label>
-                <Input
-                  type="text"
-                  value={checkInOutNotes}
-                  onChange={(e) => setCheckInOutNotes(e.target.value)}
-                  placeholder={t("notesPlaceholder")}
-                  className="flex-1"
-                />
-              </div>
-              <div className="flex gap-2">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="flex-1">
-                        <Button
-                          variant="outline"
-                          onClick={handleCheckOut}
-                          disabled={
-                            checkOutMutation.isPending ||
-                            checkInMutation.isPending ||
-                            !item ||
-                            !usageStats ||
-                            (item.quantity ?? 0) -
-                              usageStats.currently_checked_out <=
-                              0 ||
-                            checkInOutQuantity >
-                              (item.quantity ?? 0) -
-                                usageStats.currently_checked_out
-                          }
-                          className="w-full gap-2"
-                        >
-                          <LogOut className="h-4 w-4" />
-                          {checkOutMutation.isPending
-                            ? tCommon("loading")
-                            : t("checkOut")}
-                        </Button>
-                      </span>
-                    </TooltipTrigger>
-                    {item &&
-                      usageStats &&
-                      (item.quantity ?? 0) - usageStats.currently_checked_out <=
-                        0 && (
-                        <TooltipContent>
-                          <p>{t("checkOutDisabled")}</p>
-                        </TooltipContent>
-                      )}
-                    {item &&
-                      usageStats &&
-                      (item.quantity ?? 0) - usageStats.currently_checked_out >
-                        0 &&
-                      checkInOutQuantity >
-                        (item.quantity ?? 0) -
-                          usageStats.currently_checked_out && (
-                        <TooltipContent>
-                          <p>
-                            {t("exceedsAvailable", {
-                              count:
-                                (item.quantity ?? 0) -
-                                usageStats.currently_checked_out,
-                            })}
-                          </p>
-                        </TooltipContent>
-                      )}
-                  </Tooltip>
-                </TooltipProvider>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="flex-1">
-                        <Button
-                          variant="outline"
-                          onClick={handleCheckIn}
-                          disabled={
-                            checkOutMutation.isPending ||
-                            checkInMutation.isPending ||
-                            !usageStats ||
-                            usageStats.currently_checked_out <= 0 ||
-                            checkInOutQuantity >
-                              usageStats.currently_checked_out
-                          }
-                          className="w-full gap-2"
-                        >
-                          <LogIn className="h-4 w-4" />
-                          {checkInMutation.isPending
-                            ? tCommon("loading")
-                            : t("checkIn")}
-                        </Button>
-                      </span>
-                    </TooltipTrigger>
-                    {usageStats && usageStats.currently_checked_out <= 0 && (
-                      <TooltipContent>
-                        <p>{t("checkInDisabled")}</p>
-                      </TooltipContent>
-                    )}
-                    {usageStats &&
-                      usageStats.currently_checked_out > 0 &&
-                      checkInOutQuantity > usageStats.currently_checked_out && (
-                        <TooltipContent>
-                          <p>
-                            {t("exceedsCheckedOut", {
-                              count: usageStats.currently_checked_out,
-                            })}
-                          </p>
-                        </TooltipContent>
-                      )}
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            </div>
-          </div>
-
-          {/* Usage Stats Card */}
-          {usageStats && (
-            <div className="bg-card rounded-xl border p-5">
-              <div className="flex items-center gap-2">
-                <BarChart3 className="text-muted-foreground h-4 w-4" />
-                <h2 className="font-semibold">{t("usageStats")}</h2>
-              </div>
-              <div className="mt-4 grid grid-cols-2 gap-4">
-                <div className="bg-muted/50 rounded-lg p-3">
-                  <p className="text-muted-foreground text-xs">
-                    {t("totalCheckOuts")}
-                  </p>
-                  <p className="text-2xl font-bold tabular-nums">
-                    {usageStats.total_check_outs}
-                  </p>
-                </div>
-                <div className="bg-muted/50 rounded-lg p-3">
-                  <p className="text-muted-foreground text-xs">
-                    {t("totalCheckIns")}
-                  </p>
-                  <p className="text-2xl font-bold tabular-nums">
-                    {usageStats.total_check_ins}
-                  </p>
-                </div>
-                <div className="bg-muted/50 rounded-lg p-3">
-                  <p className="text-muted-foreground text-xs">
-                    {t("currentlyOut")}
-                  </p>
-                  <p
-                    className={cn(
-                      "text-2xl font-bold tabular-nums",
-                      usageStats.currently_checked_out > 0 &&
-                        "text-amber-600 dark:text-amber-400"
-                    )}
+                <div className="mt-4 flex items-center justify-center gap-4">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => handleQuantityChange(-1)}
+                    disabled={
+                      (item.quantity ?? 0) === 0 ||
+                      updateQuantityMutation.isPending
+                    }
+                    className="h-12 w-12 rounded-full"
                   >
-                    {usageStats.currently_checked_out}
-                  </p>
-                </div>
-                <div className="bg-muted/50 rounded-lg p-3">
-                  <p className="text-muted-foreground text-xs">
-                    {t("lastUsed")}
-                  </p>
-                  <p className="text-sm font-medium">
-                    {usageStats.last_check_out
-                      ? new Date(usageStats.last_check_out).toLocaleDateString()
-                      : "-"}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* History Card */}
-          {historyData && historyData.items.length > 0 && (
-            <div className="bg-card rounded-xl border p-5">
-              <div className="flex items-center gap-2">
-                <History className="text-muted-foreground h-4 w-4" />
-                <h2 className="font-semibold">{t("history")}</h2>
-              </div>
-              <div className="mt-4 space-y-3">
-                {historyData.items.map((record) => (
-                  <div
-                    key={record.id}
-                    className="bg-muted/50 flex items-start gap-3 rounded-lg p-3"
-                  >
-                    <div
+                    <Minus className="h-5 w-5" />
+                  </Button>
+                  <div className="text-center">
+                    <span
                       className={cn(
-                        "rounded-lg p-2",
-                        record.action_type === "check_out"
-                          ? "bg-red-500/10 dark:bg-red-400/10"
-                          : "bg-green-500/10 dark:bg-green-400/10"
+                        "text-4xl font-bold tabular-nums",
+                        item.is_low_stock &&
+                          "text-amber-600 dark:text-amber-400"
                       )}
                     >
-                      {record.action_type === "check_out" ? (
-                        <LogOut
-                          className={cn(
-                            "h-4 w-4",
-                            "text-red-600 dark:text-red-400"
-                          )}
-                        />
-                      ) : (
-                        <LogIn
-                          className={cn(
-                            "h-4 w-4",
-                            "text-green-600 dark:text-green-400"
-                          )}
-                        />
-                      )}
+                      {item.quantity ?? 0}
+                    </span>
+                    <p className="text-muted-foreground text-sm">
+                      {item.quantity_unit}
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => handleQuantityChange(1)}
+                    disabled={updateQuantityMutation.isPending}
+                    className="h-12 w-12 rounded-full"
+                  >
+                    <Plus className="h-5 w-5" />
+                  </Button>
+                </div>
+                {item.is_low_stock && (
+                  <div className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
+                    <AlertTriangle className="h-4 w-4" />
+                    {tItems("stockBelowMinimum")}
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-card rounded-xl border p-5">
+                <h2 className="font-semibold">{tItems("organization")}</h2>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <div className="bg-muted/50 flex items-start gap-3 rounded-lg p-3">
+                    <div className="rounded-lg bg-emerald-500/10 p-2 dark:bg-emerald-400/10">
+                      <FolderOpen className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium">
-                        {record.action_type === "check_out"
-                          ? t("checkedOut")
-                          : t("checkedIn")}{" "}
-                        <span className="text-muted-foreground">
-                          x{record.quantity}
-                        </span>
+                    <div className="min-w-0">
+                      <p className="text-muted-foreground text-xs">
+                        {tItems("category")}
                       </p>
-                      {record.notes && (
-                        <p className="text-muted-foreground truncate text-xs">
-                          {record.notes}
-                        </p>
-                      )}
-                      <p className="text-muted-foreground mt-1 flex items-center gap-1 text-xs">
-                        <Clock className="h-3 w-3" />
-                        {new Date(record.occurred_at).toLocaleString()}
+                      <p className="truncate font-medium">
+                        {item.category?.icon}{" "}
+                        {item.category?.name ?? tItems("uncategorized")}
                       </p>
                     </div>
                   </div>
-                ))}
-                {historyData.total > 5 && (
-                  <p className="text-muted-foreground text-center text-xs">
-                    {t("showingRecentHistory", { count: historyData.total })}
+                  <div className="bg-muted/50 flex items-start gap-3 rounded-lg p-3">
+                    <div className="rounded-lg bg-violet-500/10 p-2 dark:bg-violet-400/10">
+                      <MapPin className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-muted-foreground text-xs">
+                        {tItems("location")}
+                      </p>
+                      <p className="truncate font-medium">
+                        {item.location?.name ?? tItems("noLocation")}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {item.price != null && (
+                <div className="bg-card rounded-xl border p-5">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-green-500/10 p-2 dark:bg-green-400/10">
+                      <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground text-xs">
+                        {tItems("price")}
+                      </p>
+                      <p className="text-2xl font-bold tabular-nums">
+                        {formatPrice(item.price, user?.currency)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {item.description && (
+                <div className="bg-card rounded-xl border p-5">
+                  <h2 className="font-semibold">{tCommon("description")}</h2>
+                  <p className="text-muted-foreground mt-2 leading-relaxed">
+                    {item.description}
                   </p>
-                )}
+                </div>
+              )}
+
+              {(() => {
+                const attrs = item.attributes;
+                if (!attrs || typeof attrs !== "object") return null;
+                const specs = (attrs as Record<string, unknown>)[
+                  "specifications"
+                ];
+                if (!specs || typeof specs !== "object") return null;
+                const entries = Object.entries(
+                  specs as Record<string, unknown>
+                );
+                if (entries.length === 0) return null;
+                return (
+                  <div className="bg-card rounded-xl border p-5">
+                    <div className="flex items-center gap-2">
+                      <Tag className="text-muted-foreground h-4 w-4" />
+                      <h2 className="font-semibold">
+                        {tItems("specifications")}
+                      </h2>
+                    </div>
+                    <dl className="mt-4 space-y-3">
+                      {entries.map(([key, value]) => (
+                        <div
+                          key={key}
+                          className="bg-muted/50 flex items-center justify-between rounded-lg px-3 py-2"
+                        >
+                          <dt className="text-muted-foreground text-sm capitalize">
+                            {key.replace(/_/g, " ")}
+                          </dt>
+                          <dd className="text-sm font-medium">
+                            {typeof value === "string" ||
+                            typeof value === "number"
+                              ? String(value)
+                              : JSON.stringify(value)}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                );
+              })()}
+
+              {/* Check-in/out Card */}
+              <div className="bg-card rounded-xl border p-5">
+                <div className="flex items-center gap-2">
+                  <LogOut className="text-muted-foreground h-4 w-4" />
+                  <h2 className="font-semibold">{t("checkInOut")}</h2>
+                </div>
+                <div className="mt-4 space-y-4">
+                  <div className="flex items-center gap-2">
+                    <label className="text-muted-foreground w-20 text-sm">
+                      {t("quantity")}
+                    </label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={checkInOutQuantity}
+                      onChange={(e) =>
+                        setCheckInOutQuantity(
+                          Math.max(1, parseInt(e.target.value) || 1)
+                        )
+                      }
+                      className="w-20"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-muted-foreground w-20 text-sm">
+                      {t("notes")}
+                    </label>
+                    <Input
+                      type="text"
+                      value={checkInOutNotes}
+                      onChange={(e) => setCheckInOutNotes(e.target.value)}
+                      placeholder={t("notesPlaceholder")}
+                      className="flex-1"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="flex-1">
+                            <Button
+                              variant="outline"
+                              onClick={handleCheckOut}
+                              disabled={
+                                checkOutMutation.isPending ||
+                                checkInMutation.isPending ||
+                                !item ||
+                                !usageStats ||
+                                (item.quantity ?? 0) -
+                                  usageStats.currently_checked_out <=
+                                  0 ||
+                                checkInOutQuantity >
+                                  (item.quantity ?? 0) -
+                                    usageStats.currently_checked_out
+                              }
+                              className="w-full gap-2"
+                            >
+                              <LogOut className="h-4 w-4" />
+                              {checkOutMutation.isPending
+                                ? tCommon("loading")
+                                : t("checkOut")}
+                            </Button>
+                          </span>
+                        </TooltipTrigger>
+                        {item &&
+                          usageStats &&
+                          (item.quantity ?? 0) -
+                            usageStats.currently_checked_out <=
+                            0 && (
+                            <TooltipContent>
+                              <p>{t("checkOutDisabled")}</p>
+                            </TooltipContent>
+                          )}
+                        {item &&
+                          usageStats &&
+                          (item.quantity ?? 0) -
+                            usageStats.currently_checked_out >
+                            0 &&
+                          checkInOutQuantity >
+                            (item.quantity ?? 0) -
+                              usageStats.currently_checked_out && (
+                            <TooltipContent>
+                              <p>
+                                {t("exceedsAvailable", {
+                                  count:
+                                    (item.quantity ?? 0) -
+                                    usageStats.currently_checked_out,
+                                })}
+                              </p>
+                            </TooltipContent>
+                          )}
+                      </Tooltip>
+                    </TooltipProvider>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="flex-1">
+                            <Button
+                              variant="outline"
+                              onClick={handleCheckIn}
+                              disabled={
+                                checkOutMutation.isPending ||
+                                checkInMutation.isPending ||
+                                !usageStats ||
+                                usageStats.currently_checked_out <= 0 ||
+                                checkInOutQuantity >
+                                  usageStats.currently_checked_out
+                              }
+                              className="w-full gap-2"
+                            >
+                              <LogIn className="h-4 w-4" />
+                              {checkInMutation.isPending
+                                ? tCommon("loading")
+                                : t("checkIn")}
+                            </Button>
+                          </span>
+                        </TooltipTrigger>
+                        {usageStats &&
+                          usageStats.currently_checked_out <= 0 && (
+                            <TooltipContent>
+                              <p>{t("checkInDisabled")}</p>
+                            </TooltipContent>
+                          )}
+                        {usageStats &&
+                          usageStats.currently_checked_out > 0 &&
+                          checkInOutQuantity >
+                            usageStats.currently_checked_out && (
+                            <TooltipContent>
+                              <p>
+                                {t("exceedsCheckedOut", {
+                                  count: usageStats.currently_checked_out,
+                                })}
+                              </p>
+                            </TooltipContent>
+                          )}
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </div>
+              </div>
+
+              {/* Usage Stats Card */}
+              {usageStats && (
+                <div className="bg-card rounded-xl border p-5">
+                  <div className="flex items-center gap-2">
+                    <BarChart3 className="text-muted-foreground h-4 w-4" />
+                    <h2 className="font-semibold">{t("usageStats")}</h2>
+                  </div>
+                  <div className="mt-4 grid grid-cols-2 gap-4">
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <p className="text-muted-foreground text-xs">
+                        {t("totalCheckOuts")}
+                      </p>
+                      <p className="text-2xl font-bold tabular-nums">
+                        {usageStats.total_check_outs}
+                      </p>
+                    </div>
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <p className="text-muted-foreground text-xs">
+                        {t("totalCheckIns")}
+                      </p>
+                      <p className="text-2xl font-bold tabular-nums">
+                        {usageStats.total_check_ins}
+                      </p>
+                    </div>
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <p className="text-muted-foreground text-xs">
+                        {t("currentlyOut")}
+                      </p>
+                      <p
+                        className={cn(
+                          "text-2xl font-bold tabular-nums",
+                          usageStats.currently_checked_out > 0 &&
+                            "text-amber-600 dark:text-amber-400"
+                        )}
+                      >
+                        {usageStats.currently_checked_out}
+                      </p>
+                    </div>
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <p className="text-muted-foreground text-xs">
+                        {t("lastUsed")}
+                      </p>
+                      <p className="text-sm font-medium">
+                        {usageStats.last_check_out
+                          ? new Date(
+                              usageStats.last_check_out
+                            ).toLocaleDateString()
+                          : "-"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* History Card */}
+              {historyData && historyData.items.length > 0 && (
+                <div className="bg-card rounded-xl border p-5">
+                  <div className="flex items-center gap-2">
+                    <History className="text-muted-foreground h-4 w-4" />
+                    <h2 className="font-semibold">{t("history")}</h2>
+                  </div>
+                  <div className="mt-4 space-y-3">
+                    {historyData.items.map((record) => (
+                      <div
+                        key={record.id}
+                        className="bg-muted/50 flex items-start gap-3 rounded-lg p-3"
+                      >
+                        <div
+                          className={cn(
+                            "rounded-lg p-2",
+                            record.action_type === "check_out"
+                              ? "bg-red-500/10 dark:bg-red-400/10"
+                              : "bg-green-500/10 dark:bg-green-400/10"
+                          )}
+                        >
+                          {record.action_type === "check_out" ? (
+                            <LogOut
+                              className={cn(
+                                "h-4 w-4",
+                                "text-red-600 dark:text-red-400"
+                              )}
+                            />
+                          ) : (
+                            <LogIn
+                              className={cn(
+                                "h-4 w-4",
+                                "text-green-600 dark:text-green-400"
+                              )}
+                            />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium">
+                            {record.action_type === "check_out"
+                              ? t("checkedOut")
+                              : t("checkedIn")}{" "}
+                            <span className="text-muted-foreground">
+                              x{record.quantity}
+                            </span>
+                          </p>
+                          {record.notes && (
+                            <p className="text-muted-foreground truncate text-xs">
+                              {record.notes}
+                            </p>
+                          )}
+                          <p className="text-muted-foreground mt-1 flex items-center gap-1 text-xs">
+                            <Clock className="h-3 w-3" />
+                            {new Date(record.occurred_at).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    {historyData.total > 5 && (
+                      <p className="text-muted-foreground text-center text-xs">
+                        {t("showingRecentHistory", {
+                          count: historyData.total,
+                        })}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {isEditMode && (
+            <div className="bg-card rounded-xl border p-4 sm:p-6">
+              <h2 className="mb-4 text-lg font-semibold">
+                {tImages("images")}
+              </h2>
+              <div className="space-y-4">
+                <ImageGallery
+                  images={item.images || []}
+                  onSetPrimary={handleSetPrimary}
+                  editable={true}
+                />
+
+                <div className="border-t pt-4">
+                  <h3 className="mb-4 font-semibold">
+                    {tImages("uploadImage")}
+                  </h3>
+                  <MultiImageUpload
+                    onImageUploaded={handleImageUploaded}
+                    onClassificationComplete={handleClassificationComplete}
+                    uploadedImages={uploadedImages}
+                    onRemoveImage={handleRemoveUploadedImage}
+                    onSetPrimary={handleSetUploadedPrimary}
+                    maxImages={10}
+                  />
+                </div>
               </div>
             </div>
           )}

@@ -171,7 +171,8 @@
     "applyChanges": "Appliquer les Modifications",
     "batchUpdateSuccess": "{count} articles mis à jour avec succès",
     "selectItems": "Sélectionnez des articles pour la mise à jour groupée",
-    "batchUpload": "Téléversement Groupé"
+    "batchUpload": "Téléversement Groupé",
+    "saving": "Enregistrement..."
   },
   "categories": {
     "title": "Catégories",

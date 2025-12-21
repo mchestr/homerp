@@ -171,7 +171,8 @@
     "applyChanges": "変更を適用",
     "batchUpdateSuccess": "{count}件のアイテムが正常に更新されました",
     "selectItems": "一括更新するアイテムを選択してください",
-    "batchUpload": "一括アップロード"
+    "batchUpload": "一括アップロード",
+    "saving": "保存中..."
   },
   "categories": {
     "title": "カテゴリー",
