@@ -48,7 +48,8 @@ const MarkdownLink = ({
   }
 
   // Normalize href - strip leading slash for pattern matching
-  // This handles AI generating either "/items/uuid" or "items/uuid"
+  // AI sometimes generates links without leading slash (e.g., "items/uuid" instead of "/items/uuid")
+  // We normalize first, validate against patterns, then re-add the slash for Next.js Link
   const normalizedPath = href.startsWith("/") ? href.slice(1) : href;
 
   // Validate that href matches expected patterns to prevent injection
