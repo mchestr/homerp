@@ -62,7 +62,7 @@ function SettingsFormDialog({
   });
 
   useEffect(() => {
-    if (settings) {
+    if (open && settings) {
       setFormData({
         model_name: settings.model_name,
         temperature: settings.temperature.toString(),
@@ -72,7 +72,7 @@ function SettingsFormDialog({
         is_active: settings.is_active,
       });
     }
-  }, [settings, open]);
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

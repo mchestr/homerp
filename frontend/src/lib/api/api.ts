@@ -211,6 +211,7 @@ import type {
   ApiKeyCreate,
   ApiKeyUpdate,
   CollaboratorRole,
+  AiModelSettingsUpdate,
 } from "./types.gen";
 
 // =============================================================================
@@ -967,7 +968,7 @@ export const adminApi = {
       throwOnError: true,
     }).then((res) => res.data),
 
-  updateAIModelSettings: (id: string, data: AIModelSettingsUpdate) =>
+  updateAIModelSettings: (id: string, data: AiModelSettingsUpdate) =>
     updateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPut({
       path: { settings_id: id },
       body: data,
