@@ -140,6 +140,9 @@ import type {
   GetActivityFeedApiV1AdminActivityGetData,
   GetActivityFeedApiV1AdminActivityGetErrors,
   GetActivityFeedApiV1AdminActivityGetResponses,
+  GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetData,
+  GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetErrors,
+  GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetResponses,
   GetAiUsageByUserApiV1AdminAiUsageByUserGetData,
   GetAiUsageByUserApiV1AdminAiUsageByUserGetErrors,
   GetAiUsageByUserApiV1AdminAiUsageByUserGetResponses,
@@ -305,6 +308,9 @@ import type {
   LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteData,
   LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteErrors,
   LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteResponses,
+  ListAiModelSettingsApiV1AdminAiModelSettingsGetData,
+  ListAiModelSettingsApiV1AdminAiModelSettingsGetErrors,
+  ListAiModelSettingsApiV1AdminAiModelSettingsGetResponses,
   ListAllFeedbackApiV1FeedbackAdminGetData,
   ListAllFeedbackApiV1FeedbackAdminGetErrors,
   ListAllFeedbackApiV1FeedbackAdminGetResponses,
@@ -408,6 +414,9 @@ import type {
   TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostData,
   TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostErrors,
   TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostResponses,
+  UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutData,
+  UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutErrors,
+  UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutResponses,
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchData,
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchErrors,
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponses,
@@ -483,6 +492,10 @@ export type Options<
 
 /**
  * Health Check
+ *
+ * Health check endpoint for Kubernetes liveness/readiness probes.
+ *
+ * Returns 200 if healthy, 503 if database is unavailable.
  */
 export const healthCheckHealthGet = <ThrowOnError extends boolean = false>(
   options?: Options<HealthCheckHealthGetData, ThrowOnError>
@@ -658,6 +671,79 @@ export const updatePricingApiV1AdminPricingPricingIdPut = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/pricing/{pricing_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List Ai Model Settings
+ *
+ * List all AI model settings.
+ */
+export const listAiModelSettingsApiV1AdminAiModelSettingsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    ListAiModelSettingsApiV1AdminAiModelSettingsGetData,
+    ThrowOnError
+  >
+) =>
+  (options?.client ?? client).get<
+    ListAiModelSettingsApiV1AdminAiModelSettingsGetResponses,
+    ListAiModelSettingsApiV1AdminAiModelSettingsGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/ai-model-settings",
+    ...options,
+  });
+
+/**
+ * Get Ai Model Settings
+ *
+ * Get specific AI model settings.
+ */
+export const getAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).get<
+    GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetResponses,
+    GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/ai-model-settings/{settings_id}",
+    ...options,
+  });
+
+/**
+ * Update Ai Model Settings
+ *
+ * Update AI model settings.
+ */
+export const updateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPut = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).put<
+    UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutResponses,
+    UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/ai-model-settings/{settings_id}",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1243,6 +1329,9 @@ export const getAuthUrlApiV1AuthProviderGet = <
  *
  * This is a public endpoint that returns the credit cost for each operation type.
  * Used by the frontend to display accurate costs in the UI.
+ *
+ * Cache-Control: 5 minutes (300s) - pricing rarely changes and frontend
+ * React Query also caches for 5 minutes, so HTTP caching aligns with that.
  */
 export const getOperationCostsApiV1BillingCostsGet = <
   ThrowOnError extends boolean = false,

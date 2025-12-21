@@ -5,6 +5,86 @@ export type ClientOptions = {
 };
 
 /**
+ * AIModelSettingsResponse
+ *
+ * Response schema for AI model settings.
+ */
+export type AiModelSettingsResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Operation Type
+   */
+  operation_type: string;
+  /**
+   * Model Name
+   */
+  model_name: string;
+  /**
+   * Temperature
+   */
+  temperature: number;
+  /**
+   * Max Tokens
+   */
+  max_tokens: number;
+  /**
+   * Display Name
+   */
+  display_name: string;
+  /**
+   * Description
+   */
+  description: string | null;
+  /**
+   * Is Active
+   */
+  is_active: boolean;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Updated At
+   */
+  updated_at: string;
+};
+
+/**
+ * AIModelSettingsUpdate
+ *
+ * Schema for updating AI model settings.
+ */
+export type AiModelSettingsUpdate = {
+  /**
+   * Model Name
+   */
+  model_name?: string | null;
+  /**
+   * Temperature
+   */
+  temperature?: number | null;
+  /**
+   * Max Tokens
+   */
+  max_tokens?: number | null;
+  /**
+   * Display Name
+   */
+  display_name?: string | null;
+  /**
+   * Description
+   */
+  description?: string | null;
+  /**
+   * Is Active
+   */
+  is_active?: boolean | null;
+};
+
+/**
  * AIUsageByUserResponse
  *
  * AI usage aggregated by user.
@@ -4174,6 +4254,10 @@ export type Settings = {
    */
   environment?: string;
   /**
+   * Log Level
+   */
+  log_level?: string;
+  /**
    * Database Url
    */
   database_url?: string;
@@ -4225,6 +4309,10 @@ export type Settings = {
    * Max Upload Size Mb
    */
   max_upload_size_mb?: number;
+  /**
+   * Max Images Per Item
+   */
+  max_images_per_item?: number;
   /**
    * Frontend Url
    */
@@ -5415,6 +5503,120 @@ export type UpdatePricingApiV1AdminPricingPricingIdPutResponses = {
 
 export type UpdatePricingApiV1AdminPricingPricingIdPutResponse =
   UpdatePricingApiV1AdminPricingPricingIdPutResponses[keyof UpdatePricingApiV1AdminPricingPricingIdPutResponses];
+
+export type ListAiModelSettingsApiV1AdminAiModelSettingsGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/ai-model-settings";
+};
+
+export type ListAiModelSettingsApiV1AdminAiModelSettingsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListAiModelSettingsApiV1AdminAiModelSettingsGetError =
+  ListAiModelSettingsApiV1AdminAiModelSettingsGetErrors[keyof ListAiModelSettingsApiV1AdminAiModelSettingsGetErrors];
+
+export type ListAiModelSettingsApiV1AdminAiModelSettingsGetResponses = {
+  /**
+   * Response List Ai Model Settings Api V1 Admin Ai Model Settings Get
+   *
+   * Successful Response
+   */
+  200: Array<AiModelSettingsResponse>;
+};
+
+export type ListAiModelSettingsApiV1AdminAiModelSettingsGetResponse =
+  ListAiModelSettingsApiV1AdminAiModelSettingsGetResponses[keyof ListAiModelSettingsApiV1AdminAiModelSettingsGetResponses];
+
+export type GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Settings Id
+     */
+    settings_id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/ai-model-settings/{settings_id}";
+};
+
+export type GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetError =
+  GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetErrors[keyof GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetErrors];
+
+export type GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: AiModelSettingsResponse;
+  };
+
+export type GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetResponse =
+  GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetResponses[keyof GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetResponses];
+
+export type UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutData = {
+  body: AiModelSettingsUpdate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Settings Id
+     */
+    settings_id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/ai-model-settings/{settings_id}";
+};
+
+export type UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutError =
+  UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutErrors[keyof UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutErrors];
+
+export type UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: AiModelSettingsResponse;
+  };
+
+export type UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutResponse =
+  UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutResponses[keyof UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutResponses];
 
 export type ListUsersApiV1AdminUsersGetData = {
   body?: never;

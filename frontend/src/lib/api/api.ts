@@ -101,6 +101,9 @@ import {
   listPricingApiV1AdminPricingGet,
   getPricingApiV1AdminPricingPricingIdGet,
   updatePricingApiV1AdminPricingPricingIdPut,
+  listAiModelSettingsApiV1AdminAiModelSettingsGet,
+  getAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGet,
+  updateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPut,
   listUsersApiV1AdminUsersGet,
   getUserApiV1AdminUsersUserIdGet,
   updateUserApiV1AdminUsersUserIdPut,
@@ -208,6 +211,7 @@ import type {
   ApiKeyCreate,
   ApiKeyUpdate,
   CollaboratorRole,
+  AiModelSettingsUpdate,
 } from "./types.gen";
 
 // =============================================================================
@@ -282,6 +286,8 @@ export type {
   CreditPackUpdate,
   CreditPricingResponse as CreditPricing,
   CreditPricingUpdate,
+  AiModelSettingsResponse as AIModelSettings,
+  AiModelSettingsUpdate as AIModelSettingsUpdate,
   UserAdminResponse as UserAdmin,
   UserAdminUpdate,
   RecentActivityItem,
@@ -946,6 +952,25 @@ export const adminApi = {
   updatePricing: (id: string, data: CreditPricingUpdate) =>
     updatePricingApiV1AdminPricingPricingIdPut({
       path: { pricing_id: id },
+      body: data,
+      throwOnError: true,
+    }).then((res) => res.data),
+
+  // AI Model Settings
+  listAIModelSettings: () =>
+    listAiModelSettingsApiV1AdminAiModelSettingsGet({
+      throwOnError: true,
+    }).then((res) => res.data),
+
+  getAIModelSettings: (id: string) =>
+    getAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGet({
+      path: { settings_id: id },
+      throwOnError: true,
+    }).then((res) => res.data),
+
+  updateAIModelSettings: (id: string, data: AiModelSettingsUpdate) =>
+    updateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPut({
+      path: { settings_id: id },
       body: data,
       throwOnError: true,
     }).then((res) => res.data),

@@ -21,6 +21,7 @@ import {
   ArrowRight,
   Key,
   Activity,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -402,6 +403,13 @@ export default function AdminPage() {
                   icon={Coins}
                   href="/admin/pricing"
                   testId="quick-action-pricing"
+                />
+                <QuickActionCard
+                  title={t("admin.aiModels.title")}
+                  description={t("admin.aiModels.description")}
+                  icon={Settings}
+                  href="/admin/ai-models"
+                  testId="quick-action-ai-models"
                 />
               </div>
             </div>

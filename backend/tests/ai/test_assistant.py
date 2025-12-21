@@ -58,11 +58,28 @@ class TestAIAssistantService:
         return manager
 
     @pytest.fixture
-    def service(self, mock_settings, mock_template_manager):
+    def mock_model_settings_service(self):
+        """Create mock model settings service."""
+        service = MagicMock()
+        service.get_operation_settings = AsyncMock(
+            return_value={
+                "model_name": "gpt-4o",
+                "temperature": 0.7,
+                "max_tokens": 2000,
+            }
+        )
+        return service
+
+    @pytest.fixture
+    def service(
+        self, mock_settings, mock_template_manager, mock_model_settings_service
+    ):
         """Create AI service with mocked dependencies."""
         with patch("src.ai.service.AsyncOpenAI"):
             service = AIClassificationService(
-                settings=mock_settings, template_manager=mock_template_manager
+                settings=mock_settings,
+                template_manager=mock_template_manager,
+                model_settings_service=mock_model_settings_service,
             )
             return service
 
@@ -118,15 +135,21 @@ class TestAIAssistantService:
         # Verify template manager was called with context
         mock_template_manager.get_user_prompt.assert_called()
 
-    async def test_query_assistant_uses_correct_model(self, service, mock_settings):
-        """Test that assistant uses the configured model."""
+    async def test_query_assistant_uses_correct_model(
+        self, service, mock_model_settings_service
+    ):
+        """Test that assistant uses the model from settings service."""
         mock_response = create_mock_openai_response("Response")
         service.client.chat.completions.create = AsyncMock(return_value=mock_response)
 
         await service.query_assistant(user_prompt="Test query")
 
         call_args = service.client.chat.completions.create.call_args
-        assert call_args.kwargs["model"] == mock_settings.openai_model
+        # Verify model comes from model_settings_service
+        assert call_args.kwargs["model"] == "gpt-4o"
+        mock_model_settings_service.get_operation_settings.assert_called_with(
+            "assistant_query"
+        )
 
     async def test_query_assistant_empty_response(self, service):
         """Test handling of empty response from AI."""

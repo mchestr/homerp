@@ -672,6 +672,32 @@
         "feedback:write": "Feedback-Status aktualisieren (lösen)",
         "admin:*": "Voller Admin-Zugriff"
       }
+    },
+    "aiModels": {
+      "title": "KI-Modelleinstellungen",
+      "subtitle": "KI-Modellparameter für jeden Operationstyp konfigurieren",
+      "description": "KI-Modelle für Klassifizierung, Standortanalyse und Assistenzfunktionen konfigurieren",
+      "operationType": "Operationstyp",
+      "displayName": "Anzeigename",
+      "modelName": "Modellname",
+      "modelNameHelp": "OpenAI-Modellkennung (z.B. gpt-4o, gpt-4-turbo)",
+      "temperature": "Temperatur",
+      "temperatureHelp": "Steuert die Zufälligkeit (0,0 = deterministisch, 2,0 = sehr zufällig)",
+      "maxTokens": "Max. Tokens",
+      "maxTokensHelp": "Maximale Anzahl von Tokens in der Antwort (1-100.000)",
+      "description": "Beschreibung",
+      "status": "Status",
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "lastUpdated": "Zuletzt aktualisiert",
+      "editSettings": "Modelleinstellungen bearbeiten",
+      "editSettingsDescription": "KI-Modellparameter für diese Operation anpassen",
+      "saveChanges": "Änderungen speichern",
+      "noSettings": "Keine Modelleinstellungen gefunden",
+      "noSettingsDescription": "Führen Sie die Datenbankmigration aus, um Standardeinstellungen zu initialisieren",
+      "updateSuccess": "Einstellungen aktualisiert",
+      "settingsUpdated": "Die KI-Modelleinstellungen wurden gespeichert.",
+      "updateFailed": "Aktualisierung fehlgeschlagen"
     }
   },
   "webhooks": {

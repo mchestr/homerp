@@ -630,6 +630,32 @@
         "feedback:write": "Mettre à jour le statut des commentaires (résoudre)",
         "admin:*": "Accès administrateur complet"
       }
+    },
+    "aiModels": {
+      "title": "Paramètres des Modèles IA",
+      "subtitle": "Configurer les paramètres du modèle IA pour chaque type d'opération",
+      "description": "Configurer les modèles IA pour la classification, l'analyse de localisation et les fonctionnalités d'assistant",
+      "operationType": "Type d'Opération",
+      "displayName": "Nom d'Affichage",
+      "modelName": "Nom du Modèle",
+      "modelNameHelp": "Identifiant du modèle OpenAI (ex. gpt-4o, gpt-4-turbo)",
+      "temperature": "Température",
+      "temperatureHelp": "Contrôle l'aléatoire (0.0 = déterministe, 2.0 = très aléatoire)",
+      "maxTokens": "Tokens Maximum",
+      "maxTokensHelp": "Nombre maximum de tokens dans la réponse (1-100 000)",
+      "description": "Description",
+      "status": "Statut",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "lastUpdated": "Dernière Mise à Jour",
+      "editSettings": "Modifier les Paramètres du Modèle",
+      "editSettingsDescription": "Ajuster les paramètres du modèle IA pour cette opération",
+      "saveChanges": "Enregistrer les Modifications",
+      "noSettings": "Aucun paramètre de modèle trouvé",
+      "noSettingsDescription": "Exécutez la migration de base de données pour initialiser les paramètres par défaut",
+      "updateSuccess": "Paramètres Mis à Jour",
+      "settingsUpdated": "Les paramètres du modèle IA ont été enregistrés.",
+      "updateFailed": "Échec de la Mise à Jour"
     }
   },
   "webhooks": {

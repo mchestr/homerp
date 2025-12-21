@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 from decimal import Decimal
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -76,3 +77,31 @@ class ConversationMessage(BaseModel):
     role: str = Field(..., description="Role: 'user' or 'assistant'")
     content: str = Field(..., description="Message content")
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+
+class AIModelSettingsResponse(BaseModel):
+    """Response schema for AI model settings."""
+
+    id: UUID
+    operation_type: str
+    model_name: str
+    temperature: float
+    max_tokens: int
+    display_name: str
+    description: str | None
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class AIModelSettingsUpdate(BaseModel):
+    """Schema for updating AI model settings."""
+
+    model_name: str | None = Field(None, min_length=1, max_length=100)
+    temperature: float | None = Field(None, ge=0.0, le=2.0)
+    max_tokens: int | None = Field(None, gt=0, le=100000)
+    display_name: str | None = Field(None, min_length=1, max_length=100)
+    description: str | None = Field(None, max_length=500)
+    is_active: bool | None = None

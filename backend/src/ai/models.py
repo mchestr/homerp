@@ -4,7 +4,7 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, Numeric, String, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -48,6 +48,35 @@ class AIUsageLog(Base):
     user: Mapped["User"] = relationship(back_populates="ai_usage_logs")
     credit_transaction: Mapped["CreditTransaction | None"] = relationship(
         back_populates="ai_usage_log"
+    )
+
+
+class AIModelSettings(Base):
+    """AI model settings - configurable parameters for each operation type."""
+
+    __tablename__ = "ai_model_settings"
+
+    id: Mapped[UUID] = mapped_column(
+        primary_key=True, server_default=func.gen_random_uuid()
+    )
+    operation_type: Mapped[str] = mapped_column(
+        String(50), nullable=False, unique=True, index=True
+    )
+    model_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    temperature: Mapped[Decimal] = mapped_column(
+        Numeric(3, 2), nullable=False, default=Decimal("1.0"), server_default="1.0"
+    )
+    max_tokens: Mapped[int] = mapped_column(Integer, nullable=False)
+    display_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    description: Mapped[str | None] = mapped_column(String(500))
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, default=True, server_default="true"
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
 

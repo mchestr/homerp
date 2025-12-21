@@ -969,6 +969,78 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     }
   });
 
+  // Admin AI Model Settings endpoints
+  await page.route("**/api/v1/admin/ai-model-settings", async (route) => {
+    if (!user.is_admin) {
+      await route.fulfill({
+        status: 403,
+        contentType: "application/json",
+        body: JSON.stringify({ detail: "Admin access required" }),
+      });
+      return;
+    }
+
+    if (route.request().method() === "GET") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(fixtures.testAIModelSettings),
+      });
+    } else {
+      await route.continue();
+    }
+  });
+
+  await page.route(
+    /\/api\/v1\/admin\/ai-model-settings\/[^/]+$/,
+    async (route) => {
+      const method = route.request().method();
+      const url = route.request().url();
+      const settingsId = url.split("/").pop();
+      const settings = fixtures.testAIModelSettings.find(
+        (s) => s.id === settingsId
+      );
+
+      if (!user.is_admin) {
+        await route.fulfill({
+          status: 403,
+          contentType: "application/json",
+          body: JSON.stringify({ detail: "Admin access required" }),
+        });
+        return;
+      }
+
+      if (method === "GET") {
+        if (settings) {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify(settings),
+          });
+        } else {
+          await route.fulfill({
+            status: 404,
+            contentType: "application/json",
+            body: JSON.stringify({ detail: "AI model settings not found" }),
+          });
+        }
+      } else if (method === "PUT") {
+        const body = route.request().postDataJSON();
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ...settings,
+            ...body,
+            updated_at: new Date().toISOString(),
+          }),
+        });
+      } else {
+        await route.continue();
+      }
+    }
+  );
+
   // Gridfinity endpoints
   await page.route("**/api/v1/gridfinity/units", async (route) => {
     if (route.request().method() === "GET") {

@@ -630,6 +630,32 @@
         "feedback:write": "Actualizar estado de comentarios (resolver)",
         "admin:*": "Acceso completo de administrador"
       }
+    },
+    "aiModels": {
+      "title": "Configuración de Modelos de IA",
+      "subtitle": "Configurar parámetros del modelo de IA para cada tipo de operación",
+      "description": "Configurar modelos de IA para clasificación, análisis de ubicación y funciones de asistente",
+      "operationType": "Tipo de Operación",
+      "displayName": "Nombre para Mostrar",
+      "modelName": "Nombre del Modelo",
+      "modelNameHelp": "Identificador de modelo de OpenAI (ej. gpt-4o, gpt-4-turbo)",
+      "temperature": "Temperatura",
+      "temperatureHelp": "Controla la aleatoriedad (0.0 = determinista, 2.0 = muy aleatorio)",
+      "maxTokens": "Tokens Máximos",
+      "maxTokensHelp": "Tokens máximos en la respuesta (1-100.000)",
+      "description": "Descripción",
+      "status": "Estado",
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "lastUpdated": "Última Actualización",
+      "editSettings": "Editar Configuración del Modelo",
+      "editSettingsDescription": "Ajustar parámetros del modelo de IA para esta operación",
+      "saveChanges": "Guardar Cambios",
+      "noSettings": "No se encontró configuración de modelos",
+      "noSettingsDescription": "Ejecute la migración de base de datos para inicializar la configuración predeterminada",
+      "updateSuccess": "Configuración Actualizada",
+      "settingsUpdated": "La configuración del modelo de IA se ha guardado.",
+      "updateFailed": "Actualización Fallida"
     }
   },
   "webhooks": {

@@ -30,6 +30,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy_utils import Ltree
 from testcontainers.postgres import PostgresContainer
 
+from src.ai.models import AIModelSettings
 from src.billing.models import CreditPack, CreditPricing, CreditTransaction
 from src.categories.models import Category
 from src.config import Settings
@@ -818,3 +819,79 @@ async def test_webhook_config(async_session: AsyncSession) -> WebhookConfig:
     await async_session.commit()
     await async_session.refresh(config)
     return config
+
+
+@pytest.fixture
+async def ai_model_settings(async_session: AsyncSession) -> list[AIModelSettings]:
+    """Create test AI model settings for all operation types."""
+    from decimal import Decimal
+
+    settings_list = [
+        AIModelSettings(
+            id=uuid.uuid4(),
+            operation_type="image_classification",
+            model_name="gpt-4o",
+            temperature=Decimal("1.0"),
+            max_tokens=1000,
+            display_name="Image Classification",
+            description="AI-powered image classification",
+            is_active=True,
+        ),
+        AIModelSettings(
+            id=uuid.uuid4(),
+            operation_type="location_analysis",
+            model_name="gpt-4o",
+            temperature=Decimal("1.0"),
+            max_tokens=2000,
+            display_name="Location Analysis",
+            description="AI analysis of location images",
+            is_active=True,
+        ),
+        AIModelSettings(
+            id=uuid.uuid4(),
+            operation_type="location_suggestion",
+            model_name="gpt-4o",
+            temperature=Decimal("1.0"),
+            max_tokens=1000,
+            display_name="Location Suggestion",
+            description="AI-powered location suggestions",
+            is_active=True,
+        ),
+        AIModelSettings(
+            id=uuid.uuid4(),
+            operation_type="assistant_query",
+            model_name="gpt-4o",
+            temperature=Decimal("1.0"),
+            max_tokens=2000,
+            display_name="AI Assistant",
+            description="AI assistant queries",
+            is_active=True,
+        ),
+    ]
+    for settings in settings_list:
+        async_session.add(settings)
+    await async_session.commit()
+    for settings in settings_list:
+        await async_session.refresh(settings)
+    return settings_list
+
+
+@pytest.fixture
+async def inactive_ai_model_settings(async_session: AsyncSession) -> AIModelSettings:
+    """Create an inactive AI model settings entry."""
+    from decimal import Decimal
+
+    settings = AIModelSettings(
+        id=uuid.uuid4(),
+        operation_type="inactive_operation",
+        model_name="gpt-4o-mini",
+        temperature=Decimal("0.5"),
+        max_tokens=500,
+        display_name="Inactive Operation",
+        description="An inactive AI operation",
+        is_active=False,
+    )
+    async_session.add(settings)
+    await async_session.commit()
+    await async_session.refresh(settings)
+    return settings
