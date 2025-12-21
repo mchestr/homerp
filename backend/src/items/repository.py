@@ -2,7 +2,7 @@ import json
 from difflib import SequenceMatcher
 from uuid import UUID
 
-from sqlalchemy import func, or_, select, text
+from sqlalchemy import String, func, or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy_utils import Ltree
@@ -206,12 +206,14 @@ class ItemRepository:
 
         if search:
             search_pattern = f"%{search}%"
-            # Search in name, description, and tags
+            # Search in name, description, tags, and attributes (specifications)
             query = query.where(
                 or_(
                     Item.name.ilike(search_pattern),
                     Item.description.ilike(search_pattern),
                     Item.tags.any(search),  # Exact tag match
+                    # Search within JSONB attributes (includes specifications)
+                    Item.attributes.cast(String).ilike(search_pattern),
                 )
             )
 
@@ -301,6 +303,8 @@ class ItemRepository:
                     Item.name.ilike(search_pattern),
                     Item.description.ilike(search_pattern),
                     Item.tags.any(search),
+                    # Search within JSONB attributes (includes specifications)
+                    Item.attributes.cast(String).ilike(search_pattern),
                 )
             )
 
@@ -535,7 +539,7 @@ class ItemRepository:
         return updated_ids
 
     async def search(self, query: str, limit: int = 20) -> list[Item]:
-        """Search items by name, description, or tags."""
+        """Search items by name, description, tags, or specifications."""
         search_pattern = f"%{query}%"
         result = await self.session.execute(
             self._base_query()
@@ -544,6 +548,8 @@ class ItemRepository:
                     Item.name.ilike(search_pattern),
                     Item.description.ilike(search_pattern),
                     Item.tags.any(query),
+                    # Search within JSONB attributes (includes specifications)
+                    Item.attributes.cast(String).ilike(search_pattern),
                 )
             )
             .order_by(Item.name)
