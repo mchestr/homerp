@@ -26,7 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useInsufficientCreditsModal } from "@/components/billing/insufficient-credits-modal";
 import { useOperationCosts } from "@/hooks/use-operation-costs";
 import { SessionSidebar } from "@/components/ai/session-sidebar";
-import { cn } from "@/lib/utils";
+import { cn, isInsufficientCreditsError } from "@/lib/utils";
 
 // Valid internal link patterns for security
 const VALID_LINK_PATTERNS = [
@@ -184,8 +184,8 @@ export default function AIAssistantPage() {
         queryKey: ["ai-session", response.session_id],
       });
     },
-    onError: (error: Error & { status?: number }) => {
-      if (error.status === 402) {
+    onError: (error: unknown) => {
+      if (isInsufficientCreditsError(error)) {
         showCreditsModal();
         // Remove the pending message
         setMessages((prev) => prev.slice(0, -1));
@@ -193,7 +193,7 @@ export default function AIAssistantPage() {
         const errorMessage: Message = {
           id: Date.now().toString(),
           role: "assistant",
-          content: `${t("aiAssistant.errorPrefix")} ${error.message}`,
+          content: `${t("aiAssistant.errorPrefix")} ${error instanceof Error ? error.message : String(error)}`,
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, errorMessage]);
@@ -235,11 +235,19 @@ export default function AIAssistantPage() {
       // New chat - clear messages
       setMessages([]);
     }
+    // Close sidebar on mobile when a session is selected
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
   };
 
   const handleNewSession = () => {
     setCurrentSessionId(null);
     setMessages([]);
+    // Close sidebar on mobile when starting new chat
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
   };
 
   const exampleQueries = [

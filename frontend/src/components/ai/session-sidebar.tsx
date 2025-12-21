@@ -147,6 +147,7 @@ export function SessionSidebar({
     const confirmed = await confirm({
       title: t("deleteSessionTitle"),
       message: t("deleteSessionMessage", { title: session.title }),
+      confirmLabel: t("deleteSession"),
       variant: "danger",
     });
     if (confirmed) {

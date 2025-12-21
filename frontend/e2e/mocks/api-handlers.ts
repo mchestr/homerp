@@ -1180,14 +1180,39 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
   });
 
   // AI Assistant endpoints
+  // Track dynamically created sessions and their messages
+  interface DynamicSession {
+    id: string;
+    title: string;
+    message_count: number;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+  }
+  interface DynamicMessage {
+    id: string;
+    session_id: string;
+    role: string;
+    content: string;
+    tool_calls?: Array<{
+      id: string;
+      type: string;
+      function: { name: string; arguments: string };
+    }>;
+    created_at: string;
+  }
+  const dynamicSessions: DynamicSession[] = [];
+  const dynamicMessages: DynamicMessage[] = [];
+
   await page.route("**/api/v1/ai/sessions?*", async (route) => {
     if (route.request().method() === "GET") {
+      const allSessions = [...fixtures.testAISessions, ...dynamicSessions];
       await route.fulfill({
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
-          sessions: fixtures.testAISessions,
-          total: fixtures.testAISessions.length,
+          sessions: allSessions,
+          total: allSessions.length,
           page: 1,
           limit: 50,
           total_pages: 1,
@@ -1209,18 +1234,20 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
+      dynamicSessions.push(newSession);
       await route.fulfill({
         status: 201,
         contentType: "application/json",
         body: JSON.stringify(newSession),
       });
     } else if (route.request().method() === "GET") {
+      const allSessions = [...fixtures.testAISessions, ...dynamicSessions];
       await route.fulfill({
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
-          sessions: fixtures.testAISessions,
-          total: fixtures.testAISessions.length,
+          sessions: allSessions,
+          total: allSessions.length,
           page: 1,
           limit: 50,
           total_pages: 1,
@@ -1236,18 +1263,28 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     const url = route.request().url();
     const sessionId = url.split("/").pop();
 
-    const session = fixtures.testAISessions.find((s) => s.id === sessionId);
+    // Check both fixture and dynamic sessions
+    const fixtureSession = fixtures.testAISessions.find(
+      (s) => s.id === sessionId
+    );
+    const dynamicSession = dynamicSessions.find((s) => s.id === sessionId);
+    const session = fixtureSession || dynamicSession;
 
     if (method === "GET") {
       if (session) {
+        // Get messages from both fixtures and dynamic messages
+        const fixtureMessages = fixtures.testAISessionMessages.filter(
+          (m) => m.session_id === sessionId
+        );
+        const sessionDynamicMessages = dynamicMessages.filter(
+          (m) => m.session_id === sessionId
+        );
         await route.fulfill({
           status: 200,
           contentType: "application/json",
           body: JSON.stringify({
             ...session,
-            messages: fixtures.testAISessionMessages.filter(
-              (m) => m.session_id === sessionId
-            ),
+            messages: [...fixtureMessages, ...sessionDynamicMessages],
           }),
         });
       } else {
@@ -1278,39 +1315,58 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
   await page.route("**/api/v1/ai/chat", async (route) => {
     if (route.request().method() === "POST") {
       const body = route.request().postDataJSON();
+      const isNewSession = !body.session_id;
       const sessionId = body.session_id || `session-${Date.now()}`;
+
+      // Create session if new
+      if (isNewSession) {
+        const newSession = {
+          id: sessionId,
+          title: "New Conversation",
+          message_count: 0,
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        dynamicSessions.push(newSession);
+      }
+
+      // Create messages
+      const userMessage = {
+        id: `msg-user-${Date.now()}`,
+        session_id: sessionId,
+        role: "user",
+        content: body.prompt,
+        created_at: new Date().toISOString(),
+      };
+      const assistantMessage = {
+        id: `msg-assistant-${Date.now()}`,
+        session_id: sessionId,
+        role: "assistant",
+        content:
+          "This is a mock response to your question. In a real environment, this would be an AI-generated answer based on your inventory data.",
+        tool_calls: [
+          {
+            id: "call-mock",
+            type: "function",
+            function: {
+              name: "search_items",
+              arguments: '{"query":"test"}',
+            },
+          },
+        ],
+        created_at: new Date().toISOString(),
+      };
+
+      // Store messages for later retrieval
+      dynamicMessages.push(userMessage, assistantMessage);
+
       await route.fulfill({
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
           session_id: sessionId,
-          new_messages: [
-            {
-              id: `msg-user-${Date.now()}`,
-              session_id: sessionId,
-              role: "user",
-              content: body.prompt,
-              created_at: new Date().toISOString(),
-            },
-            {
-              id: `msg-assistant-${Date.now()}`,
-              session_id: sessionId,
-              role: "assistant",
-              content:
-                "This is a mock response to your question. In a real environment, this would be an AI-generated answer based on your inventory data.",
-              tool_calls: [
-                {
-                  id: "call-mock",
-                  type: "function",
-                  function: {
-                    name: "search_items",
-                    arguments: '{"query":"test"}',
-                  },
-                },
-              ],
-              created_at: new Date().toISOString(),
-            },
-          ],
+          new_messages: [userMessage, assistantMessage],
           tools_used: ["search_items"],
           credits_used: 1,
         }),
