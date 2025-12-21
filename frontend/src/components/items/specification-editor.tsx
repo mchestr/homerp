@@ -160,6 +160,17 @@ export function SpecificationEditor({
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, index)}
                   onDragEnd={handleDragEnd}
+                  onMouseDown={(e) => {
+                    // Prevent drag from starting on interactive elements
+                    const target = e.target as HTMLElement;
+                    if (
+                      target.tagName === "INPUT" ||
+                      target.tagName === "BUTTON" ||
+                      target.closest("button")
+                    ) {
+                      e.stopPropagation();
+                    }
+                  }}
                   data-testid={`specification-row-${index}`}
                 >
                   <div
@@ -194,7 +205,7 @@ export function SpecificationEditor({
                     variant="ghost"
                     size="icon"
                     onClick={() => handleRemove(index)}
-                    className="text-muted-foreground hover:text-destructive h-10 w-10 shrink-0"
+                    className="text-muted-foreground hover:text-destructive relative z-50 h-10 w-10 shrink-0"
                     data-testid={`remove-specification-${index}`}
                   >
                     <X className="h-4 w-4" />

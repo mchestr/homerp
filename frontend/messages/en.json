@@ -176,6 +176,7 @@
     "itemNotFoundDescription": "This item may have been deleted",
     "backToItems": "Back to items",
     "deleting": "Deleting...",
+    "saving": "Saving...",
     "stockBelowMinimum": "Stock is below minimum quantity",
     "organization": "Organization",
     "addNewItem": "Add New Item",

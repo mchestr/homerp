@@ -171,7 +171,8 @@
     "applyChanges": "Aplicar Alterações",
     "batchUpdateSuccess": "{count} itens atualizados com sucesso",
     "selectItems": "Selecione itens para atualização em lote",
-    "batchUpload": "Upload em Lote"
+    "batchUpload": "Upload em Lote",
+    "saving": "Salvando..."
   },
   "categories": {
     "title": "Categorias",
