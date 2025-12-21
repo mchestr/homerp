@@ -111,7 +111,10 @@ export function ImageGallery({
 
             {/* Primary badge */}
             {currentImage.is_primary && (
-              <div className="absolute top-3 left-3 flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-xs font-medium text-white">
+              <div
+                className="absolute top-3 left-3 flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-xs font-medium text-white"
+                data-testid="primary-image-badge"
+              >
                 <Star className="h-3 w-3 fill-current" />
                 {t("primaryImage")}
               </div>
@@ -209,7 +212,10 @@ export function ImageGallery({
                 thumbnail
               />
               {image.is_primary && (
-                <div className="absolute top-0.5 left-0.5 rounded-full bg-amber-500 p-0.5">
+                <div
+                  className="absolute top-0.5 left-0.5 rounded-full bg-amber-500 p-0.5"
+                  data-testid={`thumbnail-primary-badge-${index}`}
+                >
                   <Star className="h-2.5 w-2.5 fill-white text-white" />
                 </div>
               )}

@@ -48,6 +48,7 @@ class Settings(BaseSettings):
     # Storage
     upload_dir: str = "./uploads"
     max_upload_size_mb: int = 10
+    max_images_per_item: int = 10
 
     # Frontend URL (for redirects and CORS)
     frontend_url: str = "http://localhost:3000"

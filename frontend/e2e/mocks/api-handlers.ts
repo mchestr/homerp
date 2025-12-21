@@ -555,6 +555,23 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     });
   });
 
+  // Set primary image endpoint
+  await page.route(/\/api\/v1\/images\/[^/]+\/set-primary$/, async (route) => {
+    const url = route.request().url();
+    const parts = url.split("/");
+    parts.pop(); // "set-primary"
+    const imageId = parts.pop();
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        id: imageId,
+        is_primary: true,
+      }),
+    });
+  });
+
   // Location images endpoints
   // Track location images state for mocking
   let locationImages: (typeof fixtures.testLocationImage)[] = [];

@@ -395,6 +395,66 @@ export const testImageUpload = {
   created_at: "2024-01-01T00:00:00Z",
 };
 
+export const testItemImages = [
+  {
+    id: "item-img-1",
+    storage_path: "/uploads/item-image-1.jpg",
+    original_filename: "item-image-1.jpg",
+    mime_type: "image/jpeg",
+    size_bytes: 102400,
+    content_hash: "hash1",
+    is_primary: true,
+    item_id: "item-with-images",
+    location_id: null,
+    created_at: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: "item-img-2",
+    storage_path: "/uploads/item-image-2.jpg",
+    original_filename: "item-image-2.jpg",
+    mime_type: "image/jpeg",
+    size_bytes: 102400,
+    content_hash: "hash2",
+    is_primary: false,
+    item_id: "item-with-images",
+    location_id: null,
+    created_at: "2024-01-02T00:00:00Z",
+  },
+  {
+    id: "item-img-3",
+    storage_path: "/uploads/item-image-3.jpg",
+    original_filename: "item-image-3.jpg",
+    mime_type: "image/jpeg",
+    size_bytes: 102400,
+    content_hash: "hash3",
+    is_primary: false,
+    item_id: "item-with-images",
+    location_id: null,
+    created_at: "2024-01-03T00:00:00Z",
+  },
+];
+
+export const testItemWithImages = {
+  id: "item-with-images",
+  name: "Test Item with Images",
+  description: "Item for testing primary image functionality",
+  quantity: 5,
+  quantity_unit: "pcs",
+  is_low_stock: false,
+  tags: ["test"],
+  category: testCategories[0],
+  location: testLocations[0],
+  category_id: "cat-1",
+  location_id: "loc-1",
+  min_quantity: 1,
+  primary_image_url: null,
+  attributes: {},
+  ai_classification: {},
+  images: testItemImages,
+  created_at: "2024-01-01T00:00:00Z",
+  updated_at: "2024-01-01T00:00:00Z",
+};
+
 export const testLocationImage = {
   id: "loc-img-1",
   storage_path: "/uploads/location-image.jpg",
