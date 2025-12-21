@@ -109,13 +109,13 @@ class UserRepository:
         if settings.admin_email and email == settings.admin_email:
             user.is_admin = True
 
-        # Grant signup credits to new user
+        # Grant signup credits to new user (or set to 0 if disabled)
         billing_settings = BillingSettingsService(self.session)
         signup_credits = await billing_settings.get_signup_credits()
-        if signup_credits > 0:
-            user.free_credits_remaining = signup_credits
-            user.free_credits_reset_at = None  # No monthly resets
+        user.free_credits_remaining = signup_credits
+        user.free_credits_reset_at = None  # No monthly resets
 
+        if signup_credits > 0:
             # Create transaction record for signup bonus
             transaction = CreditTransaction(
                 user_id=user.id,

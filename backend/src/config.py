@@ -69,6 +69,8 @@ class Settings(BaseSettings):
     stripe_webhook_secret: str = ""
 
     # Credits
+    # DEPRECATED: Use admin billing settings (app_settings table) instead.
+    # This is kept only as fallback when no database setting exists.
     free_monthly_credits: int = 5
 
     # Admin

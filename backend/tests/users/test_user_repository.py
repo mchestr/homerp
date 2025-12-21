@@ -6,14 +6,18 @@ Tests verify:
 - Auto-admin promotion based on email
 - User settings updates
 - Handling of duplicate OAuth users
+- Signup credits granted to new users
 """
 
 import uuid
 from unittest.mock import patch
 
 import pytest
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.billing.models import AppSetting, CreditTransaction
+from src.billing.settings_service import BillingSettingsService
 from src.users.models import User
 from src.users.repository import UserRepository
 from src.users.schemas import UserSettingsUpdate
@@ -536,3 +540,133 @@ class TestUserRepositoryEdgeCases:
         assert user2.name == "Now Has Name"
         assert user2.avatar_url == "https://example.com/avatar.jpg"
         assert was_created is False
+
+
+class TestUserRepositorySignupCredits:
+    """Tests for signup credits in UserRepository.get_or_create_from_oauth."""
+
+    async def test_new_user_gets_signup_credits(
+        self, async_session: AsyncSession, app_setting: AppSetting
+    ):
+        """Test that new users receive signup credits."""
+        unique_id = str(uuid.uuid4())
+        repo = UserRepository(async_session)
+
+        user, was_created = await repo.get_or_create_from_oauth(
+            provider="google",
+            oauth_id=f"test-oauth-id-{unique_id}",
+            email=f"newuser-{unique_id}@example.com",
+            name="New User",
+            avatar_url=None,
+        )
+
+        assert was_created is True
+        assert user.free_credits_remaining == 5  # From app_setting fixture
+        assert user.free_credits_reset_at is None  # No monthly reset
+
+    async def test_new_user_gets_signup_transaction(
+        self, async_session: AsyncSession, app_setting: AppSetting
+    ):
+        """Test that new users get a signup_bonus transaction."""
+        unique_id = str(uuid.uuid4())
+        repo = UserRepository(async_session)
+
+        user, was_created = await repo.get_or_create_from_oauth(
+            provider="google",
+            oauth_id=f"test-oauth-id-{unique_id}",
+            email=f"transactionuser-{unique_id}@example.com",
+            name="Transaction User",
+            avatar_url=None,
+        )
+
+        assert was_created is True
+
+        # Check transaction was created
+        result = await async_session.execute(
+            select(CreditTransaction).where(CreditTransaction.user_id == user.id)
+        )
+        transactions = result.scalars().all()
+
+        assert len(transactions) == 1
+        assert transactions[0].transaction_type == "signup_bonus"
+        assert transactions[0].amount == 5
+
+    async def test_existing_user_does_not_get_additional_credits(
+        self, async_session: AsyncSession, app_setting: AppSetting
+    ):
+        """Test that existing users don't get additional signup credits."""
+        unique_id = str(uuid.uuid4())
+        repo = UserRepository(async_session)
+
+        # Create user first time
+        user1, was_created1 = await repo.get_or_create_from_oauth(
+            provider="google",
+            oauth_id=f"test-oauth-id-{unique_id}",
+            email=f"existinguser-{unique_id}@example.com",
+            name="Existing User",
+            avatar_url=None,
+        )
+        assert was_created1 is True
+        original_credits = user1.free_credits_remaining
+
+        # Try to get the same user again
+        user2, was_created2 = await repo.get_or_create_from_oauth(
+            provider="google",
+            oauth_id=f"test-oauth-id-{unique_id}",
+            email=f"existinguser-{unique_id}@example.com",
+            name="Existing User",
+            avatar_url=None,
+        )
+
+        assert was_created2 is False
+        assert user2.id == user1.id
+        assert user2.free_credits_remaining == original_credits
+
+    async def test_new_user_with_zero_signup_credits(
+        self, async_session: AsyncSession, app_setting: AppSetting
+    ):
+        """Test new user when signup_credits is set to 0."""
+        unique_id = str(uuid.uuid4())
+        # Update setting to 0 using the service
+        billing_service = BillingSettingsService(async_session)
+        await billing_service.update_setting(app_setting.id, value_int=0)
+
+        repo = UserRepository(async_session)
+
+        user, was_created = await repo.get_or_create_from_oauth(
+            provider="google",
+            oauth_id=f"test-oauth-id-{unique_id}",
+            email=f"zerouser-{unique_id}@example.com",
+            name="Zero User",
+            avatar_url=None,
+        )
+
+        assert was_created is True
+        # When signup_credits is 0, user should have 0 credits
+        assert user.free_credits_remaining == 0
+
+        # No transaction should be created for 0 credits
+        result = await async_session.execute(
+            select(CreditTransaction).where(CreditTransaction.user_id == user.id)
+        )
+        transactions = result.scalars().all()
+        assert len(transactions) == 0
+
+    async def test_new_user_uses_default_when_no_setting(
+        self, async_session: AsyncSession
+    ):
+        """Test new user uses default signup credits when no setting exists."""
+        unique_id = str(uuid.uuid4())
+        repo = UserRepository(async_session)
+
+        user, was_created = await repo.get_or_create_from_oauth(
+            provider="google",
+            oauth_id=f"test-oauth-id-{unique_id}",
+            email=f"defaultuser-{unique_id}@example.com",
+            name="Default User",
+            avatar_url=None,
+        )
+
+        assert was_created is True
+        # Default from DEFAULT_SETTINGS is 5
+        assert user.free_credits_remaining == 5

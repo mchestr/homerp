@@ -281,7 +281,9 @@ class TestClassificationCreditEdgeCases:
 
         # User has expired reset date and 0 free credits, but has purchased credits
         assert user_with_expired_free_credits.free_credits_remaining == 0
-        assert user_with_expired_free_credits.credit_balance == 10  # Has purchased credits
+        assert (
+            user_with_expired_free_credits.credit_balance == 10
+        )  # Has purchased credits
         assert user_with_expired_free_credits.free_credits_reset_at < datetime.now(UTC)
 
         # has_credits returns True because user has purchased credits
