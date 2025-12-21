@@ -54,7 +54,7 @@ test.describe("Admin Dashboard", () => {
 
       await expect(page.getByTestId("quick-actions-grid")).toBeVisible();
 
-      // Users quick action
+      // Users quick action with badge
       const usersAction = page.getByTestId("quick-action-users");
       await expect(usersAction).toBeVisible();
       await expect(page.getByTestId("quick-action-users-badge")).toContainText(
@@ -68,16 +68,17 @@ test.describe("Admin Dashboard", () => {
       await expect(feedbackBadge).toBeVisible();
       await expect(feedbackBadge).toContainText("3");
 
-      // Credit Packs quick action
-      const packsAction = page.getByTestId("quick-action-packs");
-      await expect(packsAction).toBeVisible();
-      await expect(page.getByTestId("quick-action-packs-badge")).toContainText(
-        "3"
-      );
+      // Settings quick action (consolidated from billing, packs, pricing, ai-models)
+      const settingsAction = page.getByTestId("quick-action-settings");
+      await expect(settingsAction).toBeVisible();
 
-      // Webhooks quick action
-      const webhooksAction = page.getByTestId("quick-action-webhooks");
-      await expect(webhooksAction).toBeVisible();
+      // Integrations quick action (consolidated from webhooks, api-keys)
+      const integrationsAction = page.getByTestId("quick-action-integrations");
+      await expect(integrationsAction).toBeVisible();
+
+      // AI Usage quick action
+      const aiUsageAction = page.getByTestId("quick-action-ai-usage");
+      await expect(aiUsageAction).toBeVisible();
     });
 
     test("displays recent activity feed with all activity types", async ({
@@ -178,7 +179,7 @@ test.describe("Admin Dashboard", () => {
       await expect(page).toHaveURL(/.*\/admin\/feedback/, { timeout: 10000 });
     });
 
-    test("navigates to packs page when clicking credit packs quick action", async ({
+    test("navigates to settings page when clicking settings quick action", async ({
       page,
     }) => {
       await authenticateUser(page);
@@ -191,14 +192,14 @@ test.describe("Admin Dashboard", () => {
       // Wait for the page to be fully loaded
       await expect(page.getByTestId("quick-actions-grid")).toBeVisible();
 
-      const packsAction = page.getByTestId("quick-action-packs");
-      await expect(packsAction).toBeVisible();
-      await packsAction.click();
+      const settingsAction = page.getByTestId("quick-action-settings");
+      await expect(settingsAction).toBeVisible();
+      await settingsAction.click();
 
-      await expect(page).toHaveURL(/.*\/admin\/packs/, { timeout: 10000 });
+      await expect(page).toHaveURL(/.*\/admin\/settings/, { timeout: 10000 });
     });
 
-    test("navigates to webhooks page when clicking webhooks quick action", async ({
+    test("navigates to integrations page when clicking integrations quick action", async ({
       page,
     }) => {
       await authenticateUser(page);
@@ -211,11 +212,13 @@ test.describe("Admin Dashboard", () => {
       // Wait for the page to be fully loaded
       await expect(page.getByTestId("quick-actions-grid")).toBeVisible();
 
-      const webhooksAction = page.getByTestId("quick-action-webhooks");
-      await expect(webhooksAction).toBeVisible();
-      await webhooksAction.click();
+      const integrationsAction = page.getByTestId("quick-action-integrations");
+      await expect(integrationsAction).toBeVisible();
+      await integrationsAction.click();
 
-      await expect(page).toHaveURL(/.*\/admin\/webhooks/, { timeout: 10000 });
+      await expect(page).toHaveURL(/.*\/admin\/integrations/, {
+        timeout: 10000,
+      });
     });
 
     test("navigates to users page when clicking total users stat", async ({
@@ -235,7 +238,7 @@ test.describe("Admin Dashboard", () => {
       await expect(page).toHaveURL(/.*\/admin\/users/);
     });
 
-    test("navigates to packs page when clicking active packs stat", async ({
+    test("navigates to settings packs tab when clicking active packs stat", async ({
       page,
     }) => {
       await authenticateUser(page);
@@ -249,7 +252,10 @@ test.describe("Admin Dashboard", () => {
       await expect(activePacksStat).toBeVisible();
       await activePacksStat.click();
 
-      await expect(page).toHaveURL(/.*\/admin\/packs/);
+      // The stat links to /admin/packs which redirects to /admin/settings?tab=packs
+      await expect(page).toHaveURL(/.*\/admin\/settings\?tab=packs/, {
+        timeout: 10000,
+      });
     });
 
     test("navigates to feedback page when clicking pending feedback stat", async ({
@@ -301,8 +307,8 @@ test.describe("Admin Dashboard", () => {
 
       await expect(page.getByTestId("quick-action-users")).toBeVisible();
       await expect(page.getByTestId("quick-action-feedback")).toBeVisible();
-      await expect(page.getByTestId("quick-action-packs")).toBeVisible();
-      await expect(page.getByTestId("quick-action-webhooks")).toBeVisible();
+      await expect(page.getByTestId("quick-action-settings")).toBeVisible();
+      await expect(page.getByTestId("quick-action-integrations")).toBeVisible();
     });
 
     test("displays recent activity feed in mobile layout", async ({ page }) => {
