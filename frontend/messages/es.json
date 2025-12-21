@@ -320,6 +320,7 @@
     "setAsPrimary": "Establecer como principal",
     "primaryImage": "Imagen principal",
     "primaryImageSet": "Imagen principal actualizada exitosamente",
+    "setPrimaryFailed": "Error al establecer la imagen principal. Por favor, inténtalo de nuevo.",
     "imageUploaded": "Imagen subida exitosamente",
     "maxImagesReached": "Número máximo de imágenes alcanzado para este artículo",
     "searchPlaceholder": "Buscar por nombre de artículo...",
