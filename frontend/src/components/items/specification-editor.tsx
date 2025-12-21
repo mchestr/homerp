@@ -150,7 +150,7 @@ export function SpecificationEditor({
               <div key={index} className="space-y-1">
                 <div
                   className={cn(
-                    "flex gap-2 rounded-lg transition-all",
+                    "flex gap-2 rounded-lg transition-all pointer-events-none",
                     isDragging && "opacity-50",
                     isDropTarget && "ring-primary bg-primary/5 ring-2"
                   )}
@@ -163,7 +163,7 @@ export function SpecificationEditor({
                   data-testid={`specification-row-${index}`}
                 >
                   <div
-                    className="text-muted-foreground hover:text-foreground flex h-10 w-8 shrink-0 cursor-grab items-center justify-center active:cursor-grabbing"
+                    className="text-muted-foreground hover:text-foreground flex h-10 w-8 shrink-0 cursor-grab items-center justify-center active:cursor-grabbing pointer-events-auto"
                     data-testid={`drag-handle-${index}`}
                     title={t("dragToReorder")}
                   >
@@ -175,7 +175,7 @@ export function SpecificationEditor({
                     onChange={(e) => handleKeyChange(index, e.target.value)}
                     placeholder={t("specificationKey")}
                     className={cn(
-                      "bg-background focus:border-primary focus:ring-primary/20 h-10 flex-1 rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden",
+                      "bg-background focus:border-primary focus:ring-primary/20 h-10 flex-1 rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden pointer-events-auto",
                       hasDuplicate &&
                         "border-destructive focus:ring-destructive/20"
                     )}
@@ -186,7 +186,7 @@ export function SpecificationEditor({
                     value={getDisplayValue(value)}
                     onChange={(e) => handleValueChange(index, e.target.value)}
                     placeholder={t("specificationValue")}
-                    className="bg-background focus:border-primary focus:ring-primary/20 h-10 flex-1 rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden"
+                    className="bg-background focus:border-primary focus:ring-primary/20 h-10 flex-1 rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden pointer-events-auto"
                     data-testid={`specification-value-${index}`}
                   />
                   <Button
@@ -194,7 +194,7 @@ export function SpecificationEditor({
                     variant="ghost"
                     size="icon"
                     onClick={() => handleRemove(index)}
-                    className="text-muted-foreground hover:text-destructive h-10 w-10 shrink-0"
+                    className="text-muted-foreground hover:text-destructive h-10 w-10 shrink-0 pointer-events-auto"
                     data-testid={`remove-specification-${index}`}
                   >
                     <X className="h-4 w-4" />
