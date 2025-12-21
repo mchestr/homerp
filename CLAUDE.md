@@ -351,6 +351,317 @@ toast({ title: t("error"), description: t("saveFailed"), variant: "destructive" 
 - Handle 402 status specially with `useInsufficientCreditsModal()`
 - Inline error alerts use: `border-destructive/50 bg-destructive/10 text-destructive`
 
+## Mobile-First UX Design
+
+HomERP follows a **mobile-first design approach**. All UI components and pages must be optimized for mobile devices before scaling up to larger screens.
+
+### Core Principles
+
+1. **Design for mobile first, enhance for desktop** - Start with mobile constraints, add complexity for larger screens
+2. **Touch-friendly targets** - All interactive elements must meet Apple's 44px minimum touch target (use `min-h-[40px]` or `min-h-[44px]`)
+3. **Thumb-zone optimization** - Place primary actions within easy thumb reach on mobile
+4. **Graceful degradation** - Hide non-essential labels/text on mobile, show on larger screens
+
+### Responsive Design Patterns
+
+#### Typography & Spacing
+```tsx
+// Headings - scale up on larger screens
+<h1 className="text-xl font-bold md:text-2xl lg:text-3xl">
+
+// Body text - smaller on mobile
+<p className="text-sm md:text-base">
+
+// Spacing - tighter on mobile, looser on larger screens
+<div className="space-y-4 pb-4 sm:space-y-6 md:space-y-8">
+<div className="gap-3 sm:gap-4 lg:gap-6">
+```
+
+#### Container Padding
+```tsx
+// Reduce padding on mobile
+<div className="p-4 sm:p-5 md:p-6">
+<div className="px-4 py-3 sm:px-5 sm:py-4">
+```
+
+#### Button Text & Icons
+```tsx
+// Hide labels on mobile, show on larger screens
+<Button>
+  <Plus className="mr-2 h-4 w-4" />
+  <span className="hidden sm:inline">Add Item</span>
+  <span className="sm:hidden">Add</span>
+</Button>
+
+// Or icon-only on mobile
+<Button>
+  <Search className="h-4 w-4 sm:hidden" />
+  <span className="hidden sm:inline">Search</span>
+</Button>
+```
+
+#### Grid Layouts
+```tsx
+// Stack on mobile, grid on larger screens
+<div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
+
+// Single column mobile, 2+ columns desktop
+<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+
+// Flex column on mobile, grid on desktop
+<div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-6">
+```
+
+#### Flex Layouts
+```tsx
+// Stack buttons vertically on mobile
+<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+
+// Full-width buttons on mobile, auto width on desktop
+<Button className="w-full sm:w-auto">
+<Button className="flex-1 sm:flex-none">
+```
+
+### Touch Scrolling for Tables & Wide Content
+
+Tables and wide content must support smooth native touch scrolling on mobile devices.
+
+#### Table Scrolling Pattern
+```tsx
+// Items list, locations list, admin tables, etc.
+<div
+  className="-mx-4 overflow-x-auto rounded-lg border md:mx-0"
+  style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x pan-y' }}
+>
+  <table className="w-full min-w-[640px]">
+    {/* table content */}
+  </table>
+</div>
+```
+
+**Key elements:**
+- `-mx-4` extends to screen edges on mobile (md:mx-0 restores margins on desktop)
+- `overflow-x-auto` enables horizontal scrolling
+- `WebkitOverflowScrolling: 'touch'` enables momentum scrolling on iOS
+- `touchAction: 'pan-x pan-y'` allows native touch scrolling in both directions
+- `min-w-[640px]` on table ensures proper horizontal scroll width
+
+#### Nested Table Scrolling (for cards)
+```tsx
+// When table is inside a card with padding
+<div className="bg-card overflow-hidden rounded-xl border p-4 sm:p-6">
+  <h2>Title</h2>
+  <div
+    className="-mx-4 overflow-x-auto sm:mx-0"
+    style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x pan-y' }}
+  >
+    <div className="inline-block min-w-full align-middle">
+      <Table>
+        {/* table content */}
+      </Table>
+    </div>
+  </div>
+</div>
+```
+
+### Mobile Navigation & Headers
+
+#### Page Headers
+```tsx
+<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+  <div className="min-w-0">
+    <h1 className="text-xl font-bold tracking-tight md:text-2xl lg:text-3xl">
+      {t("title")}
+    </h1>
+    <p className="text-muted-foreground mt-0.5 text-sm md:mt-1">
+      {t("subtitle")}
+    </p>
+  </div>
+  <div className="flex gap-2">
+    {/* Action buttons */}
+  </div>
+</div>
+```
+
+**Key patterns:**
+- `min-w-0` prevents text overflow on mobile
+- Stack header and actions vertically on mobile (flex-col)
+- Smaller text sizes on mobile (text-xl → md:text-2xl → lg:text-3xl)
+- Tighter spacing on mobile (mt-0.5 → md:mt-1)
+
+#### Search & Filter Sections
+```tsx
+<div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+  <form onSubmit={handleSearch} className="flex flex-1 gap-2">
+    <div className="relative flex-1">
+      <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+      <input
+        type="text"
+        className="w-full rounded-lg border pr-4 pl-10"
+      />
+    </div>
+    <Button type="submit" className="shrink-0 px-3 sm:px-4">
+      <Search className="h-4 w-4 sm:hidden" />
+      <span className="hidden sm:inline">Search</span>
+    </Button>
+  </form>
+  <div className="flex gap-2">
+    <Button className="flex-1 sm:flex-none">Filters</Button>
+    <ViewModeToggle />
+  </div>
+</div>
+```
+
+### Pagination Controls
+
+```tsx
+{totalPages > 1 && (
+  <div className="flex items-center justify-center gap-3 pt-4 md:gap-4">
+    <Button
+      variant="outline"
+      size="sm"
+      disabled={page <= 1}
+      onClick={() => setPage(page - 1)}
+      className="min-h-[44px] gap-1 px-3 md:px-4"
+    >
+      <ChevronLeft className="h-4 w-4" />
+      <span className="hidden sm:inline">Previous</span>
+    </Button>
+    <span className="text-muted-foreground text-sm">
+      <span className="hidden sm:inline">Page </span>
+      <span className="font-medium">{page}</span>
+      <span className="hidden sm:inline"> of </span>
+      <span className="sm:hidden">/</span>
+      <span className="font-medium">{totalPages}</span>
+    </span>
+    <Button
+      variant="outline"
+      size="sm"
+      disabled={page >= totalPages}
+      onClick={() => setPage(page + 1)}
+      className="min-h-[44px] gap-1 px-3 md:px-4"
+    >
+      <span className="hidden sm:inline">Next</span>
+      <ChevronRight className="h-4 w-4" />
+    </Button>
+  </div>
+)}
+```
+
+**Key features:**
+- Larger touch targets (min-h-[44px])
+- Compact text on mobile ("1/5" vs "Page 1 of 5")
+- Icon-only or short labels on mobile
+
+### Cards & Content Containers
+
+```tsx
+// Admin stats, quick actions, etc.
+<div className="bg-card rounded-xl border p-4 sm:p-6">
+  <div className="flex items-start gap-3">
+    <div className="bg-primary/10 rounded-lg p-2">
+      <Icon className="text-primary h-5 w-5" />
+    </div>
+    <div>
+      <p className="text-muted-foreground text-sm">{title}</p>
+      <p className="text-xl font-bold sm:text-2xl">{value}</p>
+    </div>
+  </div>
+</div>
+
+// Prevent card overflow
+<div className="bg-card overflow-hidden rounded-xl border">
+```
+
+### Mobile-Specific Components
+
+#### Mobile Card Views (Alternative to Tables)
+For complex data, provide a mobile card view alongside desktop table view:
+
+```tsx
+{/* Desktop Table View */}
+<div className="hidden md:block">
+  <table className="w-full">
+    {/* table content */}
+  </table>
+</div>
+
+{/* Mobile Card View */}
+<div className="space-y-3 md:hidden">
+  {items.map((item) => (
+    <div key={item.id} className="bg-card rounded-xl border p-4">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-medium">{item.name}</p>
+          <p className="text-muted-foreground truncate text-xs">{item.detail}</p>
+        </div>
+        <Badge className="shrink-0">{item.status}</Badge>
+      </div>
+      <div className="mt-3 flex gap-2">
+        <Button size="sm" className="min-h-[40px] flex-1">Edit</Button>
+        <Button size="sm" className="min-h-[40px] flex-1">View</Button>
+      </div>
+    </div>
+  ))}
+</div>
+```
+
+### Common Mobile Layout Issues & Solutions
+
+| Issue | Solution |
+|-------|----------|
+| Horizontal scrolling on whole page | Check grid layouts - use responsive classes (`grid-cols-1 sm:grid-cols-2`) |
+| Text overflow | Add `min-w-0` to flex parent, `truncate` to text elements |
+| Small touch targets | Add `min-h-[40px]` or `min-h-[44px]` to buttons |
+| Tables don't scroll smoothly | Add touch-action CSS and proper wrapper (see Table Scrolling Pattern) |
+| Cards overflow container | Add `overflow-hidden` to card container |
+| Buttons too wide on mobile | Use `flex-1 sm:flex-none` or `w-full sm:w-auto` |
+| Spacing too large on mobile | Use responsive spacing (`gap-3 sm:gap-4 lg:gap-6`, `p-4 sm:p-6`) |
+
+### Mobile Testing Checklist
+
+Before pushing changes that affect UI, test on mobile:
+
+**Manual Testing:**
+1. Resize browser to mobile width (375px, 414px)
+2. Test on actual mobile device or browser dev tools
+3. Check for horizontal scrolling
+4. Verify touch targets are large enough
+5. Test table scrolling (swipe left/right)
+6. Test all interactive elements (buttons, forms, modals)
+
+**Key breakpoints to test:**
+- Mobile: 375px (iPhone SE)
+- Mobile Large: 414px (iPhone Pro Max)
+- Tablet: 768px (iPad)
+- Desktop: 1024px+
+
+**Common test cases:**
+```bash
+# Test items list page
+- Grid view: Cards stack properly
+- List view: Table scrolls horizontally
+- Search/filter: Buttons fit properly
+- Pagination: Touch targets large enough
+
+# Test admin pages
+- Quick actions grid: No horizontal scroll
+- Charts: Fit within viewport
+- Tables: Scroll smoothly
+
+# Test forms
+- Inputs: Proper width on mobile
+- Buttons: Stack vertically or sized appropriately
+- Modals: Scroll properly on mobile
+```
+
+### Mobile-First Development Workflow
+
+1. **Start with mobile design** - Write mobile classes first
+2. **Add responsive variants** - Use `sm:`, `md:`, `lg:` prefixes to enhance for larger screens
+3. **Test on mobile first** - Don't assume it works on mobile if it works on desktop
+4. **Use Chrome DevTools** - Test responsive design in browser before deploying
+
 ## Form Handling Patterns
 
 ### Form State Management

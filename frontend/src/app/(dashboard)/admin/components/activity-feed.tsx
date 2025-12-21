@@ -118,11 +118,11 @@ export function ActivityFeed({ className }: ActivityFeedProps) {
 
   return (
     <div
-      className={cn("bg-card rounded-xl border", className)}
+      className={cn("bg-card overflow-hidden rounded-xl border", className)}
       data-testid="recent-activity-feed"
     >
       {/* Filter Tabs */}
-      <div className="flex flex-wrap gap-1 border-b p-2 sm:p-3">
+      <div className="flex flex-wrap gap-1 border-b p-2 sm:gap-1.5 sm:p-3">
         {filters.map((f) => (
           <button
             key={f.value}
@@ -131,7 +131,7 @@ export function ActivityFeed({ className }: ActivityFeedProps) {
               setPage(1);
             }}
             className={cn(
-              "rounded-md px-2.5 py-1 text-xs font-medium transition-colors sm:px-3 sm:text-sm",
+              "rounded-md px-2 py-1 text-xs font-medium transition-colors sm:px-3 sm:text-sm",
               filter === f.value
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:text-foreground"
@@ -159,9 +159,9 @@ export function ActivityFeed({ className }: ActivityFeedProps) {
 
             {/* Pagination */}
             {data.total_pages > 1 && (
-              <div className="flex items-center justify-between border-t px-3 py-2">
+              <div className="flex items-center justify-between gap-2 border-t px-2 py-2 sm:px-3">
                 <span className="text-muted-foreground text-xs">
-                  {t("page")} {page} / {data.total_pages}
+                  {page}/{data.total_pages}
                 </span>
                 <div className="flex gap-1">
                   <Button
@@ -169,6 +169,7 @@ export function ActivityFeed({ className }: ActivityFeedProps) {
                     size="sm"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page === 1}
+                    className="min-h-[40px] px-2 text-xs sm:px-3 sm:text-sm"
                   >
                     {t("previous")}
                   </Button>
@@ -179,6 +180,7 @@ export function ActivityFeed({ className }: ActivityFeedProps) {
                       setPage((p) => Math.min(data.total_pages, p + 1))
                     }
                     disabled={page === data.total_pages}
+                    className="min-h-[40px] px-2 text-xs sm:px-3 sm:text-sm"
                   >
                     {t("next")}
                   </Button>

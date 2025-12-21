@@ -178,19 +178,19 @@ export default function AIUsagePage() {
     : 0;
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-4 pb-4 sm:space-y-6 md:space-y-8">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 sm:gap-4">
         <Link href="/admin">
           <Button variant="ghost" size="icon">
             <ChevronLeft className="h-4 w-4" />
           </Button>
         </Link>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold tracking-tight md:text-2xl lg:text-3xl">
             {t("admin.aiUsage.title")}
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-0.5 text-sm md:mt-1">
             {t("admin.aiUsage.description")}
           </p>
         </div>
@@ -336,52 +336,64 @@ export default function AIUsagePage() {
           </div>
 
           {/* Breakdown Tables */}
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
             {/* By Operation */}
-            <div className="bg-card rounded-xl border p-4 sm:p-6">
+            <div className="bg-card overflow-hidden rounded-xl border p-4 sm:p-6">
               <div className="mb-4 flex items-center gap-2">
                 <BarChart3 className="text-primary h-5 w-5" />
-                <h2 className="text-lg font-semibold">
+                <h2 className="text-base font-semibold sm:text-lg">
                   {t("admin.aiUsage.byOperation")}
                 </h2>
               </div>
               {summary.by_operation.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("admin.aiUsage.operationType")}</TableHead>
-                      <TableHead className="text-right">
-                        {t("admin.aiUsage.calls")}
-                      </TableHead>
-                      <TableHead className="text-right">
-                        {t("admin.aiUsage.tokens")}
-                      </TableHead>
-                      <TableHead className="text-right">
-                        {t("admin.aiUsage.cost")}
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {summary.by_operation.map((op) => (
-                      <TableRow key={op.operation_type}>
-                        <TableCell>
-                          <Badge variant="outline">
-                            {getOperationLabel(op.operation_type, t)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {op.total_calls.toLocaleString()}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {formatTokens(op.total_tokens)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {formatCost(op.total_cost_usd)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <div
+                  className="-mx-4 overflow-x-auto sm:mx-0"
+                  style={{
+                    WebkitOverflowScrolling: "touch",
+                    touchAction: "pan-x pan-y",
+                  }}
+                >
+                  <div className="inline-block min-w-full align-middle">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>
+                            {t("admin.aiUsage.operationType")}
+                          </TableHead>
+                          <TableHead className="text-right">
+                            {t("admin.aiUsage.calls")}
+                          </TableHead>
+                          <TableHead className="text-right">
+                            {t("admin.aiUsage.tokens")}
+                          </TableHead>
+                          <TableHead className="text-right">
+                            {t("admin.aiUsage.cost")}
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {summary.by_operation.map((op) => (
+                          <TableRow key={op.operation_type}>
+                            <TableCell>
+                              <Badge variant="outline">
+                                {getOperationLabel(op.operation_type, t)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {op.total_calls.toLocaleString()}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {formatTokens(op.total_tokens)}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {formatCost(op.total_cost_usd)}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
               ) : (
                 <p className="text-muted-foreground py-8 text-center">
                   {t("admin.aiUsage.noData")}
@@ -390,48 +402,58 @@ export default function AIUsagePage() {
             </div>
 
             {/* By Model */}
-            <div className="bg-card rounded-xl border p-4 sm:p-6">
+            <div className="bg-card overflow-hidden rounded-xl border p-4 sm:p-6">
               <div className="mb-4 flex items-center gap-2">
                 <Cpu className="text-primary h-5 w-5" />
-                <h2 className="text-lg font-semibold">
+                <h2 className="text-base font-semibold sm:text-lg">
                   {t("admin.aiUsage.byModel")}
                 </h2>
               </div>
               {summary.by_model.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("admin.aiUsage.model")}</TableHead>
-                      <TableHead className="text-right">
-                        {t("admin.aiUsage.calls")}
-                      </TableHead>
-                      <TableHead className="text-right">
-                        {t("admin.aiUsage.tokens")}
-                      </TableHead>
-                      <TableHead className="text-right">
-                        {t("admin.aiUsage.cost")}
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {summary.by_model.map((model) => (
-                      <TableRow key={model.model}>
-                        <TableCell>
-                          <Badge variant="secondary">{model.model}</Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {model.total_calls.toLocaleString()}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {formatTokens(model.total_tokens)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {formatCost(model.total_cost_usd)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <div
+                  className="-mx-4 overflow-x-auto sm:mx-0"
+                  style={{
+                    WebkitOverflowScrolling: "touch",
+                    touchAction: "pan-x pan-y",
+                  }}
+                >
+                  <div className="inline-block min-w-full align-middle">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>{t("admin.aiUsage.model")}</TableHead>
+                          <TableHead className="text-right">
+                            {t("admin.aiUsage.calls")}
+                          </TableHead>
+                          <TableHead className="text-right">
+                            {t("admin.aiUsage.tokens")}
+                          </TableHead>
+                          <TableHead className="text-right">
+                            {t("admin.aiUsage.cost")}
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {summary.by_model.map((model) => (
+                          <TableRow key={model.model}>
+                            <TableCell>
+                              <Badge variant="secondary">{model.model}</Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {model.total_calls.toLocaleString()}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {formatTokens(model.total_tokens)}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {formatCost(model.total_cost_usd)}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
               ) : (
                 <p className="text-muted-foreground py-8 text-center">
                   {t("admin.aiUsage.noData")}
@@ -441,10 +463,10 @@ export default function AIUsagePage() {
           </div>
 
           {/* By User */}
-          <div className="bg-card rounded-xl border p-4 sm:p-6">
+          <div className="bg-card overflow-hidden rounded-xl border p-4 sm:p-6">
             <div className="mb-4 flex items-center gap-2">
               <Users className="text-primary h-5 w-5" />
-              <h2 className="text-lg font-semibold">
+              <h2 className="text-base font-semibold sm:text-lg">
                 {t("admin.aiUsage.byUser")}
               </h2>
             </div>
@@ -453,55 +475,63 @@ export default function AIUsagePage() {
                 <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
               </div>
             ) : byUserData && byUserData.length > 0 ? (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("admin.aiUsage.user")}</TableHead>
-                      <TableHead className="text-right">
-                        {t("admin.aiUsage.calls")}
-                      </TableHead>
-                      <TableHead className="text-right">
-                        {t("admin.aiUsage.tokens")}
-                      </TableHead>
-                      <TableHead className="text-right">
-                        {t("admin.aiUsage.cost")}
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {byUserData.map((userUsage: AIUsageByUser) => (
-                      <TableRow key={userUsage.user_id}>
-                        <TableCell>
-                          <Link
-                            href={`/admin/users?search=${encodeURIComponent(userUsage.user_email || "")}`}
-                            className="group"
-                          >
-                            <div className="flex flex-col group-hover:underline">
-                              <span className="font-medium">
-                                {userUsage.user_name || userUsage.user_email}
-                              </span>
-                              {userUsage.user_name && (
-                                <span className="text-muted-foreground text-xs">
-                                  {userUsage.user_email}
-                                </span>
-                              )}
-                            </div>
-                          </Link>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {userUsage.total_calls.toLocaleString()}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {formatTokens(userUsage.total_tokens)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {formatCost(userUsage.total_cost_usd)}
-                        </TableCell>
+              <div
+                className="-mx-4 overflow-x-auto sm:mx-0"
+                style={{
+                  WebkitOverflowScrolling: "touch",
+                  touchAction: "pan-x pan-y",
+                }}
+              >
+                <div className="inline-block min-w-full align-middle">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>{t("admin.aiUsage.user")}</TableHead>
+                        <TableHead className="text-right">
+                          {t("admin.aiUsage.calls")}
+                        </TableHead>
+                        <TableHead className="text-right">
+                          {t("admin.aiUsage.tokens")}
+                        </TableHead>
+                        <TableHead className="text-right">
+                          {t("admin.aiUsage.cost")}
+                        </TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {byUserData.map((userUsage: AIUsageByUser) => (
+                        <TableRow key={userUsage.user_id}>
+                          <TableCell>
+                            <Link
+                              href={`/admin/users?search=${encodeURIComponent(userUsage.user_email || "")}`}
+                              className="group"
+                            >
+                              <div className="flex flex-col group-hover:underline">
+                                <span className="font-medium">
+                                  {userUsage.user_name || userUsage.user_email}
+                                </span>
+                                {userUsage.user_name && (
+                                  <span className="text-muted-foreground text-xs">
+                                    {userUsage.user_email}
+                                  </span>
+                                )}
+                              </div>
+                            </Link>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {userUsage.total_calls.toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatTokens(userUsage.total_tokens)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatCost(userUsage.total_cost_usd)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
             ) : (
               <p className="text-muted-foreground py-8 text-center">
@@ -511,11 +541,11 @@ export default function AIUsagePage() {
           </div>
 
           {/* History Log */}
-          <div className="bg-card rounded-xl border p-4 sm:p-6">
-            <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="bg-card overflow-hidden rounded-xl border p-4 sm:p-6">
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div className="flex items-center gap-2">
                 <History className="text-primary h-5 w-5" />
-                <h2 className="text-lg font-semibold">
+                <h2 className="text-base font-semibold sm:text-lg">
                   {t("admin.aiUsage.history")}
                 </h2>
               </div>
@@ -523,7 +553,7 @@ export default function AIUsagePage() {
                 value={operationFilter}
                 onValueChange={setOperationFilter}
               >
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger className="w-full sm:w-[200px]">
                   <SelectValue placeholder={t("admin.aiUsage.allOperations")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -552,84 +582,97 @@ export default function AIUsagePage() {
               </div>
             ) : historyData && historyData.items.length > 0 ? (
               <>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>{t("admin.aiUsage.date")}</TableHead>
-                        <TableHead>{t("admin.aiUsage.user")}</TableHead>
-                        <TableHead>
-                          {t("admin.aiUsage.operationType")}
-                        </TableHead>
-                        <TableHead>{t("admin.aiUsage.model")}</TableHead>
-                        <TableHead className="text-right">
-                          {t("admin.aiUsage.prompt")}
-                        </TableHead>
-                        <TableHead className="text-right">
-                          {t("admin.aiUsage.completion")}
-                        </TableHead>
-                        <TableHead className="text-right">
-                          {t("admin.aiUsage.tokens")}
-                        </TableHead>
-                        <TableHead className="text-right">
-                          {t("admin.aiUsage.cost")}
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {historyData.items.map((log: AIUsageLog) => (
-                        <TableRow key={log.id}>
-                          <TableCell className="text-sm whitespace-nowrap">
-                            {formatDateTime(log.created_at)}
-                          </TableCell>
-                          <TableCell>
-                            {log.user_email ? (
-                              <Link
-                                href={`/admin/users?search=${encodeURIComponent(log.user_email)}`}
-                                className="text-sm hover:underline"
-                                title={log.user_email}
-                              >
-                                {log.user_name || log.user_email}
-                              </Link>
-                            ) : (
-                              <span className="text-sm">-</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant="outline"
-                              className="whitespace-nowrap"
-                            >
-                              {getOperationLabel(log.operation_type, t)}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="secondary">{log.model}</Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {log.prompt_tokens.toLocaleString()}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {log.completion_tokens.toLocaleString()}
-                          </TableCell>
-                          <TableCell className="text-right font-medium">
-                            {log.total_tokens.toLocaleString()}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {formatCost(log.estimated_cost_usd)}
-                          </TableCell>
+                <div
+                  className="-mx-4 overflow-x-auto sm:mx-0"
+                  style={{
+                    WebkitOverflowScrolling: "touch",
+                    touchAction: "pan-x pan-y",
+                  }}
+                >
+                  <div className="inline-block min-w-full align-middle">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>{t("admin.aiUsage.date")}</TableHead>
+                          <TableHead>{t("admin.aiUsage.user")}</TableHead>
+                          <TableHead>
+                            {t("admin.aiUsage.operationType")}
+                          </TableHead>
+                          <TableHead>{t("admin.aiUsage.model")}</TableHead>
+                          <TableHead className="text-right">
+                            {t("admin.aiUsage.prompt")}
+                          </TableHead>
+                          <TableHead className="text-right">
+                            {t("admin.aiUsage.completion")}
+                          </TableHead>
+                          <TableHead className="text-right">
+                            {t("admin.aiUsage.tokens")}
+                          </TableHead>
+                          <TableHead className="text-right">
+                            {t("admin.aiUsage.cost")}
+                          </TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {historyData.items.map((log: AIUsageLog) => (
+                          <TableRow key={log.id}>
+                            <TableCell className="text-sm whitespace-nowrap">
+                              {formatDateTime(log.created_at)}
+                            </TableCell>
+                            <TableCell>
+                              {log.user_email ? (
+                                <Link
+                                  href={`/admin/users?search=${encodeURIComponent(log.user_email)}`}
+                                  className="text-sm hover:underline"
+                                  title={log.user_email}
+                                >
+                                  {log.user_name || log.user_email}
+                                </Link>
+                              ) : (
+                                <span className="text-sm">-</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant="outline"
+                                className="whitespace-nowrap"
+                              >
+                                {getOperationLabel(log.operation_type, t)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="secondary">{log.model}</Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {log.prompt_tokens.toLocaleString()}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {log.completion_tokens.toLocaleString()}
+                            </TableCell>
+                            <TableCell className="text-right font-medium">
+                              {log.total_tokens.toLocaleString()}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {formatCost(log.estimated_cost_usd)}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </div>
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="mt-4 flex items-center justify-between">
-                    <p className="text-muted-foreground text-sm">
-                      Page {historyPage} of {totalPages} ({historyData.total}{" "}
-                      total)
+                  <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-muted-foreground text-xs sm:text-sm">
+                      <span className="hidden sm:inline">
+                        Page {historyPage} of {totalPages} ({historyData.total}{" "}
+                        total)
+                      </span>
+                      <span className="sm:hidden">
+                        {historyPage}/{totalPages} ({historyData.total})
+                      </span>
                     </p>
                     <div className="flex gap-2">
                       <Button
@@ -639,8 +682,11 @@ export default function AIUsagePage() {
                           setHistoryPage((p) => Math.max(1, p - 1))
                         }
                         disabled={historyPage === 1}
+                        className="min-h-[40px] flex-1 sm:flex-none"
                       >
                         <ChevronLeft className="h-4 w-4" />
+                        <span className="ml-1 sm:hidden">Prev</span>
+                        <span className="ml-1 hidden sm:inline">Previous</span>
                       </Button>
                       <Button
                         variant="outline"
@@ -649,7 +695,10 @@ export default function AIUsagePage() {
                           setHistoryPage((p) => Math.min(totalPages, p + 1))
                         }
                         disabled={historyPage === totalPages}
+                        className="min-h-[40px] flex-1 sm:flex-none"
                       >
+                        <span className="mr-1 hidden sm:inline">Next</span>
+                        <span className="mr-1 sm:hidden">Next</span>
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </div>

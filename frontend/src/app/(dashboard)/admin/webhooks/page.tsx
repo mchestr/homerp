@@ -272,31 +272,39 @@ export default function AdminWebhooksPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Link href="/admin">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-        </Link>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-            {t("webhooks.title")}
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            {t("webhooks.description")}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Link href="/admin/webhooks/logs">
-            <Button variant="outline">
-              <History className="mr-2 h-4 w-4" />
-              {t("webhooks.executionLogs")}
+    <div className="space-y-4 pb-4 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+        <div className="flex items-center gap-3 sm:flex-1 sm:gap-4">
+          <Link href="/admin">
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <Button onClick={openCreateDialog}>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl font-bold tracking-tight md:text-2xl lg:text-3xl">
+              {t("webhooks.title")}
+            </h1>
+            <p className="text-muted-foreground mt-0.5 text-sm md:mt-1">
+              {t("webhooks.description")}
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Link href="/admin/webhooks/logs" className="flex-1 sm:flex-none">
+            <Button variant="outline" className="w-full">
+              <History className="mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">
+                {t("webhooks.executionLogs")}
+              </span>
+              <span className="sm:hidden">Logs</span>
+            </Button>
+          </Link>
+          <Button onClick={openCreateDialog} className="flex-1 sm:flex-none">
             <Plus className="mr-2 h-4 w-4" />
-            {t("webhooks.createWebhook")}
+            <span className="hidden sm:inline">
+              {t("webhooks.createWebhook")}
+            </span>
+            <span className="sm:hidden">Create</span>
           </Button>
         </div>
       </div>
@@ -411,7 +419,10 @@ export default function AdminWebhooksPage() {
                       {webhook.url}
                     </p>
                   </div>
-                  <Badge variant={getStatusBadgeVariant(webhook.is_active)}>
+                  <Badge
+                    variant={getStatusBadgeVariant(webhook.is_active)}
+                    className="shrink-0"
+                  >
                     {webhook.is_active
                       ? t("webhooks.isActive")
                       : t("webhooks.isInactive")}
@@ -426,7 +437,7 @@ export default function AdminWebhooksPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1"
+                    className="min-h-[40px] flex-1"
                     onClick={() => {
                       setTestingWebhook(webhook);
                       setTestResult(null);
@@ -435,22 +446,22 @@ export default function AdminWebhooksPage() {
                     disabled={testMutation.isPending}
                   >
                     <Play className="mr-1 h-4 w-4" />
-                    {t("webhooks.test")}
+                    <span className="text-xs">{t("webhooks.test")}</span>
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1"
+                    className="min-h-[40px] flex-1"
                     onClick={() => openEditDialog(webhook)}
                   >
                     <Edit className="mr-1 h-4 w-4" />
-                    {t("common.edit")}
+                    <span className="text-xs">{t("common.edit")}</span>
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setDeleteConfirm(webhook)}
-                    className="text-destructive hover:text-destructive"
+                    className="text-destructive hover:text-destructive min-h-[40px] px-3"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
