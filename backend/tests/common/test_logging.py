@@ -2,8 +2,6 @@
 
 import logging
 
-import pytest
-
 
 class TestSafeFormatter:
     """Tests for SafeFormatter class that handles missing request_id attribute."""
