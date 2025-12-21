@@ -230,6 +230,7 @@ class AIClassificationService:
         self,
         images: list[tuple[bytes, str]],
         custom_prompt: str | None = None,
+        spec_hints: list[str] | None = None,
     ) -> tuple[ClassificationResult, TokenUsage]:
         """
         Classify one or more images using GPT-4 Vision and return token usage.
@@ -240,6 +241,8 @@ class AIClassificationService:
         Args:
             images: List of tuples containing (image_data, mime_type)
             custom_prompt: Optional user-supplied prompt to augment the AI request
+            spec_hints: Optional list of common specification keys from user's inventory
+                       to help the AI identify relevant specifications
 
         Returns:
             Tuple of (ClassificationResult, TokenUsage)
@@ -250,6 +253,8 @@ class AIClassificationService:
         logger.info(
             f"Starting image classification: image_count={len(images)}, "
             f"has_custom_prompt={custom_prompt is not None}, "
+            f"has_spec_hints={spec_hints is not None}, "
+            f"spec_hints_count={len(spec_hints) if spec_hints else 0}, "
             f"model={self.settings.openai_model}"
         )
 
@@ -267,6 +272,21 @@ class AIClassificationService:
                 f"{user_prompt}\n\nNote: You are being shown {len(images)} images "
                 "of the same item from different angles. Use all images together "
                 "to make the most accurate identification."
+            )
+
+        # Add specification hints from existing inventory
+        if spec_hints and len(spec_hints) > 0:
+            # Sanitize hints to prevent prompt injection
+            sanitized_hints = [
+                hint.replace("\n", " ").replace("\r", "").strip()
+                for hint in spec_hints[:15]
+            ]
+            hints_text = ", ".join(sanitized_hints)
+            user_prompt = (
+                f"{user_prompt}\n\n"
+                f"Note: Similar items in this inventory commonly have these specifications: "
+                f"{hints_text}. "
+                f"Please try to identify these specifications if they are visible or determinable from the image."
             )
 
         # Append custom prompt if provided
@@ -370,6 +390,7 @@ class AIClassificationService:
         self,
         images: list[tuple[bytes, str]],
         custom_prompt: str | None = None,
+        spec_hints: list[str] | None = None,
     ) -> ClassificationResult:
         """
         Classify one or more images using GPT-4 Vision.
@@ -380,11 +401,14 @@ class AIClassificationService:
         Args:
             images: List of tuples containing (image_data, mime_type)
             custom_prompt: Optional user-supplied prompt to augment the AI request
+            spec_hints: Optional list of common specification keys from user's inventory
 
         Returns:
             ClassificationResult with identified item details
         """
-        result, _ = await self.classify_images_with_usage(images, custom_prompt)
+        result, _ = await self.classify_images_with_usage(
+            images, custom_prompt, spec_hints
+        )
         return result
 
     async def classify_image(
@@ -392,6 +416,7 @@ class AIClassificationService:
         image_data: bytes,
         mime_type: str = "image/jpeg",
         custom_prompt: str | None = None,
+        spec_hints: list[str] | None = None,
     ) -> ClassificationResult:
         """
         Classify a single image using GPT-4 Vision.
@@ -402,6 +427,7 @@ class AIClassificationService:
             image_data: Raw image bytes
             mime_type: MIME type of the image
             custom_prompt: Optional user-supplied prompt to augment the AI request
+            spec_hints: Optional list of common specification keys from user's inventory
 
         Returns:
             ClassificationResult with identified item details
@@ -409,6 +435,7 @@ class AIClassificationService:
         return await self.classify_images(
             images=[(image_data, mime_type)],
             custom_prompt=custom_prompt,
+            spec_hints=spec_hints,
         )
 
     def create_item_prefill(

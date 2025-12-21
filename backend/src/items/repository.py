@@ -1204,3 +1204,46 @@ class ItemRepository:
                 final_results.append((item, score, reasons))
 
         return final_results, total_searched
+
+    async def get_common_specification_keys(
+        self, min_frequency: int = 3, limit: int = 20
+    ) -> list[str]:
+        """Get commonly used specification keys from user's inventory.
+
+        This helps provide context to AI classification by showing what
+        specifications are commonly tracked for items in this inventory.
+
+        Args:
+            min_frequency: Minimum number of items that must have a spec key
+            limit: Maximum number of spec keys to return
+
+        Returns:
+            List of specification keys sorted by frequency
+        """
+        # Query all items with specifications
+        query = select(Item.attributes).where(
+            Item.user_id == self.user_id,
+            Item.attributes.op("?")(
+                "specifications"
+            ),  # Check if 'specifications' key exists
+        )
+
+        result = await self.session.execute(query)
+        all_attributes = [row[0] for row in result.fetchall()]
+
+        # Count frequency of each specification key
+        spec_key_counts: dict[str, int] = {}
+        for attrs in all_attributes:
+            if attrs and "specifications" in attrs:
+                specs = attrs.get("specifications")
+                if specs is not None and isinstance(specs, dict):
+                    for key in specs:
+                        spec_key_counts[key] = spec_key_counts.get(key, 0) + 1
+
+        # Filter by minimum frequency and sort by frequency
+        common_keys = [
+            key for key, count in spec_key_counts.items() if count >= min_frequency
+        ]
+        common_keys.sort(key=lambda k: spec_key_counts[k], reverse=True)
+
+        return common_keys[:limit]

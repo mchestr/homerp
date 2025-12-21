@@ -1713,3 +1713,149 @@ class TestSuggestLocationEndpoint:
             assert data["success"] is True
             assert len(data["suggestions"]) == 1
             assert data["suggestions"][0]["confidence"] == 0.92
+
+
+class TestGetCommonSpecificationKeys:
+    """Tests for ItemRepository.get_common_specification_keys."""
+
+    async def test_get_common_specification_keys_empty_inventory(
+        self, async_session: AsyncSession, test_user: User
+    ):
+        """Test with no items in inventory."""
+        from src.items.repository import ItemRepository
+
+        repo = ItemRepository(async_session, test_user.id)
+        spec_keys = await repo.get_common_specification_keys()
+
+        assert spec_keys == []
+
+    async def test_get_common_specification_keys_with_items(
+        self, async_session: AsyncSession, test_user: User
+    ):
+        """Test with items that have specifications."""
+        from src.items.repository import ItemRepository
+
+        # Create items with different specifications
+        items_data = [
+            {
+                "name": "M3x16mm Screw",
+                "attributes": {
+                    "specifications": {
+                        "material": "Stainless Steel",
+                        "thread_size": "M3",
+                        "length": "16mm",
+                        "head_type": "Socket Head",
+                    }
+                },
+            },
+            {
+                "name": "M4x20mm Screw",
+                "attributes": {
+                    "specifications": {
+                        "material": "Steel",
+                        "thread_size": "M4",
+                        "length": "20mm",
+                        "head_type": "Flat Head",
+                    }
+                },
+            },
+            {
+                "name": "M3x10mm Screw",
+                "attributes": {
+                    "specifications": {
+                        "material": "Brass",
+                        "thread_size": "M3",
+                        "length": "10mm",
+                    }
+                },
+            },
+            {
+                "name": "LED 5mm Red",
+                "attributes": {
+                    "specifications": {
+                        "color": "Red",
+                        "voltage": "2.0V",
+                        "current": "20mA",
+                    }
+                },
+            },
+            {
+                "name": "Item without specs",
+                "attributes": {"other_field": "value"},
+            },
+        ]
+
+        for item_data in items_data:
+            item = Item(
+                id=uuid.uuid4(),
+                user_id=test_user.id,
+                **item_data,
+            )
+            async_session.add(item)
+
+        await async_session.commit()
+
+        # Test getting common specification keys
+        repo = ItemRepository(async_session, test_user.id)
+        spec_keys = await repo.get_common_specification_keys(min_frequency=2)
+
+        # material, thread_size, and length appear in 3 items (> min_frequency=2)
+        assert "material" in spec_keys
+        assert "thread_size" in spec_keys
+        assert "length" in spec_keys
+
+        # head_type appears in 2 items (= min_frequency=2)
+        assert "head_type" in spec_keys
+
+        # color, voltage, current appear in only 1 item (< min_frequency=2)
+        assert "color" not in spec_keys
+        assert "voltage" not in spec_keys
+        assert "current" not in spec_keys
+
+        # Most frequent keys should be first (material, thread_size, length all appear 3 times)
+        # They can be in any order among themselves
+        top_3_keys = set(spec_keys[:3])
+        assert top_3_keys == {"material", "thread_size", "length"}
+
+    async def test_get_common_specification_keys_with_limit(
+        self, async_session: AsyncSession, test_user: User
+    ):
+        """Test that limit parameter works correctly."""
+        from src.items.repository import ItemRepository
+
+        # Create an item with many specifications
+        specs = {f"spec_{i}": f"value_{i}" for i in range(30)}
+        item = Item(
+            id=uuid.uuid4(),
+            user_id=test_user.id,
+            name="Item with many specs",
+            attributes={"specifications": specs},
+        )
+        async_session.add(item)
+
+        # Create another item with the same specs to meet min_frequency
+        item2 = Item(
+            id=uuid.uuid4(),
+            user_id=test_user.id,
+            name="Item with many specs 2",
+            attributes={"specifications": specs},
+        )
+        async_session.add(item2)
+
+        # Create a third item with the same specs to meet min_frequency
+        item3 = Item(
+            id=uuid.uuid4(),
+            user_id=test_user.id,
+            name="Item with many specs 3",
+            attributes={"specifications": specs},
+        )
+        async_session.add(item3)
+
+        await async_session.commit()
+
+        # Test with limit=10
+        repo = ItemRepository(async_session, test_user.id)
+        spec_keys = await repo.get_common_specification_keys(min_frequency=3, limit=10)
+
+        # Should return exactly 10 keys despite having 30 available
+        assert len(spec_keys) == 10
