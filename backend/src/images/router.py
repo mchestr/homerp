@@ -623,7 +623,7 @@ async def attach_image_to_item(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Item not found",
-        )
+        ) from None
 
     # Check if item already has maximum number of images
     current_count = await repo.count_by_item(item_id)
@@ -712,7 +712,7 @@ async def attach_image_to_location(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Location not found",
-        )
+        ) from None
 
     image = await repo.attach_to_location(image, location_id, is_primary)
     return ImageResponse.model_validate(image)

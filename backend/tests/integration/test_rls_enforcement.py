@@ -300,6 +300,20 @@ class TestImageIsolation:
 
         assert response.status_code == 404
 
+    async def test_user_cannot_attach_own_image_to_other_users_item(
+        self,
+        authenticated_client: AsyncClient,
+        test_image: Image,
+        second_user_item: Item,
+    ):
+        """User cannot attach their image to another user's item."""
+        response = await authenticated_client.post(
+            f"/api/v1/images/{test_image.id}/attach/{second_user_item.id}"
+        )
+
+        # Item not found because it belongs to another user
+        assert response.status_code == 404
+
 
 class TestBillingIsolation:
     """Tests for billing/credit data isolation between users."""
