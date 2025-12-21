@@ -109,6 +109,31 @@ async def async_engine(database_url: str):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
+    # Create trigger for items full-text search vector
+    # This is normally created by migration 026, but tests use create_all
+    async with engine.begin() as conn:
+        await conn.execute(
+            text("""
+            CREATE OR REPLACE FUNCTION items_search_vector_update() RETURNS trigger AS $$
+            BEGIN
+                NEW.search_vector :=
+                    setweight(to_tsvector('english', coalesce(NEW.name, '')), 'A') ||
+                    setweight(to_tsvector('english', coalesce(NEW.description, '')), 'B') ||
+                    setweight(to_tsvector('english', coalesce(array_to_string(NEW.tags, ' '), '')), 'C') ||
+                    setweight(to_tsvector('english', coalesce(NEW.attributes::text, '')), 'D');
+                RETURN NEW;
+            END;
+            $$ LANGUAGE plpgsql;
+        """)
+        )
+        await conn.execute(
+            text("""
+            CREATE TRIGGER items_search_vector_trigger
+            BEFORE INSERT OR UPDATE ON items
+            FOR EACH ROW EXECUTE FUNCTION items_search_vector_update();
+        """)
+        )
+
     yield engine
 
     # Drop all tables after tests

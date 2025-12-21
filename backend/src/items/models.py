@@ -3,7 +3,7 @@ from decimal import Decimal
 from uuid import UUID
 
 from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, func
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database import Base
@@ -35,6 +35,9 @@ class Item(Base):
     attributes: Mapped[dict] = mapped_column(JSONB, default=dict)
     tags: Mapped[list[str]] = mapped_column(ARRAY(String(100)), default=list)
     ai_classification: Mapped[dict] = mapped_column(JSONB, default=dict)
+    # Full-text search vector (updated by trigger in database)
+    # Weights: A=name (highest), B=description, C=tags, D=attributes
+    search_vector = mapped_column(TSVECTOR, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
