@@ -1233,5 +1233,177 @@
     "sharedInventory": "Shared Inventory",
     "sharedWithMe": "Shared with me",
     "viewingInventoryOf": "Viewing {name}'s inventory"
+  },
+  "landing": {
+    "nav": {
+      "features": "Features",
+      "howItWorks": "How It Works",
+      "pricing": "Pricing",
+      "signIn": "Sign In",
+      "getStarted": "Get Started"
+    },
+    "hero": {
+      "title": "Your home inventory,",
+      "titleHighlight": "organized by AI",
+      "description": "Snap a photo, let AI classify it instantly. Track quantities, set alerts, and never lose track of your stuff again. Built for hobbyists who love to stay organized.",
+      "startFree": "Start Free Today",
+      "seeHowItWorks": "See How It Works",
+      "joinHobbyists": "Join hobbyists organizing smarter"
+    },
+    "mockup": {
+      "dashboard": "HomERP Dashboard",
+      "totalItems": "Total Items",
+      "categories": "Categories",
+      "locations": "Locations",
+      "recentItems": "Recent Items",
+      "viewAll": "View all"
+    },
+    "features": {
+      "sectionTitle": "Everything you need to",
+      "sectionTitleHighlight": "stay organized",
+      "sectionDescription": "A complete inventory system designed for hobbyists with AI at its core",
+      "aiClassification": {
+        "title": "AI-Powered Photo Classification",
+        "description": "Snap a photo and let GPT-4 Vision identify your items automatically. Get instant category suggestions, specifications, and even price estimates.",
+        "tags": {
+          "autoCategorize": "Auto-categorize",
+          "extractSpecs": "Extract specs",
+          "suggestStorage": "Suggest storage",
+          "multiImage": "Multi-image support"
+        }
+      },
+      "organization": {
+        "title": "Hierarchical Organization",
+        "description": "Create unlimited nested categories and locations. From rooms to shelves to bins, know exactly where everything is."
+      },
+      "alerts": {
+        "title": "Low Stock Alerts",
+        "description": "Set minimum quantities and get email notifications when items run low. Never run out of essentials again."
+      },
+      "assistant": {
+        "title": "AI Chat Assistant",
+        "description": "Ask questions about your inventory naturally. \"What herbs do I have?\" or \"Where did I put my Arduino?\""
+      },
+      "qrCodes": {
+        "title": "QR Codes & Labels",
+        "description": "Generate and print QR codes for items and locations. Scan to instantly pull up details on your phone."
+      },
+      "collaboration": {
+        "title": "Share & Collaborate",
+        "description": "Invite family members or collaborators. Set viewer or editor permissions for shared inventories."
+      },
+      "gridfinity": {
+        "title": "Gridfinity Support",
+        "description": "Visual bin layout designer with drag-and-drop. Perfect for organizing small parts and maker supplies."
+      },
+      "analytics": {
+        "title": "Usage Analytics",
+        "description": "Track check-ins/check-outs, see usage patterns, and get insights into your inventory over time."
+      },
+      "additional": {
+        "mobileFirst": "Mobile-first design",
+        "tagging": "Flexible tagging system",
+        "batchUpload": "Batch upload & import",
+        "secure": "Secure & private"
+      }
+    },
+    "howItWorks": {
+      "sectionTitle": "Get organized in minutes",
+      "sectionDescription": "Three simple steps to transform how you manage your stuff",
+      "step": "Step",
+      "steps": {
+        "snap": {
+          "title": "Snap a Photo",
+          "description": "Take a picture of any item. Our AI identifies it instantly and extracts all the important details."
+        },
+        "classify": {
+          "title": "AI Classifies It",
+          "description": "GPT-4 Vision suggests categories, locations, and specifications. One click to confirm and save."
+        },
+        "organize": {
+          "title": "Stay Organized",
+          "description": "Search, filter, and track everything. Get alerts when stock runs low. Never lose track again."
+        }
+      }
+    },
+    "aiShowcase": {
+      "poweredBy": "Powered by GPT-4 Vision",
+      "title": "AI that actually understands your stuff",
+      "description": "Not just image recognition—our AI understands context, extracts specifications, and learns your organization patterns.",
+      "features": {
+        "identify": "Identifies products from any angle",
+        "specs": "Extracts specifications automatically",
+        "storage": "Suggests optimal storage locations",
+        "duplicates": "Finds similar items to prevent duplicates",
+        "declutter": "Declutter recommendations based on your hobby"
+      },
+      "assistantTitle": "AI Assistant",
+      "sampleQuestion": "What Arduino boards do I have, and where are they stored?",
+      "sampleAnswer": "You have 3 Arduino boards in your inventory:",
+      "sampleItems": {
+        "mega": "Arduino Mega 2560",
+        "megaLocation": "Garage / Shelf A / Bin 3",
+        "uno": "Arduino Uno R3",
+        "unoLocation": "Office / Drawer 2",
+        "nano": "Arduino Nano",
+        "nanoLocation": "Workshop / Parts Cabinet"
+      }
+    },
+    "cta": {
+      "title": "Ready to get organized?",
+      "description": "Join hobbyists who are organizing smarter with AI. Start free today—no credit card required.",
+      "button": "Get Started Free"
+    },
+    "footer": {
+      "tagline": "AI-powered home inventory for hobbyists who love to stay organized. Track, classify, and find your stuff effortlessly.",
+      "product": "Product",
+      "featuresLink": "Features",
+      "howItWorksLink": "How It Works",
+      "pricingLink": "Pricing",
+      "featuresSection": "Features",
+      "aiClassification": "AI Classification",
+      "qrCodes": "QR Codes",
+      "lowStockAlerts": "Low Stock Alerts",
+      "collaborationLink": "Collaboration",
+      "getStarted": "Get Started",
+      "startOrganizing": "Start organizing your inventory today with free AI credits.",
+      "signUpFree": "Sign Up Free",
+      "copyright": "© {year} HomERP. Built with care for hobbyists.",
+      "signInLink": "Sign In",
+      "systemStatus": "All systems operational"
+    }
+  },
+  "pricing": {
+    "title": "Simple, pay-as-you-go pricing",
+    "description": "Start free with bonus credits. Only pay for AI features when you use them.",
+    "freeTier": {
+      "title": "Free Tier",
+      "subtitle": "Everything you need to get started",
+      "price": "$0",
+      "period": "/forever",
+      "button": "Get Started Free"
+    },
+    "features": {
+      "unlimitedItems": "Unlimited items & categories",
+      "unlimitedLocations": "Unlimited storage locations",
+      "qrCodes": "QR codes & label printing",
+      "lowStockAlerts": "Low stock alerts",
+      "collaboration": "Collaboration & sharing",
+      "freeCredits": "{count} free AI credits on signup"
+    },
+    "creditPacks": {
+      "title": "AI Credit Packs",
+      "subtitle": "Power up your organization with AI",
+      "bestValue": "Best Value",
+      "credits": "{count} credits",
+      "benefits": {
+        "neverExpire": "Credits never expire",
+        "photoClassification": "Use for photo classification",
+        "aiConversations": "AI assistant conversations",
+        "locationSuggestions": "Location suggestions"
+      },
+      "button": "Start with Free Credits"
+    },
+    "loadError": "Unable to load pricing information. Please try again later."
   }
 }

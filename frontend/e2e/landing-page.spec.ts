@@ -1,6 +1,25 @@
 import { test, expect } from "@playwright/test";
 import * as fixtures from "./fixtures/test-data";
 
+// Helper to set up API mocks for landing page
+async function setupApiMocks(page: import("@playwright/test").Page) {
+  await page.route("**/api/v1/billing/packs", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(fixtures.testCreditPacks),
+    });
+  });
+
+  await page.route("**/api/v1/billing/costs", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(fixtures.testOperationCosts),
+    });
+  });
+}
+
 test.describe("Landing Page", () => {
   test.beforeEach(async ({ page }) => {
     // Mock the billing endpoints for the pricing section
@@ -143,5 +162,73 @@ test.describe("Landing Page", () => {
 
     // Check that the custom signup credits value is displayed
     await expect(page.getByText(/10 free AI credits on signup/i)).toBeVisible();
+  });
+});
+
+test.describe("Landing Page (Mobile)", () => {
+  test.use({ viewport: { width: 375, height: 667 } }); // iPhone SE
+
+  test.beforeEach(async ({ page }) => {
+    await setupApiMocks(page);
+  });
+
+  test("displays mobile-optimized layout without horizontal scroll", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    // Wait for page to fully load
+    await expect(
+      page.getByRole("heading", { name: /your home inventory/i })
+    ).toBeVisible();
+
+    // Check no horizontal scrolling on page
+    const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
+    expect(bodyWidth).toBeLessThanOrEqual(376); // 375 + 1px tolerance
+  });
+
+  test("displays hero section with proper mobile layout", async ({ page }) => {
+    await page.goto("/");
+
+    // Check hero heading is visible
+    await expect(
+      page.getByRole("heading", {
+        name: /your home inventory/i,
+        level: 1,
+      })
+    ).toBeVisible();
+
+    // Check CTA buttons are visible
+    await expect(
+      page.getByRole("link", { name: /start free today/i }).first()
+    ).toBeVisible();
+  });
+
+  test("displays pricing section correctly on mobile", async ({ page }) => {
+    await page.goto("/");
+
+    // Wait for pricing section to load
+    await expect(
+      page.getByRole("heading", { name: /pay-as-you-go pricing/i })
+    ).toBeVisible();
+
+    // Check pricing content is visible
+    await expect(page.getByText(/Free Tier/i)).toBeVisible();
+    await expect(page.getByText(/AI Credit Packs/i)).toBeVisible();
+  });
+
+  test("touch targets are adequately sized", async ({ page }) => {
+    await page.goto("/");
+
+    // Get the primary CTA button
+    const ctaButton = page
+      .getByRole("link", { name: /start free today/i })
+      .first();
+    await expect(ctaButton).toBeVisible();
+
+    // Check button height is at least 44px (Apple's minimum touch target)
+    const boundingBox = await ctaButton.boundingBox();
+    expect(boundingBox).not.toBeNull();
+    expect(boundingBox!.height).toBeGreaterThanOrEqual(44);
   });
 });

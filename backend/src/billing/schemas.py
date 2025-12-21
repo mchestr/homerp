@@ -152,7 +152,11 @@ class OperationCostsResponse(BaseModel):
         ..., description="Detailed list of operation costs"
     )
     signup_credits: int = Field(
-        ..., description="Number of free credits granted on signup"
+        ...,
+        description="Number of free credits granted on signup",
+        ge=0,
+        le=100,
+        examples=[5],
     )
 
 
