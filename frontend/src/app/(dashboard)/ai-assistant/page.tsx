@@ -117,6 +117,7 @@ export default function AIAssistantPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isSessionLoadRef = useRef(false);
   const { show: showCreditsModal, InsufficientCreditsModal } =
     useInsufficientCreditsModal();
   const { getCost, isLoading: isCostsLoading } = useOperationCosts();
@@ -130,10 +131,12 @@ export default function AIAssistantPage() {
     enabled: !!currentSessionId,
   });
 
-  // Update messages when session is loaded
+  // Update messages only when intentionally loading a session from sidebar
+  // (not when query invalidation refreshes current session data)
   useEffect(() => {
-    if (sessionDetails?.messages) {
+    if (sessionDetails?.messages && isSessionLoadRef.current) {
       setMessages(convertSessionMessages(sessionDetails.messages));
+      isSessionLoadRef.current = false; // Reset the flag
     }
   }, [sessionDetails]);
 
@@ -181,11 +184,6 @@ export default function AIAssistantPage() {
         );
         setMessages((prev) => [...prev, ...assistantMessages]);
       }
-
-      // Invalidate session cache to update the sidebar
-      queryClient.invalidateQueries({
-        queryKey: ["ai-session", response.session_id],
-      });
     },
     onError: (error: unknown) => {
       if (isInsufficientCreditsError(error)) {
@@ -233,6 +231,7 @@ export default function AIAssistantPage() {
 
   const handleSessionSelect = (sessionId: string | null) => {
     if (sessionId === currentSessionId) return;
+    isSessionLoadRef.current = !!sessionId; // Mark that we're intentionally loading a session
     setCurrentSessionId(sessionId);
     if (!sessionId) {
       // New chat - clear messages
