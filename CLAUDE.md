@@ -422,39 +422,43 @@ HomERP follows a **mobile-first design approach**. All UI components and pages m
 <Button className="flex-1 sm:flex-none">
 ```
 
-### Touch Scrolling for Tables & Wide Content
+### Tables & Mobile Scrolling
 
-Tables and wide content must support smooth native touch scrolling on mobile devices.
+**CRITICAL ISSUE:** `overflow-x-auto` creates a scroll container that captures touch events on mobile, preventing vertical page scrolling. This is a common bug that breaks mobile UX.
 
-#### Table Scrolling Pattern
+**THE PROBLEM:**
+- Most tables hide columns on mobile (using `hidden sm:table-cell`, etc.)
+- On mobile, the remaining columns fit without horizontal scrolling
+- But `overflow-x-auto` creates a scroll container anyway
+- This scroll container blocks vertical page scrolling when touching the table area
+- **User cannot scroll the page when touching the table!**
+
+**THE SOLUTION:**
+Only enable `overflow-x-auto` at the breakpoint where columns actually appear and might cause overflow.
+
+#### Standard Table Pattern
 ```tsx
-// Items list, locations list, admin tables, etc.
-<div
-  className="-mx-4 overflow-x-auto rounded-lg border md:mx-0"
-  style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x pan-y' }}
->
-  <table className="w-full min-w-[640px]">
-    {/* table content */}
+// ✅ CORRECT - No scroll container on mobile, enables at sm: when needed
+<div className="rounded-lg border sm:overflow-x-auto">
+  <table className="w-full">
+    <thead className="bg-muted/50 border-b">
+      <tr>
+        <th className="px-4 py-3 text-left">Name</th>
+        <th className="hidden px-4 py-3 text-left sm:table-cell">Category</th>
+        <th className="hidden px-4 py-3 text-left md:table-cell">Location</th>
+        <th className="px-4 py-3 text-center">Quantity</th>
+      </tr>
+    </thead>
+    {/* tbody */}
   </table>
 </div>
 ```
 
-**Key elements:**
-- `-mx-4` extends to screen edges on mobile (md:mx-0 restores margins on desktop)
-- `overflow-x-auto` enables horizontal scrolling
-- `WebkitOverflowScrolling: 'touch'` enables momentum scrolling on iOS
-- `touchAction: 'pan-x pan-y'` allows native touch scrolling in both directions
-- `min-w-[640px]` on table ensures proper horizontal scroll width
-
-#### Nested Table Scrolling (for cards)
+#### Nested Table (inside cards)
 ```tsx
-// When table is inside a card with padding
 <div className="bg-card overflow-hidden rounded-xl border p-4 sm:p-6">
   <h2>Title</h2>
-  <div
-    className="-mx-4 overflow-x-auto sm:mx-0"
-    style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x pan-y' }}
-  >
+  <div className="sm:overflow-x-auto">
     <div className="inline-block min-w-full align-middle">
       <Table>
         {/* table content */}
@@ -463,6 +467,65 @@ Tables and wide content must support smooth native touch scrolling on mobile dev
   </div>
 </div>
 ```
+
+#### Desktop-Only Tables
+```tsx
+// When table is hidden on mobile (has separate mobile card view)
+<div className="bg-card hidden rounded-xl border md:block">
+  <div className="overflow-x-auto">
+    <table className="w-full">
+      {/* table content */}
+    </table>
+  </div>
+</div>
+```
+
+**No overflow prefix needed** since the entire table is `hidden` on mobile.
+
+#### Anti-Patterns (DO NOT USE)
+
+**❌ WRONG - Creates scroll container on mobile:**
+```tsx
+<div className="overflow-x-auto rounded-lg border">
+  <table className="w-full">
+```
+
+**❌ WRONG - Custom touch handling:**
+```tsx
+<div
+  className="overflow-x-auto"
+  style={{ touchAction: "pan-x", WebkitOverflowScrolling: "touch" }}
+>
+```
+
+**❌ WRONG - Negative margins with overflow toggles:**
+```tsx
+<div className="-mx-4 overflow-x-auto md:mx-0 md:overflow-x-visible">
+```
+
+**❌ WRONG - Fixed minimum width on mobile:**
+```tsx
+<table className="w-full min-w-[640px]">
+```
+
+#### Key Principles
+
+1. **Match overflow to column visibility** - Add `overflow-x-auto` at the same breakpoint where you add columns (typically `sm:`)
+2. **No custom touch handlers** - Browser handles scrolling naturally, don't use `touchAction` or `WebkitOverflowScrolling`
+3. **No negative margins** - Keep it simple, don't try to extend tables to screen edges
+4. **No fixed min-widths** - Let tables fit naturally on mobile
+5. **Desktop-only exceptions** - Tables with `hidden md:block` can use `overflow-x-auto` directly since they never render on mobile
+
+#### When Horizontal Scrolling IS Appropriate
+
+- **Image galleries** - Intentional horizontal scrolling for photo thumbnails
+- **Tag/chip lists** - Horizontal scrolling for overflow tags
+- **Code blocks** - Preserve formatting with horizontal scroll
+
+These use cases are fine with `overflow-x-auto` on mobile because:
+- They're meant to scroll horizontally
+- They don't span the full viewport height
+- Users can still scroll the page vertically around them
 
 ### Mobile Navigation & Headers
 
@@ -613,7 +676,7 @@ For complex data, provide a mobile card view alongside desktop table view:
 | Horizontal scrolling on whole page | Check grid layouts - use responsive classes (`grid-cols-1 sm:grid-cols-2`) |
 | Text overflow | Add `min-w-0` to flex parent, `truncate` to text elements |
 | Small touch targets | Add `min-h-[40px]` or `min-h-[44px]` to buttons |
-| Tables don't scroll smoothly | Add touch-action CSS and proper wrapper (see Table Scrolling Pattern) |
+| **Page won't scroll vertically in table area** | **Remove `overflow-x-auto` on mobile, use `sm:overflow-x-auto` instead** |
 | Cards overflow container | Add `overflow-hidden` to card container |
 | Buttons too wide on mobile | Use `flex-1 sm:flex-none` or `w-full sm:w-auto` |
 | Spacing too large on mobile | Use responsive spacing (`gap-3 sm:gap-4 lg:gap-6`, `p-4 sm:p-6`) |
@@ -625,10 +688,11 @@ Before pushing changes that affect UI, test on mobile:
 **Manual Testing:**
 1. Resize browser to mobile width (375px, 414px)
 2. Test on actual mobile device or browser dev tools
-3. Check for horizontal scrolling
-4. Verify touch targets are large enough
-5. Test table scrolling (swipe left/right)
-6. Test all interactive elements (buttons, forms, modals)
+3. Check for horizontal scrolling on the whole page (should not happen)
+4. Verify touch targets are large enough (min 40px)
+5. **CRITICAL: Test vertical page scrolling by touching INSIDE table areas** - page must scroll normally
+6. Test horizontal table scrolling on larger screens (swipe left/right when columns appear)
+7. Test all interactive elements (buttons, forms, modals)
 
 **Key breakpoints to test:**
 - Mobile: 375px (iPhone SE)
@@ -638,16 +702,23 @@ Before pushing changes that affect UI, test on mobile:
 
 **Common test cases:**
 ```bash
-# Test items list page
-- Grid view: Cards stack properly
-- List view: Table scrolls horizontally
+# Test items/locations/categories list pages (mobile < 640px)
+- Grid view: Cards stack properly, no horizontal scroll
+- List view: Touch inside table area → page scrolls vertically ✓
+- List view: Touch outside table → page scrolls vertically ✓
+- List view: Columns hidden properly (only Name + Quantity visible)
 - Search/filter: Buttons fit properly
-- Pagination: Touch targets large enough
+- Pagination: Touch targets large enough (44px)
+
+# Test items/locations/categories list pages (tablet ≥ 640px)
+- List view: Additional columns appear (Category, Location, etc.)
+- List view: Table might scroll horizontally if wide enough
+- List view: Page still scrolls vertically everywhere
 
 # Test admin pages
-- Quick actions grid: No horizontal scroll
+- Quick actions grid: No horizontal scroll on page
 - Charts: Fit within viewport
-- Tables: Scroll smoothly
+- Tables (desktop-only): Hidden on mobile, overflow works on desktop
 
 # Test forms
 - Inputs: Proper width on mobile

@@ -296,7 +296,7 @@ export default function CheckedOutItemsPage() {
             </div>
           ) : (
             <div
-              className="overflow-x-auto rounded-lg border"
+              className="rounded-lg border sm:overflow-x-auto"
               data-testid="checked-out-items-list"
             >
               <table className="w-full">

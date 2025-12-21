@@ -346,13 +346,7 @@ export default function AIUsagePage() {
                 </h2>
               </div>
               {summary.by_operation.length > 0 ? (
-                <div
-                  className="-mx-4 overflow-x-auto sm:mx-0"
-                  style={{
-                    WebkitOverflowScrolling: "touch",
-                    touchAction: "pan-x pan-y",
-                  }}
-                >
+                <div className="sm:overflow-x-auto">
                   <div className="inline-block min-w-full align-middle">
                     <Table>
                       <TableHeader>
@@ -410,13 +404,7 @@ export default function AIUsagePage() {
                 </h2>
               </div>
               {summary.by_model.length > 0 ? (
-                <div
-                  className="-mx-4 overflow-x-auto sm:mx-0"
-                  style={{
-                    WebkitOverflowScrolling: "touch",
-                    touchAction: "pan-x pan-y",
-                  }}
-                >
+                <div className="sm:overflow-x-auto">
                   <div className="inline-block min-w-full align-middle">
                     <Table>
                       <TableHeader>
@@ -475,13 +463,7 @@ export default function AIUsagePage() {
                 <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
               </div>
             ) : byUserData && byUserData.length > 0 ? (
-              <div
-                className="-mx-4 overflow-x-auto sm:mx-0"
-                style={{
-                  WebkitOverflowScrolling: "touch",
-                  touchAction: "pan-x pan-y",
-                }}
-              >
+              <div className="sm:overflow-x-auto">
                 <div className="inline-block min-w-full align-middle">
                   <Table>
                     <TableHeader>
@@ -582,13 +564,7 @@ export default function AIUsagePage() {
               </div>
             ) : historyData && historyData.items.length > 0 ? (
               <>
-                <div
-                  className="-mx-4 overflow-x-auto sm:mx-0"
-                  style={{
-                    WebkitOverflowScrolling: "touch",
-                    touchAction: "pan-x pan-y",
-                  }}
-                >
+                <div className="sm:overflow-x-auto">
                   <div className="inline-block min-w-full align-middle">
                     <Table>
                       <TableHeader>

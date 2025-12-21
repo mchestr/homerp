@@ -569,7 +569,7 @@ export default function CategoriesPage() {
         </div>
       ) : (
         <div className="space-y-6" data-testid="categories-list-view">
-          <div className="overflow-x-auto rounded-lg border">
+          <div className="rounded-lg border sm:overflow-x-auto">
             <table className="w-full">
               <thead className="bg-muted/50 border-b">
                 <tr>

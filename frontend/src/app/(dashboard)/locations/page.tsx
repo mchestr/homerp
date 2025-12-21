@@ -966,14 +966,8 @@ export default function LocationsPage() {
         </div>
       ) : (
         <div className="space-y-4" data-testid="locations-list-view">
-          <div
-            className="-mx-4 overflow-x-auto rounded-lg border md:mx-0"
-            style={{
-              WebkitOverflowScrolling: "touch",
-              touchAction: "pan-x pan-y",
-            }}
-          >
-            <table className="w-full min-w-[640px]">
+          <div className="rounded-lg border sm:overflow-x-auto">
+            <table className="w-full">
               <thead className="bg-muted/50 border-b">
                 <tr>
                   <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">
