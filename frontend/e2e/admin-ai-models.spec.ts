@@ -10,9 +10,9 @@ test.describe("Admin AI Model Settings", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/ai-models");
+      await page.goto("/admin/settings?tab=ai-models");
 
-      const backButton = page.getByTestId("ai-models-back-button");
+      const backButton = page.getByTestId("settings-back-button");
       await expect(backButton).toBeVisible();
       await backButton.click();
 
@@ -29,7 +29,7 @@ test.describe("Admin AI Model Settings", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/ai-models");
+      await page.goto("/admin/settings?tab=ai-models");
 
       await expect(page.getByTestId("ai-models-table")).toBeVisible();
 
@@ -50,7 +50,7 @@ test.describe("Admin AI Model Settings", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/ai-models");
+      await page.goto("/admin/settings?tab=ai-models");
 
       const activeRow = page.getByTestId("settings-row-image_classification");
       await expect(activeRow).toBeVisible();
@@ -65,7 +65,7 @@ test.describe("Admin AI Model Settings", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/ai-models");
+      await page.goto("/admin/settings?tab=ai-models");
 
       const inactiveRow = page.getByTestId("settings-row-location_analysis");
       await expect(inactiveRow).toBeVisible();
@@ -78,7 +78,7 @@ test.describe("Admin AI Model Settings", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/ai-models");
+      await page.goto("/admin/settings?tab=ai-models");
 
       const editButton = page.getByTestId("settings-edit-image_classification");
       await expect(editButton).toBeVisible();
@@ -98,7 +98,7 @@ test.describe("Admin AI Model Settings", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/ai-models");
+      await page.goto("/admin/settings?tab=ai-models");
 
       await expect(page.getByTestId("ai-models-cards")).toBeVisible();
 
@@ -120,7 +120,7 @@ test.describe("Admin AI Model Settings", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/ai-models");
+      await page.goto("/admin/settings?tab=ai-models");
 
       const activeCard = page.getByTestId("settings-card-image_classification");
       await activeCard.scrollIntoViewIfNeeded();
@@ -134,7 +134,7 @@ test.describe("Admin AI Model Settings", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/ai-models");
+      await page.goto("/admin/settings?tab=ai-models");
 
       const editButton = page.getByTestId(
         "settings-edit-mobile-image_classification"
@@ -157,7 +157,7 @@ test.describe("Admin AI Model Settings", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/ai-models");
+      await page.goto("/admin/settings?tab=ai-models");
 
       const editButton = page.getByTestId("settings-edit-image_classification");
       await editButton.click();
@@ -196,7 +196,7 @@ test.describe("Admin AI Model Settings", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/ai-models");
+      await page.goto("/admin/settings?tab=ai-models");
 
       const editButton = page.getByTestId("settings-edit-image_classification");
       await editButton.click();
@@ -223,7 +223,7 @@ test.describe("Admin AI Model Settings", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/ai-models");
+      await page.goto("/admin/settings?tab=ai-models");
 
       const editButton = page.getByTestId("settings-edit-image_classification");
       await editButton.click();
@@ -249,7 +249,7 @@ test.describe("Admin AI Model Settings", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/ai-models");
+      await page.goto("/admin/settings?tab=ai-models");
 
       const editButton = page.getByTestId("settings-edit-image_classification");
       await editButton.click();
@@ -275,7 +275,7 @@ test.describe("Admin AI Model Settings", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/ai-models");
+      await page.goto("/admin/settings?tab=ai-models");
 
       const editButton = page.getByTestId("settings-edit-image_classification");
       await editButton.click();
@@ -303,7 +303,7 @@ test.describe("Admin AI Model Settings", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/ai-models");
+      await page.goto("/admin/settings?tab=ai-models");
 
       const editButton = page.getByTestId("settings-edit-image_classification");
       await editButton.click();
@@ -332,7 +332,7 @@ test.describe("Admin AI Model Settings", () => {
         user: fixtures.testUser,
       });
 
-      await page.goto("/admin/ai-models");
+      await page.goto("/admin/settings?tab=ai-models");
 
       // Should redirect to dashboard
       await expect(page).toHaveURL(/.*\/dashboard/, { timeout: 10000 });

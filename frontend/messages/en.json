@@ -617,6 +617,26 @@
     "manageWebhooksDescription": "Configure webhook integrations for system events",
     "quickActions": "Quick Actions",
     "manage": "Manage",
+    "settings": {
+      "title": "Settings",
+      "description": "Manage billing, credit packs, pricing, and AI models",
+      "subtitle": "Configure billing and AI settings",
+      "tabs": {
+        "billing": "Billing",
+        "creditPacks": "Credit Packs",
+        "pricing": "Pricing",
+        "aiModels": "AI Models"
+      }
+    },
+    "integrations": {
+      "title": "Integrations",
+      "description": "Configure webhooks and API access",
+      "subtitle": "Manage external integrations and API access",
+      "tabs": {
+        "webhooks": "Webhooks",
+        "apiKeys": "API Keys"
+      }
+    },
     "recentActivity": "Recent Activity",
     "noRecentActivity": "No recent activity",
     "timeRange": {

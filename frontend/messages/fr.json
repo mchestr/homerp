@@ -573,6 +573,26 @@
     "manageWebhooksDescription": "Configurer les intégrations webhook pour les événements système",
     "quickActions": "Actions Rapides",
     "manage": "Gérer",
+    "settings": {
+      "title": "Paramètres",
+      "description": "Gérer la facturation, les packs de crédits, les tarifs et les modèles IA",
+      "subtitle": "Configurer la facturation et les paramètres IA",
+      "tabs": {
+        "billing": "Facturation",
+        "creditPacks": "Packs de Crédits",
+        "pricing": "Tarification",
+        "aiModels": "Modèles IA"
+      }
+    },
+    "integrations": {
+      "title": "Intégrations",
+      "description": "Configurer les webhooks et l'accès API",
+      "subtitle": "Gérer les intégrations externes et l'accès API",
+      "tabs": {
+        "webhooks": "Webhooks",
+        "apiKeys": "Clés API"
+      }
+    },
     "recentActivity": "Activité Récente",
     "noRecentActivity": "Aucune activité récente",
     "timeRange": {
