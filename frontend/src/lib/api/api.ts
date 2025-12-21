@@ -632,7 +632,7 @@ export const itemsApi = {
   findSimilar: (data: {
     identified_name: string;
     category_path?: string;
-    specifications?: Record<string, unknown>;
+    specifications?: Array<{ key: string; value: string | number | boolean }>;
     limit?: number;
   }) =>
     findSimilarItemsApiV1ItemsFindSimilarPost({

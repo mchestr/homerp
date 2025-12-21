@@ -347,8 +347,31 @@ export function isInsufficientCreditsError(err: unknown): boolean {
 // Item Attribute Utilities
 // ============================================================================
 
+// Specification as array item with key and value
+interface Specification {
+  key: string;
+  value: string | number | boolean;
+}
+
 /**
- * Type guard to check if a value is a valid specifications object
+ * Type guard to check if a value is a valid specifications array (new format)
+ */
+function isSpecificationsArray(obj: unknown): obj is Specification[] {
+  return (
+    Array.isArray(obj) &&
+    obj.every(
+      (item) =>
+        typeof item === "object" &&
+        item !== null &&
+        "key" in item &&
+        "value" in item &&
+        typeof item.key === "string"
+    )
+  );
+}
+
+/**
+ * Type guard to check if a value is a valid specifications object (legacy format)
  */
 function isSpecificationsObject(obj: unknown): obj is Record<string, unknown> {
   return obj !== null && typeof obj === "object" && !Array.isArray(obj);
@@ -371,19 +394,20 @@ interface ItemSubtitleParams {
  * Extract a subtitle from item attributes to display under the item title.
  * Uses the category's attribute template to prioritize which attributes to show.
  * Falls back to showing the first attributes in insertion order if no template exists.
+ * Supports both new array format [{key, value}] and legacy dict format {key: value}.
  *
  * @example
- * // With template (e.g., filament category with "type" and "color" fields)
+ * // With template and array format (new)
  * getItemSubtitle({
- *   attributes: { specifications: { type: "PLA", color: "Blue", diameter: "1.75mm" } },
+ *   attributes: { specifications: [{ key: "type", value: "PLA" }, { key: "color", value: "Blue" }] },
  *   category: { attribute_template: { fields: [{ name: "type", label: "Type" }, { name: "color", label: "Color" }] } }
  * })
  * // Returns: "PLA, Blue"
  *
  * @example
- * // Without template (shows first 2-3 attributes in insertion order)
+ * // Without template (shows first attributes in insertion order)
  * getItemSubtitle({
- *   attributes: { specifications: { material: "Wood", size: "Large" } }
+ *   attributes: { specifications: [{ key: "material", value: "Wood" }, { key: "size", value: "Large" }] }
  * })
  * // Returns: "Wood, Large"
  *
@@ -398,10 +422,35 @@ export function getItemSubtitle({
   if (!attributes) return null;
 
   const specs = attributes["specifications"];
-  if (!isSpecificationsObject(specs)) return null;
+  if (!specs) return null;
 
-  const specEntries = Object.entries(specs);
-  if (specEntries.length === 0) return null;
+  // Convert to a map for template-based lookup and preserve array for insertion order
+  const specMap: Map<string, string | number | boolean> = new Map();
+  let specArray: Array<{ key: string; value: string | number | boolean }> = [];
+
+  if (isSpecificationsArray(specs)) {
+    // New array format: [{key: "voltage", value: "5V"}, ...]
+    specArray = specs;
+    for (const spec of specs) {
+      specMap.set(spec.key, spec.value);
+    }
+  } else if (isSpecificationsObject(specs)) {
+    // Legacy dict format: {voltage: "5V", ...}
+    for (const [key, value] of Object.entries(specs)) {
+      if (
+        typeof value === "string" ||
+        typeof value === "number" ||
+        typeof value === "boolean"
+      ) {
+        specMap.set(key, value);
+        specArray.push({ key, value });
+      }
+    }
+  } else {
+    return null;
+  }
+
+  if (specMap.size === 0) return null;
 
   // If category has an attribute template, use it to prioritize attributes
   const templateFields = category?.attribute_template?.fields;
@@ -410,7 +459,7 @@ export function getItemSubtitle({
   if (templateFields && templateFields.length > 0) {
     // Use template field order to prioritize attributes
     for (const field of templateFields.slice(0, maxAttributes)) {
-      const value = specs[field.name];
+      const value = specMap.get(field.name);
       if (value != null && value !== "") {
         subtitleParts.push(String(value));
       }
@@ -420,11 +469,9 @@ export function getItemSubtitle({
   // If no template or template didn't provide enough attributes,
   // fall back to showing first attributes in insertion order
   if (subtitleParts.length === 0) {
-    const firstEntries = specEntries.slice(0, maxAttributes);
-
-    subtitleParts = firstEntries.reduce((acc, [, value]) => {
-      if (value != null && value !== "") {
-        acc.push(String(value));
+    subtitleParts = specArray.slice(0, maxAttributes).reduce((acc, spec) => {
+      if (spec.value != null && spec.value !== "") {
+        acc.push(String(spec.value));
       }
       return acc;
     }, [] as string[]);

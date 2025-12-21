@@ -16,11 +16,11 @@ test.describe("Item Edit - Specifications", () => {
         id: "item-with-specs",
         name: "Arduino Uno",
         attributes: {
-          specifications: {
-            voltage: "5V",
-            frequency: "16MHz",
-            memory: "32KB",
-          },
+          specifications: [
+            { key: "voltage", value: "5V" },
+            { key: "frequency", value: "16MHz" },
+            { key: "memory", value: "32KB" },
+          ],
         },
       };
 
@@ -74,9 +74,7 @@ test.describe("Item Edit - Specifications", () => {
         id: "item-with-specs",
         name: "Arduino Uno",
         attributes: {
-          specifications: {
-            voltage: "5V",
-          },
+          specifications: [{ key: "voltage", value: "5V" }],
         },
       };
 
@@ -130,10 +128,11 @@ test.describe("Item Edit - Specifications", () => {
 
       // Verify request body contains both old and new specifications
       const requestBody = response.request().postDataJSON();
-      expect(requestBody.attributes.specifications).toHaveProperty("voltage");
-      expect(requestBody.attributes.specifications).toHaveProperty(
-        "current",
-        "40mA"
+      expect(requestBody.attributes.specifications).toEqual(
+        expect.arrayContaining([
+          { key: "voltage", value: "5V" },
+          { key: "current", value: "40mA" },
+        ])
       );
 
       // Verify navigation to item detail page
@@ -148,9 +147,7 @@ test.describe("Item Edit - Specifications", () => {
         id: "item-with-specs",
         name: "Arduino Uno",
         attributes: {
-          specifications: {
-            voltage: "5V",
-          },
+          specifications: [{ key: "voltage", value: "5V" }],
         },
       };
 
@@ -197,13 +194,9 @@ test.describe("Item Edit - Specifications", () => {
 
       // Verify request body contains updated specification
       const requestBody = response.request().postDataJSON();
-      expect(requestBody.attributes.specifications).toHaveProperty(
-        "operating_voltage",
-        "5.0V"
-      );
-      expect(requestBody.attributes.specifications).not.toHaveProperty(
-        "voltage"
-      );
+      expect(requestBody.attributes.specifications).toEqual([
+        { key: "operating_voltage", value: "5.0V" },
+      ]);
 
       await expect(page).toHaveURL("/items/item-with-specs");
     });
@@ -214,11 +207,11 @@ test.describe("Item Edit - Specifications", () => {
         id: "item-with-specs",
         name: "Arduino Uno",
         attributes: {
-          specifications: {
-            voltage: "5V",
-            current: "40mA",
-            frequency: "16MHz",
-          },
+          specifications: [
+            { key: "voltage", value: "5V" },
+            { key: "current", value: "40mA" },
+            { key: "frequency", value: "16MHz" },
+          ],
         },
       };
 
@@ -272,17 +265,15 @@ test.describe("Item Edit - Specifications", () => {
 
       // Verify request body does not contain removed specification
       const requestBody = response.request().postDataJSON();
-      expect(requestBody.attributes.specifications).toHaveProperty(
-        "voltage",
-        "5V"
-      );
-      expect(requestBody.attributes.specifications).toHaveProperty(
-        "frequency",
-        "16MHz"
-      );
-      expect(requestBody.attributes.specifications).not.toHaveProperty(
-        "current"
-      );
+      expect(requestBody.attributes.specifications).toEqual([
+        { key: "voltage", value: "5V" },
+        { key: "frequency", value: "16MHz" },
+      ]);
+      expect(
+        requestBody.attributes.specifications.find(
+          (spec: { key: string }) => spec.key === "current"
+        )
+      ).toBeUndefined();
 
       await expect(page).toHaveURL("/items/item-with-specs");
     });
@@ -293,13 +284,11 @@ test.describe("Item Edit - Specifications", () => {
         id: "item-with-specs",
         name: "Arduino Uno",
         attributes: {
-          specifications: {
-            voltage: "5V",
-          },
+          specifications: [{ key: "voltage", value: "5V" }],
         },
       };
 
-      let savedSpecs = { voltage: "5V" };
+      let savedSpecs = [{ key: "voltage", value: "5V" }];
 
       await page.route("**/api/v1/items/item-with-specs", async (route) => {
         if (route.request().method() === "GET") {
@@ -370,11 +359,11 @@ test.describe("Item Edit - Specifications", () => {
         id: "item-reorder",
         name: "Test Item",
         attributes: {
-          specifications: {
-            voltage: "5V",
-            current: "40mA",
-            frequency: "16MHz",
-          },
+          specifications: [
+            { key: "voltage", value: "5V" },
+            { key: "current", value: "40mA" },
+            { key: "frequency", value: "16MHz" },
+          ],
         },
       };
 
@@ -441,11 +430,11 @@ test.describe("Item Edit - Specifications", () => {
         id: "item-reorder",
         name: "Test Item",
         attributes: {
-          specifications: {
-            voltage: "5V",
-            current: "40mA",
-            frequency: "16MHz",
-          },
+          specifications: [
+            { key: "voltage", value: "5V" },
+            { key: "current", value: "40mA" },
+            { key: "frequency", value: "16MHz" },
+          ],
         },
       };
 
@@ -512,10 +501,10 @@ test.describe("Item Edit - Specifications", () => {
         id: "item-reorder",
         name: "Test Item",
         attributes: {
-          specifications: {
-            voltage: "5V",
-            current: "40mA",
-          },
+          specifications: [
+            { key: "voltage", value: "5V" },
+            { key: "current", value: "40mA" },
+          ],
         },
       };
 
@@ -548,19 +537,19 @@ test.describe("Item Edit - Specifications", () => {
         id: "item-reorder",
         name: "Test Item",
         attributes: {
-          specifications: {
-            voltage: "5V",
-            current: "40mA",
-            frequency: "16MHz",
-          },
+          specifications: [
+            { key: "voltage", value: "5V" },
+            { key: "current", value: "40mA" },
+            { key: "frequency", value: "16MHz" },
+          ],
         },
       };
 
-      let savedSpecs = {
-        voltage: "5V",
-        current: "40mA",
-        frequency: "16MHz",
-      };
+      let savedSpecs = [
+        { key: "voltage", value: "5V" },
+        { key: "current", value: "40mA" },
+        { key: "frequency", value: "16MHz" },
+      ];
 
       await page.route("**/api/v1/items/item-reorder", async (route) => {
         if (route.request().method() === "GET") {
@@ -616,12 +605,12 @@ test.describe("Item Edit - Specifications", () => {
       await page.getByTestId("save-button").click();
       const response = await responsePromise;
 
-      // Verify the order in the saved data
+      // Verify the order in the saved data (array order)
       const requestBody = response.request().postDataJSON();
-      const specKeys = Object.keys(requestBody.attributes.specifications);
-      expect(specKeys[0]).toBe("current");
-      expect(specKeys[1]).toBe("voltage");
-      expect(specKeys[2]).toBe("frequency");
+      const specs = requestBody.attributes.specifications;
+      expect(specs[0]).toEqual({ key: "current", value: "40mA" });
+      expect(specs[1]).toEqual({ key: "voltage", value: "5V" });
+      expect(specs[2]).toEqual({ key: "frequency", value: "16MHz" });
 
       await expect(page).toHaveURL("/items/item-reorder");
 
@@ -738,7 +727,9 @@ test.describe("Item Edit - Specifications", () => {
 
       // Verify request body contains the new specification
       const requestBody = response.request().postDataJSON();
-      expect(requestBody.attributes.specifications).toEqual({ color: "RGB" });
+      expect(requestBody.attributes.specifications).toEqual([
+        { key: "color", value: "RGB" },
+      ]);
 
       await expect(page).toHaveURL("/items/item-without-specs");
     });
@@ -751,7 +742,7 @@ test.describe("Item Edit - Specifications", () => {
         attributes: {},
       };
 
-      let savedSpecs = {};
+      let savedSpecs: Array<{ key: string; value: unknown }> = [];
 
       await page.route("**/api/v1/items/item-without-specs", async (route) => {
         if (route.request().method() === "GET") {
@@ -864,8 +855,11 @@ test.describe("Item Edit - Specifications", () => {
 
       // Verify value is stored as string
       const requestBody = response.request().postDataJSON();
-      expect(requestBody.attributes.specifications.color).toBe("red");
-      expect(typeof requestBody.attributes.specifications.color).toBe("string");
+      const colorSpec = requestBody.attributes.specifications.find(
+        (spec: { key: string }) => spec.key === "color"
+      );
+      expect(colorSpec.value).toBe("red");
+      expect(typeof colorSpec.value).toBe("string");
 
       await expect(page).toHaveURL("/items/item-datatypes");
     });
@@ -928,14 +922,16 @@ test.describe("Item Edit - Specifications", () => {
 
       // Verify values are stored as numbers
       const requestBody = response.request().postDataJSON();
-      expect(requestBody.attributes.specifications.quantity).toBe(100);
-      expect(typeof requestBody.attributes.specifications.quantity).toBe(
-        "number"
+      const quantitySpec = requestBody.attributes.specifications.find(
+        (spec: { key: string }) => spec.key === "quantity"
       );
-      expect(requestBody.attributes.specifications.voltage).toBe(5.5);
-      expect(typeof requestBody.attributes.specifications.voltage).toBe(
-        "number"
+      const voltageSpec = requestBody.attributes.specifications.find(
+        (spec: { key: string }) => spec.key === "voltage"
       );
+      expect(quantitySpec.value).toBe(100);
+      expect(typeof quantitySpec.value).toBe("number");
+      expect(voltageSpec.value).toBe(5.5);
+      expect(typeof voltageSpec.value).toBe("number");
 
       await expect(page).toHaveURL("/items/item-datatypes");
     });
@@ -998,14 +994,16 @@ test.describe("Item Edit - Specifications", () => {
 
       // Verify values are stored as booleans
       const requestBody = response.request().postDataJSON();
-      expect(requestBody.attributes.specifications.waterproof).toBe(true);
-      expect(typeof requestBody.attributes.specifications.waterproof).toBe(
-        "boolean"
+      const waterproofSpec = requestBody.attributes.specifications.find(
+        (spec: { key: string }) => spec.key === "waterproof"
       );
-      expect(requestBody.attributes.specifications.rechargeable).toBe(false);
-      expect(typeof requestBody.attributes.specifications.rechargeable).toBe(
-        "boolean"
+      const rechargeableSpec = requestBody.attributes.specifications.find(
+        (spec: { key: string }) => spec.key === "rechargeable"
       );
+      expect(waterproofSpec.value).toBe(true);
+      expect(typeof waterproofSpec.value).toBe("boolean");
+      expect(rechargeableSpec.value).toBe(false);
+      expect(typeof rechargeableSpec.value).toBe("boolean");
 
       await expect(page).toHaveURL("/items/item-datatypes");
     });
@@ -1018,12 +1016,12 @@ test.describe("Item Edit - Specifications", () => {
         id: "item-datatypes",
         name: "Test Item",
         attributes: {
-          specifications: {
-            waterproof: true,
-            voltage: 5.5,
-            count: 100,
-            active: false,
-          },
+          specifications: [
+            { key: "waterproof", value: true },
+            { key: "voltage", value: 5.5 },
+            { key: "count", value: 100 },
+            { key: "active", value: false },
+          ],
         },
       };
 
@@ -1070,9 +1068,7 @@ test.describe("Item Edit - Specifications", () => {
         id: "item-duplicate-keys",
         name: "Test Item",
         attributes: {
-          specifications: {
-            voltage: "5V",
-          },
+          specifications: [{ key: "voltage", value: "5V" }],
         },
       };
 
@@ -1130,10 +1126,10 @@ test.describe("Item Edit - Specifications", () => {
         id: "item-duplicate-keys",
         name: "Test Item",
         attributes: {
-          specifications: {
-            voltage: "5V",
-            Voltage: "3.3V", // Duplicate key (case-insensitive)
-          },
+          specifications: [
+            { key: "voltage", value: "5V" },
+            { key: "Voltage", value: "3.3V" }, // Duplicate key (case-insensitive)
+          ],
         },
       };
 
@@ -1188,11 +1184,11 @@ test.describe("Item Edit - Specifications", () => {
         id: "item-duplicate-keys",
         name: "Test Item",
         attributes: {
-          specifications: {
-            voltage: "5V",
-            Voltage: "3.3V",
-            VOLTAGE: "12V", // Three case-insensitive duplicates
-          },
+          specifications: [
+            { key: "voltage", value: "5V" },
+            { key: "Voltage", value: "3.3V" },
+            { key: "VOLTAGE", value: "12V" }, // Three case-insensitive duplicates
+          ],
         },
       };
 
@@ -1287,11 +1283,11 @@ test.describe("Item Edit - Specifications", () => {
         id: "item-multi-ops",
         name: "Multi-Op Test",
         attributes: {
-          specifications: {
-            voltage: "5V",
-            current: "40mA",
-            frequency: "16MHz",
-          },
+          specifications: [
+            { key: "voltage", value: "5V" },
+            { key: "current", value: "40mA" },
+            { key: "frequency", value: "16MHz" },
+          ],
         },
       };
 
@@ -1347,15 +1343,17 @@ test.describe("Item Edit - Specifications", () => {
 
       // Verify all changes in request body
       const requestBody = response.request().postDataJSON();
-      expect(requestBody.attributes.specifications).toEqual({
-        voltage: "3.3V", // edited
-        frequency: "16MHz", // unchanged
-        memory: "32KB", // added
-        // current removed
-      });
-      expect(requestBody.attributes.specifications).not.toHaveProperty(
-        "current"
-      );
+      expect(requestBody.attributes.specifications).toEqual([
+        { key: "voltage", value: "3.3V" }, // edited
+        { key: "frequency", value: "16MHz" }, // unchanged
+        { key: "memory", value: "32KB" }, // added
+      ]);
+      // Verify current was removed
+      expect(
+        requestBody.attributes.specifications.find(
+          (spec: { key: string }) => spec.key === "current"
+        )
+      ).toBeUndefined();
 
       await expect(page).toHaveURL("/items/item-multi-ops");
     });
@@ -1370,9 +1368,7 @@ test.describe("Item Edit - Specifications", () => {
         id: "item-cancel",
         name: "Cancel Test",
         attributes: {
-          specifications: {
-            voltage: "5V",
-          },
+          specifications: [{ key: "voltage", value: "5V" }],
         },
       };
 

@@ -196,7 +196,7 @@ test.describe("Items", () => {
               confidence: 0.95,
               category_path: "Electronics.Microcontrollers",
               description: "Arduino board",
-              specifications: {},
+              specifications: [],
               quantity_estimate: "1 piece",
             },
             created_at: "2024-01-01T00:00:00Z",

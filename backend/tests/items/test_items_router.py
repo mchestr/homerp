@@ -823,7 +823,7 @@ class TestFindSimilarEndpoint:
             "/api/v1/items/find-similar",
             json={
                 "identified_name": "Multimeter",
-                "specifications": {"voltage": "12V"},
+                "specifications": [{"key": "voltage", "value": "12V"}],
                 "limit": 5,
             },
         )
@@ -846,6 +846,7 @@ class TestFindSimilarEndpoint:
         different colors were incorrectly identified as duplicates.
         """
         # Create three Bambulab filament items with different colors
+        # Using new array format for specifications
         red_filament = Item(
             id=uuid.uuid4(),
             user_id=test_user.id,
@@ -856,12 +857,12 @@ class TestFindSimilarEndpoint:
             category_id=test_category.id,
             location_id=test_location.id,
             attributes={
-                "specifications": {
-                    "color": "red",
-                    "material": "PLA",
-                    "weight": "1kg",
-                    "brand": "Bambulab",
-                }
+                "specifications": [
+                    {"key": "color", "value": "red"},
+                    {"key": "material", "value": "PLA"},
+                    {"key": "weight", "value": "1kg"},
+                    {"key": "brand", "value": "Bambulab"},
+                ]
             },
             tags=["filament", "3d-printing"],
         )
@@ -876,12 +877,12 @@ class TestFindSimilarEndpoint:
             category_id=test_category.id,
             location_id=test_location.id,
             attributes={
-                "specifications": {
-                    "color": "blue",
-                    "material": "PLA",
-                    "weight": "1kg",
-                    "brand": "Bambulab",
-                }
+                "specifications": [
+                    {"key": "color", "value": "blue"},
+                    {"key": "material", "value": "PLA"},
+                    {"key": "weight", "value": "1kg"},
+                    {"key": "brand", "value": "Bambulab"},
+                ]
             },
             tags=["filament", "3d-printing"],
         )
@@ -896,12 +897,12 @@ class TestFindSimilarEndpoint:
             category_id=test_category.id,
             location_id=test_location.id,
             attributes={
-                "specifications": {
-                    "color": "green",
-                    "material": "PLA",
-                    "weight": "1kg",
-                    "brand": "Bambulab",
-                }
+                "specifications": [
+                    {"key": "color", "value": "green"},
+                    {"key": "material", "value": "PLA"},
+                    {"key": "weight", "value": "1kg"},
+                    {"key": "brand", "value": "Bambulab"},
+                ]
             },
             tags=["filament", "3d-printing"],
         )
@@ -909,17 +910,17 @@ class TestFindSimilarEndpoint:
         async_session.add_all([red_filament, blue_filament, green_filament])
         await async_session.commit()
 
-        # Search for red filament
+        # Search for red filament - using array format for specifications
         response = await authenticated_client.post(
             "/api/v1/items/find-similar",
             json={
                 "identified_name": "Bambulab PLA Filament",
-                "specifications": {
-                    "color": "red",
-                    "material": "PLA",
-                    "weight": "1kg",
-                    "brand": "Bambulab",
-                },
+                "specifications": [
+                    {"key": "color", "value": "red"},
+                    {"key": "material", "value": "PLA"},
+                    {"key": "weight", "value": "1kg"},
+                    {"key": "brand", "value": "Bambulab"},
+                ],
                 "limit": 5,
             },
         )
@@ -1729,54 +1730,54 @@ class TestGetCommonSpecificationKeys:
 
         assert spec_keys == []
 
-    async def test_get_common_specification_keys_with_items(
+    async def test_get_common_specification_keys_with_items_array_format(
         self, async_session: AsyncSession, test_user: User
     ):
-        """Test with items that have specifications."""
+        """Test with items that have specifications in array format."""
         from src.items.repository import ItemRepository
 
-        # Create items with different specifications
+        # Create items with different specifications using array format
         items_data = [
             {
                 "name": "M3x16mm Screw",
                 "attributes": {
-                    "specifications": {
-                        "material": "Stainless Steel",
-                        "thread_size": "M3",
-                        "length": "16mm",
-                        "head_type": "Socket Head",
-                    }
+                    "specifications": [
+                        {"key": "material", "value": "Stainless Steel"},
+                        {"key": "thread_size", "value": "M3"},
+                        {"key": "length", "value": "16mm"},
+                        {"key": "head_type", "value": "Socket Head"},
+                    ]
                 },
             },
             {
                 "name": "M4x20mm Screw",
                 "attributes": {
-                    "specifications": {
-                        "material": "Steel",
-                        "thread_size": "M4",
-                        "length": "20mm",
-                        "head_type": "Flat Head",
-                    }
+                    "specifications": [
+                        {"key": "material", "value": "Steel"},
+                        {"key": "thread_size", "value": "M4"},
+                        {"key": "length", "value": "20mm"},
+                        {"key": "head_type", "value": "Flat Head"},
+                    ]
                 },
             },
             {
                 "name": "M3x10mm Screw",
                 "attributes": {
-                    "specifications": {
-                        "material": "Brass",
-                        "thread_size": "M3",
-                        "length": "10mm",
-                    }
+                    "specifications": [
+                        {"key": "material", "value": "Brass"},
+                        {"key": "thread_size", "value": "M3"},
+                        {"key": "length", "value": "10mm"},
+                    ]
                 },
             },
             {
                 "name": "LED 5mm Red",
                 "attributes": {
-                    "specifications": {
-                        "color": "Red",
-                        "voltage": "2.0V",
-                        "current": "20mA",
-                    }
+                    "specifications": [
+                        {"key": "color", "value": "Red"},
+                        {"key": "voltage", "value": "2.0V"},
+                        {"key": "current", "value": "20mA"},
+                    ]
                 },
             },
             {
@@ -1817,14 +1818,63 @@ class TestGetCommonSpecificationKeys:
         top_3_keys = set(spec_keys[:3])
         assert top_3_keys == {"material", "thread_size", "length"}
 
+    async def test_get_common_specification_keys_with_items_legacy_dict_format(
+        self, async_session: AsyncSession, test_user: User
+    ):
+        """Test backward compatibility with legacy dict format specifications."""
+        from src.items.repository import ItemRepository
+
+        # Create items with specifications in legacy dict format
+        items_data = [
+            {
+                "name": "M3x16mm Screw",
+                "attributes": {
+                    "specifications": {
+                        "material": "Stainless Steel",
+                        "thread_size": "M3",
+                        "length": "16mm",
+                    }
+                },
+            },
+            {
+                "name": "M4x20mm Screw",
+                "attributes": {
+                    "specifications": {
+                        "material": "Steel",
+                        "thread_size": "M4",
+                        "length": "20mm",
+                    }
+                },
+            },
+        ]
+
+        for item_data in items_data:
+            item = Item(
+                id=uuid.uuid4(),
+                user_id=test_user.id,
+                **item_data,
+            )
+            async_session.add(item)
+
+        await async_session.commit()
+
+        # Test getting common specification keys - should still work with dict format
+        repo = ItemRepository(async_session, test_user.id)
+        spec_keys = await repo.get_common_specification_keys(min_frequency=2)
+
+        # material, thread_size, and length appear in 2 items
+        assert "material" in spec_keys
+        assert "thread_size" in spec_keys
+        assert "length" in spec_keys
+
     async def test_get_common_specification_keys_with_limit(
         self, async_session: AsyncSession, test_user: User
     ):
         """Test that limit parameter works correctly."""
         from src.items.repository import ItemRepository
 
-        # Create an item with many specifications
-        specs = {f"spec_{i}": f"value_{i}" for i in range(30)}
+        # Create an item with many specifications using array format
+        specs = [{"key": f"spec_{i}", "value": f"value_{i}"} for i in range(30)]
         item = Item(
             id=uuid.uuid4(),
             user_id=test_user.id,

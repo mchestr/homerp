@@ -1011,6 +1011,7 @@ export type {
   SharedInventoryResponse,
   SignupsTimeSeriesResponse,
   SimilarItemMatch,
+  Specification,
   SrcAdminSchemasTimeSeriesDataPoint,
   SrcItemsSchemasTimeSeriesDataPoint,
   SuggestItemLocationApiV1ItemsSuggestLocationPostData,

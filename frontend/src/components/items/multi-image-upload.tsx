@@ -374,12 +374,19 @@ export function MultiImageUpload({
       {uploadedImages.length > 0 && (
         <div className="flex items-center gap-2 overflow-x-auto pb-2">
           {uploadedImages.map((image) => (
-            <button
+            <div
               key={image.id}
-              type="button"
+              role="button"
+              tabIndex={0}
               onClick={() => setSelectedImageId(image.id)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setSelectedImageId(image.id);
+                }
+              }}
               className={cn(
-                "group relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-all",
+                "group relative h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 transition-all",
                 currentImage?.id === image.id
                   ? "border-primary ring-primary/20 ring-2"
                   : "hover:border-muted-foreground/50 border-transparent"
@@ -421,7 +428,7 @@ export function MultiImageUpload({
               >
                 <X className="h-3 w-3" />
               </button>
-            </button>
+            </div>
           ))}
 
           {/* Add more button */}
