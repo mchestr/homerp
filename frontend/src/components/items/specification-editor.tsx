@@ -205,7 +205,7 @@ export function SpecificationEditor({
                     variant="ghost"
                     size="icon"
                     onClick={() => handleRemove(index)}
-                    className="text-muted-foreground hover:text-destructive h-10 w-10 shrink-0"
+                    className="text-muted-foreground hover:text-destructive relative z-50 h-10 w-10 shrink-0"
                     data-testid={`remove-specification-${index}`}
                   >
                     <X className="h-4 w-4" />
