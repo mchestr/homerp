@@ -2,7 +2,7 @@ import json
 from difflib import SequenceMatcher
 from uuid import UUID
 
-from sqlalchemy import func, or_, select, text
+from sqlalchemy import String, func, or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy_utils import Ltree
@@ -206,12 +206,14 @@ class ItemRepository:
 
         if search:
             search_pattern = f"%{search}%"
-            # Search in name, description, and tags
+            # Search in name, description, tags, and attributes (specifications)
             query = query.where(
                 or_(
                     Item.name.ilike(search_pattern),
                     Item.description.ilike(search_pattern),
                     Item.tags.any(search),  # Exact tag match
+                    # Search within JSONB attributes (includes specifications)
+                    Item.attributes.cast(String).ilike(search_pattern),
                 )
             )
 
