@@ -95,25 +95,25 @@ class UserRepository:
                 await self.session.refresh(user)
             return user, False
 
-        # Create new user
-        user_data = UserCreate(
+        # Get signup credits setting before creating user
+        billing_settings = BillingSettingsService(self.session)
+        signup_credits = await billing_settings.get_signup_credits()
+
+        # Create new user with all initial values set atomically
+        user = User(
             email=email,
             name=name,
             avatar_url=avatar_url,
             oauth_provider=provider,
             oauth_id=oauth_id,
+            is_admin=bool(settings.admin_email and email == settings.admin_email),
+            free_credits_remaining=signup_credits,
+            free_credits_reset_at=None,  # No monthly resets
         )
-        user = await self.create(user_data)
+        self.session.add(user)
 
-        # Auto-admin: if email matches admin_email, make them admin
-        if settings.admin_email and email == settings.admin_email:
-            user.is_admin = True
-
-        # Grant signup credits to new user (or set to 0 if disabled)
-        billing_settings = BillingSettingsService(self.session)
-        signup_credits = await billing_settings.get_signup_credits()
-        user.free_credits_remaining = signup_credits
-        user.free_credits_reset_at = None  # No monthly resets
+        # Flush to get user.id for the transaction record
+        await self.session.flush()
 
         if signup_credits > 0:
             # Create transaction record for signup bonus

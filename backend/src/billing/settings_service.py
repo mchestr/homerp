@@ -1,6 +1,5 @@
 """Billing settings service for managing configurable billing parameters."""
 
-from datetime import UTC, datetime, timedelta
 from typing import Annotated
 from uuid import UUID
 
@@ -18,13 +17,10 @@ DEFAULT_SETTINGS = {
 
 
 class BillingSettingsService:
-    """Service for managing billing-related application settings with caching."""
+    """Service for managing billing-related application settings."""
 
     def __init__(self, session: AsyncSession):
         self.session = session
-        self._cache: dict[str, AppSetting] = {}
-        self._cache_expiry: datetime | None = None
-        self._cache_ttl = timedelta(minutes=5)
 
     async def get_all_settings(self) -> list[AppSetting]:
         """Get all billing settings records ordered by display name."""
@@ -41,20 +37,11 @@ class BillingSettingsService:
         return result.scalar_one_or_none()
 
     async def get_setting_by_key(self, setting_key: str) -> AppSetting | None:
-        """Get setting by key with caching.
-
-        Cache is shared across all settings and expires after 5 minutes.
-        """
-        now = datetime.now(UTC)
-
-        # Check if cache is valid
-        if self._cache_expiry is None or now > self._cache_expiry:
-            # Cache expired or not initialized - reload all settings
-            all_settings = await self.get_all_settings()
-            self._cache = {s.setting_key: s for s in all_settings}
-            self._cache_expiry = now + self._cache_ttl
-
-        return self._cache.get(setting_key)
+        """Get setting by key."""
+        result = await self.session.execute(
+            select(AppSetting).where(AppSetting.setting_key == setting_key)
+        )
+        return result.scalar_one_or_none()
 
     async def get_signup_credits(self) -> int:
         """Get the number of credits granted to new users.
@@ -73,7 +60,7 @@ class BillingSettingsService:
         display_name: str | None = None,
         description: str | None = None,
     ) -> AppSetting | None:
-        """Update a billing setting and invalidate cache.
+        """Update a billing setting.
 
         Raises:
             ValueError: If validation fails
@@ -97,15 +84,7 @@ class BillingSettingsService:
         await self.session.commit()
         await self.session.refresh(setting)
 
-        # Invalidate cache after update
-        self._invalidate_cache()
-
         return setting
-
-    def _invalidate_cache(self):
-        """Clear the cache to force reload on next access."""
-        self._cache.clear()
-        self._cache_expiry = None
 
 
 async def get_billing_settings_service(

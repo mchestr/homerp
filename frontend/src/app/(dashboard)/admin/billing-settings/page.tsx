@@ -63,8 +63,14 @@ function SettingsFormDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const parsedValue = formData.value_int
+      ? parseInt(formData.value_int, 10)
+      : undefined;
     const updateData: BillingSettingUpdate = {
-      value_int: formData.value_int ? parseInt(formData.value_int) : undefined,
+      value_int:
+        parsedValue !== undefined && !isNaN(parsedValue)
+          ? parsedValue
+          : undefined,
       display_name: formData.display_name,
       description: formData.description || undefined,
     };

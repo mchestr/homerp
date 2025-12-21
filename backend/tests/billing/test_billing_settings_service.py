@@ -141,41 +141,6 @@ class TestBillingSettingsService:
 
         assert result is None
 
-    async def test_cache_invalidation_on_update(
-        self, async_session: AsyncSession, app_setting: AppSetting
-    ):
-        """Test that cache is invalidated after update."""
-        service = BillingSettingsService(async_session)
-
-        # Populate cache
-        await service.get_setting_by_key("signup_credits")
-        assert len(service._cache) > 0
-        assert service._cache_expiry is not None
-
-        # Update settings
-        await service.update_setting(app_setting.id, value_int=20)
-
-        # Cache should be invalidated
-        assert len(service._cache) == 0
-        assert service._cache_expiry is None
-
-    async def test_cache_is_populated_on_first_access(
-        self, async_session: AsyncSession, app_settings: list[AppSetting]
-    ):
-        """Test that cache is populated on first access."""
-        service = BillingSettingsService(async_session)
-
-        # Cache should be empty initially
-        assert len(service._cache) == 0
-        assert service._cache_expiry is None
-
-        # Access settings
-        await service.get_setting_by_key("signup_credits")
-
-        # Cache should be populated with all settings
-        assert len(service._cache) == 2
-        assert service._cache_expiry is not None
-
     async def test_default_settings_has_signup_credits(self):
         """Test that DEFAULT_SETTINGS contains signup_credits."""
         assert "signup_credits" in DEFAULT_SETTINGS
