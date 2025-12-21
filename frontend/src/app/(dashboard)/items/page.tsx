@@ -960,7 +960,10 @@ export default function ItemsPage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-lg border sm:overflow-x-auto">
+            <div
+              className="rounded-lg border sm:overflow-x-auto"
+              data-testid="items-list-view"
+            >
               <table className="w-full">
                 <thead className="bg-muted/50 border-b">
                   <tr>
