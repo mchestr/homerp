@@ -345,7 +345,6 @@
     "classified": "分類済み",
     "createItemFromThis": "これからアイテムを作成",
     "image": "画像",
-    "viewDetails": "詳細を見る",
     "customPrompt": {
       "title": "カスタムAI指示",
       "description": "AIがアイテムをより良く識別できるよう、追加のコンテキストを提供してください。例えば、「ビンX,Y」のような命名規則や、アイテムに関する具体的な詳細を指定します。",

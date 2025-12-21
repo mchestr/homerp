@@ -387,7 +387,6 @@
     "classified": "Classified",
     "createItemFromThis": "Create Item from This",
     "image": "Image",
-    "viewDetails": "View Details",
     "customPrompt": {
       "title": "Custom AI Instructions",
       "description": "Provide additional context to help the AI better identify your item. For example, specify naming conventions like 'bin X,Y' or provide specific details about the item.",

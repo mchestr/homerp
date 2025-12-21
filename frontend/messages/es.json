@@ -345,7 +345,6 @@
     "classified": "Clasificado",
     "createItemFromThis": "Crear Artículo desde Esto",
     "image": "Imagen",
-    "viewDetails": "Ver Detalles",
     "customPrompt": {
       "title": "Instrucciones Personalizadas de IA",
       "description": "Proporciona contexto adicional para ayudar a la IA a identificar mejor tu artículo. Por ejemplo, especifica convenciones de nombres como 'contenedor X,Y' o proporciona detalles específicos sobre el artículo.",
