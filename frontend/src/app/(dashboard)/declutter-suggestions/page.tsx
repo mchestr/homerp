@@ -36,6 +36,7 @@ import {
 
 export default function DeclutterSuggestionsPage() {
   const t = useTranslations("declutterSuggestions");
+  const tCommon = useTranslations("common");
   const { toast } = useToast();
   const { refreshCredits } = useAuth();
 
@@ -456,7 +457,7 @@ export default function DeclutterSuggestionsPage() {
                       <CardTitle className="text-lg">{rec.item_name}</CardTitle>
                       <CardDescription className="flex flex-wrap items-center gap-2">
                         <span>
-                          {t("quantity")}: {rec.item_quantity}{" "}
+                          {tCommon("quantity")}: {rec.item_quantity}{" "}
                           {rec.item_quantity_unit}
                         </span>
                         {rec.item_price && (

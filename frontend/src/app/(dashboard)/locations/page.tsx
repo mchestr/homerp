@@ -764,7 +764,7 @@ export default function LocationsPage() {
                       if (location) openQRModal(location);
                     }}
                     className="hover:bg-accent rounded p-1"
-                    title={t("qrCode")}
+                    title={tCommon("qrCode")}
                     data-testid={`qr-button-${node.id}`}
                   >
                     <QrCode className="text-muted-foreground h-4 w-4" />
@@ -915,7 +915,7 @@ export default function LocationsPage() {
                         size="icon"
                         onClick={() => openQRModal(location)}
                         className="h-8 w-8"
-                        title={t("qrCode")}
+                        title={tCommon("qrCode")}
                         data-testid={`grid-qr-button-${location.id}`}
                       >
                         <QrCode className="h-4 w-4" />
@@ -1050,7 +1050,7 @@ export default function LocationsPage() {
                             variant="ghost"
                             size="icon"
                             onClick={() => openQRModal(location)}
-                            title={t("qrCode")}
+                            title={tCommon("qrCode")}
                             data-testid={`list-qr-button-${location.id}`}
                           >
                             <QrCode className="h-4 w-4" />

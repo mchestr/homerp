@@ -28,6 +28,7 @@ export function LabelPrintModal({
   items,
 }: LabelPrintModalProps) {
   const t = useTranslations("labels");
+  const tCommon = useTranslations("common");
   const [selectedSize, setSelectedSize] = useState<LabelSize>(LABEL_SIZES[0]);
   const [options, setOptions] = useState<LabelPrintOptions>(
     DEFAULT_LABEL_OPTIONS
@@ -267,7 +268,7 @@ export function LabelPrintModal({
                 )}
                 data-testid="toggle-qr-code"
               >
-                {t("qrCode")}
+                {tCommon("qrCode")}
               </button>
               <button
                 type="button"
@@ -328,7 +329,7 @@ export function LabelPrintModal({
               data-testid="label-download"
             >
               <Download className="mr-2 h-4 w-4" />
-              {t("download")}
+              {tCommon("download")}
             </Button>
             <Button
               variant="outline"
@@ -338,7 +339,7 @@ export function LabelPrintModal({
               data-testid="label-print"
             >
               <Printer className="mr-2 h-4 w-4" />
-              {t("print")}
+              {tCommon("print")}
             </Button>
           </div>
         </div>

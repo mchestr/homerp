@@ -985,7 +985,7 @@ export default function ItemsPage() {
                       {t("specifications")}
                     </th>
                     <th className="px-4 py-3 text-center text-sm font-medium whitespace-nowrap">
-                      {t("quantity")}
+                      {tCommon("quantity")}
                     </th>
                     <th className="hidden px-4 py-3 text-right text-sm font-medium whitespace-nowrap lg:table-cell">
                       {t("price")}

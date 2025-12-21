@@ -22,6 +22,7 @@ export function SimilarItemsDisplay({
   isUpdatingQuantity,
 }: SimilarItemsDisplayProps) {
   const t = useTranslations("similarItems");
+  const tCommon = useTranslations("common");
 
   if (items.length === 0) {
     return null;
@@ -82,7 +83,7 @@ export function SimilarItemsDisplay({
 
               <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
                 <span>
-                  {t("quantity")}: {item.quantity} {item.quantity_unit}
+                  {tCommon("quantity")}: {item.quantity} {item.quantity_unit}
                 </span>
                 {item.category && (
                   <>

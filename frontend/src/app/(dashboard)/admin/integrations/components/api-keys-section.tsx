@@ -424,11 +424,11 @@ export function APIKeysSection() {
                   <td className="px-4 py-3">
                     {key.is_active ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-200">
-                        <Check className="h-3 w-3" /> {t("active")}
+                        <Check className="h-3 w-3" /> {tCommon("active")}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-200">
-                        <X className="h-3 w-3" /> {t("inactive")}
+                        <X className="h-3 w-3" /> {tCommon("inactive")}
                       </span>
                     )}
                   </td>
@@ -496,11 +496,11 @@ export function APIKeysSection() {
               </div>
               {key.is_active ? (
                 <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-200">
-                  <Check className="h-3 w-3" /> {t("active")}
+                  <Check className="h-3 w-3" /> {tCommon("active")}
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-200">
-                  <X className="h-3 w-3" /> {t("inactive")}
+                  <X className="h-3 w-3" /> {tCommon("inactive")}
                 </span>
               )}
             </div>

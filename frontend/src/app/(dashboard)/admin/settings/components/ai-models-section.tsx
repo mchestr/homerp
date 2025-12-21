@@ -109,7 +109,7 @@ function SettingsFormDialog({
             </div>
             <div className="space-y-2">
               <Label htmlFor="display_name">
-                {t("displayName")} <span className="text-destructive">*</span>
+                {tCommon("displayName")} <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="display_name"
@@ -203,7 +203,7 @@ function SettingsFormDialog({
                 className="h-4 w-4 rounded border-gray-300"
                 data-testid="settings-active-checkbox"
               />
-              <Label htmlFor="is_active">{t("active")}</Label>
+              <Label htmlFor="is_active">{tCommon("active")}</Label>
             </div>
           </div>
           <DialogFooter>
@@ -221,7 +221,7 @@ function SettingsFormDialog({
               data-testid="settings-save-button"
             >
               {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t("saveChanges")}
+              {tCommon("saveChanges")}
             </Button>
           </DialogFooter>
         </form>
@@ -259,7 +259,7 @@ export function AIModelsSection() {
     },
     onError: (error: Error) => {
       toast({
-        title: t("updateFailed"),
+        title: tCommon("updateFailed"),
         description: error.message,
         variant: "destructive",
       });
@@ -292,12 +292,12 @@ export function AIModelsSection() {
             <thead>
               <tr className="text-muted-foreground border-b text-left text-sm">
                 <th className="px-4 py-3 font-medium">{t("operationType")}</th>
-                <th className="px-4 py-3 font-medium">{t("displayName")}</th>
+                <th className="px-4 py-3 font-medium">{tCommon("displayName")}</th>
                 <th className="px-4 py-3 font-medium">{t("modelName")}</th>
                 <th className="px-4 py-3 font-medium">{t("temperature")}</th>
                 <th className="px-4 py-3 font-medium">{t("maxTokens")}</th>
-                <th className="px-4 py-3 font-medium">{t("status")}</th>
-                <th className="px-4 py-3 font-medium">{t("lastUpdated")}</th>
+                <th className="px-4 py-3 font-medium">{tCommon("status")}</th>
+                <th className="px-4 py-3 font-medium">{tCommon("lastUpdated")}</th>
                 <th className="px-4 py-3 text-right font-medium">
                   {tCommon("actions")}
                 </th>
@@ -328,11 +328,11 @@ export function AIModelsSection() {
                   <td className="px-4 py-3">
                     {settings.is_active ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-200">
-                        <Check className="h-3 w-3" /> {t("active")}
+                        <Check className="h-3 w-3" /> {tCommon("active")}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-200">
-                        <X className="h-3 w-3" /> {t("inactive")}
+                        <X className="h-3 w-3" /> {tCommon("inactive")}
                       </span>
                     )}
                   </td>
@@ -386,11 +386,11 @@ export function AIModelsSection() {
               </div>
               {settings.is_active ? (
                 <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-200">
-                  <Check className="h-3 w-3" /> {t("active")}
+                  <Check className="h-3 w-3" /> {tCommon("active")}
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-200">
-                  <X className="h-3 w-3" /> {t("inactive")}
+                  <X className="h-3 w-3" /> {tCommon("inactive")}
                 </span>
               )}
             </div>

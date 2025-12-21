@@ -441,7 +441,7 @@ export default function CheckedOutItemsPage() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                {tCheckInOut("quantity")}
+                {tCommon("quantity")}
               </label>
               <input
                 type="number"

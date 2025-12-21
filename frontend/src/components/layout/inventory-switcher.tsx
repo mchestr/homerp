@@ -18,6 +18,7 @@ import { useInventory, SelectedInventory } from "@/context/inventory-context";
 
 export function InventorySwitcher() {
   const t = useTranslations("inventory");
+  const tCommon = useTranslations("common");
   const {
     selectedInventory,
     sharedInventories,
@@ -130,7 +131,7 @@ export function InventorySwitcher() {
                       {shared.owner.name || shared.owner.email}
                     </span>
                     <span className="text-muted-foreground text-xs">
-                      {t(shared.role)}
+                      {tCommon(shared.role)}
                     </span>
                   </div>
                   {isSelected && <Check className="text-primary h-4 w-4" />}
@@ -146,6 +147,7 @@ export function InventorySwitcher() {
 
 export function InventoryBanner() {
   const t = useTranslations("inventory");
+  const tCommon = useTranslations("common");
   const { selectedInventory, isViewingSharedInventory, canEdit } =
     useInventory();
 
@@ -163,7 +165,7 @@ export function InventoryBanner() {
         {t("viewingInventoryOf", { name: ownerName })}
       </span>
       <Badge variant={canEdit ? "default" : "secondary"} className="ml-auto">
-        {canEdit ? t("editor") : t("viewer")}
+        {canEdit ? tCommon("editor") : tCommon("viewer")}
       </Badge>
     </div>
   );
