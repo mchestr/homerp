@@ -293,13 +293,17 @@ export default function AdminWebhooksPage() {
           <Link href="/admin/webhooks/logs" className="flex-1 sm:flex-none">
             <Button variant="outline" className="w-full">
               <History className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">{t("webhooks.executionLogs")}</span>
+              <span className="hidden sm:inline">
+                {t("webhooks.executionLogs")}
+              </span>
               <span className="sm:hidden">Logs</span>
             </Button>
           </Link>
           <Button onClick={openCreateDialog} className="flex-1 sm:flex-none">
             <Plus className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">{t("webhooks.createWebhook")}</span>
+            <span className="hidden sm:inline">
+              {t("webhooks.createWebhook")}
+            </span>
             <span className="sm:hidden">Create</span>
           </Button>
         </div>
@@ -415,7 +419,10 @@ export default function AdminWebhooksPage() {
                       {webhook.url}
                     </p>
                   </div>
-                  <Badge variant={getStatusBadgeVariant(webhook.is_active)} className="shrink-0">
+                  <Badge
+                    variant={getStatusBadgeVariant(webhook.is_active)}
+                    className="shrink-0"
+                  >
                     {webhook.is_active
                       ? t("webhooks.isActive")
                       : t("webhooks.isInactive")}

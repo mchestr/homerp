@@ -362,7 +362,11 @@ export default function ItemsPage() {
                   <span className="hidden sm:inline">{t("batchUpload")}</span>
                 </Button>
               </Link>
-              <Link href="/items/new" data-testid="add-item-button" className="flex-1 sm:flex-none">
+              <Link
+                href="/items/new"
+                data-testid="add-item-button"
+                className="flex-1 sm:flex-none"
+              >
                 <Button className="w-full">
                   <Plus className="mr-2 h-4 w-4" />
                   {t("addItem")}
@@ -491,7 +495,11 @@ export default function ItemsPage() {
                 className="bg-background focus:border-primary focus:ring-primary/20 h-10 w-full rounded-lg border pr-4 pl-10 text-sm transition-colors focus:ring-2 focus:outline-hidden"
               />
             </div>
-            <Button type="submit" variant="secondary" className="shrink-0 px-3 sm:px-4">
+            <Button
+              type="submit"
+              variant="secondary"
+              className="shrink-0 px-3 sm:px-4"
+            >
               <Search className="h-4 w-4 sm:hidden" />
               <span className="hidden sm:inline">{tCommon("search")}</span>
             </Button>
@@ -954,7 +962,10 @@ export default function ItemsPage() {
           ) : (
             <div
               className="-mx-4 overflow-x-auto rounded-lg border md:mx-0"
-              style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x pan-y' }}
+              style={{
+                WebkitOverflowScrolling: "touch",
+                touchAction: "pan-x pan-y",
+              }}
               data-testid="items-list-view"
             >
               <table className="w-full min-w-[640px]">

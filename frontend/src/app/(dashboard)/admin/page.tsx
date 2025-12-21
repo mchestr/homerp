@@ -296,7 +296,9 @@ export default function AdminPage() {
             {/* User Signups */}
             <div className="bg-card overflow-hidden rounded-xl border">
               <div className="border-b px-4 py-3 sm:px-5 sm:py-4">
-                <h2 className="text-sm font-medium sm:text-base">{t("admin.charts.userSignups")}</h2>
+                <h2 className="text-sm font-medium sm:text-base">
+                  {t("admin.charts.userSignups")}
+                </h2>
                 <p className="text-muted-foreground text-xs sm:text-sm">
                   {signupsData
                     ? `${signupsData.period_signups} ${t("admin.stats.newUsers")} · ${signupsData.period_label}`
