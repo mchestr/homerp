@@ -616,6 +616,15 @@ async def attach_image_to_item(
             detail="Image not found",
         )
 
+    # Validate item ownership to prevent IDOR attacks
+    try:
+        await repo.validate_item_ownership(item_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Item not found",
+        )
+
     # Check if item already has maximum number of images
     current_count = await repo.count_by_item(item_id)
     if current_count >= settings.max_images_per_item:
@@ -694,6 +703,15 @@ async def attach_image_to_location(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Image not found",
+        )
+
+    # Validate location ownership to prevent IDOR attacks
+    try:
+        await repo.validate_location_ownership(location_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Location not found",
         )
 
     image = await repo.attach_to_location(image, location_id, is_primary)

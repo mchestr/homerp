@@ -325,3 +325,51 @@ async def multiple_purchase_transactions(
     for txn in transactions:
         await async_session.refresh(txn)
     return transactions
+
+
+@pytest.fixture
+async def second_user_transaction(
+    async_session: AsyncSession,
+    second_user: User,
+    credit_pack: CreditPack,
+) -> CreditTransaction:
+    """Create a transaction for second_user to test isolation."""
+    transaction = CreditTransaction(
+        id=uuid.uuid4(),
+        user_id=second_user.id,
+        amount=50,
+        transaction_type="purchase",
+        description="Second User Purchase (50 credits)",
+        credit_pack_id=credit_pack.id,
+        stripe_payment_intent_id="pi_second_user_test",
+        stripe_checkout_session_id="cs_second_user_test",
+        is_refunded=False,
+    )
+    async_session.add(transaction)
+    await async_session.commit()
+    await async_session.refresh(transaction)
+    return transaction
+
+
+@pytest.fixture
+async def test_user_transaction(
+    async_session: AsyncSession,
+    test_user: User,
+    credit_pack: CreditPack,
+) -> CreditTransaction:
+    """Create a transaction for test_user."""
+    transaction = CreditTransaction(
+        id=uuid.uuid4(),
+        user_id=test_user.id,
+        amount=25,
+        transaction_type="purchase",
+        description="Test User Purchase (25 credits)",
+        credit_pack_id=credit_pack.id,
+        stripe_payment_intent_id="pi_test_user_test",
+        stripe_checkout_session_id="cs_test_user_test",
+        is_refunded=False,
+    )
+    async_session.add(transaction)
+    await async_session.commit()
+    await async_session.refresh(transaction)
+    return transaction

@@ -70,6 +70,20 @@ client.interceptors.request.use((request) => {
 });
 
 // =============================================================================
+// Error Interceptor - Attach HTTP status to error objects
+// =============================================================================
+
+client.interceptors.error.use((error, response) => {
+  // When throwOnError is true, @hey-api throws the parsed JSON body.
+  // We need to attach the HTTP status code so error handlers can check it.
+  // The response object contains the status code.
+  if (response && typeof error === "object" && error !== null) {
+    (error as Record<string, unknown>).status = response.status;
+  }
+  return error;
+});
+
+// =============================================================================
 // Re-export configured client
 // =============================================================================
 
