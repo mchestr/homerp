@@ -920,10 +920,10 @@ async def get_item_usage_stats(
 async def delete_item(
     item_id: UUID,
     session: AsyncSessionDep,
-    user_id: CurrentUserIdDep,
+    inventory_owner_id: EditableInventoryContextDep,
 ) -> None:
     """Delete an item."""
-    repo = ItemRepository(session, user_id)
+    repo = ItemRepository(session, inventory_owner_id)
     item = await repo.get_by_id(item_id)
     if not item:
         raise HTTPException(

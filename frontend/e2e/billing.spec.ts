@@ -183,11 +183,14 @@ test.describe("Insufficient Credits Modal", () => {
     const modal = page.getByRole("dialog");
     await expect(modal).toBeVisible({ timeout: 5000 });
 
-    // Click on the overlay (Radix dialog overlay that covers the backdrop)
-    // Using force: true ensures the click is dispatched even if the element
-    // is covered by another element, which is more reliable than coordinates
-    const overlay = page.locator("[data-radix-dialog-overlay]");
-    await overlay.click({ force: true });
+    // The InsufficientCreditsModal is a custom modal (not Radix Dialog).
+    // The backdrop is the dialog element itself with onClick handler.
+    // Click in the corner area which is outside the centered modal content.
+    const dialogBox = await modal.boundingBox();
+    if (dialogBox) {
+      // Click near the top-left corner, which is on the backdrop
+      await page.mouse.click(dialogBox.x + 10, dialogBox.y + 10);
+    }
 
     // Modal should be dismissed
     await expect(modal).not.toBeVisible();
