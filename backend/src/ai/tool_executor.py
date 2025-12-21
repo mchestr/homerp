@@ -20,6 +20,19 @@ from src.locations.models import Location
 logger = logging.getLogger(__name__)
 
 
+def _escape_like_pattern(value: str) -> str:
+    r"""Escape special characters in a LIKE pattern to prevent SQL injection.
+
+    LIKE patterns treat %, _, and \ as special characters:
+    - % matches any sequence of characters
+    - _ matches any single character
+    - \ is the escape character
+
+    This function escapes these to be treated as literal characters.
+    """
+    return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
+
 class ToolExecutor:
     """Executes AI tool calls against the user's inventory."""
 
@@ -98,13 +111,16 @@ class ToolExecutor:
         # Get category ID from name if provided
         category_id = None
         if category_name := args.get("category_name"):
+            safe_category_name = _escape_like_pattern(category_name)
             cat_result = await self.session.execute(
                 select(Category.id)
                 .where(
                     Category.user_id == self.user_id,
                     or_(
-                        Category.name.ilike(f"%{category_name}%"),
-                        Category.path.cast(str).ilike(f"%{category_name}%"),
+                        Category.name.ilike(f"%{safe_category_name}%", escape="\\"),
+                        Category.path.cast(str).ilike(
+                            f"%{safe_category_name}%", escape="\\"
+                        ),
                     ),
                 )
                 .limit(1)
@@ -116,13 +132,16 @@ class ToolExecutor:
         # Get location ID from name if provided
         location_id = None
         if location_name := args.get("location_name"):
+            safe_location_name = _escape_like_pattern(location_name)
             loc_result = await self.session.execute(
                 select(Location.id)
                 .where(
                     Location.user_id == self.user_id,
                     or_(
-                        Location.name.ilike(f"%{location_name}%"),
-                        Location.path.cast(str).ilike(f"%{location_name}%"),
+                        Location.name.ilike(f"%{safe_location_name}%", escape="\\"),
+                        Location.path.cast(str).ilike(
+                            f"%{safe_location_name}%", escape="\\"
+                        ),
                     ),
                 )
                 .limit(1)

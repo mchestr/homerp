@@ -2,6 +2,8 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.ai.schemas import (
     AssistantQueryRequest,
@@ -32,6 +34,18 @@ router = APIRouter()
 
 # Maximum number of items to include in context
 MAX_ITEMS_IN_CONTEXT = 100
+
+
+async def _set_rls_context(session: AsyncSession, user_id: UUID) -> None:
+    """Set the PostgreSQL session variable for Row Level Security.
+
+    This enables RLS policies on ai_conversation_sessions and ai_conversation_messages
+    tables to filter data by user_id.
+    """
+    await session.execute(
+        text("SET LOCAL app.current_user_id = :user_id"),
+        {"user_id": str(user_id)},
+    )
 
 
 async def _build_inventory_context(
@@ -194,6 +208,7 @@ async def create_session(
 
     Sessions store conversation history for persistent chat with the AI assistant.
     """
+    await _set_rls_context(session, user_id)
     repo = AISessionRepository(session, user_id)
     title = data.title or "New Conversation"
     session_obj = await repo.create_session(title)
@@ -220,30 +235,29 @@ async def list_sessions(
 
     Returns sessions ordered by most recently updated first.
     """
+    await _set_rls_context(session, user_id)
     repo = AISessionRepository(session, user_id)
     offset = (page - 1) * limit
 
-    sessions = await repo.list_sessions(
+    # Use optimized query that fetches sessions with message counts in one query
+    sessions_with_counts = await repo.list_sessions_with_counts(
         active_only=active_only,
         limit=limit,
         offset=offset,
     )
     total = await repo.count_sessions(active_only=active_only)
 
-    # Get message counts for each session
-    session_responses = []
-    for sess in sessions:
-        msg_count = await repo.get_message_count(sess.id)
-        session_responses.append(
-            SessionResponse(
-                id=sess.id,
-                title=sess.title,
-                is_active=sess.is_active,
-                created_at=sess.created_at,
-                updated_at=sess.updated_at,
-                message_count=msg_count,
-            )
+    session_responses = [
+        SessionResponse(
+            id=sess.id,
+            title=sess.title,
+            is_active=sess.is_active,
+            created_at=sess.created_at,
+            updated_at=sess.updated_at,
+            message_count=msg_count,
         )
+        for sess, msg_count in sessions_with_counts
+    ]
 
     return SessionListResponse(
         sessions=session_responses,
@@ -260,6 +274,7 @@ async def get_session(
     user_id: CurrentUserIdDep,
 ) -> SessionDetailResponse:
     """Get a session with its full message history."""
+    await _set_rls_context(session, user_id)
     repo = AISessionRepository(session, user_id)
     session_obj = await repo.get_session(session_id)
 
@@ -301,6 +316,7 @@ async def update_session(
     user_id: CurrentUserIdDep,
 ) -> SessionResponse:
     """Update a session's title."""
+    await _set_rls_context(session, user_id)
     repo = AISessionRepository(session, user_id)
     session_obj = await repo.update_session_title(session_id, data.title)
 
@@ -333,6 +349,7 @@ async def delete_session(
 
     By default, sessions are archived (soft delete). Set permanent=true to permanently delete.
     """
+    await _set_rls_context(session, user_id)
     repo = AISessionRepository(session, user_id)
 
     if permanent:
@@ -389,6 +406,8 @@ async def chat_with_tools(
             detail=f"Insufficient credits. You need {operation_cost} credits for AI assistant queries.",
         )
 
+    # Set RLS context for session and message access
+    await _set_rls_context(session, user_id)
     session_repo = AISessionRepository(session, user_id)
     tool_executor = ToolExecutor(session, user_id)
 
@@ -403,8 +422,9 @@ async def chat_with_tools(
             )
     else:
         # Create new session with first message as title (truncated)
+        # Use commit=False for atomicity - will commit at the end with other changes
         title = data.prompt[:50] + "..." if len(data.prompt) > 50 else str(data.prompt)
-        session_obj = await session_repo.create_session(title)
+        session_obj = await session_repo.create_session(title, commit=False)
         session_id = session_obj.id
 
     try:
@@ -422,11 +442,11 @@ async def chat_with_tools(
             tool_executor=tool_executor,
         )
 
-        # Persist new messages to session
+        # Persist new messages to session (commit=False for atomicity)
         saved_messages = []
         if new_messages:
             saved_messages = await session_repo.add_messages_batch(
-                session_id, new_messages
+                session_id, new_messages, commit=False
             )
 
         # Extract tools used from new messages

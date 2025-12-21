@@ -18,11 +18,14 @@ class AISessionRepository:
         self.session = session
         self.user_id = user_id
 
-    async def create_session(self, title: str) -> AIConversationSession:
+    async def create_session(
+        self, title: str, *, commit: bool = True
+    ) -> AIConversationSession:
         """Create a new conversation session.
 
         Args:
             title: Title for the session
+            commit: Whether to commit the transaction (default True)
 
         Returns:
             The created session
@@ -32,7 +35,10 @@ class AISessionRepository:
             title=title,
         )
         self.session.add(session_obj)
-        await self.session.commit()
+        if commit:
+            await self.session.commit()
+        else:
+            await self.session.flush()
         await self.session.refresh(session_obj)
         return session_obj
 
@@ -84,6 +90,46 @@ class AISessionRepository:
         )
         result = await self.session.execute(query)
         return list(result.scalars().all())
+
+    async def list_sessions_with_counts(
+        self,
+        active_only: bool = True,
+        limit: int = 20,
+        offset: int = 0,
+    ) -> list[tuple[AIConversationSession, int]]:
+        """List user's sessions with message counts in a single query.
+
+        This avoids N+1 queries by using a subquery for message counts.
+
+        Args:
+            active_only: Only return active sessions
+            limit: Maximum number of sessions to return
+            offset: Number of sessions to skip
+
+        Returns:
+            List of tuples (session, message_count)
+        """
+        # Subquery for message count
+        message_count_subq = (
+            select(func.count(AIConversationMessage.id))
+            .where(AIConversationMessage.session_id == AIConversationSession.id)
+            .correlate(AIConversationSession)
+            .scalar_subquery()
+        )
+
+        query = select(AIConversationSession, message_count_subq).where(
+            AIConversationSession.user_id == self.user_id
+        )
+        if active_only:
+            query = query.where(AIConversationSession.is_active.is_(True))
+
+        query = (
+            query.order_by(AIConversationSession.updated_at.desc())
+            .offset(offset)
+            .limit(limit)
+        )
+        result = await self.session.execute(query)
+        return [(row[0], row[1]) for row in result.all()]
 
     async def count_sessions(self, active_only: bool = True) -> int:
         """Count user's sessions.
@@ -221,12 +267,15 @@ class AISessionRepository:
         self,
         session_id: UUID,
         messages: list[dict[str, Any]],
+        *,
+        commit: bool = True,
     ) -> list[AIConversationMessage]:
         """Add multiple messages to a session efficiently.
 
         Args:
             session_id: UUID of the session
             messages: List of message dicts with role, content, etc.
+            commit: Whether to commit the transaction (default True)
 
         Returns:
             List of created messages
@@ -252,7 +301,10 @@ class AISessionRepository:
         if session_obj:
             session_obj.updated_at = datetime.now(UTC)
 
-        await self.session.commit()
+        if commit:
+            await self.session.commit()
+        else:
+            await self.session.flush()
         for msg in created_messages:
             await self.session.refresh(msg)
 
