@@ -259,7 +259,7 @@ export default function CollaborationSettingsPage() {
                         <SelectContent>
                           <SelectItem value="viewer">
                             <div className="flex flex-col">
-                              <span>{t("viewer")}</span>
+                              <span>{tCommon("viewer")}</span>
                               <span className="text-muted-foreground text-xs">
                                 {t("viewerDescription")}
                               </span>
@@ -267,7 +267,7 @@ export default function CollaborationSettingsPage() {
                           </SelectItem>
                           <SelectItem value="editor">
                             <div className="flex flex-col">
-                              <span>{t("editor")}</span>
+                              <span>{tCommon("editor")}</span>
                               <span className="text-muted-foreground text-xs">
                                 {t("editorDescription")}
                               </span>
@@ -354,7 +354,7 @@ export default function CollaborationSettingsPage() {
                         >
                           {t(collab.status)}
                         </Badge>
-                        <Badge variant="outline">{t(collab.role)}</Badge>
+                        <Badge variant="outline">{tCommon(collab.role)}</Badge>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -406,7 +406,7 @@ export default function CollaborationSettingsPage() {
                           {invitation.owner.name || invitation.owner.email}
                         </p>
                         <p className="text-muted-foreground text-sm">
-                          {t("role")}: {t(invitation.role)}
+                          {t("role")}: {tCommon(invitation.role)}
                         </p>
                       </div>
                     </div>
@@ -487,7 +487,7 @@ export default function CollaborationSettingsPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline">{t(shared.role)}</Badge>
+                        <Badge variant="outline">{tCommon(shared.role)}</Badge>
                         <Button
                           variant="ghost"
                           size="sm"

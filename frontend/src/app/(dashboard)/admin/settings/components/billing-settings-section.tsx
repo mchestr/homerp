@@ -99,7 +99,8 @@ function SettingsFormDialog({
             </div>
             <div className="space-y-2">
               <Label htmlFor="display_name">
-                {t("displayName")} <span className="text-destructive">*</span>
+                {tCommon("displayName")}{" "}
+                <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="display_name"
@@ -156,7 +157,7 @@ function SettingsFormDialog({
               data-testid="settings-save-button"
             >
               {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t("saveChanges")}
+              {tCommon("saveChanges")}
             </Button>
           </DialogFooter>
         </form>
@@ -195,7 +196,7 @@ export function BillingSettingsSection() {
     },
     onError: (error: Error) => {
       toast({
-        title: t("updateFailed"),
+        title: tCommon("updateFailed"),
         description: error.message,
         variant: "destructive",
       });
@@ -228,10 +229,16 @@ export function BillingSettingsSection() {
             <thead>
               <tr className="text-muted-foreground border-b text-left text-sm">
                 <th className="px-4 py-3 font-medium">{t("settingKey")}</th>
-                <th className="px-4 py-3 font-medium">{t("displayName")}</th>
-                <th className="px-4 py-3 font-medium">{t("value")}</th>
-                <th className="px-4 py-3 font-medium">{t("description")}</th>
-                <th className="px-4 py-3 font-medium">{t("lastUpdated")}</th>
+                <th className="px-4 py-3 font-medium">
+                  {tCommon("displayName")}
+                </th>
+                <th className="px-4 py-3 font-medium">{tCommon("value")}</th>
+                <th className="px-4 py-3 font-medium">
+                  {tCommon("description")}
+                </th>
+                <th className="px-4 py-3 font-medium">
+                  {tCommon("lastUpdated")}
+                </th>
                 <th className="px-4 py-3 text-right font-medium">
                   {tCommon("actions")}
                 </th>

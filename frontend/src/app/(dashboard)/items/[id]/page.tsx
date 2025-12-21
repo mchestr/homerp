@@ -1030,7 +1030,7 @@ export default function ItemDetailPage() {
                 <div className="mt-4 space-y-4">
                   <div className="flex items-center gap-2">
                     <label className="text-muted-foreground w-20 text-sm">
-                      {t("quantity")}
+                      {tCommon("quantity")}
                     </label>
                     <Input
                       type="number"

@@ -160,7 +160,7 @@ export default function LocationDetailPage() {
             data-testid="generate-qr-button"
           >
             <QrCode className="mr-2 h-4 w-4" />
-            {t("qrCode")}
+            {tCommon("qrCode")}
           </Button>
           <Button variant="outline" asChild>
             <Link href={`/locations?edit=${location.id}`}>

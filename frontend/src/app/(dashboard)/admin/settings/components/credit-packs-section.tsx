@@ -222,7 +222,7 @@ function PackFormDialog({
                   }
                   className="h-4 w-4 rounded border-gray-300"
                 />
-                <Label htmlFor="is_active">{t("active")}</Label>
+                <Label htmlFor="is_active">{tCommon("active")}</Label>
               </div>
             </div>
           </div>
@@ -326,7 +326,7 @@ export function CreditPacksSection() {
                 <th className="px-4 py-3 font-medium">{t("credits")}</th>
                 <th className="px-4 py-3 font-medium">{t("price")}</th>
                 <th className="px-4 py-3 font-medium">{t("stripePriceId")}</th>
-                <th className="px-4 py-3 font-medium">{t("status")}</th>
+                <th className="px-4 py-3 font-medium">{tCommon("status")}</th>
                 <th className="px-4 py-3 font-medium">{t("order")}</th>
                 <th className="px-4 py-3 text-right font-medium">
                   {tCommon("actions")}
@@ -345,11 +345,11 @@ export function CreditPacksSection() {
                   <td className="px-4 py-3">
                     {pack.is_active ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-200">
-                        <Check className="h-3 w-3" /> {t("active")}
+                        <Check className="h-3 w-3" /> {tCommon("active")}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-200">
-                        <X className="h-3 w-3" /> {t("inactive")}
+                        <X className="h-3 w-3" /> {tCommon("inactive")}
                       </span>
                     )}
                   </td>
@@ -403,11 +403,11 @@ export function CreditPacksSection() {
               </div>
               {pack.is_active ? (
                 <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-200">
-                  <Check className="h-3 w-3" /> {t("active")}
+                  <Check className="h-3 w-3" /> {tCommon("active")}
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-200">
-                  <X className="h-3 w-3" /> {t("inactive")}
+                  <X className="h-3 w-3" /> {tCommon("inactive")}
                 </span>
               )}
             </div>

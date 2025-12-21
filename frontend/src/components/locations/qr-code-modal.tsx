@@ -21,6 +21,7 @@ const SIZE_OPTIONS = [
 
 export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
   const t = useTranslations("locations");
+  const tCommon = useTranslations("common");
   const [size, setSize] = useState(10);
   const [qrUrl, setQrUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -151,7 +152,7 @@ export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
           <div className="flex items-center gap-2">
             <QrCode className="text-primary h-5 w-5" />
             <h2 id="qr-modal-title" className="text-lg font-semibold">
-              {t("qrCode")}
+              {tCommon("qrCode")}
             </h2>
           </div>
           <button
@@ -223,7 +224,7 @@ export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
             disabled={!qrUrl || isLoading}
           >
             <Download className="mr-2 h-4 w-4" />
-            {t("download")}
+            {tCommon("download")}
           </Button>
           <Button
             variant="outline"
@@ -232,7 +233,7 @@ export function QRCodeModal({ isOpen, onClose, location }: QRCodeModalProps) {
             disabled={!qrUrl || isLoading}
           >
             <Printer className="mr-2 h-4 w-4" />
-            {t("print")}
+            {tCommon("print")}
           </Button>
         </div>
       </div>
