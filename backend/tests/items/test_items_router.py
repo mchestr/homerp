@@ -317,7 +317,7 @@ class TestSearchItemsEndpoint:
     ):
         """Test searching items."""
         response = await authenticated_client.get(
-            "/api/v1/items/search", params={"q": "Multi"}
+            "/api/v1/items/search", params={"q": "Multimeter"}
         )
 
         assert response.status_code == 200
@@ -339,6 +339,115 @@ class TestSearchItemsEndpoint:
         response = await authenticated_client.get("/api/v1/items/search")
 
         assert response.status_code == 422
+
+
+class TestFullTextSearchEndpoint:
+    """Tests for full-text search functionality.
+
+    These tests verify that the search correctly handles word-based queries
+    where words may appear in different order or require stemming.
+    """
+
+    @pytest.fixture
+    async def filament_item(
+        self,
+        async_session: AsyncSession,
+        test_user: User,
+        test_category: Category,
+    ) -> Item:
+        """Create a test filament item for FTS tests."""
+        item = Item(
+            id=uuid.uuid4(),
+            user_id=test_user.id,
+            name="Bambu Lab PLA Basic Filament - Black",
+            description="High quality PLA filament for 3D printing",
+            quantity=3,
+            category_id=test_category.id,
+            attributes={"specifications": [{"key": "color", "value": "black"}]},
+            tags=["3d-printing", "filament"],
+        )
+        async_session.add(item)
+        await async_session.commit()
+        await async_session.refresh(item)
+        return item
+
+    async def test_search_words_different_order(
+        self, authenticated_client: AsyncClient, filament_item: Item
+    ):
+        """Test that 'black filament' finds 'Filament - Black'."""
+        response = await authenticated_client.get(
+            "/api/v1/items/search", params={"q": "black filament"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) >= 1
+        assert any(item["name"] == filament_item.name for item in data)
+
+    async def test_search_partial_name_words(
+        self, authenticated_client: AsyncClient, filament_item: Item
+    ):
+        """Test that 'pla basic' finds 'PLA Basic Filament'."""
+        response = await authenticated_client.get(
+            "/api/v1/items/search", params={"q": "pla basic"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) >= 1
+        assert any(item["name"] == filament_item.name for item in data)
+
+    async def test_search_brand_name(
+        self, authenticated_client: AsyncClient, filament_item: Item
+    ):
+        """Test that 'bambu lab' finds 'Bambu Lab PLA...'."""
+        response = await authenticated_client.get(
+            "/api/v1/items/search", params={"q": "bambu lab"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) >= 1
+        assert any(item["name"] == filament_item.name for item in data)
+
+    async def test_search_description_words(
+        self, authenticated_client: AsyncClient, filament_item: Item
+    ):
+        """Test that search finds items by description words."""
+        response = await authenticated_client.get(
+            "/api/v1/items/search", params={"q": "3D printing quality"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) >= 1
+        assert any(item["name"] == filament_item.name for item in data)
+
+    async def test_search_case_insensitive(
+        self, authenticated_client: AsyncClient, filament_item: Item
+    ):
+        """Test that search is case-insensitive."""
+        response = await authenticated_client.get(
+            "/api/v1/items/search", params={"q": "BAMBU LAB BLACK"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) >= 1
+        assert any(item["name"] == filament_item.name for item in data)
+
+    async def test_list_items_search_word_based(
+        self, authenticated_client: AsyncClient, filament_item: Item
+    ):
+        """Test that the list endpoint search also uses FTS."""
+        response = await authenticated_client.get(
+            "/api/v1/items", params={"search": "black filament"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total"] >= 1
+        assert any(item["name"] == filament_item.name for item in data["items"])
 
 
 class TestLowStockEndpoint:

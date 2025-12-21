@@ -2,7 +2,7 @@ import json
 from difflib import SequenceMatcher
 from uuid import UUID
 
-from sqlalchemy import String, func, or_, select, text
+from sqlalchemy import func, or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy_utils import Ltree
@@ -205,16 +205,10 @@ class ItemRepository:
                 query = query.where(Item.location_id == location_id)
 
         if search:
-            search_pattern = f"%{search}%"
-            # Search in name, description, tags, and attributes (specifications)
+            # Use PostgreSQL full-text search for word-based matching
+            # plainto_tsquery handles multi-word queries and common words
             query = query.where(
-                or_(
-                    Item.name.ilike(search_pattern),
-                    Item.description.ilike(search_pattern),
-                    Item.tags.any(search),  # Exact tag match
-                    # Search within JSONB attributes (includes specifications)
-                    Item.attributes.cast(String).ilike(search_pattern),
-                )
+                Item.search_vector.op("@@")(func.plainto_tsquery("english", search))
             )
 
         # Filter by tags (items must have ALL specified tags)
@@ -297,15 +291,9 @@ class ItemRepository:
                 query = query.where(Item.location_id == location_id)
 
         if search:
-            search_pattern = f"%{search}%"
+            # Use PostgreSQL full-text search for word-based matching
             query = query.where(
-                or_(
-                    Item.name.ilike(search_pattern),
-                    Item.description.ilike(search_pattern),
-                    Item.tags.any(search),
-                    # Search within JSONB attributes (includes specifications)
-                    Item.attributes.cast(String).ilike(search_pattern),
-                )
+                Item.search_vector.op("@@")(func.plainto_tsquery("english", search))
             )
 
         if tags:
@@ -539,19 +527,14 @@ class ItemRepository:
         return updated_ids
 
     async def search(self, query: str, limit: int = 20) -> list[Item]:
-        """Search items by name, description, tags, or specifications."""
-        search_pattern = f"%{query}%"
+        """Search items by name, description, tags, or specifications.
+
+        Uses PostgreSQL full-text search for word-based matching.
+        Supports multi-word queries where words can appear in any order.
+        """
         result = await self.session.execute(
             self._base_query()
-            .where(
-                or_(
-                    Item.name.ilike(search_pattern),
-                    Item.description.ilike(search_pattern),
-                    Item.tags.any(query),
-                    # Search within JSONB attributes (includes specifications)
-                    Item.attributes.cast(String).ilike(search_pattern),
-                )
-            )
+            .where(Item.search_vector.op("@@")(func.plainto_tsquery("english", query)))
             .order_by(Item.name)
             .limit(limit)
         )
