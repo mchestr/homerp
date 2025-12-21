@@ -43,30 +43,26 @@ test.describe("Item Edit - Specifications", () => {
         page.getByRole("heading", { name: /edit item/i })
       ).toBeVisible();
 
-      // Verify existing specifications are displayed
-      await expect(page.getByTestId("specification-key-voltage")).toBeVisible();
-      await expect(page.getByTestId("specification-key-voltage")).toHaveValue(
+      // Verify existing specifications are displayed (using index-based selectors)
+      await expect(page.getByTestId("specification-key-0")).toBeVisible();
+      await expect(page.getByTestId("specification-key-0")).toHaveValue(
         "voltage"
       );
-      await expect(page.getByTestId("specification-value-voltage")).toHaveValue(
-        "5V"
-      );
+      await expect(page.getByTestId("specification-value-0")).toHaveValue("5V");
 
-      await expect(
-        page.getByTestId("specification-key-frequency")
-      ).toBeVisible();
-      await expect(page.getByTestId("specification-key-frequency")).toHaveValue(
+      await expect(page.getByTestId("specification-key-1")).toBeVisible();
+      await expect(page.getByTestId("specification-key-1")).toHaveValue(
         "frequency"
       );
-      await expect(
-        page.getByTestId("specification-value-frequency")
-      ).toHaveValue("16MHz");
+      await expect(page.getByTestId("specification-value-1")).toHaveValue(
+        "16MHz"
+      );
 
-      await expect(page.getByTestId("specification-key-memory")).toBeVisible();
-      await expect(page.getByTestId("specification-key-memory")).toHaveValue(
+      await expect(page.getByTestId("specification-key-2")).toBeVisible();
+      await expect(page.getByTestId("specification-key-2")).toHaveValue(
         "memory"
       );
-      await expect(page.getByTestId("specification-value-memory")).toHaveValue(
+      await expect(page.getByTestId("specification-value-2")).toHaveValue(
         "32KB"
       );
     });
@@ -110,32 +106,18 @@ test.describe("Item Edit - Specifications", () => {
         page.getByRole("heading", { name: /edit item/i })
       ).toBeVisible();
 
-      // Verify existing specification
-      await expect(page.getByTestId("specification-key-voltage")).toBeVisible();
+      // Verify existing specification (index 0)
+      await expect(page.getByTestId("specification-key-0")).toBeVisible();
 
       // Add new specification
       await page.getByTestId("add-specification-button").click();
 
-      // Find the newly added specification field (it will have a timestamp-based key)
-      const newSpecFields = page.locator(
-        '[data-testid^="specification-key-spec_"]'
-      );
-      await expect(newSpecFields).toHaveCount(1);
+      // The new field will be at index 1
+      await expect(page.getByTestId("specification-key-1")).toBeVisible();
 
-      const newSpecKey = await newSpecFields.getAttribute("data-testid");
-      const specKeyName = newSpecKey!.replace("specification-key-", "");
-
-      // Fill in the new specification key first
-      await page
-        .getByTestId(`specification-key-${specKeyName}`)
-        .fill("current");
-
-      // After changing the key, the data-testid updates to use the new key value
-      // Wait for the value field with the new key to be visible
-      await expect(
-        page.getByTestId("specification-value-current")
-      ).toBeVisible();
-      await page.getByTestId("specification-value-current").fill("40mA");
+      // Fill in the new specification
+      await page.getByTestId("specification-key-1").fill("current");
+      await page.getByTestId("specification-value-1").fill("40mA");
 
       // Save changes
       const responsePromise = page.waitForResponse(
@@ -197,15 +179,11 @@ test.describe("Item Edit - Specifications", () => {
         page.getByRole("heading", { name: /edit item/i })
       ).toBeVisible();
 
-      // Edit the key
-      await page
-        .getByTestId("specification-key-voltage")
-        .fill("operating_voltage");
+      // Edit the key (at index 0)
+      await page.getByTestId("specification-key-0").fill("operating_voltage");
 
-      // Edit the value
-      await page
-        .getByTestId("specification-value-operating_voltage")
-        .fill("5.0V");
+      // Edit the value (at index 0)
+      await page.getByTestId("specification-value-0").fill("5.0V");
 
       // Save changes
       const responsePromise = page.waitForResponse(
@@ -269,23 +247,17 @@ test.describe("Item Edit - Specifications", () => {
       ).toBeVisible();
 
       // Verify all specifications are present
-      await expect(page.getByTestId("specification-key-voltage")).toBeVisible();
-      await expect(page.getByTestId("specification-key-current")).toBeVisible();
-      await expect(
-        page.getByTestId("specification-key-frequency")
-      ).toBeVisible();
+      await expect(page.getByTestId("specification-key-0")).toBeVisible();
+      await expect(page.getByTestId("specification-key-1")).toBeVisible();
+      await expect(page.getByTestId("specification-key-2")).toBeVisible();
 
-      // Remove the "current" specification
-      await page.getByTestId("remove-specification-current").click();
+      // Remove the "current" specification (index 1)
+      await page.getByTestId("remove-specification-1").click();
 
-      // Verify specification is removed from UI
-      await expect(
-        page.getByTestId("specification-key-current")
-      ).not.toBeVisible();
-      await expect(page.getByTestId("specification-key-voltage")).toBeVisible();
-      await expect(
-        page.getByTestId("specification-key-frequency")
-      ).toBeVisible();
+      // Verify only 2 specifications remain
+      await expect(page.getByTestId("specification-key-0")).toBeVisible();
+      await expect(page.getByTestId("specification-key-1")).toBeVisible();
+      await expect(page.getByTestId("specification-key-2")).not.toBeVisible();
 
       // Save changes
       const responsePromise = page.waitForResponse(
@@ -360,19 +332,10 @@ test.describe("Item Edit - Specifications", () => {
 
       // Add a new specification
       await page.getByTestId("add-specification-button").click();
-      const newSpecFields = page.locator(
-        '[data-testid^="specification-key-spec_"]'
-      );
-      const newSpecKey = await newSpecFields.getAttribute("data-testid");
-      const specKeyName = newSpecKey!.replace("specification-key-", "");
+      await expect(page.getByTestId("specification-key-1")).toBeVisible();
 
-      await page
-        .getByTestId(`specification-key-${specKeyName}`)
-        .fill("frequency");
-      await expect(
-        page.getByTestId("specification-value-frequency")
-      ).toBeVisible();
-      await page.getByTestId("specification-value-frequency").fill("16MHz");
+      await page.getByTestId("specification-key-1").fill("frequency");
+      await page.getByTestId("specification-value-1").fill("16MHz");
 
       // Save
       await page.getByRole("button", { name: /save changes/i }).click();
@@ -385,16 +348,288 @@ test.describe("Item Edit - Specifications", () => {
       ).toBeVisible();
 
       // Verify both specifications are present
-      await expect(page.getByTestId("specification-key-voltage")).toBeVisible();
-      await expect(page.getByTestId("specification-value-voltage")).toHaveValue(
-        "5V"
+      await expect(page.getByTestId("specification-key-0")).toBeVisible();
+      await expect(page.getByTestId("specification-value-0")).toHaveValue("5V");
+      await expect(page.getByTestId("specification-key-1")).toBeVisible();
+      await expect(page.getByTestId("specification-value-1")).toHaveValue(
+        "16MHz"
       );
+    });
+  });
+
+  test.describe("Reordering specifications with drag and drop", () => {
+    test("can drag specification to a different position", async ({ page }) => {
+      const itemWithSpecs = {
+        ...fixtures.testItemDetail,
+        id: "item-reorder",
+        name: "Test Item",
+        attributes: {
+          specifications: {
+            voltage: "5V",
+            current: "40mA",
+            frequency: "16MHz",
+          },
+        },
+      };
+
+      await page.route("**/api/v1/items/item-reorder", async (route) => {
+        if (route.request().method() === "GET") {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify(itemWithSpecs),
+          });
+        } else if (route.request().method() === "PUT") {
+          const body = route.request().postDataJSON();
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              ...itemWithSpecs,
+              ...body,
+            }),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      await page.goto("/items/item-reorder/edit");
       await expect(
-        page.getByTestId("specification-key-frequency")
+        page.getByRole("heading", { name: /edit item/i })
       ).toBeVisible();
+
+      // Verify initial order: voltage, current, frequency
+      await expect(page.getByTestId("specification-key-0")).toHaveValue(
+        "voltage"
+      );
+      await expect(page.getByTestId("specification-key-1")).toHaveValue(
+        "current"
+      );
+      await expect(page.getByTestId("specification-key-2")).toHaveValue(
+        "frequency"
+      );
+
+      // Drag "current" (index 1) to the top (index 0)
+      const sourceRow = page.getByTestId("specification-row-1");
+      const targetRow = page.getByTestId("specification-row-0");
+
+      await sourceRow.dragTo(targetRow);
+
+      // Verify new order: current, voltage, frequency
+      await expect(page.getByTestId("specification-key-0")).toHaveValue(
+        "current"
+      );
+      await expect(page.getByTestId("specification-key-1")).toHaveValue(
+        "voltage"
+      );
+      await expect(page.getByTestId("specification-key-2")).toHaveValue(
+        "frequency"
+      );
+    });
+
+    test("can drag specification down", async ({ page }) => {
+      const itemWithSpecs = {
+        ...fixtures.testItemDetail,
+        id: "item-reorder",
+        name: "Test Item",
+        attributes: {
+          specifications: {
+            voltage: "5V",
+            current: "40mA",
+            frequency: "16MHz",
+          },
+        },
+      };
+
+      await page.route("**/api/v1/items/item-reorder", async (route) => {
+        if (route.request().method() === "GET") {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify(itemWithSpecs),
+          });
+        } else if (route.request().method() === "PUT") {
+          const body = route.request().postDataJSON();
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              ...itemWithSpecs,
+              ...body,
+            }),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      await page.goto("/items/item-reorder/edit");
       await expect(
-        page.getByTestId("specification-value-frequency")
-      ).toHaveValue("16MHz");
+        page.getByRole("heading", { name: /edit item/i })
+      ).toBeVisible();
+
+      // Verify initial order: voltage, current, frequency
+      await expect(page.getByTestId("specification-key-0")).toHaveValue(
+        "voltage"
+      );
+      await expect(page.getByTestId("specification-key-1")).toHaveValue(
+        "current"
+      );
+      await expect(page.getByTestId("specification-key-2")).toHaveValue(
+        "frequency"
+      );
+
+      // Drag "voltage" (index 0) to the bottom (index 2)
+      const sourceRow = page.getByTestId("specification-row-0");
+      const targetRow = page.getByTestId("specification-row-2");
+
+      await sourceRow.dragTo(targetRow);
+
+      // Verify new order: current, frequency, voltage
+      await expect(page.getByTestId("specification-key-0")).toHaveValue(
+        "current"
+      );
+      await expect(page.getByTestId("specification-key-1")).toHaveValue(
+        "frequency"
+      );
+      await expect(page.getByTestId("specification-key-2")).toHaveValue(
+        "voltage"
+      );
+    });
+
+    test("displays drag handle on each specification row", async ({ page }) => {
+      const itemWithSpecs = {
+        ...fixtures.testItemDetail,
+        id: "item-reorder",
+        name: "Test Item",
+        attributes: {
+          specifications: {
+            voltage: "5V",
+            current: "40mA",
+          },
+        },
+      };
+
+      await page.route("**/api/v1/items/item-reorder", async (route) => {
+        if (route.request().method() === "GET") {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify(itemWithSpecs),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      await page.goto("/items/item-reorder/edit");
+      await expect(
+        page.getByRole("heading", { name: /edit item/i })
+      ).toBeVisible();
+
+      // Verify drag handles are visible
+      await expect(page.getByTestId("drag-handle-0")).toBeVisible();
+      await expect(page.getByTestId("drag-handle-1")).toBeVisible();
+    });
+
+    test("reordering persists after save", async ({ page }) => {
+      const itemWithSpecs = {
+        ...fixtures.testItemDetail,
+        id: "item-reorder",
+        name: "Test Item",
+        attributes: {
+          specifications: {
+            voltage: "5V",
+            current: "40mA",
+            frequency: "16MHz",
+          },
+        },
+      };
+
+      let savedSpecs = {
+        voltage: "5V",
+        current: "40mA",
+        frequency: "16MHz",
+      };
+
+      await page.route("**/api/v1/items/item-reorder", async (route) => {
+        if (route.request().method() === "GET") {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              ...itemWithSpecs,
+              attributes: {
+                specifications: savedSpecs,
+              },
+            }),
+          });
+        } else if (route.request().method() === "PUT") {
+          const body = route.request().postDataJSON();
+          savedSpecs = body.attributes.specifications;
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              ...itemWithSpecs,
+              ...body,
+            }),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      await page.goto("/items/item-reorder/edit");
+      await expect(
+        page.getByRole("heading", { name: /edit item/i })
+      ).toBeVisible();
+
+      // Drag "current" to the top
+      const sourceRow = page.getByTestId("specification-row-1");
+      const targetRow = page.getByTestId("specification-row-0");
+      await sourceRow.dragTo(targetRow);
+
+      // Verify new order in UI
+      await expect(page.getByTestId("specification-key-0")).toHaveValue(
+        "current"
+      );
+      await expect(page.getByTestId("specification-key-1")).toHaveValue(
+        "voltage"
+      );
+
+      // Save
+      const responsePromise = page.waitForResponse(
+        "**/api/v1/items/item-reorder"
+      );
+      await page.getByRole("button", { name: /save changes/i }).click();
+      const response = await responsePromise;
+
+      // Verify the order in the saved data
+      const requestBody = response.request().postDataJSON();
+      const specKeys = Object.keys(requestBody.attributes.specifications);
+      expect(specKeys[0]).toBe("current");
+      expect(specKeys[1]).toBe("voltage");
+      expect(specKeys[2]).toBe("frequency");
+
+      await expect(page).toHaveURL("/items/item-reorder");
+
+      // Navigate back and verify order persisted
+      await page.goto("/items/item-reorder/edit");
+      await expect(
+        page.getByRole("heading", { name: /edit item/i })
+      ).toBeVisible();
+
+      await expect(page.getByTestId("specification-key-0")).toHaveValue(
+        "current"
+      );
+      await expect(page.getByTestId("specification-key-1")).toHaveValue(
+        "voltage"
+      );
+      await expect(page.getByTestId("specification-key-2")).toHaveValue(
+        "frequency"
+      );
     });
   });
 
@@ -474,19 +709,12 @@ test.describe("Item Edit - Specifications", () => {
       // Add first specification
       await page.getByTestId("add-specification-button").click();
 
-      // Find the newly added specification field
-      const newSpecFields = page.locator(
-        '[data-testid^="specification-key-spec_"]'
-      );
-      await expect(newSpecFields).toHaveCount(1);
-
-      const newSpecKey = await newSpecFields.getAttribute("data-testid");
-      const specKeyName = newSpecKey!.replace("specification-key-", "");
+      // The new field will be at index 0
+      await expect(page.getByTestId("specification-key-0")).toBeVisible();
 
       // Fill in the specification
-      await page.getByTestId(`specification-key-${specKeyName}`).fill("color");
-      await expect(page.getByTestId("specification-value-color")).toBeVisible();
-      await page.getByTestId("specification-value-color").fill("RGB");
+      await page.getByTestId("specification-key-0").fill("color");
+      await page.getByTestId("specification-value-0").fill("RGB");
 
       // Save changes
       const responsePromise = page.waitForResponse(
@@ -547,17 +775,10 @@ test.describe("Item Edit - Specifications", () => {
 
       // Add first specification
       await page.getByTestId("add-specification-button").click();
-      const newSpecFields = page.locator(
-        '[data-testid^="specification-key-spec_"]'
-      );
-      const newSpecKey = await newSpecFields.getAttribute("data-testid");
-      const specKeyName = newSpecKey!.replace("specification-key-", "");
+      await expect(page.getByTestId("specification-key-0")).toBeVisible();
 
-      await page.getByTestId(`specification-key-${specKeyName}`).fill("length");
-      await expect(
-        page.getByTestId("specification-value-length")
-      ).toBeVisible();
-      await page.getByTestId("specification-value-length").fill("5m");
+      await page.getByTestId("specification-key-0").fill("length");
+      await page.getByTestId("specification-value-0").fill("5m");
 
       // Save
       await page.getByRole("button", { name: /save changes/i }).click();
@@ -570,10 +791,8 @@ test.describe("Item Edit - Specifications", () => {
       ).toBeVisible();
 
       // Verify specification persisted
-      await expect(page.getByTestId("specification-key-length")).toBeVisible();
-      await expect(page.getByTestId("specification-value-length")).toHaveValue(
-        "5m"
-      );
+      await expect(page.getByTestId("specification-key-0")).toBeVisible();
+      await expect(page.getByTestId("specification-value-0")).toHaveValue("5m");
     });
   });
 
@@ -615,15 +834,10 @@ test.describe("Item Edit - Specifications", () => {
 
       // Add text specification
       await page.getByTestId("add-specification-button").click();
-      const newSpecFields = page.locator(
-        '[data-testid^="specification-key-spec_"]'
-      );
-      const newSpecKey = await newSpecFields.getAttribute("data-testid");
-      const specKeyName = newSpecKey!.replace("specification-key-", "");
+      await expect(page.getByTestId("specification-key-0")).toBeVisible();
 
-      await page.getByTestId(`specification-key-${specKeyName}`).fill("color");
-      await expect(page.getByTestId("specification-value-color")).toBeVisible();
-      await page.getByTestId("specification-value-color").fill("red");
+      await page.getByTestId("specification-key-0").fill("color");
+      await page.getByTestId("specification-value-0").fill("red");
 
       // Save
       const responsePromise = page.waitForResponse(
@@ -677,34 +891,16 @@ test.describe("Item Edit - Specifications", () => {
 
       // Add numeric specifications (integer and decimal)
       await page.getByTestId("add-specification-button").click();
-      const integerFields = page
-        .locator('[data-testid^="specification-key-spec_"]')
-        .first();
-      const integerKey = await integerFields.getAttribute("data-testid");
-      const integerKeyName = integerKey!.replace("specification-key-", "");
+      await expect(page.getByTestId("specification-key-0")).toBeVisible();
 
-      await page
-        .getByTestId(`specification-key-${integerKeyName}`)
-        .fill("quantity");
-      await expect(
-        page.getByTestId("specification-value-quantity")
-      ).toBeVisible();
-      await page.getByTestId("specification-value-quantity").fill("100");
+      await page.getByTestId("specification-key-0").fill("quantity");
+      await page.getByTestId("specification-value-0").fill("100");
 
       await page.getByTestId("add-specification-button").click();
-      const decimalFields = page
-        .locator('[data-testid^="specification-key-spec_"]')
-        .last();
-      const decimalKey = await decimalFields.getAttribute("data-testid");
-      const decimalKeyName = decimalKey!.replace("specification-key-", "");
+      await expect(page.getByTestId("specification-key-1")).toBeVisible();
 
-      await page
-        .getByTestId(`specification-key-${decimalKeyName}`)
-        .fill("voltage");
-      await expect(
-        page.getByTestId("specification-value-voltage")
-      ).toBeVisible();
-      await page.getByTestId("specification-value-voltage").fill("5.5");
+      await page.getByTestId("specification-key-1").fill("voltage");
+      await page.getByTestId("specification-value-1").fill("5.5");
 
       // Save
       const responsePromise = page.waitForResponse(
@@ -764,34 +960,16 @@ test.describe("Item Edit - Specifications", () => {
 
       // Add boolean specifications
       await page.getByTestId("add-specification-button").click();
-      const trueFields = page
-        .locator('[data-testid^="specification-key-spec_"]')
-        .first();
-      const trueKey = await trueFields.getAttribute("data-testid");
-      const trueKeyName = trueKey!.replace("specification-key-", "");
+      await expect(page.getByTestId("specification-key-0")).toBeVisible();
 
-      await page
-        .getByTestId(`specification-key-${trueKeyName}`)
-        .fill("waterproof");
-      await expect(
-        page.getByTestId("specification-value-waterproof")
-      ).toBeVisible();
-      await page.getByTestId("specification-value-waterproof").fill("true");
+      await page.getByTestId("specification-key-0").fill("waterproof");
+      await page.getByTestId("specification-value-0").fill("true");
 
       await page.getByTestId("add-specification-button").click();
-      const falseFields = page
-        .locator('[data-testid^="specification-key-spec_"]')
-        .last();
-      const falseKey = await falseFields.getAttribute("data-testid");
-      const falseKeyName = falseKey!.replace("specification-key-", "");
+      await expect(page.getByTestId("specification-key-1")).toBeVisible();
 
-      await page
-        .getByTestId(`specification-key-${falseKeyName}`)
-        .fill("rechargeable");
-      await expect(
-        page.getByTestId("specification-value-rechargeable")
-      ).toBeVisible();
-      await page.getByTestId("specification-value-rechargeable").fill("false");
+      await page.getByTestId("specification-key-1").fill("rechargeable");
+      await page.getByTestId("specification-value-1").fill("false");
 
       // Save
       const responsePromise = page.waitForResponse(
@@ -848,19 +1026,232 @@ test.describe("Item Edit - Specifications", () => {
         page.getByRole("heading", { name: /edit item/i })
       ).toBeVisible();
 
-      // Verify values are displayed correctly
-      await expect(
-        page.getByTestId("specification-value-waterproof")
-      ).toHaveValue("true");
-      await expect(page.getByTestId("specification-value-voltage")).toHaveValue(
+      // Verify values are displayed correctly (using index-based selectors)
+      await expect(page.getByTestId("specification-value-0")).toHaveValue(
+        "true"
+      );
+      await expect(page.getByTestId("specification-value-1")).toHaveValue(
         "5.5"
       );
-      await expect(page.getByTestId("specification-value-count")).toHaveValue(
+      await expect(page.getByTestId("specification-value-2")).toHaveValue(
         "100"
       );
-      await expect(page.getByTestId("specification-value-active")).toHaveValue(
+      await expect(page.getByTestId("specification-value-3")).toHaveValue(
         "false"
       );
+    });
+  });
+
+  test.describe("Duplicate key validation", () => {
+    test("shows error for duplicate keys (case-insensitive)", async ({
+      page,
+    }) => {
+      const item = {
+        ...fixtures.testItemDetail,
+        id: "item-duplicate-keys",
+        name: "Test Item",
+        attributes: {
+          specifications: {
+            voltage: "5V",
+          },
+        },
+      };
+
+      await page.route("**/api/v1/items/item-duplicate-keys", async (route) => {
+        if (route.request().method() === "GET") {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify(item),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      await page.goto("/items/item-duplicate-keys/edit");
+      await expect(
+        page.getByRole("heading", { name: /edit item/i })
+      ).toBeVisible();
+
+      // Verify initial spec exists
+      await expect(page.getByTestId("specification-key-0")).toHaveValue(
+        "voltage"
+      );
+
+      // Add a new specification with duplicate key
+      await page.getByTestId("add-specification-button").click();
+
+      // Wait for the new row to appear with a visible and enabled input
+      const newKeyInput = page.getByTestId("specification-key-1");
+      await expect(newKeyInput).toBeVisible();
+      await expect(newKeyInput).toBeEditable();
+
+      // Clear the auto-generated key and set to "VOLTAGE" (case-insensitive match)
+      await newKeyInput.clear();
+      await newKeyInput.fill("VOLTAGE");
+
+      // Verify both fields show error styling
+      await expect(page.getByTestId("specification-key-0")).toHaveClass(
+        /border-destructive/
+      );
+      await expect(page.getByTestId("specification-key-1")).toHaveClass(
+        /border-destructive/
+      );
+
+      // Verify error message appears for both
+      await expect(page.getByTestId("duplicate-key-error-0")).toBeVisible();
+      await expect(page.getByTestId("duplicate-key-error-1")).toBeVisible();
+    });
+
+    test("error disappears when key is made unique", async ({ page }) => {
+      const item = {
+        ...fixtures.testItemDetail,
+        id: "item-duplicate-keys",
+        name: "Test Item",
+        attributes: {
+          specifications: {
+            voltage: "5V",
+            Voltage: "3.3V", // Duplicate key (case-insensitive)
+          },
+        },
+      };
+
+      await page.route("**/api/v1/items/item-duplicate-keys", async (route) => {
+        if (route.request().method() === "GET") {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify(item),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      await page.goto("/items/item-duplicate-keys/edit");
+      await expect(
+        page.getByRole("heading", { name: /edit item/i })
+      ).toBeVisible();
+
+      // Wait for specs to load - should have 2 with duplicate keys
+      await expect(
+        page.locator('[data-testid^="specification-key-"]')
+      ).toHaveCount(2);
+
+      // Verify error is shown for duplicates
+      await expect(page.getByTestId("duplicate-key-error-0")).toBeVisible();
+      await expect(page.getByTestId("duplicate-key-error-1")).toBeVisible();
+
+      // Change one key to make it unique
+      const key1Input = page.getByTestId("specification-key-1");
+      await key1Input.clear();
+      await key1Input.fill("current");
+
+      // Wait for error to disappear
+      await expect(page.getByTestId("duplicate-key-error-0")).not.toBeVisible();
+      await expect(page.getByTestId("duplicate-key-error-1")).not.toBeVisible();
+
+      // Verify inputs no longer have error styling
+      await expect(page.getByTestId("specification-key-0")).not.toHaveClass(
+        /border-destructive/
+      );
+      await expect(page.getByTestId("specification-key-1")).not.toHaveClass(
+        /border-destructive/
+      );
+    });
+
+    test("multiple duplicates are all highlighted", async ({ page }) => {
+      const item = {
+        ...fixtures.testItemDetail,
+        id: "item-duplicate-keys",
+        name: "Test Item",
+        attributes: {
+          specifications: {
+            voltage: "5V",
+            Voltage: "3.3V",
+            VOLTAGE: "12V", // Three case-insensitive duplicates
+          },
+        },
+      };
+
+      await page.route("**/api/v1/items/item-duplicate-keys", async (route) => {
+        if (route.request().method() === "GET") {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify(item),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      await page.goto("/items/item-duplicate-keys/edit");
+      await expect(
+        page.getByRole("heading", { name: /edit item/i })
+      ).toBeVisible();
+
+      // Wait for all specs to load
+      await expect(
+        page.locator('[data-testid^="specification-key-"]')
+      ).toHaveCount(3);
+
+      // Verify all three have error styling
+      await expect(page.getByTestId("specification-key-0")).toHaveClass(
+        /border-destructive/
+      );
+      await expect(page.getByTestId("specification-key-1")).toHaveClass(
+        /border-destructive/
+      );
+      await expect(page.getByTestId("specification-key-2")).toHaveClass(
+        /border-destructive/
+      );
+
+      // Verify all three have error messages
+      await expect(page.getByTestId("duplicate-key-error-0")).toBeVisible();
+      await expect(page.getByTestId("duplicate-key-error-1")).toBeVisible();
+      await expect(page.getByTestId("duplicate-key-error-2")).toBeVisible();
+    });
+
+    test("whitespace-only keys do not trigger duplicate error", async ({
+      page,
+    }) => {
+      const item = {
+        ...fixtures.testItemDetail,
+        id: "item-duplicate-keys",
+        name: "Test Item",
+        attributes: {},
+      };
+
+      await page.route("**/api/v1/items/item-duplicate-keys", async (route) => {
+        if (route.request().method() === "GET") {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify(item),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      await page.goto("/items/item-duplicate-keys/edit");
+      await expect(
+        page.getByRole("heading", { name: /edit item/i })
+      ).toBeVisible();
+
+      // Add two specifications
+      await page.getByTestId("add-specification-button").click();
+      await page.getByTestId("add-specification-button").click();
+
+      // Set both to whitespace
+      await page.getByTestId("specification-key-0").fill("   ");
+      await page.getByTestId("specification-key-1").fill("  ");
+
+      // Verify no error messages for whitespace-only keys
+      await expect(page.getByTestId("duplicate-key-error-0")).not.toBeVisible();
+      await expect(page.getByTestId("duplicate-key-error-1")).not.toBeVisible();
     });
   });
 
@@ -908,28 +1299,20 @@ test.describe("Item Edit - Specifications", () => {
         page.getByRole("heading", { name: /edit item/i })
       ).toBeVisible();
 
-      // 1. Remove one specification
-      await page.getByTestId("remove-specification-current").click();
-      await expect(
-        page.getByTestId("specification-key-current")
-      ).not.toBeVisible();
+      // 1. Remove one specification (index 1 - "current")
+      await page.getByTestId("remove-specification-1").click();
+      // Now we only have 2 items
+      await expect(page.getByTestId("specification-key-2")).not.toBeVisible();
 
-      // 2. Edit one specification
-      await page.getByTestId("specification-value-voltage").fill("3.3V");
+      // 2. Edit one specification (index 0 - "voltage")
+      await page.getByTestId("specification-value-0").fill("3.3V");
 
       // 3. Add a new specification
       await page.getByTestId("add-specification-button").click();
-      const newSpecFields = page.locator(
-        '[data-testid^="specification-key-spec_"]'
-      );
-      const newSpecKey = await newSpecFields.getAttribute("data-testid");
-      const specKeyName = newSpecKey!.replace("specification-key-", "");
+      await expect(page.getByTestId("specification-key-2")).toBeVisible();
 
-      await page.getByTestId(`specification-key-${specKeyName}`).fill("memory");
-      await expect(
-        page.getByTestId("specification-value-memory")
-      ).toBeVisible();
-      await page.getByTestId("specification-value-memory").fill("32KB");
+      await page.getByTestId("specification-key-2").fill("memory");
+      await page.getByTestId("specification-value-2").fill("32KB");
 
       // Save
       const responsePromise = page.waitForResponse(
@@ -997,15 +1380,10 @@ test.describe("Item Edit - Specifications", () => {
 
       // Make changes
       await page.getByTestId("add-specification-button").click();
-      const newSpecFields = page.locator(
-        '[data-testid^="specification-key-spec_"]'
-      );
-      const newSpecKey = await newSpecFields.getAttribute("data-testid");
-      const specKeyName = newSpecKey!.replace("specification-key-", "");
+      await expect(page.getByTestId("specification-key-1")).toBeVisible();
 
-      await page.getByTestId(`specification-key-${specKeyName}`).fill("test");
-      await expect(page.getByTestId("specification-value-test")).toBeVisible();
-      await page.getByTestId("specification-value-test").fill("value");
+      await page.getByTestId("specification-key-1").fill("test");
+      await page.getByTestId("specification-value-1").fill("value");
 
       // Click cancel
       await page.getByRole("button", { name: /cancel/i }).click();
