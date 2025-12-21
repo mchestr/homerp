@@ -828,6 +828,34 @@ function Component() {
 2. Add translations to other locale files (missing keys fall back to English)
 3. Use parameterized strings for dynamic values: `t("count", { count: 10 })`
 
+**Common namespace guidelines:**
+
+Use the `common.*` namespace for UI strings shared across multiple features:
+- **Status indicators:** `active`, `inactive`, `pending`, `status`
+- **Actions:** `save`, `cancel`, `delete`, `edit`, `create`, `update`, `print`, `download`, `qrCode`
+- **Collaboration roles:** `viewer`, `editor`
+- **Form labels:** `displayName`, `quantity`, `description`, `notes`, `location`, `category`
+- **UI controls:** `success`, `error`, `saveChanges`, `updateFailed`
+
+Use feature namespaces (`items.*`, `locations.*`, etc.) for:
+- Domain-specific terminology unique to that feature
+- Feature-specific workflows and messages
+- Context-dependent meanings
+
+**Example:**
+```tsx
+const t = useTranslations("items");        // Feature-specific
+const tCommon = useTranslations("common"); // Common UI
+
+return (
+  <form>
+    <Label>{tCommon("quantity")}</Label>     {/* Common label */}
+    <Button>{tCommon("save")}</Button>       {/* Common action */}
+    <p>{t("itemSaved")}</p>                  {/* Feature message */}
+  </form>
+);
+```
+
 ### Commit Message Convention
 Use [Conventional Commits](https://www.conventionalcommits.org/) format:
 - `feat:` - New features
