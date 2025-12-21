@@ -850,6 +850,72 @@ export type BatchUpdateResponse = {
 };
 
 /**
+ * BillingSettingResponse
+ *
+ * Response schema for billing setting.
+ */
+export type BillingSettingResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Setting Key
+   */
+  setting_key: string;
+  /**
+   * Value Int
+   */
+  value_int: number | null;
+  /**
+   * Value String
+   */
+  value_string: string | null;
+  /**
+   * Display Name
+   */
+  display_name: string;
+  /**
+   * Description
+   */
+  description: string | null;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Updated At
+   */
+  updated_at: string;
+};
+
+/**
+ * BillingSettingUpdate
+ *
+ * Request schema for updating billing setting.
+ */
+export type BillingSettingUpdate = {
+  /**
+   * Value Int
+   *
+   * Integer value (must be >= 0)
+   */
+  value_int?: number | null;
+  /**
+   * Display Name
+   *
+   * Display name
+   */
+  display_name?: string | null;
+  /**
+   * Description
+   *
+   * Description of the setting
+   */
+  description?: string | null;
+};
+
+/**
  * BinRecommendation
  *
  * Recommended bin size for an item.
@@ -1523,7 +1589,7 @@ export type CreditBalanceResponse = {
   /**
    * Free Credits
    *
-   * Free credits remaining this month
+   * Signup bonus credits remaining (one-time, never resets)
    */
   free_credits: number;
   /**
@@ -1535,7 +1601,7 @@ export type CreditBalanceResponse = {
   /**
    * Next Free Reset At
    *
-   * When free credits will reset
+   * Deprecated: always null (no more monthly resets)
    */
   next_free_reset_at?: string | null;
 };
@@ -5842,6 +5908,118 @@ export type UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutResponses
 
 export type UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutResponse =
   UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutResponses[keyof UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutResponses];
+
+export type ListBillingSettingsApiV1AdminBillingSettingsGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/billing-settings";
+};
+
+export type ListBillingSettingsApiV1AdminBillingSettingsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListBillingSettingsApiV1AdminBillingSettingsGetError =
+  ListBillingSettingsApiV1AdminBillingSettingsGetErrors[keyof ListBillingSettingsApiV1AdminBillingSettingsGetErrors];
+
+export type ListBillingSettingsApiV1AdminBillingSettingsGetResponses = {
+  /**
+   * Response List Billing Settings Api V1 Admin Billing Settings Get
+   *
+   * Successful Response
+   */
+  200: Array<BillingSettingResponse>;
+};
+
+export type ListBillingSettingsApiV1AdminBillingSettingsGetResponse =
+  ListBillingSettingsApiV1AdminBillingSettingsGetResponses[keyof ListBillingSettingsApiV1AdminBillingSettingsGetResponses];
+
+export type GetBillingSettingApiV1AdminBillingSettingsSettingIdGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Setting Id
+     */
+    setting_id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/billing-settings/{setting_id}";
+};
+
+export type GetBillingSettingApiV1AdminBillingSettingsSettingIdGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetBillingSettingApiV1AdminBillingSettingsSettingIdGetError =
+  GetBillingSettingApiV1AdminBillingSettingsSettingIdGetErrors[keyof GetBillingSettingApiV1AdminBillingSettingsSettingIdGetErrors];
+
+export type GetBillingSettingApiV1AdminBillingSettingsSettingIdGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: BillingSettingResponse;
+};
+
+export type GetBillingSettingApiV1AdminBillingSettingsSettingIdGetResponse =
+  GetBillingSettingApiV1AdminBillingSettingsSettingIdGetResponses[keyof GetBillingSettingApiV1AdminBillingSettingsSettingIdGetResponses];
+
+export type UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutData = {
+  body: BillingSettingUpdate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Setting Id
+     */
+    setting_id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/billing-settings/{setting_id}";
+};
+
+export type UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutError =
+  UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutErrors[keyof UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutErrors];
+
+export type UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: BillingSettingResponse;
+  };
+
+export type UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutResponse =
+  UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutResponses[keyof UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutResponses];
 
 export type ListUsersApiV1AdminUsersGetData = {
   body?: never;

@@ -179,6 +179,9 @@ import type {
   GetBalanceApiV1BillingBalanceGetData,
   GetBalanceApiV1BillingBalanceGetErrors,
   GetBalanceApiV1BillingBalanceGetResponses,
+  GetBillingSettingApiV1AdminBillingSettingsSettingIdGetData,
+  GetBillingSettingApiV1AdminBillingSettingsSettingIdGetErrors,
+  GetBillingSettingApiV1AdminBillingSettingsSettingIdGetResponses,
   GetCategoryApiV1CategoriesCategoryIdGetData,
   GetCategoryApiV1CategoriesCategoryIdGetErrors,
   GetCategoryApiV1CategoriesCategoryIdGetResponses,
@@ -329,6 +332,9 @@ import type {
   ListApiKeysApiV1AdminApikeysGetData,
   ListApiKeysApiV1AdminApikeysGetErrors,
   ListApiKeysApiV1AdminApikeysGetResponses,
+  ListBillingSettingsApiV1AdminBillingSettingsGetData,
+  ListBillingSettingsApiV1AdminBillingSettingsGetErrors,
+  ListBillingSettingsApiV1AdminBillingSettingsGetResponses,
   ListCategoriesApiV1CategoriesGetData,
   ListCategoriesApiV1CategoriesGetErrors,
   ListCategoriesApiV1CategoriesGetResponses,
@@ -435,6 +441,9 @@ import type {
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchData,
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchErrors,
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponses,
+  UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutData,
+  UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutErrors,
+  UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutResponses,
   UpdateCategoryApiV1CategoriesCategoryIdPutData,
   UpdateCategoryApiV1CategoriesCategoryIdPutErrors,
   UpdateCategoryApiV1CategoriesCategoryIdPutResponses,
@@ -762,6 +771,79 @@ export const updateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPut = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/ai-model-settings/{settings_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List Billing Settings
+ *
+ * List all billing settings.
+ */
+export const listBillingSettingsApiV1AdminBillingSettingsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    ListBillingSettingsApiV1AdminBillingSettingsGetData,
+    ThrowOnError
+  >
+) =>
+  (options?.client ?? client).get<
+    ListBillingSettingsApiV1AdminBillingSettingsGetResponses,
+    ListBillingSettingsApiV1AdminBillingSettingsGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/billing-settings",
+    ...options,
+  });
+
+/**
+ * Get Billing Setting
+ *
+ * Get specific billing setting.
+ */
+export const getBillingSettingApiV1AdminBillingSettingsSettingIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetBillingSettingApiV1AdminBillingSettingsSettingIdGetData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).get<
+    GetBillingSettingApiV1AdminBillingSettingsSettingIdGetResponses,
+    GetBillingSettingApiV1AdminBillingSettingsSettingIdGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/billing-settings/{setting_id}",
+    ...options,
+  });
+
+/**
+ * Update Billing Setting
+ *
+ * Update billing setting.
+ */
+export const updateBillingSettingApiV1AdminBillingSettingsSettingIdPut = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).put<
+    UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutResponses,
+    UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/billing-settings/{setting_id}",
     ...options,
     headers: {
       "Content-Type": "application/json",

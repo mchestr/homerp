@@ -67,6 +67,7 @@ import {
   getApiKeyApiV1AdminApikeysApiKeyIdGet,
   getAuthUrlApiV1AuthProviderGet,
   getBalanceApiV1BillingBalanceGet,
+  getBillingSettingApiV1AdminBillingSettingsSettingIdGet,
   getCategoryApiV1CategoriesCategoryIdGet,
   getCategoryDescendantsApiV1CategoriesCategoryIdDescendantsGet,
   getCategoryTemplateApiV1CategoriesCategoryIdTemplateGet,
@@ -118,6 +119,7 @@ import {
   listAiModelSettingsApiV1AdminAiModelSettingsGet,
   listAllFeedbackApiV1FeedbackAdminGet,
   listApiKeysApiV1AdminApikeysGet,
+  listBillingSettingsApiV1AdminBillingSettingsGet,
   listCategoriesApiV1CategoriesGet,
   listClassifiedImagesApiV1ImagesClassifiedGet,
   listCollaboratorsApiV1CollaborationCollaboratorsGet,
@@ -155,6 +157,7 @@ import {
   triggerLowStockAlertsApiV1NotificationsLowStockTriggerPost,
   updateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPut,
   updateApiKeyApiV1AdminApikeysApiKeyIdPatch,
+  updateBillingSettingApiV1AdminBillingSettingsSettingIdPut,
   updateCategoryApiV1CategoriesCategoryIdPut,
   updateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPut,
   updateConfigApiV1WebhooksConfigsConfigIdPut,
@@ -346,6 +349,9 @@ import type {
   GetBalanceApiV1BillingBalanceGetData,
   GetBalanceApiV1BillingBalanceGetError,
   GetBalanceApiV1BillingBalanceGetResponse,
+  GetBillingSettingApiV1AdminBillingSettingsSettingIdGetData,
+  GetBillingSettingApiV1AdminBillingSettingsSettingIdGetError,
+  GetBillingSettingApiV1AdminBillingSettingsSettingIdGetResponse,
   GetCategoryApiV1CategoriesCategoryIdGetData,
   GetCategoryApiV1CategoriesCategoryIdGetError,
   GetCategoryApiV1CategoriesCategoryIdGetResponse,
@@ -491,6 +497,9 @@ import type {
   ListApiKeysApiV1AdminApikeysGetData,
   ListApiKeysApiV1AdminApikeysGetError,
   ListApiKeysApiV1AdminApikeysGetResponse,
+  ListBillingSettingsApiV1AdminBillingSettingsGetData,
+  ListBillingSettingsApiV1AdminBillingSettingsGetError,
+  ListBillingSettingsApiV1AdminBillingSettingsGetResponse,
   ListCategoriesApiV1CategoriesGetData,
   ListCategoriesApiV1CategoriesGetError,
   ListCategoriesApiV1CategoriesGetResponse,
@@ -597,6 +606,9 @@ import type {
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchData,
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchError,
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponse,
+  UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutData,
+  UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutError,
+  UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutResponse,
   UpdateCategoryApiV1CategoriesCategoryIdPutData,
   UpdateCategoryApiV1CategoriesCategoryIdPutError,
   UpdateCategoryApiV1CategoriesCategoryIdPutResponse,
@@ -1053,6 +1065,107 @@ export const updateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutMutation
       mutationFn: async (fnOptions) => {
         const { data } =
           await updateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPut({
+            ...options,
+            ...fnOptions,
+            throwOnError: true,
+          });
+        return data;
+      },
+    };
+    return mutationOptions;
+  };
+
+export const listBillingSettingsApiV1AdminBillingSettingsGetQueryKey = (
+  options?: Options<ListBillingSettingsApiV1AdminBillingSettingsGetData>
+) => createQueryKey("listBillingSettingsApiV1AdminBillingSettingsGet", options);
+
+/**
+ * List Billing Settings
+ *
+ * List all billing settings.
+ */
+export const listBillingSettingsApiV1AdminBillingSettingsGetOptions = (
+  options?: Options<ListBillingSettingsApiV1AdminBillingSettingsGetData>
+) =>
+  queryOptions<
+    ListBillingSettingsApiV1AdminBillingSettingsGetResponse,
+    ListBillingSettingsApiV1AdminBillingSettingsGetError,
+    ListBillingSettingsApiV1AdminBillingSettingsGetResponse,
+    ReturnType<typeof listBillingSettingsApiV1AdminBillingSettingsGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await listBillingSettingsApiV1AdminBillingSettingsGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: listBillingSettingsApiV1AdminBillingSettingsGetQueryKey(options),
+  });
+
+export const getBillingSettingApiV1AdminBillingSettingsSettingIdGetQueryKey = (
+  options: Options<GetBillingSettingApiV1AdminBillingSettingsSettingIdGetData>
+) =>
+  createQueryKey(
+    "getBillingSettingApiV1AdminBillingSettingsSettingIdGet",
+    options
+  );
+
+/**
+ * Get Billing Setting
+ *
+ * Get specific billing setting.
+ */
+export const getBillingSettingApiV1AdminBillingSettingsSettingIdGetOptions = (
+  options: Options<GetBillingSettingApiV1AdminBillingSettingsSettingIdGetData>
+) =>
+  queryOptions<
+    GetBillingSettingApiV1AdminBillingSettingsSettingIdGetResponse,
+    GetBillingSettingApiV1AdminBillingSettingsSettingIdGetError,
+    GetBillingSettingApiV1AdminBillingSettingsSettingIdGetResponse,
+    ReturnType<
+      typeof getBillingSettingApiV1AdminBillingSettingsSettingIdGetQueryKey
+    >
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } =
+        await getBillingSettingApiV1AdminBillingSettingsSettingIdGet({
+          ...options,
+          ...queryKey[0],
+          signal,
+          throwOnError: true,
+        });
+      return data;
+    },
+    queryKey:
+      getBillingSettingApiV1AdminBillingSettingsSettingIdGetQueryKey(options),
+  });
+
+/**
+ * Update Billing Setting
+ *
+ * Update billing setting.
+ */
+export const updateBillingSettingApiV1AdminBillingSettingsSettingIdPutMutation =
+  (
+    options?: Partial<
+      Options<UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutData>
+    >
+  ): UseMutationOptions<
+    UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutResponse,
+    UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutError,
+    Options<UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutResponse,
+      UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutError,
+      Options<UpdateBillingSettingApiV1AdminBillingSettingsSettingIdPutData>
+    > = {
+      mutationFn: async (fnOptions) => {
+        const { data } =
+          await updateBillingSettingApiV1AdminBillingSettingsSettingIdPut({
             ...options,
             ...fnOptions,
             throwOnError: true,
