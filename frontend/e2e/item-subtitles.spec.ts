@@ -269,9 +269,7 @@ test.describe("Item Subtitles", () => {
           location: fixtures.testLocations[0],
           primary_image_url: null,
           attributes: {
-            specifications: {
-              voltage: "3.3V",
-            },
+            specifications: [{ key: "voltage", value: "3.3V" }],
           },
           created_at: "2024-01-01T00:00:00Z",
           updated_at: "2024-01-01T00:00:00Z",

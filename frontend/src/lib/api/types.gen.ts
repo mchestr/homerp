@@ -1262,9 +1262,7 @@ export type ClassificationResult = {
   /**
    * Specifications
    */
-  specifications: {
-    [key: string]: unknown;
-  };
+  specifications: Array<Specification>;
   /**
    * Alternative Suggestions
    */
@@ -2069,9 +2067,7 @@ export type FindSimilarRequest = {
   /**
    * Specifications
    */
-  specifications?: {
-    [key: string]: unknown;
-  } | null;
+  specifications?: Array<Specification> | null;
   /**
    * Limit
    */
@@ -4674,6 +4670,22 @@ export type SimilarItemMatch = {
    * Primary Image Url
    */
   primary_image_url?: string | null;
+};
+
+/**
+ * Specification
+ *
+ * Schema for a single specification with key and value.
+ */
+export type Specification = {
+  /**
+   * Key
+   */
+  key: string;
+  /**
+   * Value
+   */
+  value: string | number | number | boolean;
 };
 
 /**
@@ -8268,6 +8280,10 @@ export type GetAllTagsApiV1ItemsTagsGetResponse =
 export type DeleteItemApiV1ItemsItemIdDeleteData = {
   body?: never;
   headers?: {
+    /**
+     * X-Inventory-Context
+     */
+    "X-Inventory-Context"?: string | null;
     /**
      * X-Api-Key
      */

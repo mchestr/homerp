@@ -73,7 +73,7 @@ class TestAIClassificationService:
         self, service, mock_template_manager
     ):
         """Test classification without custom prompt uses default prompts."""
-        # Mock the OpenAI response
+        # Mock the OpenAI response - AI returns dict format
         mock_response = create_mock_openai_response(
             '{"identified_name": "Test Item", "confidence": 0.95, '
             '"category_path": "Test > Category", "description": "A test item", '
@@ -89,6 +89,8 @@ class TestAIClassificationService:
         # Verify result
         assert result.identified_name == "Test Item"
         assert result.confidence == 0.95
+        # Specifications should be converted to array format (empty array)
+        assert result.specifications == []
 
         # Verify that template manager was called
         mock_template_manager.get_system_prompt.assert_called_once()
@@ -105,7 +107,7 @@ class TestAIClassificationService:
         self, service, mock_template_manager
     ):
         """Test classification with custom prompt appends user context."""
-        # Mock the OpenAI response
+        # Mock the OpenAI response - AI returns dict format
         mock_response = create_mock_openai_response(
             '{"identified_name": "Bin A1", "confidence": 0.92, '
             '"category_path": "Storage > Bins", "description": "A storage bin", '
@@ -122,6 +124,10 @@ class TestAIClassificationService:
 
         # Verify result
         assert result.identified_name == "Bin A1"
+        # Specifications should be converted to array format
+        assert len(result.specifications) == 1
+        assert result.specifications[0].key == "location"
+        assert result.specifications[0].value == "A1"
 
         # Verify the user prompt was modified to include custom context
         call_args = service.client.chat.completions.create.call_args

@@ -8,6 +8,7 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy_utils import Ltree
 
 from src.categories.models import Category
+from src.images.schemas import Specification
 from src.items.models import Item, ItemCheckInOut
 from src.items.schemas import (
     BatchItemCreate,
@@ -1031,7 +1032,7 @@ class ItemRepository:
         self,
         identified_name: str,
         category_path: str | None = None,
-        specifications: dict | None = None,
+        specifications: list[Specification] | None = None,
         limit: int = 5,
     ) -> tuple[list[tuple[Item, float, list[str]]], int]:
         """Find items similar to the given classification result.
@@ -1162,18 +1163,29 @@ class ItemRepository:
                         break
 
             # 4. Specification matching (weight: 0.1)
-            # Specifications are stored in attributes.specifications (nested JSONB)
+            # Specifications are stored in attributes.specifications as an array
             if specifications and item_attrs:
-                item_specs = item_attrs.get("specifications", {})
+                item_specs_raw = item_attrs.get("specifications", [])
+                # Convert item specs to dict for easier lookup
+                # Handle both old dict format and new array format
+                item_specs_dict: dict[str, str] = {}
+                if isinstance(item_specs_raw, list):
+                    for spec in item_specs_raw:
+                        if isinstance(spec, dict) and "key" in spec and "value" in spec:
+                            item_specs_dict[spec["key"]] = str(spec["value"])
+                elif isinstance(item_specs_raw, dict):
+                    # Legacy dict format
+                    item_specs_dict = {k: str(v) for k, v in item_specs_raw.items()}
+
                 matching_specs = []
-                for key, value in specifications.items():
-                    if key in item_specs:
-                        item_val = str(item_specs[key]).lower()
-                        spec_val = str(value).lower()
+                for spec in specifications:
+                    if spec.key in item_specs_dict:
+                        item_val = item_specs_dict[spec.key].lower()
+                        spec_val = str(spec.value).lower()
                         if item_val == spec_val:
-                            matching_specs.append(f"{key}: {value}")
+                            matching_specs.append(f"{spec.key}: {spec.value}")
                         elif spec_val in item_val or item_val in spec_val:
-                            matching_specs.append(f"{key}: ~{value}")
+                            matching_specs.append(f"{spec.key}: ~{spec.value}")
                 if matching_specs:
                     score += min(len(matching_specs) * 0.05, 0.1)
                     reasons.append(f"Specs: {', '.join(matching_specs[:3])}")
@@ -1236,7 +1248,14 @@ class ItemRepository:
         for attrs in all_attributes:
             if attrs and "specifications" in attrs:
                 specs = attrs.get("specifications")
-                if specs is not None and isinstance(specs, dict):
+                # Handle new array format
+                if isinstance(specs, list):
+                    for spec in specs:
+                        if isinstance(spec, dict) and "key" in spec:
+                            key = spec["key"]
+                            spec_key_counts[key] = spec_key_counts.get(key, 0) + 1
+                # Handle legacy dict format
+                elif isinstance(specs, dict):
                     for key in specs:
                         spec_key_counts[key] = spec_key_counts.get(key, 0) + 1
 

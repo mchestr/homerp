@@ -35,7 +35,10 @@ import {
   UploadedImage,
 } from "@/components/items/multi-image-upload";
 import { DynamicAttributeForm } from "@/components/items/dynamic-attribute-form";
-import { SpecificationEditor } from "@/components/items/specification-editor";
+import {
+  SpecificationEditor,
+  Specification,
+} from "@/components/items/specification-editor";
 import {
   Tooltip,
   TooltipContent,
@@ -109,9 +112,7 @@ export default function ItemDetailPage() {
   const [categoryAttributes, setCategoryAttributes] = useState<
     Record<string, unknown>
   >({});
-  const [specifications, setSpecifications] = useState<Record<string, unknown>>(
-    {}
-  );
+  const [specifications, setSpecifications] = useState<Specification[]>([]);
   const [prevCategoryId, setPrevCategoryId] = useState<string | null>(null);
   const formInitialized = useRef(false);
 
@@ -255,15 +256,36 @@ export default function ItemDetailPage() {
       const { attributes, ...rest } = item;
       const categoryAttrs: Record<string, unknown> = {};
       const otherAttrs: Record<string, unknown> = {};
-      let specs: Record<string, unknown> = {};
+      let specs: Specification[] = [];
 
       if (attributes && typeof attributes === "object") {
         for (const [key, value] of Object.entries(attributes)) {
           if (key === "specifications") {
-            specs =
-              typeof value === "object" && value !== null
-                ? (value as Record<string, unknown>)
-                : {};
+            // Handle both new array format and legacy dict format
+            if (Array.isArray(value)) {
+              // New array format: [{key: "color", value: "red"}, ...]
+              specs = value.filter(
+                (s): s is Specification =>
+                  typeof s === "object" &&
+                  s !== null &&
+                  "key" in s &&
+                  "value" in s &&
+                  typeof s.key === "string"
+              );
+            } else if (typeof value === "object" && value !== null) {
+              // Legacy dict format: {color: "red", ...}
+              specs = Object.entries(value as Record<string, unknown>).map(
+                ([k, v]) => ({
+                  key: k,
+                  value:
+                    typeof v === "string" ||
+                    typeof v === "number" ||
+                    typeof v === "boolean"
+                      ? v
+                      : String(v),
+                })
+              );
+            }
           } else if (key.startsWith("ai_")) {
             otherAttrs[key] = value;
           } else {
@@ -940,14 +962,38 @@ export default function ItemDetailPage() {
               {(() => {
                 const attrs = item.attributes;
                 if (!attrs || typeof attrs !== "object") return null;
-                const specs = (attrs as Record<string, unknown>)[
+                const specsRaw = (attrs as Record<string, unknown>)[
                   "specifications"
                 ];
-                if (!specs || typeof specs !== "object") return null;
-                const entries = Object.entries(
-                  specs as Record<string, unknown>
-                );
-                if (entries.length === 0) return null;
+                if (!specsRaw) return null;
+
+                // Convert to array format (handle both new array and legacy dict)
+                let specs: Specification[] = [];
+                if (Array.isArray(specsRaw)) {
+                  specs = specsRaw.filter(
+                    (s): s is Specification =>
+                      typeof s === "object" &&
+                      s !== null &&
+                      "key" in s &&
+                      "value" in s &&
+                      typeof s.key === "string"
+                  );
+                } else if (typeof specsRaw === "object" && specsRaw !== null) {
+                  specs = Object.entries(
+                    specsRaw as Record<string, unknown>
+                  ).map(([k, v]) => ({
+                    key: k,
+                    value:
+                      typeof v === "string" ||
+                      typeof v === "number" ||
+                      typeof v === "boolean"
+                        ? v
+                        : String(v),
+                  }));
+                }
+
+                if (specs.length === 0) return null;
+
                 return (
                   <div className="bg-card rounded-xl border p-5">
                     <div className="flex items-center gap-2">
@@ -957,19 +1003,16 @@ export default function ItemDetailPage() {
                       </h2>
                     </div>
                     <dl className="mt-4 space-y-3">
-                      {entries.map(([key, value]) => (
+                      {specs.map((spec) => (
                         <div
-                          key={key}
+                          key={spec.key}
                           className="bg-muted/50 flex items-center justify-between rounded-lg px-3 py-2"
                         >
                           <dt className="text-muted-foreground text-sm capitalize">
-                            {key.replace(/_/g, " ")}
+                            {spec.key.replace(/_/g, " ")}
                           </dt>
                           <dd className="text-sm font-medium">
-                            {typeof value === "string" ||
-                            typeof value === "number"
-                              ? String(value)
-                              : JSON.stringify(value)}
+                            {String(spec.value)}
                           </dd>
                         </div>
                       ))}

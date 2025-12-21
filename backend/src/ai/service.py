@@ -16,7 +16,7 @@ from src.ai.settings_service import (
     get_ai_model_settings_service,
 )
 from src.config import Settings, get_settings
-from src.images.schemas import ClassificationResult
+from src.images.schemas import ClassificationResult, Specification
 from src.locations.schemas import (
     ItemLocationSuggestionResult,
     LocationAnalysisResult,
@@ -382,12 +382,24 @@ class AIClassificationService:
                 "specifications": {},
             }
 
+        # Convert specifications dict from AI to array format
+        raw_specs = data.get("specifications", {})
+        specifications: list[Specification] = []
+        if isinstance(raw_specs, dict):
+            for key, value in raw_specs.items():
+                # Ensure value is a valid type
+                if isinstance(value, (str, int, float, bool)):
+                    specifications.append(Specification(key=str(key), value=value))
+                else:
+                    # Convert to string for complex types
+                    specifications.append(Specification(key=str(key), value=str(value)))
+
         result = ClassificationResult(
             identified_name=data.get("identified_name", "Unknown Item"),
             confidence=float(data.get("confidence", 0.0)),
             category_path=data.get("category_path", "Uncategorized"),
             description=data.get("description", ""),
-            specifications=data.get("specifications", {}),
+            specifications=specifications,
             alternative_suggestions=data.get("alternative_suggestions"),
             quantity_estimate=data.get("quantity_estimate"),
         )
@@ -466,11 +478,17 @@ class AIClassificationService:
         # Parse quantity estimate into numeric values
         quantity_data = parse_quantity_estimate(classification.quantity_estimate)
 
+        # Convert Specification objects to dicts for JSON serialization
+        specifications = [
+            {"key": spec.key, "value": spec.value}
+            for spec in classification.specifications
+        ]
+
         return {
             "name": classification.identified_name,
             "description": classification.description,
             "attributes": {
-                "specifications": classification.specifications,
+                "specifications": specifications,
             },
             "suggested_category_path": classification.category_path,
             "quantity": quantity_data["quantity"],

@@ -25,7 +25,10 @@ import {
   UploadedImage,
 } from "@/components/items/multi-image-upload";
 import { DynamicAttributeForm } from "@/components/items/dynamic-attribute-form";
-import { SpecificationEditor } from "@/components/items/specification-editor";
+import {
+  SpecificationEditor,
+  Specification,
+} from "@/components/items/specification-editor";
 import { SimilarItemsDisplay } from "@/components/items/similar-items-display";
 import { LocationSuggestionDisplay } from "@/components/items/location-suggestion-display";
 import {
@@ -90,9 +93,7 @@ export default function NewItemPage() {
   const [categoryAttributes, setCategoryAttributes] = useState<
     Record<string, unknown>
   >({});
-  const [specifications, setSpecifications] = useState<Record<string, unknown>>(
-    {}
-  );
+  const [specifications, setSpecifications] = useState<Specification[]>([]);
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [categoriesCreated, setCategoriesCreated] = useState(false);
   const [initialImageLoaded, setInitialImageLoaded] = useState(false);
@@ -172,8 +173,8 @@ export default function NewItemPage() {
                 ai_category_suggestion: result.category_path,
               },
             }));
-            // Set specifications state for editing
-            setSpecifications(result.specifications || {});
+            // Set specifications state for editing (convert from API format)
+            setSpecifications(result.specifications || []);
             // Search for similar items
             searchForSimilarItems(result);
           }
@@ -314,11 +315,19 @@ export default function NewItemPage() {
     setLocationSuggestions([]);
     setLocationSuggestionSearched(false);
     try {
+      // Convert specifications array to dict for location suggestion API
+      const specsDict = result.specifications?.reduce(
+        (acc, spec) => {
+          acc[spec.key] = spec.value;
+          return acc;
+        },
+        {} as Record<string, unknown>
+      );
       const response = await itemsApi.suggestLocation({
         item_name: result.identified_name,
         item_category: result.category_path,
         item_description: result.description,
-        item_specifications: result.specifications,
+        item_specifications: specsDict,
       });
       if (response.success && response.suggestions) {
         setLocationSuggestions(response.suggestions);
@@ -363,8 +372,8 @@ export default function NewItemPage() {
       },
     }));
 
-    // Set specifications state for editing
-    setSpecifications(result.specifications || {});
+    // Set specifications state for editing (convert from API format)
+    setSpecifications(result.specifications || []);
 
     // Search for similar items in the background
     searchForSimilarItems(result);
@@ -548,22 +557,20 @@ export default function NewItemPage() {
                 )}
               </div>
             </div>
-            {Object.keys(classification.specifications).length > 0 && (
+            {classification.specifications.length > 0 && (
               <div className="rounded-lg bg-white/60 p-3 sm:col-span-2 dark:bg-black/20">
                 <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
                   {tItems("detectedSpecifications")}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {Object.entries(classification.specifications).map(
-                    ([key, value]) => (
-                      <span
-                        key={key}
-                        className="rounded-full bg-emerald-100 px-3 py-1 text-sm text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300"
-                      >
-                        {key}: {String(value)}
-                      </span>
-                    )
-                  )}
+                  {classification.specifications.map((spec) => (
+                    <span
+                      key={spec.key}
+                      className="rounded-full bg-emerald-100 px-3 py-1 text-sm text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300"
+                    >
+                      {spec.key}: {String(spec.value)}
+                    </span>
+                  ))}
                 </div>
               </div>
             )}

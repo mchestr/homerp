@@ -6,9 +6,15 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
+// Specification as array item with key and value
+export interface Specification {
+  key: string;
+  value: string | number | boolean;
+}
+
 interface SpecificationEditorProps {
-  specifications: Record<string, unknown>;
-  onChange: (specifications: Record<string, unknown>) => void;
+  specifications: Specification[];
+  onChange: (specifications: Specification[]) => void;
   className?: string;
 }
 
@@ -21,41 +27,36 @@ export function SpecificationEditor({
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
-  const entries = Object.entries(specifications);
-
   // Check if a key is duplicate (case-insensitive)
   const isDuplicateKey = (key: string, currentIndex: number): boolean => {
     if (!key || key.trim() === "") return false;
     const normalizedKey = key.trim().toLowerCase();
-    return entries.some(
-      ([existingKey], index) =>
+    return specifications.some(
+      (spec, index) =>
         index !== currentIndex &&
-        existingKey.trim().toLowerCase() === normalizedKey
+        spec.key.trim().toLowerCase() === normalizedKey
     );
   };
 
   const handleAdd = () => {
     // Add a new empty specification
-    const newKey = `spec_${Date.now()}`;
-    onChange({ ...specifications, [newKey]: "" });
+    onChange([...specifications, { key: "", value: "" }]);
   };
 
   const handleRemove = (index: number) => {
-    const newEntries = entries.filter((_, i) => i !== index);
-    const newSpecs = Object.fromEntries(newEntries);
+    const newSpecs = specifications.filter((_, i) => i !== index);
     onChange(newSpecs);
   };
 
   const handleKeyChange = (index: number, newKey: string) => {
-    const newEntries = [...entries];
-    newEntries[index] = [newKey, newEntries[index][1]];
-    const newSpecs = Object.fromEntries(newEntries);
+    const newSpecs = [...specifications];
+    newSpecs[index] = { ...newSpecs[index], key: newKey };
     onChange(newSpecs);
   };
 
   const handleValueChange = (index: number, value: string) => {
     // Try to parse as number or boolean if possible
-    let parsedValue: unknown = value;
+    let parsedValue: string | number | boolean = value;
 
     if (value === "true") {
       parsedValue = true;
@@ -65,9 +66,8 @@ export function SpecificationEditor({
       parsedValue = Number(value);
     }
 
-    const newEntries = [...entries];
-    newEntries[index] = [newEntries[index][0], parsedValue];
-    const newSpecs = Object.fromEntries(newEntries);
+    const newSpecs = [...specifications];
+    newSpecs[index] = { ...newSpecs[index], value: parsedValue };
     onChange(newSpecs);
   };
 
@@ -93,11 +93,10 @@ export function SpecificationEditor({
       return;
     }
 
-    const newEntries = [...entries];
-    const [draggedEntry] = newEntries.splice(draggedIndex, 1);
-    newEntries.splice(dropIndex, 0, draggedEntry);
+    const newSpecs = [...specifications];
+    const [draggedSpec] = newSpecs.splice(draggedIndex, 1);
+    newSpecs.splice(dropIndex, 0, draggedSpec);
 
-    const newSpecs = Object.fromEntries(newEntries);
     onChange(newSpecs);
 
     setDraggedIndex(null);
@@ -109,7 +108,7 @@ export function SpecificationEditor({
     setDragOverIndex(null);
   };
 
-  const getDisplayValue = (value: unknown): string => {
+  const getDisplayValue = (value: string | number | boolean): string => {
     if (typeof value === "boolean") {
       return value.toString();
     }
@@ -137,12 +136,12 @@ export function SpecificationEditor({
         </Button>
       </div>
 
-      {entries.length === 0 ? (
+      {specifications.length === 0 ? (
         <p className="text-muted-foreground text-sm">{t("noSpecifications")}</p>
       ) : (
         <div className="space-y-3">
-          {entries.map(([key, value], index) => {
-            const hasDuplicate = isDuplicateKey(key, index);
+          {specifications.map((spec, index) => {
+            const hasDuplicate = isDuplicateKey(spec.key, index);
             const isDragging = draggedIndex === index;
             const isDropTarget = dragOverIndex === index;
 
@@ -182,7 +181,7 @@ export function SpecificationEditor({
                   </div>
                   <input
                     type="text"
-                    value={key}
+                    value={spec.key}
                     onChange={(e) => handleKeyChange(index, e.target.value)}
                     placeholder={t("specificationKey")}
                     className={cn(
@@ -194,7 +193,7 @@ export function SpecificationEditor({
                   />
                   <input
                     type="text"
-                    value={getDisplayValue(value)}
+                    value={getDisplayValue(spec.value)}
                     onChange={(e) => handleValueChange(index, e.target.value)}
                     placeholder={t("specificationValue")}
                     className="bg-background focus:border-primary focus:ring-primary/20 h-10 flex-1 rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden"

@@ -235,10 +235,10 @@ export const testItems = [
     location: testLocations[1],
     primary_image_url: null,
     attributes: {
-      specifications: {
-        voltage: "5V",
-        package: "SMD",
-      },
+      specifications: [
+        { key: "voltage", value: "5V" },
+        { key: "package", value: "SMD" },
+      ],
     },
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-01-01T00:00:00Z",
@@ -255,10 +255,10 @@ export const testItems = [
     location: testLocations[1],
     primary_image_url: null,
     attributes: {
-      specifications: {
-        voltage: "25V",
-        package: "THT",
-      },
+      specifications: [
+        { key: "voltage", value: "25V" },
+        { key: "package", value: "THT" },
+      ],
     },
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-01-01T00:00:00Z",
@@ -275,11 +275,11 @@ export const testItems = [
     location: testLocations[0],
     primary_image_url: null,
     attributes: {
-      specifications: {
-        type: "PLA",
-        color: "Blue",
-        diameter: "1.75mm",
-      },
+      specifications: [
+        { key: "type", value: "PLA" },
+        { key: "color", value: "Blue" },
+        { key: "diameter", value: "1.75mm" },
+      ],
     },
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-01-01T00:00:00Z",
@@ -364,12 +364,12 @@ export const testClassificationResult = {
     confidence: 0.95,
     category_path: "Electronics.Microcontrollers",
     description: "Arduino Uno microcontroller board based on ATmega328P",
-    specifications: {
-      microcontroller: "ATmega328P",
-      operating_voltage: "5V",
-      digital_io_pins: 14,
-      analog_input_pins: 6,
-    },
+    specifications: [
+      { key: "microcontroller", value: "ATmega328P" },
+      { key: "operating_voltage", value: "5V" },
+      { key: "digital_io_pins", value: 14 },
+      { key: "analog_input_pins", value: 6 },
+    ],
     alternative_suggestions: [
       { name: "Arduino Nano", confidence: 0.1 },
       { name: "Arduino Mega", confidence: 0.05 },

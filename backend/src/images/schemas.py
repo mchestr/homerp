@@ -7,6 +7,13 @@ from pydantic import BaseModel
 from src.common.ai_input_validator import ValidatedCustomPrompt
 
 
+class Specification(BaseModel):
+    """Schema for a single specification with key and value."""
+
+    key: str
+    value: str | int | float | bool
+
+
 class ImageUploadResponse(BaseModel):
     """Schema for image upload response."""
 
@@ -77,7 +84,7 @@ class ClassificationResult(BaseModel):
     confidence: float
     category_path: str
     description: str
-    specifications: dict[str, Any]
+    specifications: list[Specification]
     alternative_suggestions: list[dict[str, Any]] | None = None
     quantity_estimate: str | None = None
 

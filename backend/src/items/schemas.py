@@ -6,7 +6,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 from src.categories.schemas import CategoryResponse
-from src.images.schemas import ImageResponse
+from src.images.schemas import ImageResponse, Specification
 from src.locations.schemas import LocationResponse
 
 
@@ -210,7 +210,7 @@ class FindSimilarRequest(BaseModel):
 
     identified_name: str = Field(..., min_length=1, max_length=500)
     category_path: str | None = Field(None, max_length=500)
-    specifications: dict[str, Any] | None = None
+    specifications: list[Specification] | None = None
     limit: int = Field(5, ge=1, le=20)
 
 
