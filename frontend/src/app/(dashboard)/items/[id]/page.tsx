@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -67,6 +67,8 @@ const LOCATION_TYPES: Record<string, string> = {
   cabinet: "🚪",
 };
 
+const MAX_IMAGES = 10;
+
 function addIconsToLocationTree(
   nodes: LocationTreeNode[]
 ): (LocationTreeNode & { icon: string })[] {
@@ -110,9 +112,8 @@ export default function ItemDetailPage() {
   const [specifications, setSpecifications] = useState<Record<string, unknown>>(
     {}
   );
-  const [initialCategoryId, setInitialCategoryId] = useState<string | null>(
-    null
-  );
+  const [prevCategoryId, setPrevCategoryId] = useState<string | null>(null);
+  const formInitialized = useRef(false);
 
   const {
     confirm,
@@ -248,9 +249,9 @@ export default function ItemDetailPage() {
     },
   });
 
-  // Populate form when entering edit mode
+  // Populate form when entering edit mode (only once to prevent losing unsaved changes)
   useEffect(() => {
-    if (isEditMode && item) {
+    if (isEditMode && item && !formInitialized.current) {
       const { attributes, ...rest } = item;
       const categoryAttrs: Record<string, unknown> = {};
       const otherAttrs: Record<string, unknown> = {};
@@ -284,26 +285,26 @@ export default function ItemDetailPage() {
       });
       setCategoryAttributes(categoryAttrs);
       setSpecifications(specs);
+      setPrevCategoryId(rest.category_id ?? null);
+      formInitialized.current = true;
+    }
+
+    if (!isEditMode) {
+      formInitialized.current = false;
     }
   }, [isEditMode, item]);
 
-  // Track initial category ID
-  useEffect(() => {
-    if (item && initialCategoryId === null) {
-      setInitialCategoryId(item.category_id ?? null);
-    }
-  }, [item, initialCategoryId]);
-
-  // Reset category attributes when category changes
+  // Clear category attributes when category changes
   useEffect(() => {
     if (
       isEditMode &&
-      initialCategoryId !== null &&
-      formData.category_id !== initialCategoryId
+      prevCategoryId !== null &&
+      formData.category_id !== prevCategoryId
     ) {
       setCategoryAttributes({});
+      setPrevCategoryId(formData.category_id ?? null);
     }
-  }, [formData.category_id, initialCategoryId, isEditMode]);
+  }, [formData.category_id, prevCategoryId, isEditMode]);
 
   const handleSetPrimary = async (imageId: string) => {
     await setPrimaryImageMutation.mutateAsync(imageId);
@@ -356,7 +357,7 @@ export default function ItemDetailPage() {
   };
 
   const handleClassificationComplete = () => {
-    // Not used for item detail page uploads, only for new item creation
+    // Intentionally empty - classification not used for item detail page uploads
   };
 
   const handleDelete = async () => {
@@ -439,6 +440,24 @@ export default function ItemDetailPage() {
   const handleCancelEdit = () => {
     setIsEditMode(false);
   };
+
+  // Compute check-in/out button states
+  const availableQuantity = useMemo(
+    () => (item?.quantity ?? 0) - (usageStats?.currently_checked_out ?? 0),
+    [item?.quantity, usageStats?.currently_checked_out]
+  );
+
+  const canCheckOut = useMemo(
+    () => availableQuantity > 0 && checkInOutQuantity <= availableQuantity,
+    [availableQuantity, checkInOutQuantity]
+  );
+
+  const canCheckIn = useMemo(
+    () =>
+      (usageStats?.currently_checked_out ?? 0) > 0 &&
+      checkInOutQuantity <= (usageStats?.currently_checked_out ?? 0),
+    [usageStats?.currently_checked_out, checkInOutQuantity]
+  );
 
   if (isLoading) {
     return (
@@ -523,6 +542,7 @@ export default function ItemDetailPage() {
                 variant="outline"
                 className="gap-2"
                 onClick={() => setIsEditMode(true)}
+                data-testid="edit-button"
               >
                 <Edit className="h-4 w-4" />
                 <span className="hidden sm:inline">{tCommon("edit")}</span>
@@ -532,6 +552,7 @@ export default function ItemDetailPage() {
                 onClick={handleDelete}
                 disabled={deleteMutation.isPending}
                 className="gap-2"
+                data-testid="delete-button"
               >
                 <Trash2 className="h-4 w-4" />
                 <span className="hidden sm:inline">
@@ -548,6 +569,7 @@ export default function ItemDetailPage() {
                 variant="outline"
                 onClick={handleCancelEdit}
                 className="w-full sm:w-auto"
+                data-testid="cancel-button"
               >
                 {tCommon("cancel")}
               </Button>
@@ -555,15 +577,15 @@ export default function ItemDetailPage() {
                 onClick={handleSaveEdit}
                 disabled={updateMutation.isPending || !formData.name}
                 className="w-full sm:w-auto"
+                data-testid="save-button"
               >
                 {updateMutation.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    <span className="hidden sm:inline">{tItems("saving")}</span>
-                    <span className="sm:hidden">...</span>
+                    {tItems("saving")}
                   </>
                 ) : (
-                  <span>{tCommon("save")}</span>
+                  tCommon("save")
                 )}
               </Button>
             </>
@@ -591,7 +613,7 @@ export default function ItemDetailPage() {
                   uploadedImages={uploadedImages}
                   onRemoveImage={handleRemoveUploadedImage}
                   onSetPrimary={handleSetUploadedPrimary}
-                  maxImages={10}
+                  maxImages={MAX_IMAGES}
                 />
               </div>
             </>
@@ -605,11 +627,15 @@ export default function ItemDetailPage() {
               <div className="space-y-5">
                 {/* Name field */}
                 <div>
-                  <label className="mb-2 block text-sm font-medium">
+                  <label
+                    htmlFor="item-name"
+                    className="mb-2 block text-sm font-medium"
+                  >
                     {tCommon("name")}{" "}
                     <span className="text-destructive">*</span>
                   </label>
                   <input
+                    id="item-name"
                     type="text"
                     name="name"
                     value={formData.name ?? ""}
@@ -617,28 +643,37 @@ export default function ItemDetailPage() {
                     required
                     className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
                     placeholder={tItems("namePlaceholder")}
+                    data-testid="item-name-input"
                   />
                 </div>
 
                 {/* Description field */}
                 <div>
-                  <label className="mb-2 block text-sm font-medium">
+                  <label
+                    htmlFor="item-description"
+                    className="mb-2 block text-sm font-medium"
+                  >
                     {tCommon("description")}
                   </label>
                   <textarea
+                    id="item-description"
                     name="description"
                     value={formData.description || ""}
                     onChange={handleInputChange}
                     rows={3}
                     className="bg-background focus:border-primary focus:ring-primary/20 w-full rounded-lg border px-4 py-3 text-base transition-colors focus:ring-2 focus:outline-hidden"
                     placeholder={tItems("descriptionPlaceholder")}
+                    data-testid="item-description-input"
                   />
                 </div>
 
                 {/* Category and Location - side by side on desktop */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="mb-2 block text-sm font-medium">
+                    <label
+                      htmlFor="item-category"
+                      className="mb-2 block text-sm font-medium"
+                    >
                       {tItems("category")}
                     </label>
                     <TreeSelect
@@ -651,11 +686,15 @@ export default function ItemDetailPage() {
                         }))
                       }
                       placeholder={tItems("selectCategory")}
+                      data-testid="item-category-select"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium">
+                    <label
+                      htmlFor="item-location"
+                      className="mb-2 block text-sm font-medium"
+                    >
                       {tItems("location")}
                     </label>
                     <TreeSelect
@@ -668,6 +707,7 @@ export default function ItemDetailPage() {
                         }))
                       }
                       placeholder={tItems("selectLocation")}
+                      data-testid="item-location-select"
                     />
                   </div>
                 </div>
@@ -675,38 +715,52 @@ export default function ItemDetailPage() {
                 {/* Quantity, Unit, Min Quantity, Price - grid on desktop */}
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                   <div>
-                    <label className="mb-2 block text-sm font-medium">
+                    <label
+                      htmlFor="item-quantity"
+                      className="mb-2 block text-sm font-medium"
+                    >
                       {tItems("quantity")}
                     </label>
                     <input
+                      id="item-quantity"
                       type="number"
                       name="quantity"
                       value={formData.quantity ?? ""}
                       onChange={handleInputChange}
                       min={0}
                       className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
+                      data-testid="item-quantity-input"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium">
+                    <label
+                      htmlFor="item-quantity-unit"
+                      className="mb-2 block text-sm font-medium"
+                    >
                       {tItems("quantityUnit")}
                     </label>
                     <input
+                      id="item-quantity-unit"
                       type="text"
                       name="quantity_unit"
                       value={formData.quantity_unit ?? ""}
                       onChange={handleInputChange}
                       className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
                       placeholder={tItems("unitPlaceholder")}
+                      data-testid="item-quantity-unit-input"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium">
+                    <label
+                      htmlFor="item-min-quantity"
+                      className="mb-2 block text-sm font-medium"
+                    >
                       {tItems("minQuantity")}
                     </label>
                     <input
+                      id="item-min-quantity"
                       type="number"
                       name="min_quantity"
                       value={formData.min_quantity ?? ""}
@@ -714,14 +768,19 @@ export default function ItemDetailPage() {
                       min={0}
                       className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
                       placeholder={tItems("alertThreshold")}
+                      data-testid="item-min-quantity-input"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium">
+                    <label
+                      htmlFor="item-price"
+                      className="mb-2 block text-sm font-medium"
+                    >
                       {tItems("price")}
                     </label>
                     <input
+                      id="item-price"
                       type="number"
                       name="price"
                       value={formData.price ?? ""}
@@ -730,6 +789,7 @@ export default function ItemDetailPage() {
                       step={0.01}
                       className="bg-background focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border px-4 text-base transition-colors focus:ring-2 focus:outline-hidden"
                       placeholder="0.00"
+                      data-testid="item-price-input"
                     />
                   </div>
                 </div>
@@ -966,12 +1026,7 @@ export default function ItemDetailPage() {
                                 checkInMutation.isPending ||
                                 !item ||
                                 !usageStats ||
-                                (item.quantity ?? 0) -
-                                  usageStats.currently_checked_out <=
-                                  0 ||
-                                checkInOutQuantity >
-                                  (item.quantity ?? 0) -
-                                    usageStats.currently_checked_out
+                                !canCheckOut
                               }
                               className="w-full gap-2"
                             >
@@ -982,29 +1037,19 @@ export default function ItemDetailPage() {
                             </Button>
                           </span>
                         </TooltipTrigger>
+                        {item && usageStats && availableQuantity <= 0 && (
+                          <TooltipContent>
+                            <p>{t("checkOutDisabled")}</p>
+                          </TooltipContent>
+                        )}
                         {item &&
                           usageStats &&
-                          (item.quantity ?? 0) -
-                            usageStats.currently_checked_out <=
-                            0 && (
-                            <TooltipContent>
-                              <p>{t("checkOutDisabled")}</p>
-                            </TooltipContent>
-                          )}
-                        {item &&
-                          usageStats &&
-                          (item.quantity ?? 0) -
-                            usageStats.currently_checked_out >
-                            0 &&
-                          checkInOutQuantity >
-                            (item.quantity ?? 0) -
-                              usageStats.currently_checked_out && (
+                          availableQuantity > 0 &&
+                          checkInOutQuantity > availableQuantity && (
                             <TooltipContent>
                               <p>
                                 {t("exceedsAvailable", {
-                                  count:
-                                    (item.quantity ?? 0) -
-                                    usageStats.currently_checked_out,
+                                  count: availableQuantity,
                                 })}
                               </p>
                             </TooltipContent>
@@ -1022,9 +1067,7 @@ export default function ItemDetailPage() {
                                 checkOutMutation.isPending ||
                                 checkInMutation.isPending ||
                                 !usageStats ||
-                                usageStats.currently_checked_out <= 0 ||
-                                checkInOutQuantity >
-                                  usageStats.currently_checked_out
+                                !canCheckIn
                               }
                               className="w-full gap-2"
                             >
@@ -1206,7 +1249,7 @@ export default function ItemDetailPage() {
                     uploadedImages={uploadedImages}
                     onRemoveImage={handleRemoveUploadedImage}
                     onSetPrimary={handleSetUploadedPrimary}
-                    maxImages={10}
+                    maxImages={MAX_IMAGES}
                   />
                 </div>
               </div>

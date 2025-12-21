@@ -36,12 +36,13 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-with-specs/edit");
+      await page.goto("/items/item-with-specs");
 
-      // Wait for page to load
+      // Wait for page to load and enter edit mode
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: itemWithSpecs.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Verify existing specifications are displayed (using index-based selectors)
       await expect(page.getByTestId("specification-key-0")).toBeVisible();
@@ -101,10 +102,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-with-specs/edit");
+      await page.goto("/items/item-with-specs");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: itemWithSpecs.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Verify existing specification (index 0)
       await expect(page.getByTestId("specification-key-0")).toBeVisible();
@@ -123,7 +125,7 @@ test.describe("Item Edit - Specifications", () => {
       const responsePromise = page.waitForResponse(
         "**/api/v1/items/item-with-specs"
       );
-      await page.getByRole("button", { name: /save changes/i }).click();
+      await page.getByTestId("save-button").click();
       const response = await responsePromise;
 
       // Verify request body contains both old and new specifications
@@ -174,10 +176,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-with-specs/edit");
+      await page.goto("/items/item-with-specs");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: itemWithSpecs.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Edit the key (at index 0)
       await page.getByTestId("specification-key-0").fill("operating_voltage");
@@ -189,7 +192,7 @@ test.describe("Item Edit - Specifications", () => {
       const responsePromise = page.waitForResponse(
         "**/api/v1/items/item-with-specs"
       );
-      await page.getByRole("button", { name: /save changes/i }).click();
+      await page.getByTestId("save-button").click();
       const response = await responsePromise;
 
       // Verify request body contains updated specification
@@ -241,10 +244,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-with-specs/edit");
+      await page.goto("/items/item-with-specs");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: itemWithSpecs.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Verify all specifications are present
       await expect(page.getByTestId("specification-key-0")).toBeVisible();
@@ -263,7 +267,7 @@ test.describe("Item Edit - Specifications", () => {
       const responsePromise = page.waitForResponse(
         "**/api/v1/items/item-with-specs"
       );
-      await page.getByRole("button", { name: /save changes/i }).click();
+      await page.getByTestId("save-button").click();
       const response = await responsePromise;
 
       // Verify request body does not contain removed specification
@@ -325,10 +329,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-with-specs/edit");
+      await page.goto("/items/item-with-specs");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: itemWithSpecs.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Add a new specification
       await page.getByTestId("add-specification-button").click();
@@ -338,14 +343,15 @@ test.describe("Item Edit - Specifications", () => {
       await page.getByTestId("specification-value-1").fill("16MHz");
 
       // Save
-      await page.getByRole("button", { name: /save changes/i }).click();
+      await page.getByTestId("save-button").click();
       await expect(page).toHaveURL("/items/item-with-specs");
 
-      // Navigate back to edit page
-      await page.goto("/items/item-with-specs/edit");
+      // Navigate back to item page and enter edit mode
+      await page.goto("/items/item-with-specs");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: itemWithSpecs.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Verify both specifications are present
       await expect(page.getByTestId("specification-key-0")).toBeVisible();
@@ -394,10 +400,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-reorder/edit");
+      await page.goto("/items/item-reorder");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: itemWithSpecs.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Verify initial order: voltage, current, frequency
       await expect(page.getByTestId("specification-key-0")).toHaveValue(
@@ -464,10 +471,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-reorder/edit");
+      await page.goto("/items/item-reorder");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: itemWithSpecs.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Verify initial order: voltage, current, frequency
       await expect(page.getByTestId("specification-key-0")).toHaveValue(
@@ -523,10 +531,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-reorder/edit");
+      await page.goto("/items/item-reorder");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: itemWithSpecs.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Verify drag handles are visible
       await expect(page.getByTestId("drag-handle-0")).toBeVisible();
@@ -581,10 +590,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-reorder/edit");
+      await page.goto("/items/item-reorder");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: itemWithSpecs.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Drag "current" to the top
       const sourceRow = page.getByTestId("specification-row-1");
@@ -603,7 +613,7 @@ test.describe("Item Edit - Specifications", () => {
       const responsePromise = page.waitForResponse(
         "**/api/v1/items/item-reorder"
       );
-      await page.getByRole("button", { name: /save changes/i }).click();
+      await page.getByTestId("save-button").click();
       const response = await responsePromise;
 
       // Verify the order in the saved data
@@ -615,11 +625,12 @@ test.describe("Item Edit - Specifications", () => {
 
       await expect(page).toHaveURL("/items/item-reorder");
 
-      // Navigate back and verify order persisted
-      await page.goto("/items/item-reorder/edit");
+      // Navigate back to item page and enter edit mode to verify order persisted
+      await page.goto("/items/item-reorder");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: itemWithSpecs.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       await expect(page.getByTestId("specification-key-0")).toHaveValue(
         "current"
@@ -656,10 +667,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-without-specs/edit");
+      await page.goto("/items/item-without-specs");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: itemWithoutSpecs.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Verify empty state is shown (no specification fields visible)
       const specFields = page.locator('[data-testid^="specification-key-"]');
@@ -701,10 +713,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-without-specs/edit");
+      await page.goto("/items/item-without-specs");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: itemWithoutSpecs.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Add first specification
       await page.getByTestId("add-specification-button").click();
@@ -720,7 +733,7 @@ test.describe("Item Edit - Specifications", () => {
       const responsePromise = page.waitForResponse(
         "**/api/v1/items/item-without-specs"
       );
-      await page.getByRole("button", { name: /save changes/i }).click();
+      await page.getByTestId("save-button").click();
       const response = await responsePromise;
 
       // Verify request body contains the new specification
@@ -768,10 +781,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-without-specs/edit");
+      await page.goto("/items/item-without-specs");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: itemWithoutSpecs.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Add first specification
       await page.getByTestId("add-specification-button").click();
@@ -781,14 +795,15 @@ test.describe("Item Edit - Specifications", () => {
       await page.getByTestId("specification-value-0").fill("5m");
 
       // Save
-      await page.getByRole("button", { name: /save changes/i }).click();
+      await page.getByTestId("save-button").click();
       await expect(page).toHaveURL("/items/item-without-specs");
 
-      // Navigate back to edit page
-      await page.goto("/items/item-without-specs/edit");
+      // Navigate back to item page and enter edit mode
+      await page.goto("/items/item-without-specs");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: itemWithoutSpecs.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Verify specification persisted
       await expect(page.getByTestId("specification-key-0")).toBeVisible();
@@ -827,10 +842,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-datatypes/edit");
+      await page.goto("/items/item-datatypes");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: item.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Add text specification
       await page.getByTestId("add-specification-button").click();
@@ -843,7 +859,7 @@ test.describe("Item Edit - Specifications", () => {
       const responsePromise = page.waitForResponse(
         "**/api/v1/items/item-datatypes"
       );
-      await page.getByRole("button", { name: /save changes/i }).click();
+      await page.getByTestId("save-button").click();
       const response = await responsePromise;
 
       // Verify value is stored as string
@@ -884,10 +900,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-datatypes/edit");
+      await page.goto("/items/item-datatypes");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: item.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Add numeric specifications (integer and decimal)
       await page.getByTestId("add-specification-button").click();
@@ -906,7 +923,7 @@ test.describe("Item Edit - Specifications", () => {
       const responsePromise = page.waitForResponse(
         "**/api/v1/items/item-datatypes"
       );
-      await page.getByRole("button", { name: /save changes/i }).click();
+      await page.getByTestId("save-button").click();
       const response = await responsePromise;
 
       // Verify values are stored as numbers
@@ -953,10 +970,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-datatypes/edit");
+      await page.goto("/items/item-datatypes");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: item.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Add boolean specifications
       await page.getByTestId("add-specification-button").click();
@@ -975,7 +993,7 @@ test.describe("Item Edit - Specifications", () => {
       const responsePromise = page.waitForResponse(
         "**/api/v1/items/item-datatypes"
       );
-      await page.getByRole("button", { name: /save changes/i }).click();
+      await page.getByTestId("save-button").click();
       const response = await responsePromise;
 
       // Verify values are stored as booleans
@@ -1021,10 +1039,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-datatypes/edit");
+      await page.goto("/items/item-datatypes");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: item.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Verify values are displayed correctly (using index-based selectors)
       await expect(page.getByTestId("specification-value-0")).toHaveValue(
@@ -1069,10 +1088,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-duplicate-keys/edit");
+      await page.goto("/items/item-duplicate-keys");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: item.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Verify initial spec exists
       await expect(page.getByTestId("specification-key-0")).toHaveValue(
@@ -1129,10 +1149,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-duplicate-keys/edit");
+      await page.goto("/items/item-duplicate-keys");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: item.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Wait for specs to load - should have 2 with duplicate keys
       await expect(
@@ -1187,10 +1208,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-duplicate-keys/edit");
+      await page.goto("/items/item-duplicate-keys");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: item.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Wait for all specs to load
       await expect(
@@ -1236,10 +1258,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-duplicate-keys/edit");
+      await page.goto("/items/item-duplicate-keys");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: item.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Add two specifications
       await page.getByTestId("add-specification-button").click();
@@ -1294,10 +1317,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-multi-ops/edit");
+      await page.goto("/items/item-multi-ops");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: item.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // 1. Remove one specification (index 1 - "current")
       await page.getByTestId("remove-specification-1").click();
@@ -1318,7 +1342,7 @@ test.describe("Item Edit - Specifications", () => {
       const responsePromise = page.waitForResponse(
         "**/api/v1/items/item-multi-ops"
       );
-      await page.getByRole("button", { name: /save changes/i }).click();
+      await page.getByTestId("save-button").click();
       const response = await responsePromise;
 
       // Verify all changes in request body
@@ -1373,10 +1397,11 @@ test.describe("Item Edit - Specifications", () => {
         }
       });
 
-      await page.goto("/items/item-cancel/edit");
+      await page.goto("/items/item-cancel");
       await expect(
-        page.getByRole("heading", { name: /edit item/i })
+        page.getByRole("heading", { name: item.name })
       ).toBeVisible();
+      await page.getByTestId("edit-button").click();
 
       // Make changes
       await page.getByTestId("add-specification-button").click();
@@ -1386,7 +1411,7 @@ test.describe("Item Edit - Specifications", () => {
       await page.getByTestId("specification-value-1").fill("value");
 
       // Click cancel
-      await page.getByRole("button", { name: /cancel/i }).click();
+      await page.getByTestId("cancel-button").click();
 
       // Verify navigated to item detail without saving
       await expect(page).toHaveURL("/items/item-cancel");
