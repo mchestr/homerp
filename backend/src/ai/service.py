@@ -862,6 +862,167 @@ class AIClassificationService:
         )
         return result
 
+    async def query_assistant_with_tools(
+        self,
+        user_prompt: str,
+        conversation_history: list[dict[str, Any]],
+        tool_executor: Any,  # Type hint avoids circular import
+        max_tool_calls: int = 5,
+    ) -> tuple[str, list[dict[str, Any]], TokenUsage]:
+        """
+        Query the AI assistant with tool-calling capability.
+
+        Implements a loop that handles tool calls until the model produces
+        a final text response or max iterations is reached.
+
+        Args:
+            user_prompt: The user's current message
+            conversation_history: Previous messages in OpenAI format
+            tool_executor: ToolExecutor instance for running tools
+            max_tool_calls: Maximum tool call iterations to prevent infinite loops
+
+        Returns:
+            Tuple of (final_response_text, all_new_messages, total_token_usage)
+        """
+        from src.ai.tools import INVENTORY_TOOLS
+
+        logger.info(
+            f"Starting assistant query with tools: prompt_length={len(user_prompt)}, "
+            f"history_length={len(conversation_history)}"
+        )
+
+        # Get system prompt and enhance with tool usage instructions
+        system_prompt = self._template_manager.get_system_prompt(TEMPLATE_ASSISTANT)
+        system_prompt += """
+
+## Tool Usage
+You have access to tools to query the user's inventory. Use them when you need specific information about items, categories, locations, or stock levels.
+
+When referencing items from tool results, ALWAYS format them as clickable links: [Item Name](/items/ITEM_ID)
+
+If a tool returns no results, tell the user and suggest alternatives.
+"""
+
+        # Build messages array
+        messages: list[dict[str, Any]] = [
+            {"role": "system", "content": system_prompt},
+            *conversation_history,
+            {"role": "user", "content": user_prompt},
+        ]
+
+        all_new_messages: list[dict[str, Any]] = []
+        total_usage = TokenUsage(
+            prompt_tokens=0,
+            completion_tokens=0,
+            total_tokens=0,
+            model="",
+            estimated_cost_usd=Decimal("0"),
+        )
+
+        # Get dynamic model settings
+        operation_settings = await self.model_settings_service.get_operation_settings(
+            "assistant_query"
+        )
+
+        for iteration in range(max_tool_calls):
+            logger.debug(f"Tool call iteration {iteration + 1}/{max_tool_calls}")
+
+            response = await self.client.chat.completions.create(
+                model=operation_settings["model_name"],
+                temperature=operation_settings["temperature"],
+                messages=messages,
+                tools=INVENTORY_TOOLS,
+                tool_choice="auto",
+                max_tokens=operation_settings["max_tokens"],
+            )
+
+            # Accumulate token usage
+            usage = extract_token_usage(response)
+            total_usage.prompt_tokens += usage.prompt_tokens
+            total_usage.completion_tokens += usage.completion_tokens
+            total_usage.total_tokens += usage.total_tokens
+            total_usage.model = usage.model
+            total_usage.estimated_cost_usd += usage.estimated_cost_usd
+
+            assistant_message = response.choices[0].message
+
+            # Build message dict for history
+            msg_dict: dict[str, Any] = {"role": "assistant"}
+            if assistant_message.content:
+                msg_dict["content"] = assistant_message.content
+            if assistant_message.tool_calls:
+                msg_dict["tool_calls"] = [
+                    {
+                        "id": tc.id,
+                        "type": tc.type,
+                        "function": {
+                            "name": tc.function.name,
+                            "arguments": tc.function.arguments,
+                        },
+                    }
+                    for tc in assistant_message.tool_calls
+                ]
+
+            messages.append(msg_dict)
+            all_new_messages.append(msg_dict)
+
+            # If no tool calls, we have the final response
+            if not assistant_message.tool_calls:
+                logger.info(
+                    f"Assistant query with tools complete: iterations={iteration + 1}, "
+                    f"total_tokens={total_usage.total_tokens}"
+                )
+                return assistant_message.content or "", all_new_messages, total_usage
+
+            # Execute each tool call
+            for tool_call in assistant_message.tool_calls:
+                function_name = tool_call.function.name
+                try:
+                    arguments = json.loads(tool_call.function.arguments)
+                except json.JSONDecodeError:
+                    arguments = {}
+
+                logger.info(f"Executing tool: {function_name}")
+                result = await tool_executor.execute(function_name, arguments)
+
+                tool_message = {
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "name": function_name,
+                    "content": result,
+                }
+                messages.append(tool_message)
+                all_new_messages.append(tool_message)
+
+        # Max iterations reached, get final response without tools
+        logger.warning(
+            f"Max tool call iterations ({max_tool_calls}) reached, "
+            "getting final response"
+        )
+
+        response = await self.client.chat.completions.create(
+            model=operation_settings["model_name"],
+            temperature=operation_settings["temperature"],
+            messages=messages,
+            max_tokens=operation_settings["max_tokens"],
+        )
+
+        usage = extract_token_usage(response)
+        total_usage.prompt_tokens += usage.prompt_tokens
+        total_usage.completion_tokens += usage.completion_tokens
+        total_usage.total_tokens += usage.total_tokens
+        total_usage.estimated_cost_usd += usage.estimated_cost_usd
+
+        final_content = response.choices[0].message.content or ""
+        all_new_messages.append({"role": "assistant", "content": final_content})
+
+        logger.info(
+            f"Assistant query with tools complete (max iterations): "
+            f"total_tokens={total_usage.total_tokens}"
+        )
+
+        return final_content, all_new_messages, total_usage
+
 
 async def get_ai_service(
     model_settings_service: Annotated[

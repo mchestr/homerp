@@ -105,3 +105,83 @@ class AIModelSettingsUpdate(BaseModel):
     display_name: str | None = Field(None, min_length=1, max_length=100)
     description: str | None = Field(None, max_length=500)
     is_active: bool | None = None
+
+
+# Session schemas
+
+
+class SessionCreate(BaseModel):
+    """Request to create a new conversation session."""
+
+    title: str | None = Field(
+        None, max_length=255, description="Optional title for the session"
+    )
+
+
+class SessionUpdate(BaseModel):
+    """Request to update a session."""
+
+    title: str = Field(..., min_length=1, max_length=255)
+
+
+class SessionMessageResponse(BaseModel):
+    """Response schema for a single message."""
+
+    id: UUID
+    role: str
+    content: str | None
+    tool_calls: list[dict] | None = None
+    tool_name: str | None = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class SessionResponse(BaseModel):
+    """Response schema for a session."""
+
+    id: UUID
+    title: str
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+    message_count: int = 0
+
+    model_config = {"from_attributes": True}
+
+
+class SessionDetailResponse(SessionResponse):
+    """Session with messages."""
+
+    messages: list[SessionMessageResponse] = []
+
+
+class SessionListResponse(BaseModel):
+    """Paginated list of sessions."""
+
+    sessions: list[SessionResponse]
+    total: int
+    page: int
+    limit: int
+
+
+class SessionQueryRequest(BaseModel):
+    """Request schema for querying with session context."""
+
+    prompt: ValidatedPrompt = Field(..., description="The user's question or request")
+    session_id: UUID | None = Field(
+        None,
+        description="Session ID to continue conversation. If None, creates new session.",
+    )
+
+
+class SessionQueryResponse(BaseModel):
+    """Response for session-based query."""
+
+    success: bool
+    session_id: UUID
+    response: str | None = None
+    error: str | None = None
+    tools_used: list[str] = []
+    credits_used: int = 0
+    new_messages: list[SessionMessageResponse] = []

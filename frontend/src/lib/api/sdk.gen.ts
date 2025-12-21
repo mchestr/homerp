@@ -38,6 +38,9 @@ import type {
   CalculateGridApiV1GridfinityCalculateGridGetData,
   CalculateGridApiV1GridfinityCalculateGridGetErrors,
   CalculateGridApiV1GridfinityCalculateGridGetResponses,
+  ChatWithToolsApiV1AiChatPostData,
+  ChatWithToolsApiV1AiChatPostErrors,
+  ChatWithToolsApiV1AiChatPostResponses,
   CheckInItemApiV1ItemsItemIdCheckInPostData,
   CheckInItemApiV1ItemsItemIdCheckInPostErrors,
   CheckInItemApiV1ItemsItemIdCheckInPostResponses,
@@ -86,6 +89,9 @@ import type {
   CreatePortalSessionApiV1BillingPortalPostData,
   CreatePortalSessionApiV1BillingPortalPostErrors,
   CreatePortalSessionApiV1BillingPortalPostResponses,
+  CreateSessionApiV1AiSessionsPostData,
+  CreateSessionApiV1AiSessionsPostErrors,
+  CreateSessionApiV1AiSessionsPostResponses,
   CreateUnitApiV1GridfinityUnitsPostData,
   CreateUnitApiV1GridfinityUnitsPostErrors,
   CreateUnitApiV1GridfinityUnitsPostResponses,
@@ -119,6 +125,9 @@ import type {
   DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteData,
   DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteErrors,
   DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteResponses,
+  DeleteSessionApiV1AiSessionsSessionIdDeleteData,
+  DeleteSessionApiV1AiSessionsSessionIdDeleteErrors,
+  DeleteSessionApiV1AiSessionsSessionIdDeleteResponses,
   DeleteUnitApiV1GridfinityUnitsUnitIdDeleteData,
   DeleteUnitApiV1GridfinityUnitsUnitIdDeleteErrors,
   DeleteUnitApiV1GridfinityUnitsUnitIdDeleteResponses,
@@ -282,6 +291,9 @@ import type {
   GetRevenueOverTimeApiV1AdminStatsRevenueGetData,
   GetRevenueOverTimeApiV1AdminStatsRevenueGetErrors,
   GetRevenueOverTimeApiV1AdminStatsRevenueGetResponses,
+  GetSessionApiV1AiSessionsSessionIdGetData,
+  GetSessionApiV1AiSessionsSessionIdGetErrors,
+  GetSessionApiV1AiSessionsSessionIdGetResponses,
   GetSignupsOverTimeApiV1AdminStatsSignupsGetData,
   GetSignupsOverTimeApiV1AdminStatsSignupsGetErrors,
   GetSignupsOverTimeApiV1AdminStatsSignupsGetResponses,
@@ -357,6 +369,9 @@ import type {
   ListPricingApiV1AdminPricingGetResponses,
   ListProvidersApiV1AuthProvidersGetData,
   ListProvidersApiV1AuthProvidersGetResponses,
+  ListSessionsApiV1AiSessionsGetData,
+  ListSessionsApiV1AiSessionsGetErrors,
+  ListSessionsApiV1AiSessionsGetResponses,
   ListTransactionsApiV1BillingTransactionsGetData,
   ListTransactionsApiV1BillingTransactionsGetErrors,
   ListTransactionsApiV1BillingTransactionsGetResponses,
@@ -459,6 +474,9 @@ import type {
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchData,
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchErrors,
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponses,
+  UpdateSessionApiV1AiSessionsSessionIdPatchData,
+  UpdateSessionApiV1AiSessionsSessionIdPatchErrors,
+  UpdateSessionApiV1AiSessionsSessionIdPatchResponses,
   UpdateUnitApiV1GridfinityUnitsUnitIdPutData,
   UpdateUnitApiV1GridfinityUnitsUnitIdPutErrors,
   UpdateUnitApiV1GridfinityUnitsUnitIdPutResponses,
@@ -1082,6 +1100,160 @@ export const queryAssistantApiV1AiQueryPost = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/ai/query",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List Sessions
+ *
+ * List the user's conversation sessions.
+ *
+ * Returns sessions ordered by most recently updated first.
+ */
+export const listSessionsApiV1AiSessionsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<ListSessionsApiV1AiSessionsGetData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    ListSessionsApiV1AiSessionsGetResponses,
+    ListSessionsApiV1AiSessionsGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/ai/sessions",
+    ...options,
+  });
+
+/**
+ * Create Session
+ *
+ * Create a new conversation session.
+ *
+ * Sessions store conversation history for persistent chat with the AI assistant.
+ */
+export const createSessionApiV1AiSessionsPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CreateSessionApiV1AiSessionsPostData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    CreateSessionApiV1AiSessionsPostResponses,
+    CreateSessionApiV1AiSessionsPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/ai/sessions",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete Session
+ *
+ * Delete or archive a session.
+ *
+ * By default, sessions are archived (soft delete). Set permanent=true to permanently delete.
+ */
+export const deleteSessionApiV1AiSessionsSessionIdDelete = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    DeleteSessionApiV1AiSessionsSessionIdDeleteData,
+    ThrowOnError
+  >
+) =>
+  (options.client ?? client).delete<
+    DeleteSessionApiV1AiSessionsSessionIdDeleteResponses,
+    DeleteSessionApiV1AiSessionsSessionIdDeleteErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/ai/sessions/{session_id}",
+    ...options,
+  });
+
+/**
+ * Get Session
+ *
+ * Get a session with its full message history.
+ */
+export const getSessionApiV1AiSessionsSessionIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetSessionApiV1AiSessionsSessionIdGetData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    GetSessionApiV1AiSessionsSessionIdGetResponses,
+    GetSessionApiV1AiSessionsSessionIdGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/ai/sessions/{session_id}",
+    ...options,
+  });
+
+/**
+ * Update Session
+ *
+ * Update a session's title.
+ */
+export const updateSessionApiV1AiSessionsSessionIdPatch = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UpdateSessionApiV1AiSessionsSessionIdPatchData, ThrowOnError>
+) =>
+  (options.client ?? client).patch<
+    UpdateSessionApiV1AiSessionsSessionIdPatchResponses,
+    UpdateSessionApiV1AiSessionsSessionIdPatchErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/ai/sessions/{session_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Chat With Tools
+ *
+ * Chat with the AI assistant using tool-calling.
+ *
+ * The assistant can use tools to query your inventory dynamically:
+ * - search_items: Search for items by name or description
+ * - get_item_details: Get full details about a specific item
+ * - filter_items: Filter items by category, location, or tags
+ * - find_similar_items: Find items similar to a given name
+ * - get_low_stock_items: Find items below minimum quantity
+ * - get_inventory_summary: Get overview of your inventory
+ *
+ * If session_id is provided, continues an existing conversation.
+ * If not provided, creates a new session automatically.
+ *
+ * Consumes credits based on configured pricing.
+ */
+export const chatWithToolsApiV1AiChatPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<ChatWithToolsApiV1AiChatPostData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    ChatWithToolsApiV1AiChatPostResponses,
+    ChatWithToolsApiV1AiChatPostErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/ai/chat",
     ...options,
     headers: {
       "Content-Type": "application/json",
