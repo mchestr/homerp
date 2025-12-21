@@ -17,8 +17,6 @@ import {
   RefreshCw,
   Sparkles,
   Zap,
-  Calendar,
-  ShoppingBag,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -90,6 +88,7 @@ function TransactionRow({ transaction }: { transaction: CreditTransaction }) {
     purchase: "Purchase",
     usage: "AI Classification",
     free_monthly: "Monthly Free Credits",
+    signup_bonus: "Signup Bonus",
     refund: "Refund",
   };
 
@@ -151,25 +150,16 @@ function CreditsInfoCard() {
                   cost: imageClassificationCost ?? 1,
                 })}
           </p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="bg-muted/50 rounded-lg p-4">
               <div className="flex items-center gap-2">
-                <Calendar className="text-primary h-4 w-4" />
-                <h3 className="text-sm font-medium">{t("freeCreditsInfo")}</h3>
-              </div>
-              <p className="text-muted-foreground mt-2 text-xs">
-                {t("freeCreditsDescription")}
-              </p>
-            </div>
-            <div className="bg-muted/50 rounded-lg p-4">
-              <div className="flex items-center gap-2">
-                <ShoppingBag className="text-primary h-4 w-4" />
+                <Sparkles className="text-primary h-4 w-4" />
                 <h3 className="text-sm font-medium">
-                  {t("purchasedCreditsInfo")}
+                  {t("signupCreditsInfo")}
                 </h3>
               </div>
               <p className="text-muted-foreground mt-2 text-xs">
-                {t("purchasedCreditsDescription")}
+                {t("signupCreditsDescription")}
               </p>
             </div>
             <div className="bg-muted/50 rounded-lg p-4">
@@ -267,29 +257,14 @@ export default function BillingSettingsPage() {
             <RefreshCw className="h-4 w-4" />
           </Button>
         </div>
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
-          <div className="bg-muted/50 rounded-lg p-4 text-center">
-            <p className="text-primary text-3xl font-bold">
+        <div className="mt-4">
+          <div className="bg-muted/50 rounded-lg p-6 text-center">
+            <p className="text-primary text-4xl font-bold">
               {creditBalance?.total_credits ?? 0}
             </p>
-            <p className="text-muted-foreground text-sm">Total Available</p>
-          </div>
-          <div className="bg-muted/50 rounded-lg p-4 text-center">
-            <p className="text-2xl font-semibold">
-              {creditBalance?.purchased_credits ?? 0}
+            <p className="text-muted-foreground mt-1 text-sm">
+              Credits Available
             </p>
-            <p className="text-muted-foreground text-sm">Purchased</p>
-          </div>
-          <div className="bg-muted/50 rounded-lg p-4 text-center">
-            <p className="text-2xl font-semibold">
-              {creditBalance?.free_credits ?? 0}
-            </p>
-            <p className="text-muted-foreground text-sm">Free (Monthly)</p>
-            {creditBalance?.next_free_reset_at && (
-              <p className="text-muted-foreground mt-1 text-xs">
-                Resets {formatDate(creditBalance.next_free_reset_at)}
-              </p>
-            )}
           </div>
         </div>
       </div>

@@ -123,6 +123,10 @@ import {
   getAiUsageByUserApiV1AdminAiUsageByUserGet,
   getAiUsageHistoryApiV1AdminAiUsageHistoryGet,
   getAiUsageDailyApiV1AdminAiUsageDailyGet,
+  // Billing Settings - TODO: Uncomment after regenerating API client from homerp_1 backend
+  // listBillingSettingsApiV1AdminBillingSettingsGet,
+  // getBillingSettingApiV1AdminBillingSettingsSettingIdGet,
+  // updateBillingSettingApiV1AdminBillingSettingsSettingIdPut,
   // Feedback
   createFeedbackApiV1FeedbackPost,
   listMyFeedbackApiV1FeedbackGet,
@@ -220,7 +224,29 @@ import type {
   AiModelSettingsUpdate,
   SessionCreate,
   SessionUpdate,
+  // BillingSettingUpdate, - TODO: Uncomment after regenerating API client from homerp_1 backend
 } from "./types.gen";
+
+// =============================================================================
+// Temporary stub types for Billing Settings (until API client is regenerated)
+// TODO: Remove these stubs after running: mise run api:generate (with homerp_1 backend running)
+// =============================================================================
+
+export interface BillingSetting {
+  id: string;
+  setting_key: string;
+  value_int: number | null;
+  display_name: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BillingSettingUpdate {
+  value_int?: number | null;
+  display_name?: string;
+  description?: string | null;
+}
 
 // =============================================================================
 // Re-export types from generated types (with aliases for backwards compatibility)
@@ -311,6 +337,9 @@ export type {
   PaginatedActivityResponse,
   CreditAdjustmentRequest as CreditAdjustment,
   CreditAdjustmentResponse,
+  // Billing Settings types - TODO: Uncomment after regenerating API client from homerp_1 backend
+  // BillingSettingResponse as BillingSetting,
+  // BillingSettingUpdate,
   // Feedback types
   FeedbackCreate,
   FeedbackResponse,
@@ -1123,6 +1152,30 @@ export const adminApi = {
       query: { days },
       throwOnError: true,
     }).then((res) => res.data),
+
+  // Billing Settings
+  // TODO: Replace stubs with real API calls after regenerating API client from homerp_1 backend
+  // Run: mise run api:generate (with homerp_1 backend running on port 8000)
+  listBillingSettings: async (): Promise<BillingSetting[]> => {
+    throw new Error(
+      "Billing Settings API not available. Regenerate API client from homerp_1 backend."
+    );
+  },
+
+  getBillingSetting: async (_id: string): Promise<BillingSetting> => {
+    throw new Error(
+      "Billing Settings API not available. Regenerate API client from homerp_1 backend."
+    );
+  },
+
+  updateBillingSetting: async (
+    _id: string,
+    _data: BillingSettingUpdate
+  ): Promise<BillingSetting> => {
+    throw new Error(
+      "Billing Settings API not available. Regenerate API client from homerp_1 backend."
+    );
+  },
 };
 
 // =============================================================================

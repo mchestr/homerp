@@ -265,28 +265,39 @@ class TestClassificationCreditFlow:
 class TestClassificationCreditEdgeCases:
     """Edge case tests for classification credit handling."""
 
-    async def test_free_credits_reset_before_classification(
+    async def test_no_free_credits_reset_after_expiry(
         self,
         async_session: AsyncSession,
         test_settings: Settings,
         user_with_expired_free_credits: User,
     ):
-        """Test that expired free credits are reset before classification check."""
+        """Test that expired free credits are NOT reset (monthly reset removed).
+
+        Free credits are now a one-time signup bonus and never reset.
+        This user has purchased credits (10) but 0 free credits. Previously,
+        the monthly reset would have given them 5 more free credits. Now it doesn't.
+        """
         service = CreditService(async_session, test_settings)
 
-        # User has expired reset date and 0 free credits
+        # User has expired reset date and 0 free credits, but has purchased credits
         assert user_with_expired_free_credits.free_credits_remaining == 0
+        assert user_with_expired_free_credits.credit_balance == 10  # Has purchased credits
         assert user_with_expired_free_credits.free_credits_reset_at < datetime.now(UTC)
 
-        # has_credits should trigger reset
+        # has_credits returns True because user has purchased credits
         has_credits = await service.has_credits(user_with_expired_free_credits.id)
-        assert has_credits is True
+        assert has_credits is True  # Has purchased credits
+
+        # Get balance to trigger any reset logic (which should now be removed)
+        balance = await service.get_balance(user_with_expired_free_credits.id)
 
         await async_session.refresh(user_with_expired_free_credits)
-        assert (
-            user_with_expired_free_credits.free_credits_remaining
-            == test_settings.free_monthly_credits
-        )
+
+        # Free credits should remain at 0 - no reset happens anymore
+        assert user_with_expired_free_credits.free_credits_remaining == 0
+        assert balance.free_credits == 0
+        # next_free_reset_at should be None (no more monthly resets)
+        assert balance.next_free_reset_at is None
 
     async def test_classification_with_mixed_credit_types(
         self,

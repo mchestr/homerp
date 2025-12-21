@@ -7,6 +7,29 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.database import Base
 
 
+class AppSetting(Base):
+    """Application settings table for configurable values."""
+
+    __tablename__ = "app_settings"
+
+    id: Mapped[UUID] = mapped_column(
+        primary_key=True, server_default=func.gen_random_uuid()
+    )
+    setting_key: Mapped[str] = mapped_column(
+        String(50), nullable=False, unique=True, index=True
+    )
+    value_int: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    value_string: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    display_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    description: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
 class CreditPricing(Base):
     """Credit pricing - configurable credit costs per operation type."""
 

@@ -1,11 +1,16 @@
+import logging
 from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.billing.models import CreditTransaction
+from src.billing.settings_service import BillingSettingsService
 from src.config import get_settings
 from src.users.models import User
 from src.users.schemas import UserCreate, UserSettingsUpdate
+
+logger = logging.getLogger(__name__)
 
 
 class UserRepository:
@@ -103,8 +108,28 @@ class UserRepository:
         # Auto-admin: if email matches admin_email, make them admin
         if settings.admin_email and email == settings.admin_email:
             user.is_admin = True
-            await self.session.commit()
-            await self.session.refresh(user)
+
+        # Grant signup credits to new user
+        billing_settings = BillingSettingsService(self.session)
+        signup_credits = await billing_settings.get_signup_credits()
+        if signup_credits > 0:
+            user.free_credits_remaining = signup_credits
+            user.free_credits_reset_at = None  # No monthly resets
+
+            # Create transaction record for signup bonus
+            transaction = CreditTransaction(
+                user_id=user.id,
+                amount=signup_credits,
+                transaction_type="signup_bonus",
+                description="Signup credits bonus",
+            )
+            self.session.add(transaction)
+            logger.info(
+                f"Granted signup credits: user_id={user.id}, credits={signup_credits}"
+            )
+
+        await self.session.commit()
+        await self.session.refresh(user)
 
         return user, True
 

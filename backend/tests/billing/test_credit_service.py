@@ -48,18 +48,18 @@ class TestGetBalance:
         assert balance.total_credits == 0
         assert balance.next_free_reset_at is None
 
-    async def test_get_balance_includes_reset_date(
+    async def test_get_balance_has_no_reset_date(
         self,
         async_session: AsyncSession,
         test_settings: Settings,
         test_user: User,
     ):
-        """Test that balance includes the next reset date."""
+        """Test that balance has no reset date (monthly reset removed)."""
         service = CreditService(async_session, test_settings)
         balance = await service.get_balance(test_user.id)
 
-        assert balance.next_free_reset_at is not None
-        assert balance.next_free_reset_at == test_user.free_credits_reset_at
+        # next_free_reset_at should always be None (no more monthly resets)
+        assert balance.next_free_reset_at is None
 
 
 class TestHasCredits:

@@ -1,5 +1,4 @@
 import logging
-from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 import stripe
@@ -40,7 +39,11 @@ class CreditService:
         return result.scalar_one_or_none()
 
     async def get_balance(self, user_id: UUID) -> CreditBalanceResponse:
-        """Get credit balance for a user, resetting free credits if needed."""
+        """Get credit balance for a user.
+
+        Note: Monthly credit resets have been removed. Free credits now represent
+        a one-time signup bonus that doesn't reset.
+        """
         user = await self.get_user(user_id)
         if not user:
             return CreditBalanceResponse(
@@ -50,54 +53,12 @@ class CreditService:
                 next_free_reset_at=None,
             )
 
-        # Check and reset free credits if needed
-        await self._check_and_reset_free_credits(user)
-
         return CreditBalanceResponse(
             purchased_credits=user.credit_balance,
             free_credits=user.free_credits_remaining,
             total_credits=user.credit_balance + user.free_credits_remaining,
-            next_free_reset_at=user.free_credits_reset_at,
+            next_free_reset_at=None,  # No more monthly resets
         )
-
-    async def _check_and_reset_free_credits(self, user: User) -> None:
-        """Reset free credits if the reset date has passed (anniversary-based)."""
-        now = datetime.now(UTC)
-
-        # Initialize reset date if not set (new user)
-        if user.free_credits_reset_at is None:
-            user.free_credits_reset_at = user.created_at + timedelta(days=30)
-            # Ensure new users have their initial free credits
-            if user.free_credits_remaining == 0:
-                user.free_credits_remaining = self.settings.free_monthly_credits
-                logger.info(
-                    f"Initialized free credits for new user: user_id={user.id}, "
-                    f"credits={self.settings.free_monthly_credits}"
-                )
-            await self.session.commit()
-            return
-
-        # Check if reset is due
-        if now >= user.free_credits_reset_at:
-            # Reset free credits
-            user.free_credits_remaining = self.settings.free_monthly_credits
-            # Set next reset to 30 days from now
-            user.free_credits_reset_at = now + timedelta(days=30)
-
-            # Log the reset transaction
-            transaction = CreditTransaction(
-                user_id=user.id,
-                amount=self.settings.free_monthly_credits,
-                transaction_type="free_monthly",
-                description="Monthly free credits reset",
-            )
-            self.session.add(transaction)
-            await self.session.commit()
-            logger.info(
-                f"Reset monthly free credits: user_id={user.id}, "
-                f"credits={self.settings.free_monthly_credits}, "
-                f"next_reset={user.free_credits_reset_at}"
-            )
 
     async def has_credits(self, user_id: UUID, amount: int = 1) -> bool:
         """Check if user has enough credits. Admins always have credits."""
@@ -144,9 +105,6 @@ class CreditService:
         if user.is_admin:
             logger.debug(f"Admin bypass for credit deduction: user_id={user_id}")
             return None
-
-        # Check and reset free credits first
-        await self._check_and_reset_free_credits(user)
 
         total_available = user.free_credits_remaining + user.credit_balance
         if total_available < amount:

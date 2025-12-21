@@ -8,10 +8,12 @@ class CreditBalanceResponse(BaseModel):
     """Response schema for credit balance."""
 
     purchased_credits: int = Field(..., description="Purchased credits (never expire)")
-    free_credits: int = Field(..., description="Free credits remaining this month")
+    free_credits: int = Field(
+        ..., description="Signup bonus credits remaining (one-time, never resets)"
+    )
     total_credits: int = Field(..., description="Total available credits")
     next_free_reset_at: datetime | None = Field(
-        None, description="When free credits will reset"
+        None, description="Deprecated: always null (no more monthly resets)"
     )
 
 
@@ -148,4 +150,33 @@ class OperationCostsResponse(BaseModel):
     )
     items: list[OperationCostResponse] = Field(
         ..., description="Detailed list of operation costs"
+    )
+
+
+class BillingSettingResponse(BaseModel):
+    """Response schema for billing setting."""
+
+    id: UUID
+    setting_key: str
+    value_int: int | None
+    value_string: str | None
+    display_name: str
+    description: str | None
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class BillingSettingUpdate(BaseModel):
+    """Request schema for updating billing setting."""
+
+    value_int: int | None = Field(
+        None, ge=0, description="Integer value (must be >= 0)"
+    )
+    display_name: str | None = Field(
+        None, min_length=1, max_length=100, description="Display name"
+    )
+    description: str | None = Field(
+        None, max_length=500, description="Description of the setting"
     )
