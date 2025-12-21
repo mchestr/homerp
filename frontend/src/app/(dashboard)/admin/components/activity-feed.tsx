@@ -169,7 +169,7 @@ export function ActivityFeed({ className }: ActivityFeedProps) {
                     size="sm"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="min-h-[36px] px-2 text-xs sm:px-3 sm:text-sm"
+                    className="min-h-[40px] px-2 text-xs sm:px-3 sm:text-sm"
                   >
                     {t("previous")}
                   </Button>
@@ -180,7 +180,7 @@ export function ActivityFeed({ className }: ActivityFeedProps) {
                       setPage((p) => Math.min(data.total_pages, p + 1))
                     }
                     disabled={page === data.total_pages}
-                    className="min-h-[36px] px-2 text-xs sm:px-3 sm:text-sm"
+                    className="min-h-[40px] px-2 text-xs sm:px-3 sm:text-sm"
                   >
                     {t("next")}
                   </Button>
