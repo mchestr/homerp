@@ -56,7 +56,10 @@ const MarkdownLink = ({
     }
 
     return (
-      <Link href={href} className="text-primary font-medium hover:underline">
+      <Link
+        href={href}
+        className="font-medium text-blue-600 underline decoration-blue-600/50 hover:decoration-blue-600 dark:text-blue-400 dark:decoration-blue-400/50 dark:hover:decoration-blue-400"
+      >
         {children}
       </Link>
     );
@@ -67,7 +70,7 @@ const MarkdownLink = ({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-primary hover:underline"
+      className="text-blue-600 underline decoration-blue-600/50 hover:decoration-blue-600 dark:text-blue-400 dark:decoration-blue-400/50 dark:hover:decoration-blue-400"
     >
       {children}
     </a>
