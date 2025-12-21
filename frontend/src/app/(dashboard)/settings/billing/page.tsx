@@ -123,7 +123,25 @@ function CreditsInfoCard() {
   const [isExpanded, setIsExpanded] = useState(false);
   const t = useTranslations("billing");
   const { getCost, isLoading: isCostsLoading } = useOperationCosts();
-  const imageClassificationCost = getCost("image_classification");
+
+  const operationCosts = [
+    {
+      key: "imageClassification",
+      cost: getCost("image_classification"),
+    },
+    {
+      key: "locationAnalysis",
+      cost: getCost("location_analysis"),
+    },
+    {
+      key: "aiAssistant",
+      cost: getCost("assistant_query"),
+    },
+    {
+      key: "locationSuggestion",
+      cost: getCost("location_suggestion"),
+    },
+  ];
 
   return (
     <div className="bg-card rounded-xl border">
@@ -144,11 +162,7 @@ function CreditsInfoCard() {
       {isExpanded && (
         <div className="border-t px-6 pt-4 pb-6">
           <p className="text-muted-foreground text-sm">
-            {isCostsLoading
-              ? "..."
-              : t("creditsExplanation", {
-                  cost: imageClassificationCost ?? 1,
-                })}
+            {t("creditsExplanation")}
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="bg-muted/50 rounded-lg p-4">
@@ -168,12 +182,25 @@ function CreditsInfoCard() {
                 <h3 className="text-sm font-medium">{t("creditCostInfo")}</h3>
               </div>
               <p className="text-muted-foreground mt-2 text-xs">
-                {isCostsLoading
-                  ? "..."
-                  : t("creditCostDescription", {
-                      cost: imageClassificationCost ?? 1,
-                    })}
+                {t("creditCostInfoDescription")}
               </p>
+              {isCostsLoading ? (
+                <p className="text-muted-foreground mt-2 text-xs">...</p>
+              ) : (
+                <ul className="mt-2 space-y-1 text-xs">
+                  {operationCosts.map(({ key, cost }) => (
+                    <li
+                      key={key}
+                      className="text-muted-foreground flex justify-between"
+                    >
+                      <span>{t(`operationCosts.${key}`)}</span>
+                      <span className="font-medium">
+                        {t("creditCost", { cost: cost ?? 1 })}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </div>
