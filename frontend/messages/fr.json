@@ -344,6 +344,7 @@
     "filename": "Nom du fichier",
     "classified": "Classifié",
     "createItemFromThis": "Créer un Article à partir de Ceci",
+    "image": "Image",
     "customPrompt": {
       "title": "Instructions IA Personnalisées",
       "description": "Fournissez un contexte supplémentaire pour aider l'IA à mieux identifier votre article. Par exemple, spécifiez des conventions de nommage comme 'bac X,Y' ou des détails spécifiques sur l'article.",

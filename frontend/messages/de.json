@@ -385,6 +385,7 @@
     "filename": "Dateiname",
     "classified": "Klassifiziert",
     "createItemFromThis": "Artikel daraus erstellen",
+    "image": "Bild",
     "customPrompt": {
       "title": "Benutzerdefinierte KI-Anweisungen",
       "description": "Geben Sie zusätzlichen Kontext an, um der KI zu helfen, Ihren Artikel besser zu identifizieren. Geben Sie beispielsweise Namenskonventionen wie 'Behälter X,Y' oder spezifische Details zum Artikel an.",
