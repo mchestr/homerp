@@ -19,7 +19,6 @@ import {
   MessageSquare,
   Webhook,
   ArrowRight,
-  Key,
   Activity,
   Settings,
 } from "lucide-react";
@@ -340,7 +339,7 @@ export default function AdminPage() {
                 {t("admin.quickActions")}
               </h2>
               <div
-                className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+                className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3"
                 data-testid="quick-actions-grid"
               >
                 <QuickActionCard
@@ -369,26 +368,18 @@ export default function AdminPage() {
                   testId="quick-action-feedback"
                 />
                 <QuickActionCard
-                  title={t("admin.creditPacks")}
-                  description={t("admin.managePacksDescription")}
-                  icon={CreditCard}
-                  href="/admin/packs"
-                  badge={`${stats.active_credit_packs} ${t("admin.stats.active")}`}
-                  testId="quick-action-packs"
+                  title={t("admin.settings.title")}
+                  description={t("admin.settings.description")}
+                  icon={Settings}
+                  href="/admin/settings"
+                  testId="quick-action-settings"
                 />
                 <QuickActionCard
-                  title={t("admin.webhooks")}
-                  description={t("admin.manageWebhooksDescription")}
+                  title={t("admin.integrations.title")}
+                  description={t("admin.integrations.description")}
                   icon={Webhook}
-                  href="/admin/webhooks"
-                  testId="quick-action-webhooks"
-                />
-                <QuickActionCard
-                  title={t("admin.apiKeys.title")}
-                  description={t("admin.apiKeys.description")}
-                  icon={Key}
-                  href="/admin/api-keys"
-                  testId="quick-action-api-keys"
+                  href="/admin/integrations"
+                  testId="quick-action-integrations"
                 />
                 <QuickActionCard
                   title={t("admin.aiUsage.title")}
@@ -396,27 +387,6 @@ export default function AdminPage() {
                   icon={Activity}
                   href="/admin/ai-usage"
                   testId="quick-action-ai-usage"
-                />
-                <QuickActionCard
-                  title={t("admin.pricing.title")}
-                  description={t("admin.pricing.description")}
-                  icon={Coins}
-                  href="/admin/pricing"
-                  testId="quick-action-pricing"
-                />
-                <QuickActionCard
-                  title={t("admin.aiModels.title")}
-                  description={t("admin.aiModels.description")}
-                  icon={Settings}
-                  href="/admin/ai-models"
-                  testId="quick-action-ai-models"
-                />
-                <QuickActionCard
-                  title={t("admin.manageBillingSettings")}
-                  description={t("admin.manageBillingSettingsDescription")}
-                  icon={DollarSign}
-                  href="/admin/billing-settings"
-                  testId="quick-action-billing-settings"
                 />
               </div>
             </div>

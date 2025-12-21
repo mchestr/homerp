@@ -573,6 +573,26 @@
     "manageWebhooksDescription": "システムイベントのWebhook統合を設定",
     "quickActions": "クイックアクション",
     "manage": "管理",
+    "settings": {
+      "title": "設定",
+      "description": "課金、クレジットパック、価格設定、AIモデルの管理",
+      "subtitle": "課金とAI設定の構成",
+      "tabs": {
+        "billing": "課金",
+        "creditPacks": "クレジットパック",
+        "pricing": "価格設定",
+        "aiModels": "AIモデル"
+      }
+    },
+    "integrations": {
+      "title": "連携",
+      "description": "WebhookとAPIアクセスの設定",
+      "subtitle": "外部連携とAPIアクセスの管理",
+      "tabs": {
+        "webhooks": "Webhook",
+        "apiKeys": "APIキー"
+      }
+    },
     "recentActivity": "最近のアクティビティ",
     "noRecentActivity": "最近のアクティビティはありません",
     "timeRange": {

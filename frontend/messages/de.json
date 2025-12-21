@@ -615,6 +615,26 @@
     "manageWebhooksDescription": "Webhook-Integrationen für Systemereignisse konfigurieren",
     "quickActions": "Schnellaktionen",
     "manage": "Verwalten",
+    "settings": {
+      "title": "Einstellungen",
+      "description": "Abrechnung, Kreditpakete, Preise und KI-Modelle verwalten",
+      "subtitle": "Abrechnungs- und KI-Einstellungen konfigurieren",
+      "tabs": {
+        "billing": "Abrechnung",
+        "creditPacks": "Kreditpakete",
+        "pricing": "Preise",
+        "aiModels": "KI-Modelle"
+      }
+    },
+    "integrations": {
+      "title": "Integrationen",
+      "description": "Webhooks und API-Zugriff konfigurieren",
+      "subtitle": "Externe Integrationen und API-Zugriff verwalten",
+      "tabs": {
+        "webhooks": "Webhooks",
+        "apiKeys": "API-Schlüssel"
+      }
+    },
     "recentActivity": "Letzte Aktivität",
     "noRecentActivity": "Keine aktuelle Aktivität",
     "timeRange": {
