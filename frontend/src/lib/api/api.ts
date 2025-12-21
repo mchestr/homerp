@@ -156,6 +156,12 @@ import {
   calculateGridApiV1GridfinityCalculateGridGet,
   // AI Assistant
   queryAssistantApiV1AiQueryPost,
+  listSessionsApiV1AiSessionsGet,
+  createSessionApiV1AiSessionsPost,
+  getSessionApiV1AiSessionsSessionIdGet,
+  updateSessionApiV1AiSessionsSessionIdPatch,
+  deleteSessionApiV1AiSessionsSessionIdDelete,
+  chatWithToolsApiV1AiChatPost,
   // Profile
   getHobbyTypesApiV1ProfileHobbyTypesGet,
   getMyProfileApiV1ProfileMeGet,
@@ -212,6 +218,8 @@ import type {
   ApiKeyUpdate,
   CollaboratorRole,
   AiModelSettingsUpdate,
+  SessionCreate,
+  SessionUpdate,
 } from "./types.gen";
 
 // =============================================================================
@@ -347,6 +355,14 @@ export type {
   // AI Assistant types
   AssistantQueryRequest,
   AssistantQueryResponse,
+  SessionCreate,
+  SessionUpdate,
+  SessionResponse,
+  SessionDetailResponse,
+  SessionListResponse,
+  SessionMessageResponse,
+  SessionQueryRequest,
+  SessionQueryResponse,
   // AI Usage types
   OperationBreakdown,
   ModelBreakdown,
@@ -1328,6 +1344,54 @@ export const aiApi = {
     queryAssistantApiV1AiQueryPost({ body: data, throwOnError: true }).then(
       (res) => res.data
     ),
+
+  // Session management
+  listSessions: (options?: {
+    page?: number;
+    limit?: number;
+    active_only?: boolean;
+  }) =>
+    listSessionsApiV1AiSessionsGet({
+      query: {
+        page: options?.page ?? 1,
+        limit: options?.limit ?? 20,
+        active_only: options?.active_only ?? true,
+      },
+      throwOnError: true,
+    }).then((res) => res.data),
+
+  createSession: (data?: SessionCreate) =>
+    createSessionApiV1AiSessionsPost({
+      body: data || {},
+      throwOnError: true,
+    }).then((res) => res.data),
+
+  getSession: (sessionId: string) =>
+    getSessionApiV1AiSessionsSessionIdGet({
+      path: { session_id: sessionId },
+      throwOnError: true,
+    }).then((res) => res.data),
+
+  updateSession: (sessionId: string, data: SessionUpdate) =>
+    updateSessionApiV1AiSessionsSessionIdPatch({
+      path: { session_id: sessionId },
+      body: data,
+      throwOnError: true,
+    }).then((res) => res.data),
+
+  deleteSession: (sessionId: string, permanent = false) =>
+    deleteSessionApiV1AiSessionsSessionIdDelete({
+      path: { session_id: sessionId },
+      query: { permanent },
+      throwOnError: true,
+    }).then((res) => res.data),
+
+  // Tool-enabled chat
+  chat: (data: { prompt: string; session_id?: string }) =>
+    chatWithToolsApiV1AiChatPost({
+      body: data,
+      throwOnError: true,
+    }).then((res) => res.data),
 };
 
 // =============================================================================

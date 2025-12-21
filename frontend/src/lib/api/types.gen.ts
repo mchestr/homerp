@@ -4236,6 +4236,214 @@ export type RevenueTimeSeriesResponse = {
 };
 
 /**
+ * SessionCreate
+ *
+ * Request to create a new conversation session.
+ */
+export type SessionCreate = {
+  /**
+   * Title
+   *
+   * Optional title for the session
+   */
+  title?: string | null;
+};
+
+/**
+ * SessionDetailResponse
+ *
+ * Session with messages.
+ */
+export type SessionDetailResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Title
+   */
+  title: string;
+  /**
+   * Is Active
+   */
+  is_active: boolean;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Updated At
+   */
+  updated_at: string;
+  /**
+   * Message Count
+   */
+  message_count?: number;
+  /**
+   * Messages
+   */
+  messages?: Array<SessionMessageResponse>;
+};
+
+/**
+ * SessionListResponse
+ *
+ * Paginated list of sessions.
+ */
+export type SessionListResponse = {
+  /**
+   * Sessions
+   */
+  sessions: Array<SessionResponse>;
+  /**
+   * Total
+   */
+  total: number;
+  /**
+   * Page
+   */
+  page: number;
+  /**
+   * Limit
+   */
+  limit: number;
+};
+
+/**
+ * SessionMessageResponse
+ *
+ * Response schema for a single message.
+ */
+export type SessionMessageResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Role
+   */
+  role: string;
+  /**
+   * Content
+   */
+  content: string | null;
+  /**
+   * Tool Calls
+   */
+  tool_calls?: Array<{
+    [key: string]: unknown;
+  }> | null;
+  /**
+   * Tool Name
+   */
+  tool_name?: string | null;
+  /**
+   * Created At
+   */
+  created_at: string;
+};
+
+/**
+ * SessionQueryRequest
+ *
+ * Request schema for querying with session context.
+ */
+export type SessionQueryRequest = {
+  /**
+   * Prompt
+   *
+   * The user's question or request
+   */
+  prompt: string;
+  /**
+   * Session Id
+   *
+   * Session ID to continue conversation. If None, creates new session.
+   */
+  session_id?: string | null;
+};
+
+/**
+ * SessionQueryResponse
+ *
+ * Response for session-based query.
+ */
+export type SessionQueryResponse = {
+  /**
+   * Success
+   */
+  success: boolean;
+  /**
+   * Session Id
+   */
+  session_id: string;
+  /**
+   * Response
+   */
+  response?: string | null;
+  /**
+   * Error
+   */
+  error?: string | null;
+  /**
+   * Tools Used
+   */
+  tools_used?: Array<string>;
+  /**
+   * Credits Used
+   */
+  credits_used?: number;
+  /**
+   * New Messages
+   */
+  new_messages?: Array<SessionMessageResponse>;
+};
+
+/**
+ * SessionResponse
+ *
+ * Response schema for a session.
+ */
+export type SessionResponse = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Title
+   */
+  title: string;
+  /**
+   * Is Active
+   */
+  is_active: boolean;
+  /**
+   * Created At
+   */
+  created_at: string;
+  /**
+   * Updated At
+   */
+  updated_at: string;
+  /**
+   * Message Count
+   */
+  message_count?: number;
+};
+
+/**
+ * SessionUpdate
+ *
+ * Request to update a session.
+ */
+export type SessionUpdate = {
+  /**
+   * Title
+   */
+  title: string;
+};
+
+/**
  * Settings
  *
  * Application settings loaded from environment variables.
@@ -6239,6 +6447,245 @@ export type QueryAssistantApiV1AiQueryPostResponses = {
 
 export type QueryAssistantApiV1AiQueryPostResponse =
   QueryAssistantApiV1AiQueryPostResponses[keyof QueryAssistantApiV1AiQueryPostResponses];
+
+export type ListSessionsApiV1AiSessionsGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: {
+    /**
+     * Page
+     *
+     * Page number
+     */
+    page?: number;
+    /**
+     * Limit
+     *
+     * Items per page
+     */
+    limit?: number;
+    /**
+     * Active Only
+     *
+     * Only return active sessions
+     */
+    active_only?: boolean;
+  };
+  url: "/api/v1/ai/sessions";
+};
+
+export type ListSessionsApiV1AiSessionsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListSessionsApiV1AiSessionsGetError =
+  ListSessionsApiV1AiSessionsGetErrors[keyof ListSessionsApiV1AiSessionsGetErrors];
+
+export type ListSessionsApiV1AiSessionsGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: SessionListResponse;
+};
+
+export type ListSessionsApiV1AiSessionsGetResponse =
+  ListSessionsApiV1AiSessionsGetResponses[keyof ListSessionsApiV1AiSessionsGetResponses];
+
+export type CreateSessionApiV1AiSessionsPostData = {
+  body: SessionCreate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/ai/sessions";
+};
+
+export type CreateSessionApiV1AiSessionsPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CreateSessionApiV1AiSessionsPostError =
+  CreateSessionApiV1AiSessionsPostErrors[keyof CreateSessionApiV1AiSessionsPostErrors];
+
+export type CreateSessionApiV1AiSessionsPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: SessionResponse;
+};
+
+export type CreateSessionApiV1AiSessionsPostResponse =
+  CreateSessionApiV1AiSessionsPostResponses[keyof CreateSessionApiV1AiSessionsPostResponses];
+
+export type DeleteSessionApiV1AiSessionsSessionIdDeleteData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Session Id
+     */
+    session_id: string;
+  };
+  query?: {
+    /**
+     * Permanent
+     *
+     * Permanently delete instead of archive
+     */
+    permanent?: boolean;
+  };
+  url: "/api/v1/ai/sessions/{session_id}";
+};
+
+export type DeleteSessionApiV1AiSessionsSessionIdDeleteErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type DeleteSessionApiV1AiSessionsSessionIdDeleteError =
+  DeleteSessionApiV1AiSessionsSessionIdDeleteErrors[keyof DeleteSessionApiV1AiSessionsSessionIdDeleteErrors];
+
+export type DeleteSessionApiV1AiSessionsSessionIdDeleteResponses = {
+  /**
+   * Successful Response
+   */
+  204: void;
+};
+
+export type DeleteSessionApiV1AiSessionsSessionIdDeleteResponse =
+  DeleteSessionApiV1AiSessionsSessionIdDeleteResponses[keyof DeleteSessionApiV1AiSessionsSessionIdDeleteResponses];
+
+export type GetSessionApiV1AiSessionsSessionIdGetData = {
+  body?: never;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Session Id
+     */
+    session_id: string;
+  };
+  query?: never;
+  url: "/api/v1/ai/sessions/{session_id}";
+};
+
+export type GetSessionApiV1AiSessionsSessionIdGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetSessionApiV1AiSessionsSessionIdGetError =
+  GetSessionApiV1AiSessionsSessionIdGetErrors[keyof GetSessionApiV1AiSessionsSessionIdGetErrors];
+
+export type GetSessionApiV1AiSessionsSessionIdGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: SessionDetailResponse;
+};
+
+export type GetSessionApiV1AiSessionsSessionIdGetResponse =
+  GetSessionApiV1AiSessionsSessionIdGetResponses[keyof GetSessionApiV1AiSessionsSessionIdGetResponses];
+
+export type UpdateSessionApiV1AiSessionsSessionIdPatchData = {
+  body: SessionUpdate;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path: {
+    /**
+     * Session Id
+     */
+    session_id: string;
+  };
+  query?: never;
+  url: "/api/v1/ai/sessions/{session_id}";
+};
+
+export type UpdateSessionApiV1AiSessionsSessionIdPatchErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type UpdateSessionApiV1AiSessionsSessionIdPatchError =
+  UpdateSessionApiV1AiSessionsSessionIdPatchErrors[keyof UpdateSessionApiV1AiSessionsSessionIdPatchErrors];
+
+export type UpdateSessionApiV1AiSessionsSessionIdPatchResponses = {
+  /**
+   * Successful Response
+   */
+  200: SessionResponse;
+};
+
+export type UpdateSessionApiV1AiSessionsSessionIdPatchResponse =
+  UpdateSessionApiV1AiSessionsSessionIdPatchResponses[keyof UpdateSessionApiV1AiSessionsSessionIdPatchResponses];
+
+export type ChatWithToolsApiV1AiChatPostData = {
+  body: SessionQueryRequest;
+  headers?: {
+    /**
+     * X-Api-Key
+     */
+    "X-API-Key"?: string | null;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/ai/chat";
+};
+
+export type ChatWithToolsApiV1AiChatPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ChatWithToolsApiV1AiChatPostError =
+  ChatWithToolsApiV1AiChatPostErrors[keyof ChatWithToolsApiV1AiChatPostErrors];
+
+export type ChatWithToolsApiV1AiChatPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: SessionQueryResponse;
+};
+
+export type ChatWithToolsApiV1AiChatPostResponse =
+  ChatWithToolsApiV1AiChatPostResponses[keyof ChatWithToolsApiV1AiChatPostResponses];
 
 export type ListApiKeysApiV1AdminApikeysGetData = {
   body?: never;

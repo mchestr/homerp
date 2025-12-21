@@ -85,6 +85,9 @@ class User(Base):
     ai_usage_logs: Mapped[list["AIUsageLog"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    ai_sessions: Mapped[list["AIConversationSession"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
     notification_preferences: Mapped["NotificationPreferences | None"] = relationship(
         back_populates="user", cascade="all, delete-orphan", uselist=False
     )
@@ -112,7 +115,7 @@ class User(Base):
 
 
 # Import at bottom to avoid circular imports
-from src.ai.models import AIUsageLog  # noqa: E402
+from src.ai.models import AIConversationSession, AIUsageLog  # noqa: E402
 from src.apikeys.models import ApiKey  # noqa: E402
 from src.billing.models import CreditTransaction  # noqa: E402
 from src.categories.models import Category  # noqa: E402

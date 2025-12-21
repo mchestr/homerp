@@ -20,6 +20,7 @@ import {
   batchCreateItemsApiV1ItemsBatchPost,
   batchUpdateItemsApiV1ItemsBatchPatch,
   calculateGridApiV1GridfinityCalculateGridGet,
+  chatWithToolsApiV1AiChatPost,
   checkInItemApiV1ItemsItemIdCheckInPost,
   checkOutItemApiV1ItemsItemIdCheckOutPost,
   classifyImagesApiV1ImagesClassifyPost,
@@ -36,6 +37,7 @@ import {
   createPackApiV1AdminPacksPost,
   createPlacementApiV1GridfinityUnitsUnitIdPlacementsPost,
   createPortalSessionApiV1BillingPortalPost,
+  createSessionApiV1AiSessionsPost,
   createUnitApiV1GridfinityUnitsPost,
   declineInvitationApiV1CollaborationInvitationsInvitationIdDeclinePost,
   deleteApiKeyApiV1AdminApikeysApiKeyIdDelete,
@@ -47,6 +49,7 @@ import {
   deleteLocationApiV1LocationsLocationIdDelete,
   deletePackApiV1AdminPacksPackIdDelete,
   deletePlacementApiV1GridfinityPlacementsPlacementIdDelete,
+  deleteSessionApiV1AiSessionsSessionIdDelete,
   deleteUnitApiV1GridfinityUnitsUnitIdDelete,
   detachImageFromItemApiV1ImagesImageIdDetachPost,
   detachImageFromLocationApiV1ImagesImageIdDetachLocationPost,
@@ -102,6 +105,7 @@ import {
   getRecommendationsApiV1ProfileRecommendationsGet,
   getRecommendationsCostApiV1ProfileRecommendationsCostGet,
   getRevenueOverTimeApiV1AdminStatsRevenueGet,
+  getSessionApiV1AiSessionsSessionIdGet,
   getSignupsOverTimeApiV1AdminStatsSignupsGet,
   getStatsApiV1AdminStatsGet,
   getUnitApiV1GridfinityUnitsUnitIdGet,
@@ -128,6 +132,7 @@ import {
   listPacksApiV1BillingPacksGet,
   listPricingApiV1AdminPricingGet,
   listProvidersApiV1AuthProvidersGet,
+  listSessionsApiV1AiSessionsGet,
   listTransactionsApiV1BillingTransactionsGet,
   listUnitsApiV1GridfinityUnitsGet,
   listUsersApiV1AdminUsersGet,
@@ -163,6 +168,7 @@ import {
   updatePlacementApiV1GridfinityPlacementsPlacementIdPut,
   updatePricingApiV1AdminPricingPricingIdPut,
   updateRecommendationApiV1ProfileRecommendationsRecommendationIdPatch,
+  updateSessionApiV1AiSessionsSessionIdPatch,
   updateUnitApiV1GridfinityUnitsUnitIdPut,
   updateUserApiV1AdminUsersUserIdPut,
   updateUserSettingsApiV1AuthSettingsPatch,
@@ -199,6 +205,9 @@ import type {
   CalculateGridApiV1GridfinityCalculateGridGetData,
   CalculateGridApiV1GridfinityCalculateGridGetError,
   CalculateGridApiV1GridfinityCalculateGridGetResponse,
+  ChatWithToolsApiV1AiChatPostData,
+  ChatWithToolsApiV1AiChatPostError,
+  ChatWithToolsApiV1AiChatPostResponse,
   CheckInItemApiV1ItemsItemIdCheckInPostData,
   CheckInItemApiV1ItemsItemIdCheckInPostError,
   CheckInItemApiV1ItemsItemIdCheckInPostResponse,
@@ -247,6 +256,9 @@ import type {
   CreatePortalSessionApiV1BillingPortalPostData,
   CreatePortalSessionApiV1BillingPortalPostError,
   CreatePortalSessionApiV1BillingPortalPostResponse,
+  CreateSessionApiV1AiSessionsPostData,
+  CreateSessionApiV1AiSessionsPostError,
+  CreateSessionApiV1AiSessionsPostResponse,
   CreateUnitApiV1GridfinityUnitsPostData,
   CreateUnitApiV1GridfinityUnitsPostError,
   CreateUnitApiV1GridfinityUnitsPostResponse,
@@ -280,6 +292,9 @@ import type {
   DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteData,
   DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteError,
   DeletePlacementApiV1GridfinityPlacementsPlacementIdDeleteResponse,
+  DeleteSessionApiV1AiSessionsSessionIdDeleteData,
+  DeleteSessionApiV1AiSessionsSessionIdDeleteError,
+  DeleteSessionApiV1AiSessionsSessionIdDeleteResponse,
   DeleteUnitApiV1GridfinityUnitsUnitIdDeleteData,
   DeleteUnitApiV1GridfinityUnitsUnitIdDeleteError,
   DeleteUnitApiV1GridfinityUnitsUnitIdDeleteResponse,
@@ -439,6 +454,9 @@ import type {
   GetRevenueOverTimeApiV1AdminStatsRevenueGetData,
   GetRevenueOverTimeApiV1AdminStatsRevenueGetError,
   GetRevenueOverTimeApiV1AdminStatsRevenueGetResponse,
+  GetSessionApiV1AiSessionsSessionIdGetData,
+  GetSessionApiV1AiSessionsSessionIdGetError,
+  GetSessionApiV1AiSessionsSessionIdGetResponse,
   GetSignupsOverTimeApiV1AdminStatsSignupsGetData,
   GetSignupsOverTimeApiV1AdminStatsSignupsGetError,
   GetSignupsOverTimeApiV1AdminStatsSignupsGetResponse,
@@ -513,6 +531,9 @@ import type {
   ListPricingApiV1AdminPricingGetResponse,
   ListProvidersApiV1AuthProvidersGetData,
   ListProvidersApiV1AuthProvidersGetResponse,
+  ListSessionsApiV1AiSessionsGetData,
+  ListSessionsApiV1AiSessionsGetError,
+  ListSessionsApiV1AiSessionsGetResponse,
   ListTransactionsApiV1BillingTransactionsGetData,
   ListTransactionsApiV1BillingTransactionsGetError,
   ListTransactionsApiV1BillingTransactionsGetResponse,
@@ -615,6 +636,9 @@ import type {
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchData,
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchError,
   UpdateRecommendationApiV1ProfileRecommendationsRecommendationIdPatchResponse,
+  UpdateSessionApiV1AiSessionsSessionIdPatchData,
+  UpdateSessionApiV1AiSessionsSessionIdPatchError,
+  UpdateSessionApiV1AiSessionsSessionIdPatchResponse,
   UpdateUnitApiV1GridfinityUnitsUnitIdPutData,
   UpdateUnitApiV1GridfinityUnitsUnitIdPutError,
   UpdateUnitApiV1GridfinityUnitsUnitIdPutResponse,
@@ -1676,6 +1700,255 @@ export const queryAssistantApiV1AiQueryPostMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await queryAssistantApiV1AiQueryPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const listSessionsApiV1AiSessionsGetQueryKey = (
+  options?: Options<ListSessionsApiV1AiSessionsGetData>
+) => createQueryKey("listSessionsApiV1AiSessionsGet", options);
+
+/**
+ * List Sessions
+ *
+ * List the user's conversation sessions.
+ *
+ * Returns sessions ordered by most recently updated first.
+ */
+export const listSessionsApiV1AiSessionsGetOptions = (
+  options?: Options<ListSessionsApiV1AiSessionsGetData>
+) =>
+  queryOptions<
+    ListSessionsApiV1AiSessionsGetResponse,
+    ListSessionsApiV1AiSessionsGetError,
+    ListSessionsApiV1AiSessionsGetResponse,
+    ReturnType<typeof listSessionsApiV1AiSessionsGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await listSessionsApiV1AiSessionsGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: listSessionsApiV1AiSessionsGetQueryKey(options),
+  });
+
+export const listSessionsApiV1AiSessionsGetInfiniteQueryKey = (
+  options?: Options<ListSessionsApiV1AiSessionsGetData>
+): QueryKey<Options<ListSessionsApiV1AiSessionsGetData>> =>
+  createQueryKey("listSessionsApiV1AiSessionsGet", options, true);
+
+/**
+ * List Sessions
+ *
+ * List the user's conversation sessions.
+ *
+ * Returns sessions ordered by most recently updated first.
+ */
+export const listSessionsApiV1AiSessionsGetInfiniteOptions = (
+  options?: Options<ListSessionsApiV1AiSessionsGetData>
+) =>
+  infiniteQueryOptions<
+    ListSessionsApiV1AiSessionsGetResponse,
+    ListSessionsApiV1AiSessionsGetError,
+    InfiniteData<ListSessionsApiV1AiSessionsGetResponse>,
+    QueryKey<Options<ListSessionsApiV1AiSessionsGetData>>,
+    | number
+    | Pick<
+        QueryKey<Options<ListSessionsApiV1AiSessionsGetData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListSessionsApiV1AiSessionsGetData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              };
+        const params = createInfiniteParams(queryKey, page);
+        const { data } = await listSessionsApiV1AiSessionsGet({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        });
+        return data;
+      },
+      queryKey: listSessionsApiV1AiSessionsGetInfiniteQueryKey(options),
+    }
+  );
+
+/**
+ * Create Session
+ *
+ * Create a new conversation session.
+ *
+ * Sessions store conversation history for persistent chat with the AI assistant.
+ */
+export const createSessionApiV1AiSessionsPostMutation = (
+  options?: Partial<Options<CreateSessionApiV1AiSessionsPostData>>
+): UseMutationOptions<
+  CreateSessionApiV1AiSessionsPostResponse,
+  CreateSessionApiV1AiSessionsPostError,
+  Options<CreateSessionApiV1AiSessionsPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateSessionApiV1AiSessionsPostResponse,
+    CreateSessionApiV1AiSessionsPostError,
+    Options<CreateSessionApiV1AiSessionsPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await createSessionApiV1AiSessionsPost({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Delete Session
+ *
+ * Delete or archive a session.
+ *
+ * By default, sessions are archived (soft delete). Set permanent=true to permanently delete.
+ */
+export const deleteSessionApiV1AiSessionsSessionIdDeleteMutation = (
+  options?: Partial<Options<DeleteSessionApiV1AiSessionsSessionIdDeleteData>>
+): UseMutationOptions<
+  DeleteSessionApiV1AiSessionsSessionIdDeleteResponse,
+  DeleteSessionApiV1AiSessionsSessionIdDeleteError,
+  Options<DeleteSessionApiV1AiSessionsSessionIdDeleteData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DeleteSessionApiV1AiSessionsSessionIdDeleteResponse,
+    DeleteSessionApiV1AiSessionsSessionIdDeleteError,
+    Options<DeleteSessionApiV1AiSessionsSessionIdDeleteData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await deleteSessionApiV1AiSessionsSessionIdDelete({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const getSessionApiV1AiSessionsSessionIdGetQueryKey = (
+  options: Options<GetSessionApiV1AiSessionsSessionIdGetData>
+) => createQueryKey("getSessionApiV1AiSessionsSessionIdGet", options);
+
+/**
+ * Get Session
+ *
+ * Get a session with its full message history.
+ */
+export const getSessionApiV1AiSessionsSessionIdGetOptions = (
+  options: Options<GetSessionApiV1AiSessionsSessionIdGetData>
+) =>
+  queryOptions<
+    GetSessionApiV1AiSessionsSessionIdGetResponse,
+    GetSessionApiV1AiSessionsSessionIdGetError,
+    GetSessionApiV1AiSessionsSessionIdGetResponse,
+    ReturnType<typeof getSessionApiV1AiSessionsSessionIdGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getSessionApiV1AiSessionsSessionIdGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getSessionApiV1AiSessionsSessionIdGetQueryKey(options),
+  });
+
+/**
+ * Update Session
+ *
+ * Update a session's title.
+ */
+export const updateSessionApiV1AiSessionsSessionIdPatchMutation = (
+  options?: Partial<Options<UpdateSessionApiV1AiSessionsSessionIdPatchData>>
+): UseMutationOptions<
+  UpdateSessionApiV1AiSessionsSessionIdPatchResponse,
+  UpdateSessionApiV1AiSessionsSessionIdPatchError,
+  Options<UpdateSessionApiV1AiSessionsSessionIdPatchData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateSessionApiV1AiSessionsSessionIdPatchResponse,
+    UpdateSessionApiV1AiSessionsSessionIdPatchError,
+    Options<UpdateSessionApiV1AiSessionsSessionIdPatchData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await updateSessionApiV1AiSessionsSessionIdPatch({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * Chat With Tools
+ *
+ * Chat with the AI assistant using tool-calling.
+ *
+ * The assistant can use tools to query your inventory dynamically:
+ * - search_items: Search for items by name or description
+ * - get_item_details: Get full details about a specific item
+ * - filter_items: Filter items by category, location, or tags
+ * - find_similar_items: Find items similar to a given name
+ * - get_low_stock_items: Find items below minimum quantity
+ * - get_inventory_summary: Get overview of your inventory
+ *
+ * If session_id is provided, continues an existing conversation.
+ * If not provided, creates a new session automatically.
+ *
+ * Consumes credits based on configured pricing.
+ */
+export const chatWithToolsApiV1AiChatPostMutation = (
+  options?: Partial<Options<ChatWithToolsApiV1AiChatPostData>>
+): UseMutationOptions<
+  ChatWithToolsApiV1AiChatPostResponse,
+  ChatWithToolsApiV1AiChatPostError,
+  Options<ChatWithToolsApiV1AiChatPostData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ChatWithToolsApiV1AiChatPostResponse,
+    ChatWithToolsApiV1AiChatPostError,
+    Options<ChatWithToolsApiV1AiChatPostData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await chatWithToolsApiV1AiChatPost({
         ...options,
         ...fnOptions,
         throwOnError: true,

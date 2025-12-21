@@ -94,6 +94,9 @@ client.interceptors.error.use((error, response) => {
   // The response object contains the status code.
   if (response && typeof error === "object" && error !== null) {
     (error as ApiError).status = response.status;
+  } else if (response) {
+    // Handle non-object errors (e.g., string error messages)
+    return { message: error, status: response.status } as ApiError;
   }
   return error;
 });

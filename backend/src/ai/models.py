@@ -80,6 +80,69 @@ class AIModelSettings(Base):
     )
 
 
+class AIConversationSession(Base):
+    """AI conversation session for persistent chat history."""
+
+    __tablename__ = "ai_conversation_sessions"
+
+    id: Mapped[UUID] = mapped_column(
+        primary_key=True, server_default=func.gen_random_uuid()
+    )
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, default=True, server_default="true"
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    # Relationships
+    user: Mapped["User"] = relationship(back_populates="ai_sessions")
+    messages: Mapped[list["AIConversationMessage"]] = relationship(
+        back_populates="session",
+        cascade="all, delete-orphan",
+        order_by="AIConversationMessage.created_at",
+    )
+
+
+class AIConversationMessage(Base):
+    """Individual message in an AI conversation."""
+
+    __tablename__ = "ai_conversation_messages"
+
+    id: Mapped[UUID] = mapped_column(
+        primary_key=True, server_default=func.gen_random_uuid()
+    )
+    session_id: Mapped[UUID] = mapped_column(
+        ForeignKey("ai_conversation_sessions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    role: Mapped[str] = mapped_column(
+        String(20), nullable=False
+    )  # 'user', 'assistant', 'tool'
+    content: Mapped[str | None] = mapped_column(
+        String(50000)
+    )  # Nullable for tool calls
+    tool_calls: Mapped[dict | None] = mapped_column(
+        JSONB
+    )  # OpenAI tool_calls structure
+    tool_call_id: Mapped[str | None] = mapped_column(String(100))  # For tool responses
+    tool_name: Mapped[str | None] = mapped_column(String(100))  # Name of tool called
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), index=True
+    )
+
+    # Relationships
+    session: Mapped["AIConversationSession"] = relationship(back_populates="messages")
+
+
 # Import at bottom to avoid circular imports
 from src.billing.models import CreditTransaction  # noqa: E402
 from src.users.models import User  # noqa: E402
