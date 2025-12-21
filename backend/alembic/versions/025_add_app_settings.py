@@ -1,7 +1,7 @@
 """Add app_settings table for configurable billing settings
 
-Revision ID: 024
-Revises: 023
+Revision ID: 025
+Revises: 024
 Create Date: 2025-12-20
 
 """
@@ -13,8 +13,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "024"
-down_revision: str | None = "023"
+revision: str = "025"
+down_revision: str | None = "024"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
