@@ -111,9 +111,7 @@ class TestAIModelSettingsService:
         service = AIModelSettingsService(async_session)
         settings = ai_model_settings[0]
 
-        updated = await service.update_settings(
-            settings.id, model_name="gpt-4o-mini"
-        )
+        updated = await service.update_settings(settings.id, model_name="gpt-4o-mini")
 
         assert updated is not None
         assert updated.model_name == "gpt-4o-mini"

@@ -93,7 +93,9 @@ class TestGetAIModelSettingsEndpoint:
         assert response.status_code == 404
 
     async def test_get_settings_as_non_admin(
-        self, authenticated_client: AsyncClient, ai_model_settings: list[AIModelSettings]
+        self,
+        authenticated_client: AsyncClient,
+        ai_model_settings: list[AIModelSettings],
     ):
         """Test that non-admin gets 403."""
         settings = ai_model_settings[0]
@@ -104,7 +106,9 @@ class TestGetAIModelSettingsEndpoint:
         assert response.status_code == 403
 
     async def test_get_settings_unauthenticated(
-        self, unauthenticated_client: AsyncClient, ai_model_settings: list[AIModelSettings]
+        self,
+        unauthenticated_client: AsyncClient,
+        ai_model_settings: list[AIModelSettings],
     ):
         """Test that unauthenticated request returns 401."""
         settings = ai_model_settings[0]
@@ -258,7 +262,9 @@ class TestUpdateAIModelSettingsEndpoint:
         assert response.status_code == 404
 
     async def test_update_settings_as_non_admin(
-        self, authenticated_client: AsyncClient, ai_model_settings: list[AIModelSettings]
+        self,
+        authenticated_client: AsyncClient,
+        ai_model_settings: list[AIModelSettings],
     ):
         """Test that non-admin gets 403."""
         settings = ai_model_settings[0]
@@ -270,7 +276,9 @@ class TestUpdateAIModelSettingsEndpoint:
         assert response.status_code == 403
 
     async def test_update_settings_unauthenticated(
-        self, unauthenticated_client: AsyncClient, ai_model_settings: list[AIModelSettings]
+        self,
+        unauthenticated_client: AsyncClient,
+        ai_model_settings: list[AIModelSettings],
     ):
         """Test that unauthenticated request returns 401."""
         settings = ai_model_settings[0]
