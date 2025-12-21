@@ -4676,6 +4676,11 @@ export type SimilarItemMatch = {
  * Specification
  *
  * Schema for a single specification with key and value.
+ *
+ * Note: We use `float` instead of `int | float` because:
+ * 1. JSON doesn't distinguish between integers and floats
+ * 2. Python's `int` is automatically compatible with `float`
+ * 3. This avoids TypeScript generating `number | number` in the client
  */
 export type Specification = {
   /**
@@ -4685,7 +4690,7 @@ export type Specification = {
   /**
    * Value
    */
-  value: string | number | number | boolean;
+  value: string | number | boolean;
 };
 
 /**

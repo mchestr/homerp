@@ -8,10 +8,16 @@ from src.common.ai_input_validator import ValidatedCustomPrompt
 
 
 class Specification(BaseModel):
-    """Schema for a single specification with key and value."""
+    """Schema for a single specification with key and value.
+
+    Note: We use `float` instead of `int | float` because:
+    1. JSON doesn't distinguish between integers and floats
+    2. Python's `int` is automatically compatible with `float`
+    3. This avoids TypeScript generating `number | number` in the client
+    """
 
     key: str
-    value: str | int | float | bool
+    value: str | float | bool
 
 
 class ImageUploadResponse(BaseModel):

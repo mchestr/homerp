@@ -32,6 +32,12 @@ def upgrade() -> None:
     """
     # SQL to convert specifications from dict to array format
     # Uses jsonb_build_object and jsonb_agg to transform the structure
+    #
+    # Defensive checks:
+    # - attributes IS NOT NULL: Ensures we don't process NULL attributes
+    # - attributes ? 'specifications': Ensures specifications key exists
+    # - jsonb_typeof(...) = 'object': Only converts dicts, skips if already array
+    # - COALESCE(..., '[]'): Handles empty objects gracefully
     op.execute(
         """
         UPDATE items
@@ -48,7 +54,8 @@ def upgrade() -> None:
                 '[]'::jsonb
             )
         )
-        WHERE attributes ? 'specifications'
+        WHERE attributes IS NOT NULL
+          AND attributes ? 'specifications'
           AND jsonb_typeof(attributes->'specifications') = 'object'
         """
     )
@@ -79,7 +86,8 @@ def downgrade() -> None:
                 '{}'::jsonb
             )
         )
-        WHERE attributes ? 'specifications'
+        WHERE attributes IS NOT NULL
+          AND attributes ? 'specifications'
           AND jsonb_typeof(attributes->'specifications') = 'array'
         """
     )
