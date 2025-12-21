@@ -4,6 +4,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.images.models import Image
+from src.items.models import Item
+from src.locations.models import Location
 
 
 class ImageRepository:
@@ -12,6 +14,34 @@ class ImageRepository:
     def __init__(self, session: AsyncSession, user_id: UUID):
         self.session = session
         self.user_id = user_id
+
+    async def validate_item_ownership(self, item_id: UUID) -> None:
+        """Validate that the item belongs to the current user.
+
+        Raises ValueError if the item doesn't exist or belongs to another user.
+        """
+        result = await self.session.execute(
+            select(Item.id).where(
+                Item.id == item_id,
+                Item.user_id == self.user_id,
+            )
+        )
+        if result.scalar_one_or_none() is None:
+            raise ValueError(f"Item {item_id} not found or access denied")
+
+    async def validate_location_ownership(self, location_id: UUID) -> None:
+        """Validate that the location belongs to the current user.
+
+        Raises ValueError if the location doesn't exist or belongs to another user.
+        """
+        result = await self.session.execute(
+            select(Location.id).where(
+                Location.id == location_id,
+                Location.user_id == self.user_id,
+            )
+        )
+        if result.scalar_one_or_none() is None:
+            raise ValueError(f"Location {location_id} not found or access denied")
 
     async def get_by_id(self, image_id: UUID) -> Image | None:
         """Get an image by ID."""

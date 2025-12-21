@@ -13,6 +13,21 @@
 import { client } from "./client.gen";
 
 // =============================================================================
+// Types
+// =============================================================================
+
+/**
+ * API error object shape after processing by the error interceptor.
+ * When throwOnError is true, @hey-api throws the parsed JSON body.
+ * Our error interceptor attaches the HTTP status code for error handling.
+ */
+export interface ApiError {
+  status?: number;
+  detail?: string;
+  [key: string]: unknown;
+}
+
+// =============================================================================
 // Base URL Configuration
 // =============================================================================
 
@@ -67,6 +82,20 @@ client.interceptors.request.use((request) => {
   }
 
   return request;
+});
+
+// =============================================================================
+// Error Interceptor - Attach HTTP status to error objects
+// =============================================================================
+
+client.interceptors.error.use((error, response) => {
+  // When throwOnError is true, @hey-api throws the parsed JSON body.
+  // We need to attach the HTTP status code so error handlers can check it.
+  // The response object contains the status code.
+  if (response && typeof error === "object" && error !== null) {
+    (error as ApiError).status = response.status;
+  }
+  return error;
 });
 
 // =============================================================================

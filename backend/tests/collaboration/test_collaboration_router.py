@@ -332,3 +332,386 @@ class TestUpdateCollaboratorRole:
         )
         assert response.status_code == 200
         assert response.json()["role"] == "viewer"
+
+
+class TestCollaborationPermissionBoundaries:
+    """Tests for permission edge cases in shared inventories."""
+
+    async def test_viewer_can_list_shared_items(
+        self,
+        async_session: AsyncSession,
+        test_settings: Settings,  # noqa: ARG002
+        second_user: User,
+        viewer_collaboration: InventoryCollaborator,  # noqa: ARG002
+        owner_item,  # noqa: ARG002
+        test_user: User,
+    ):
+        """Viewer can list items in shared inventory."""
+        from src.auth.dependencies import get_current_user_id
+        from src.database import get_session
+        from src.main import app
+
+        async def override_session():
+            yield async_session
+
+        app.dependency_overrides[get_session] = override_session
+        app.dependency_overrides[get_current_user_id] = lambda: second_user.id
+
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.get(
+                "/api/v1/items",
+                headers={"X-Inventory-Context": str(test_user.id)},
+            )
+            assert response.status_code == 200
+            data = response.json()
+            assert len(data["items"]) >= 1
+
+        app.dependency_overrides.clear()
+
+    async def test_viewer_cannot_create_item_in_shared_inventory(
+        self,
+        async_session: AsyncSession,
+        test_settings: Settings,  # noqa: ARG002
+        second_user: User,
+        viewer_collaboration: InventoryCollaborator,  # noqa: ARG002
+        owner_category,
+        owner_location,
+        test_user: User,
+    ):
+        """Viewer cannot create items in shared inventory."""
+        from src.auth.dependencies import get_current_user_id
+        from src.database import get_session
+        from src.main import app
+
+        async def override_session():
+            yield async_session
+
+        app.dependency_overrides[get_session] = override_session
+        app.dependency_overrides[get_current_user_id] = lambda: second_user.id
+
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(
+                "/api/v1/items",
+                json={
+                    "name": "Viewer Created Item",
+                    "category_id": str(owner_category.id),
+                    "location_id": str(owner_location.id),
+                },
+                headers={"X-Inventory-Context": str(test_user.id)},
+            )
+            assert response.status_code == 403
+
+        app.dependency_overrides.clear()
+
+    async def test_viewer_cannot_delete_item_in_shared_inventory(
+        self,
+        async_session: AsyncSession,
+        test_settings: Settings,  # noqa: ARG002
+        second_user: User,
+        viewer_collaboration: InventoryCollaborator,  # noqa: ARG002
+        owner_item,
+        test_user: User,
+    ):
+        """Viewer cannot delete items in shared inventory.
+
+        Should return 403 (forbidden) to clearly indicate permission denied.
+        Using 403 instead of 404 is preferred as it's more explicit about
+        the reason for denial without leaking information.
+        """
+        from src.auth.dependencies import get_current_user_id
+        from src.database import get_session
+        from src.main import app
+
+        async def override_session():
+            yield async_session
+
+        app.dependency_overrides[get_session] = override_session
+        app.dependency_overrides[get_current_user_id] = lambda: second_user.id
+
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.delete(
+                f"/api/v1/items/{owner_item.id}",
+                headers={"X-Inventory-Context": str(test_user.id)},
+            )
+            # 403 forbidden - viewer doesn't have write permission
+            assert response.status_code == 403
+
+        app.dependency_overrides.clear()
+
+    async def test_editor_can_create_item_in_shared_inventory(
+        self,
+        async_session: AsyncSession,
+        test_settings: Settings,  # noqa: ARG002
+        second_user: User,
+        editor_collaboration: InventoryCollaborator,  # noqa: ARG002
+        owner_category,
+        owner_location,
+        test_user: User,
+    ):
+        """Editor can create items in shared inventory."""
+        from src.auth.dependencies import get_current_user_id
+        from src.database import get_session
+        from src.main import app
+
+        async def override_session():
+            yield async_session
+
+        app.dependency_overrides[get_session] = override_session
+        app.dependency_overrides[get_current_user_id] = lambda: second_user.id
+
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(
+                "/api/v1/items",
+                json={
+                    "name": "Editor Created Item",
+                    "category_id": str(owner_category.id),
+                    "location_id": str(owner_location.id),
+                },
+                headers={"X-Inventory-Context": str(test_user.id)},
+            )
+            assert response.status_code == 201
+
+        app.dependency_overrides.clear()
+
+    async def test_collaborator_cannot_access_third_party_inventory(
+        self,
+        async_session: AsyncSession,
+        test_settings: Settings,  # noqa: ARG002
+        second_user: User,
+        viewer_collaboration: InventoryCollaborator,  # noqa: ARG002
+        third_user: User,
+    ):
+        """Collaborator cannot access inventory they haven't been invited to."""
+        from src.auth.dependencies import get_current_user_id
+        from src.database import get_session
+        from src.main import app
+
+        async def override_session():
+            yield async_session
+
+        app.dependency_overrides[get_session] = override_session
+        app.dependency_overrides[get_current_user_id] = lambda: second_user.id
+
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            # Try to access third_user's inventory
+            response = await client.get(
+                "/api/v1/items",
+                headers={"X-Inventory-Context": str(third_user.id)},
+            )
+            assert response.status_code == 403
+
+        app.dependency_overrides.clear()
+
+    async def test_cannot_accept_invitation_for_different_email(
+        self,
+        async_session: AsyncSession,
+        test_settings: Settings,  # noqa: ARG002
+        third_user: User,  # Different email than the invitation
+        pending_invitation: InventoryCollaborator,  # Invitation to second_user
+    ):
+        """User cannot accept an invitation addressed to a different email."""
+        from src.auth.dependencies import get_current_user_id
+        from src.database import get_session
+        from src.main import app
+
+        async def override_session():
+            yield async_session
+
+        app.dependency_overrides[get_session] = override_session
+        app.dependency_overrides[get_current_user_id] = lambda: third_user.id
+
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(
+                f"/api/v1/collaboration/invitations/{pending_invitation.id}/accept"
+            )
+            assert response.status_code == 404  # Not found for this user
+
+        app.dependency_overrides.clear()
+
+    async def test_cannot_update_other_users_collaborators(
+        self,
+        async_session: AsyncSession,
+        test_settings: Settings,  # noqa: ARG002
+        second_user: User,
+        owner_has_another_collaborator: InventoryCollaborator,
+    ):
+        """User cannot update collaborators of an inventory they don't own."""
+        from src.auth.dependencies import get_current_user_id
+        from src.database import get_session
+        from src.main import app
+
+        async def override_session():
+            yield async_session
+
+        app.dependency_overrides[get_session] = override_session
+        app.dependency_overrides[get_current_user_id] = lambda: second_user.id
+
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.put(
+                f"/api/v1/collaboration/collaborators/{owner_has_another_collaborator.id}",
+                json={"role": "editor"},
+            )
+            # Should be 404 - collaborator not found for this user's inventory
+            assert response.status_code == 404
+
+        app.dependency_overrides.clear()
+
+
+@pytest.fixture
+async def third_user(async_session: AsyncSession) -> User:
+    """Create a third test user."""
+    user = User(
+        id=uuid.uuid4(),
+        email="third@example.com",
+        name="Third User",
+        oauth_provider="google",
+        oauth_id="google_third_collab_123",
+        credit_balance=0,
+        free_credits_remaining=5,
+        is_admin=False,
+    )
+    async_session.add(user)
+    await async_session.commit()
+    await async_session.refresh(user)
+    return user
+
+
+@pytest.fixture
+async def viewer_collaboration(
+    async_session: AsyncSession,
+    test_user: User,
+    second_user: User,
+) -> InventoryCollaborator:
+    """Create an accepted viewer collaboration."""
+    from datetime import UTC, datetime
+
+    collaboration = InventoryCollaborator(
+        id=uuid.uuid4(),
+        owner_id=test_user.id,
+        collaborator_id=second_user.id,
+        invited_email=second_user.email,
+        role=CollaboratorRole.VIEWER.value,
+        status=CollaboratorStatus.ACCEPTED.value,
+        accepted_at=datetime.now(UTC),
+    )
+    async_session.add(collaboration)
+    await async_session.commit()
+    await async_session.refresh(collaboration)
+    return collaboration
+
+
+@pytest.fixture
+async def editor_collaboration(
+    async_session: AsyncSession,
+    test_user: User,
+    second_user: User,
+) -> InventoryCollaborator:
+    """Create an accepted editor collaboration."""
+    from datetime import UTC, datetime
+
+    collaboration = InventoryCollaborator(
+        id=uuid.uuid4(),
+        owner_id=test_user.id,
+        collaborator_id=second_user.id,
+        invited_email=second_user.email,
+        role=CollaboratorRole.EDITOR.value,
+        status=CollaboratorStatus.ACCEPTED.value,
+        accepted_at=datetime.now(UTC),
+    )
+    async_session.add(collaboration)
+    await async_session.commit()
+    await async_session.refresh(collaboration)
+    return collaboration
+
+
+@pytest.fixture
+async def owner_category(async_session: AsyncSession, test_user: User):
+    """Create a category owned by test_user."""
+    from sqlalchemy_utils import Ltree
+
+    from src.categories.models import Category
+
+    category = Category(
+        id=uuid.uuid4(),
+        user_id=test_user.id,
+        name="Owner Category",
+        path=Ltree("owner_category"),
+    )
+    async_session.add(category)
+    await async_session.commit()
+    await async_session.refresh(category)
+    return category
+
+
+@pytest.fixture
+async def owner_location(async_session: AsyncSession, test_user: User):
+    """Create a location owned by test_user."""
+    from sqlalchemy_utils import Ltree
+
+    from src.locations.models import Location
+
+    location = Location(
+        id=uuid.uuid4(),
+        user_id=test_user.id,
+        name="Owner Location",
+        path=Ltree("owner_location"),
+    )
+    async_session.add(location)
+    await async_session.commit()
+    await async_session.refresh(location)
+    return location
+
+
+@pytest.fixture
+async def owner_item(
+    async_session: AsyncSession,
+    test_user: User,
+    owner_category,
+    owner_location,
+):
+    """Create an item owned by test_user."""
+    from src.items.models import Item
+
+    item = Item(
+        id=uuid.uuid4(),
+        user_id=test_user.id,
+        name="Owner Item",
+        category_id=owner_category.id,
+        location_id=owner_location.id,
+        quantity=1,
+    )
+    async_session.add(item)
+    await async_session.commit()
+    await async_session.refresh(item)
+    return item
+
+
+@pytest.fixture
+async def owner_has_another_collaborator(
+    async_session: AsyncSession,
+    test_user: User,
+    third_user: User,
+) -> InventoryCollaborator:
+    """Create a collaboration record between owner and third_user."""
+    from datetime import UTC, datetime
+
+    collaboration = InventoryCollaborator(
+        id=uuid.uuid4(),
+        owner_id=test_user.id,
+        collaborator_id=third_user.id,
+        invited_email=third_user.email,
+        role=CollaboratorRole.VIEWER.value,
+        status=CollaboratorStatus.ACCEPTED.value,
+        accepted_at=datetime.now(UTC),
+    )
+    async_session.add(collaboration)
+    await async_session.commit()
+    await async_session.refresh(collaboration)
+    return collaboration
