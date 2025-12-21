@@ -44,11 +44,28 @@ class TestAIClassificationService:
         return manager
 
     @pytest.fixture
-    def service(self, mock_settings, mock_template_manager):
+    def mock_model_settings_service(self):
+        """Create mock model settings service."""
+        service = MagicMock()
+        service.get_operation_settings = AsyncMock(
+            return_value={
+                "model_name": "gpt-4o",
+                "temperature": 0.3,
+                "max_tokens": 2000,
+            }
+        )
+        return service
+
+    @pytest.fixture
+    def service(
+        self, mock_settings, mock_template_manager, mock_model_settings_service
+    ):
         """Create AI service with mocked dependencies."""
         with patch("src.ai.service.AsyncOpenAI"):
             service = AIClassificationService(
-                settings=mock_settings, template_manager=mock_template_manager
+                settings=mock_settings,
+                template_manager=mock_template_manager,
+                model_settings_service=mock_model_settings_service,
             )
             return service
 
