@@ -275,8 +275,8 @@ export function PricingSection() {
                     <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-sm font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                       {pricing.credits_per_operation}{" "}
                       {pricing.credits_per_operation === 1
-                        ? t("credit")
-                        : t("creditsPlural")}
+                        ? tCommon("credit")
+                        : tCommon("credits")}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -352,8 +352,8 @@ export function PricingSection() {
               <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-sm font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                 {pricing.credits_per_operation}{" "}
                 {pricing.credits_per_operation === 1
-                  ? t("credit")
-                  : t("creditsPlural")}
+                  ? tCommon("credit")
+                  : tCommon("credits")}
               </span>
             </div>
             {pricing.description && (
