@@ -55,51 +55,6 @@ test.describe("Location Photo", () => {
     await expect(uploadArea).toBeVisible();
   });
 
-  // Skip: Upload test requires complex stateful mocking across route handlers
-  // The upload functionality is covered by backend tests and manual testing
-  test.skip("can upload a photo to location", async ({ page }) => {
-    await authenticateUser(page);
-    await setupApiMocks(page);
-
-    // Navigate to location detail page
-    await page.goto(`/locations/${fixtures.testLocations[0].id}`);
-
-    // Wait for the page to load
-    await expect(
-      page.getByRole("heading", { name: fixtures.testLocations[0].name })
-    ).toBeVisible();
-
-    // Check that upload area is visible
-    const uploadArea = page.getByTestId("location-photo-upload");
-    await expect(uploadArea).toBeVisible();
-
-    // Create a test image file
-    const buffer = Buffer.from(
-      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-      "base64"
-    );
-
-    // Upload via file input (find the hidden input inside the label)
-    const fileInput = uploadArea.locator('input[type="file"]');
-    await fileInput.setInputFiles({
-      name: "test-photo.png",
-      mimeType: "image/png",
-      buffer,
-    });
-
-    // Wait for upload to complete - check for success toast
-    // The toast title "Photo uploaded" indicates successful upload
-    await expect(page.getByText(/photo uploaded/i)).toBeVisible({
-      timeout: 15000,
-    });
-
-    // After successful upload, the photo should appear and upload area should be hidden
-    await expect(page.getByTestId("location-photo")).toBeVisible({
-      timeout: 5000,
-    });
-    await expect(uploadArea).not.toBeVisible();
-  });
-
   test("displays photo when location has one", async ({ page }) => {
     await authenticateUser(page);
     await setupApiMocks(page);
