@@ -411,6 +411,13 @@ export default function AdminPage() {
                   href="/admin/ai-models"
                   testId="quick-action-ai-models"
                 />
+                <QuickActionCard
+                  title={t("admin.manageBillingSettings")}
+                  description={t("admin.manageBillingSettingsDescription")}
+                  icon={DollarSign}
+                  href="/admin/billing-settings"
+                  testId="quick-action-billing-settings"
+                />
               </div>
             </div>
 

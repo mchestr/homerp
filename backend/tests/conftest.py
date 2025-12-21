@@ -31,7 +31,7 @@ from sqlalchemy_utils import Ltree
 from testcontainers.postgres import PostgresContainer
 
 from src.ai.models import AIModelSettings
-from src.billing.models import CreditPack, CreditPricing, CreditTransaction
+from src.billing.models import AppSetting, CreditPack, CreditPricing, CreditTransaction
 from src.categories.models import Category
 from src.config import Settings
 from src.database import Base
@@ -895,3 +895,46 @@ async def inactive_ai_model_settings(async_session: AsyncSession) -> AIModelSett
     await async_session.commit()
     await async_session.refresh(settings)
     return settings
+
+
+@pytest.fixture
+async def app_setting(async_session: AsyncSession) -> AppSetting:
+    """Create a test app setting for signup_credits."""
+    setting = AppSetting(
+        id=uuid.uuid4(),
+        setting_key="signup_credits",
+        value_int=5,
+        display_name="Signup Credits",
+        description="Number of free credits granted to new users",
+    )
+    async_session.add(setting)
+    await async_session.commit()
+    await async_session.refresh(setting)
+    return setting
+
+
+@pytest.fixture
+async def app_settings(async_session: AsyncSession) -> list[AppSetting]:
+    """Create multiple test app settings."""
+    settings_list = [
+        AppSetting(
+            id=uuid.uuid4(),
+            setting_key="signup_credits",
+            value_int=5,
+            display_name="Signup Credits",
+            description="Number of free credits granted to new users",
+        ),
+        AppSetting(
+            id=uuid.uuid4(),
+            setting_key="max_images_per_item",
+            value_int=10,
+            display_name="Max Images Per Item",
+            description="Maximum number of images allowed per item",
+        ),
+    ]
+    for setting in settings_list:
+        async_session.add(setting)
+    await async_session.commit()
+    for setting in settings_list:
+        await async_session.refresh(setting)
+    return settings_list

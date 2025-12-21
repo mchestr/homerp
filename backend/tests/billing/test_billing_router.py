@@ -55,21 +55,24 @@ class TestBalanceEndpoint:
         assert balance.purchased_credits == 50
         assert balance.free_credits == 3
         assert balance.total_credits == 53
-        assert balance.next_free_reset_at is not None
+        # next_free_reset_at is always None now (no more monthly resets)
+        assert balance.next_free_reset_at is None
 
-    async def test_get_balance_triggers_free_credit_reset(
+    async def test_get_balance_no_reset_for_expired_free_credits(
         self,
         async_session: AsyncSession,
         test_settings: Settings,
         user_with_expired_free_credits: User,
     ):
-        """Test that balance endpoint triggers free credit reset."""
+        """Test that balance endpoint does NOT trigger free credit reset (monthly reset removed)."""
         service = CreditService(async_session, test_settings)
 
         balance = await service.get_balance(user_with_expired_free_credits.id)
 
-        # Should have reset to 5 free credits
-        assert balance.free_credits == test_settings.free_monthly_credits
+        # Free credits should remain at 0 (no reset happens anymore)
+        assert balance.free_credits == 0
+        # next_free_reset_at should be None (no more monthly resets)
+        assert balance.next_free_reset_at is None
 
 
 class TestPacksEndpoint:

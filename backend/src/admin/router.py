@@ -41,7 +41,16 @@ from src.ai.usage_service import AIUsageService, get_ai_usage_service
 from src.auth.dependencies import AdminUserDep
 from src.billing.models import CreditPack, CreditTransaction
 from src.billing.pricing_service import CreditPricingService, get_pricing_service
-from src.billing.schemas import CreditPricingResponse, CreditPricingUpdate
+from src.billing.schemas import (
+    BillingSettingResponse,
+    BillingSettingUpdate,
+    CreditPricingResponse,
+    CreditPricingUpdate,
+)
+from src.billing.settings_service import (
+    BillingSettingsService,
+    get_billing_settings_service,
+)
 from src.config import Settings, get_settings
 from src.database import AsyncSessionDep
 from src.feedback.models import Feedback
@@ -267,6 +276,71 @@ async def update_ai_model_settings(
                 detail="AI model settings not found",
             )
         return AIModelSettingsResponse.model_validate(settings)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
+
+
+# ============================================================================
+# Billing Settings Management
+# ============================================================================
+
+
+@router.get("/billing-settings")
+async def list_billing_settings(
+    _admin: AdminUserDep,
+    settings_service: Annotated[
+        BillingSettingsService, Depends(get_billing_settings_service)
+    ],
+) -> list[BillingSettingResponse]:
+    """List all billing settings."""
+    settings_list = await settings_service.get_all_settings()
+    return [BillingSettingResponse.model_validate(s) for s in settings_list]
+
+
+@router.get("/billing-settings/{setting_id}")
+async def get_billing_setting(
+    setting_id: UUID,
+    _admin: AdminUserDep,
+    settings_service: Annotated[
+        BillingSettingsService, Depends(get_billing_settings_service)
+    ],
+) -> BillingSettingResponse:
+    """Get specific billing setting."""
+    setting = await settings_service.get_setting_by_id(setting_id)
+    if not setting:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Billing setting not found",
+        )
+    return BillingSettingResponse.model_validate(setting)
+
+
+@router.put("/billing-settings/{setting_id}")
+async def update_billing_setting(
+    setting_id: UUID,
+    data: BillingSettingUpdate,
+    _admin: AdminUserDep,
+    settings_service: Annotated[
+        BillingSettingsService, Depends(get_billing_settings_service)
+    ],
+) -> BillingSettingResponse:
+    """Update billing setting."""
+    try:
+        setting = await settings_service.update_setting(
+            setting_id=setting_id,
+            value_int=data.value_int,
+            display_name=data.display_name,
+            description=data.description,
+        )
+        if not setting:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Billing setting not found",
+            )
+        return BillingSettingResponse.model_validate(setting)
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

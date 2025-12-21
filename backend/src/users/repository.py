@@ -1,11 +1,16 @@
+import logging
 from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.billing.models import CreditTransaction
+from src.billing.settings_service import BillingSettingsService
 from src.config import get_settings
 from src.users.models import User
 from src.users.schemas import UserCreate, UserSettingsUpdate
+
+logger = logging.getLogger(__name__)
 
 
 class UserRepository:
@@ -90,21 +95,41 @@ class UserRepository:
                 await self.session.refresh(user)
             return user, False
 
-        # Create new user
-        user_data = UserCreate(
+        # Get signup credits setting before creating user
+        billing_settings = BillingSettingsService(self.session)
+        signup_credits = await billing_settings.get_signup_credits()
+
+        # Create new user with all initial values set atomically
+        user = User(
             email=email,
             name=name,
             avatar_url=avatar_url,
             oauth_provider=provider,
             oauth_id=oauth_id,
+            is_admin=bool(settings.admin_email and email == settings.admin_email),
+            free_credits_remaining=signup_credits,
+            free_credits_reset_at=None,  # No monthly resets
         )
-        user = await self.create(user_data)
+        self.session.add(user)
 
-        # Auto-admin: if email matches admin_email, make them admin
-        if settings.admin_email and email == settings.admin_email:
-            user.is_admin = True
-            await self.session.commit()
-            await self.session.refresh(user)
+        # Flush to get user.id for the transaction record
+        await self.session.flush()
+
+        if signup_credits > 0:
+            # Create transaction record for signup bonus
+            transaction = CreditTransaction(
+                user_id=user.id,
+                amount=signup_credits,
+                transaction_type="signup_bonus",
+                description="Signup credits bonus",
+            )
+            self.session.add(transaction)
+            logger.info(
+                f"Granted signup credits: user_id={user.id}, credits={signup_credits}"
+            )
+
+        await self.session.commit()
+        await self.session.refresh(user)
 
         return user, True
 

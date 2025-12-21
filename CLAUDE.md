@@ -297,10 +297,14 @@ try {
 ## Billing System
 
 ### Credit Model
-- **Free tier:** 5 AI credits per month (resets on signup anniversary)
+- **Signup credits:** One-time bonus credits for new users (configurable via Admin > Billing Settings, default: 5)
 - **Credit packs:** One-time purchases (25 for $3, 100 for $10, 500 for $40)
-- **Credits never expire** once purchased
+- **Credits never expire** - all credits (signup bonus + purchased) are permanent
 - **Refunds:** Available if purchased credits are unused
+
+### Admin Billing Settings
+Admins can configure billing settings at `/admin/billing-settings`:
+- `signup_credits` - Number of credits granted to new users on signup (default: 5)
 
 ### Stripe Setup
 1. Create a Stripe account and get API keys
