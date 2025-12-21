@@ -960,15 +960,8 @@ export default function ItemsPage() {
               ))}
             </div>
           ) : (
-            <div
-              className="-mx-4 overflow-x-auto rounded-lg border md:mx-0"
-              style={{
-                WebkitOverflowScrolling: "touch",
-                touchAction: "pan-x pan-y",
-              }}
-              data-testid="items-list-view"
-            >
-              <table className="w-full min-w-[640px]">
+            <div className="rounded-lg border sm:overflow-x-auto">
+              <table className="w-full">
                 <thead className="bg-muted/50 border-b">
                   <tr>
                     {isSelectionMode && (

@@ -233,7 +233,7 @@ export default function GridfinityPage() {
           </div>
         ) : (
           <div
-            className="overflow-x-auto rounded-lg border"
+            className="rounded-lg border sm:overflow-x-auto"
             data-testid="gridfinity-list-view"
           >
             <table className="w-full">
