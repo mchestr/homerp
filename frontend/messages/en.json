@@ -352,6 +352,7 @@
     "removeImage": "Remove image",
     "setAsPrimary": "Set as primary",
     "primaryImage": "Primary image",
+    "primaryImageSet": "Primary image updated successfully",
     "maxImagesAllowed": "Maximum {count} images allowed",
     "pleaseSelectImageFile": "Please select an image file",
     "imageMustBeLessThan10MB": "Image must be less than 10MB",

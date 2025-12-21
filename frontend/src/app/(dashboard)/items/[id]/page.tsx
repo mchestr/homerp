@@ -34,12 +34,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { itemsApi, CheckInOutCreate } from "@/lib/api/api";
+import { itemsApi, imagesApi, CheckInOutCreate } from "@/lib/api/api";
 import { cn, formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import { useTranslations } from "next-intl";
 import { useLabelPrintModal } from "@/components/labels";
 import type { LabelData } from "@/lib/labels";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ItemDetailPage() {
   const params = useParams();
@@ -62,6 +63,8 @@ export default function ItemDetailPage() {
 
   const { openLabelModal, LabelPrintModal } = useLabelPrintModal();
   const tLabels = useTranslations("labels");
+  const { toast } = useToast();
+  const tImages = useTranslations("images");
 
   const { data: item, isLoading } = useQuery({
     queryKey: ["item", itemId],
@@ -123,6 +126,29 @@ export default function ItemDetailPage() {
       router.push("/items");
     },
   });
+
+  const setPrimaryImageMutation = useMutation({
+    mutationFn: (imageId: string) => imagesApi.setPrimary(imageId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["item", itemId] });
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      toast({
+        title: tCommon("success"),
+        description: tImages("primaryImageSet"),
+      });
+    },
+    onError: () => {
+      toast({
+        title: tCommon("error"),
+        description: tImages("setPrimaryFailed"),
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSetPrimary = async (imageId: string) => {
+    await setPrimaryImageMutation.mutateAsync(imageId);
+  };
 
   const handleDelete = async () => {
     const confirmed = await confirm({
@@ -270,7 +296,11 @@ export default function ItemDetailPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="bg-card overflow-hidden rounded-xl border p-4">
-          <ImageGallery images={item.images || []} />
+          <ImageGallery
+            images={item.images || []}
+            onSetPrimary={handleSetPrimary}
+            editable={true}
+          />
         </div>
 
         <div className="space-y-4">

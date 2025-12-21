@@ -319,6 +319,7 @@
     "removeImage": "画像を削除",
     "setAsPrimary": "メインに設定",
     "primaryImage": "メイン画像",
+    "primaryImageSet": "メイン画像が正常に更新されました",
     "searchPlaceholder": "アイテム名で検索...",
     "noClassifiedImages": "分類済み画像がありません",
     "uploadAndClassify": "画像をアップロードして分類すると、ここに表示されます",

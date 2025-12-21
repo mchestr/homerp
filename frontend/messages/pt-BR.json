@@ -319,6 +319,7 @@
     "removeImage": "Remover imagem",
     "setAsPrimary": "Definir como principal",
     "primaryImage": "Imagem principal",
+    "primaryImageSet": "Imagem principal atualizada com sucesso",
     "searchPlaceholder": "Buscar por nome do item...",
     "noClassifiedImages": "Nenhuma imagem classificada",
     "uploadAndClassify": "Envie e classifique imagens para vê-las aqui",

@@ -352,6 +352,7 @@
     "removeImage": "Bild entfernen",
     "setAsPrimary": "Als Hauptbild festlegen",
     "primaryImage": "Hauptbild",
+    "primaryImageSet": "Hauptbild erfolgreich aktualisiert",
     "maxImagesAllowed": "Maximal {count} Bilder erlaubt",
     "pleaseSelectImageFile": "Bitte wählen Sie eine Bilddatei aus",
     "imageMustBeLessThan10MB": "Bild muss kleiner als 10MB sein",

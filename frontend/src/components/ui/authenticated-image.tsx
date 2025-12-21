@@ -11,7 +11,7 @@ type AuthenticatedImageProps = {
   fallback?: React.ReactNode;
   /** Use thumbnail version for faster loading in list views */
   thumbnail?: boolean;
-};
+} & React.ImgHTMLAttributes<HTMLImageElement>;
 
 /**
  * Component for displaying images that require authentication.
@@ -23,6 +23,7 @@ export function AuthenticatedImage({
   className,
   fallback,
   thumbnail = false,
+  ...rest
 }: AuthenticatedImageProps) {
   const [src, setSrc] = useState<string | null>(null);
   const [error, setError] = useState(false);
@@ -64,6 +65,7 @@ export function AuthenticatedImage({
       alt={alt}
       className={className}
       onError={() => setError(true)}
+      {...rest}
     />
   );
 }
