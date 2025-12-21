@@ -134,7 +134,7 @@ function PackFormDialog({
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="name">{t("name")}</Label>
+              <Label htmlFor="name">{tCommon("name")}</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -147,7 +147,7 @@ function PackFormDialog({
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="credits">{t("credits")}</Label>
+                <Label htmlFor="credits">{tCommon("credits")}</Label>
                 <Input
                   id="credits"
                   type="number"
@@ -322,8 +322,8 @@ export function CreditPacksSection() {
           <table className="w-full">
             <thead>
               <tr className="text-muted-foreground border-b text-left text-sm">
-                <th className="px-4 py-3 font-medium">{t("name")}</th>
-                <th className="px-4 py-3 font-medium">{t("credits")}</th>
+                <th className="px-4 py-3 font-medium">{tCommon("name")}</th>
+                <th className="px-4 py-3 font-medium">{tCommon("credits")}</th>
                 <th className="px-4 py-3 font-medium">{t("price")}</th>
                 <th className="px-4 py-3 font-medium">{t("stripePriceId")}</th>
                 <th className="px-4 py-3 font-medium">{tCommon("status")}</th>
@@ -397,7 +397,7 @@ export function CreditPacksSection() {
               <div>
                 <p className="font-medium">{pack.name}</p>
                 <p className="text-muted-foreground text-sm">
-                  {pack.credits} {t("credits")} ·{" "}
+                  {pack.credits} {tCommon("credits")} ·{" "}
                   {formatPrice(pack.price_cents)}
                 </p>
               </div>
