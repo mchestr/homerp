@@ -23,6 +23,58 @@ from src.locations.models import Location
 from src.users.models import User
 
 # Image dimension constants for test images
+# Default user parameters for factory function
+DEFAULT_USER_CREDIT_BALANCE = 10
+DEFAULT_USER_FREE_CREDITS = 5
+USER_FREE_CREDITS_RESET_DAYS = 30
+
+
+def create_test_user(
+    async_session: AsyncSession,
+    *,
+    email: str = "test@example.com",
+    name: str = "Test User",
+    oauth_provider: str = "google",
+    oauth_id: str | None = None,
+    credit_balance: int = DEFAULT_USER_CREDIT_BALANCE,
+    free_credits_remaining: int = DEFAULT_USER_FREE_CREDITS,
+    is_admin: bool = False,
+) -> User:
+    """Factory function to create a test user with configurable attributes.
+
+    Args:
+        async_session: Database session for adding the user.
+        email: User's email address.
+        name: User's display name.
+        oauth_provider: OAuth provider (default: "google").
+        oauth_id: OAuth ID (auto-generated from email if not provided).
+        credit_balance: Initial credit balance.
+        free_credits_remaining: Remaining free credits.
+        is_admin: Whether user is an admin.
+
+    Returns:
+        User model instance (not yet committed).
+    """
+    if oauth_id is None:
+        # Generate unique oauth_id from email prefix
+        oauth_id = f"google_{email.split('@')[0]}_{uuid.uuid4().hex[:8]}"
+
+    user = User(
+        id=uuid.uuid4(),
+        email=email,
+        name=name,
+        oauth_provider=oauth_provider,
+        oauth_id=oauth_id,
+        credit_balance=credit_balance,
+        free_credits_remaining=free_credits_remaining,
+        free_credits_reset_at=datetime.now(UTC)
+        + timedelta(days=USER_FREE_CREDITS_RESET_DAYS),
+        is_admin=is_admin,
+    )
+    async_session.add(user)
+    return user
+
+
 SMALL_IMAGE_DIMENSIONS = (10, 10)  # Creates ~1KB JPEG
 LARGE_IMAGE_DIMENSIONS = (4000, 4000)  # Creates ~5MB compressed JPEG
 OVERSIZED_IMAGE_DIMENSIONS = (5000, 5000)  # Exceeds 10MB limit as BMP
@@ -93,18 +145,11 @@ def test_gif_image() -> bytes:
 @pytest.fixture
 async def second_user(async_session: AsyncSession) -> User:
     """Create a second test user for multi-tenancy tests."""
-    user = User(
-        id=uuid.uuid4(),
+    user = create_test_user(
+        async_session,
         email="second@example.com",
         name="Second User",
-        oauth_provider="google",
-        oauth_id="google_second_123",
-        credit_balance=10,
-        free_credits_remaining=5,
-        free_credits_reset_at=datetime.now(UTC) + timedelta(days=30),
-        is_admin=False,
     )
-    async_session.add(user)
     await async_session.commit()
     await async_session.refresh(user)
     return user
@@ -113,18 +158,12 @@ async def second_user(async_session: AsyncSession) -> User:
 @pytest.fixture
 async def third_user(async_session: AsyncSession) -> User:
     """Create a third test user for isolation tests."""
-    user = User(
-        id=uuid.uuid4(),
+    user = create_test_user(
+        async_session,
         email="third@example.com",
         name="Third User",
-        oauth_provider="google",
-        oauth_id="google_third_123",
         credit_balance=0,
-        free_credits_remaining=5,
-        free_credits_reset_at=datetime.now(UTC) + timedelta(days=30),
-        is_admin=False,
     )
-    async_session.add(user)
     await async_session.commit()
     await async_session.refresh(user)
     return user
@@ -133,18 +172,13 @@ async def third_user(async_session: AsyncSession) -> User:
 @pytest.fixture
 async def user_with_one_credit(async_session: AsyncSession) -> User:
     """Create a user with exactly one credit for race condition tests."""
-    user = User(
-        id=uuid.uuid4(),
+    user = create_test_user(
+        async_session,
         email="onecredit@example.com",
         name="One Credit User",
-        oauth_provider="google",
-        oauth_id="google_onecredit_123",
         credit_balance=1,
         free_credits_remaining=0,
-        free_credits_reset_at=datetime.now(UTC) + timedelta(days=30),
-        is_admin=False,
     )
-    async_session.add(user)
     await async_session.commit()
     await async_session.refresh(user)
     return user

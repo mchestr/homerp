@@ -416,8 +416,9 @@ class TestCollaborationPermissionBoundaries:
     ):
         """Viewer cannot delete items in shared inventory.
 
-        The request should fail with either 403 (forbidden) or 404 (not found).
-        404 is acceptable as it doesn't leak that the item exists.
+        Should return 403 (forbidden) to clearly indicate permission denied.
+        Using 403 instead of 404 is preferred as it's more explicit about
+        the reason for denial without leaking information.
         """
         from src.auth.dependencies import get_current_user_id
         from src.database import get_session
@@ -435,8 +436,8 @@ class TestCollaborationPermissionBoundaries:
                 f"/api/v1/items/{owner_item.id}",
                 headers={"X-Inventory-Context": str(test_user.id)},
             )
-            # Either 403 (forbidden) or 404 (not found) is acceptable
-            assert response.status_code in [403, 404]
+            # 403 forbidden - viewer doesn't have write permission
+            assert response.status_code == 403
 
         app.dependency_overrides.clear()
 

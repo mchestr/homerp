@@ -479,8 +479,11 @@ class TestUserRepositoryEdgeCases:
             oauth_provider="github",
             oauth_id="github_unique_456",
         )
-        with pytest.raises(IntegrityError):
+        with pytest.raises(IntegrityError) as exc_info:
             await repo.create(user2_data)
+
+        # Verify the correct constraint was violated (PostgreSQL naming convention)
+        assert "users_email_key" in str(exc_info.value)
 
     async def test_get_or_create_with_none_avatar_and_name(
         self,

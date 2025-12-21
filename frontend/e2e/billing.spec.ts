@@ -183,9 +183,11 @@ test.describe("Insufficient Credits Modal", () => {
     const modal = page.getByRole("dialog");
     await expect(modal).toBeVisible({ timeout: 5000 });
 
-    // Click on the backdrop (outside the modal content)
-    // The backdrop is the dialog container itself, modal content has max-w-md
-    await page.locator('[role="dialog"]').click({ position: { x: 10, y: 10 } });
+    // Click on the overlay (Radix dialog overlay that covers the backdrop)
+    // Using force: true ensures the click is dispatched even if the element
+    // is covered by another element, which is more reliable than coordinates
+    const overlay = page.locator("[data-radix-dialog-overlay]");
+    await overlay.click({ force: true });
 
     // Modal should be dismissed
     await expect(modal).not.toBeVisible();
