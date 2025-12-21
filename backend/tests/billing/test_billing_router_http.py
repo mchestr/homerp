@@ -83,6 +83,33 @@ class TestGetOperationCostsEndpoint:
         for op_type in inactive_types:
             assert op_type not in data["costs"]
 
+    async def test_get_costs_includes_signup_credits(
+        self,
+        unauthenticated_client: AsyncClient,
+        app_setting,  # Creates signup_credits setting with value 5
+    ):
+        """Test that costs response includes signup_credits from app settings."""
+        response = await unauthenticated_client.get("/api/v1/billing/costs")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "signup_credits" in data
+        assert data["signup_credits"] == 5
+
+    async def test_get_costs_signup_credits_uses_default_when_not_configured(
+        self,
+        unauthenticated_client: AsyncClient,
+    ):
+        """Test that signup_credits falls back to default when not in database."""
+        from src.billing.settings_service import DEFAULT_SETTINGS
+
+        response = await unauthenticated_client.get("/api/v1/billing/costs")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "signup_credits" in data
+        assert data["signup_credits"] == DEFAULT_SETTINGS["signup_credits"]
+
 
 class TestGetBalanceEndpoint:
     """Tests for GET /api/v1/billing/balance."""

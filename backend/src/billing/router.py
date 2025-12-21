@@ -29,6 +29,10 @@ from src.billing.schemas import (
     RefundResponse,
 )
 from src.billing.service import CreditService, StripeService
+from src.billing.settings_service import (
+    BillingSettingsService,
+    get_billing_settings_service,
+)
 from src.common.rate_limiter import RATE_LIMIT_BILLING, limiter
 from src.config import Settings, get_settings
 from src.database import AsyncSessionDep
@@ -56,6 +60,9 @@ def get_stripe_service(
 CreditServiceDep = Annotated[CreditService, Depends(get_credit_service)]
 StripeServiceDep = Annotated[StripeService, Depends(get_stripe_service)]
 CreditPricingServiceDep = Annotated[CreditPricingService, Depends(get_pricing_service)]
+BillingSettingsServiceDep = Annotated[
+    BillingSettingsService, Depends(get_billing_settings_service)
+]
 
 
 @router.get("/costs")
@@ -64,6 +71,7 @@ async def get_operation_costs(
     request: Request,  # noqa: ARG001 - Required for rate limiting
     response: Response,
     pricing_service: CreditPricingServiceDep,
+    settings_service: BillingSettingsServiceDep,
 ) -> OperationCostsResponse:
     """Get credit costs for all AI operations.
 
@@ -77,6 +85,7 @@ async def get_operation_costs(
     response.headers["Cache-Control"] = "public, max-age=300"
 
     pricing_list = await pricing_service.get_all_pricing()
+    signup_credits = await settings_service.get_signup_credits()
 
     # Build the response with active pricing
     costs: dict[str, int] = {}
@@ -93,7 +102,9 @@ async def get_operation_costs(
                 )
             )
 
-    return OperationCostsResponse(costs=costs, items=items)
+    return OperationCostsResponse(
+        costs=costs, items=items, signup_credits=signup_credits
+    )
 
 
 @router.get("/balance")
