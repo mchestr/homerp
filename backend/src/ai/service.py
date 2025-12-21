@@ -276,7 +276,12 @@ class AIClassificationService:
 
         # Add specification hints from existing inventory
         if spec_hints and len(spec_hints) > 0:
-            hints_text = ", ".join(spec_hints[:15])  # Limit to top 15 to avoid bloat
+            # Sanitize hints to prevent prompt injection
+            sanitized_hints = [
+                hint.replace("\n", " ").replace("\r", "").strip()
+                for hint in spec_hints[:15]
+            ]
+            hints_text = ", ".join(sanitized_hints)
             user_prompt = (
                 f"{user_prompt}\n\n"
                 f"Note: Similar items in this inventory commonly have these specifications: "

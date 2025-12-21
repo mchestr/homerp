@@ -1235,8 +1235,8 @@ class ItemRepository:
         spec_key_counts: dict[str, int] = {}
         for attrs in all_attributes:
             if attrs and "specifications" in attrs:
-                specs = attrs.get("specifications", {})
-                if isinstance(specs, dict):
+                specs = attrs.get("specifications")
+                if specs is not None and isinstance(specs, dict):
                     for key in specs:
                         spec_key_counts[key] = spec_key_counts.get(key, 0) + 1
 
