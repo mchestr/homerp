@@ -4,7 +4,24 @@ OpenAI function/tool definitions for HomERP AI assistant.
 Defines available tools and their execution logic.
 """
 
+import re
 from typing import Any
+
+
+def _escape_markdown_link_text(text: str) -> str:
+    """Escape markdown special characters in link text.
+
+    Escapes characters that would break markdown link syntax [text](url).
+
+    Args:
+        text: The text to escape
+
+    Returns:
+        Escaped text safe for use in markdown links
+    """
+    # Escape backslashes first, then brackets
+    return re.sub(r"([\[\]\\])", r"\\\1", text)
+
 
 # Tool definitions for OpenAI function calling
 INVENTORY_TOOLS: list[dict[str, Any]] = [
@@ -174,12 +191,17 @@ def format_item_for_tool(item: Any, include_specs: bool = False) -> dict[str, An
     Returns:
         Dictionary with item data formatted for AI consumption
     """
+    # Handle empty/None names with fallback, escape special chars for markdown
+    display_name = item.name or "Unnamed Item"
+    escaped_name = _escape_markdown_link_text(display_name)
+
     result: dict[str, Any] = {
         "id": str(item.id),
         "name": item.name,
         "quantity": item.quantity,
         "quantity_unit": item.quantity_unit or "pcs",
-        "link": f"/items/{item.id}",  # For AI to create markdown links
+        # Provide ready-to-use markdown link for AI to copy verbatim
+        "markdown_link": f"[{escaped_name}](/items/{item.id})",
     }
 
     if item.description:

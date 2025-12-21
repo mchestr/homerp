@@ -28,11 +28,11 @@ import { useOperationCosts } from "@/hooks/use-operation-costs";
 import { SessionSidebar } from "@/components/ai/session-sidebar";
 import { cn, isInsufficientCreditsError } from "@/lib/utils";
 
-// Valid internal link patterns for security
+// Valid internal link patterns for security (without leading slash for normalization)
 const VALID_LINK_PATTERNS = [
-  /^\/items\/[a-f0-9-]{36}$/,
-  /^\/categories\/[a-f0-9-]{36}$/,
-  /^\/locations\/[a-f0-9-]{36}$/,
+  /^items\/[a-f0-9-]{36}$/,
+  /^categories\/[a-f0-9-]{36}$/,
+  /^locations\/[a-f0-9-]{36}$/,
 ];
 
 // Custom link component for ReactMarkdown to handle internal navigation
@@ -43,38 +43,49 @@ const MarkdownLink = ({
   href?: string;
   children?: React.ReactNode;
 }) => {
-  // Check if the link is internal (starts with /)
-  if (href && href.startsWith("/")) {
-    // Validate that href matches expected patterns to prevent injection
-    const isValidInternalLink = VALID_LINK_PATTERNS.some((pattern) =>
-      pattern.test(href)
-    );
+  if (!href) {
+    return <span className="text-muted-foreground">{children}</span>;
+  }
 
-    if (!isValidInternalLink) {
-      // Render invalid links as plain text for security
-      return <span className="text-muted-foreground">{children}</span>;
-    }
+  // Normalize href - strip leading slash for pattern matching
+  // AI sometimes generates links without leading slash (e.g., "items/uuid" instead of "/items/uuid")
+  // We normalize first, validate against patterns, then re-add the slash for Next.js Link
+  const normalizedPath = href.startsWith("/") ? href.slice(1) : href;
 
+  // Validate that href matches expected patterns to prevent injection
+  const isValidInternalLink = VALID_LINK_PATTERNS.some((pattern) =>
+    pattern.test(normalizedPath)
+  );
+
+  if (isValidInternalLink) {
+    // Always use leading slash for internal navigation
+    const internalHref = `/${normalizedPath}`;
     return (
       <Link
-        href={href}
+        href={internalHref}
         className="font-medium text-blue-600 underline decoration-blue-600/50 hover:decoration-blue-600 dark:text-blue-400 dark:decoration-blue-400/50 dark:hover:decoration-blue-400"
       >
         {children}
       </Link>
     );
   }
-  // External links open in new tab
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-blue-600 underline decoration-blue-600/50 hover:decoration-blue-600 dark:text-blue-400 dark:decoration-blue-400/50 dark:hover:decoration-blue-400"
-    >
-      {children}
-    </a>
-  );
+
+  // For non-matching links: render as external if it looks like a URL, otherwise as plain text
+  if (href.startsWith("http://") || href.startsWith("https://")) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-600 underline decoration-blue-600/50 hover:decoration-blue-600 dark:text-blue-400 dark:decoration-blue-400/50 dark:hover:decoration-blue-400"
+      >
+        {children}
+      </a>
+    );
+  }
+
+  // Render invalid/unknown links as plain text for security
+  return <span className="text-muted-foreground">{children}</span>;
 };
 
 const markdownComponents: Components = {

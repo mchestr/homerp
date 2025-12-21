@@ -916,7 +916,7 @@ class AIClassificationService:
 ## Tool Usage
 You have access to tools to query the user's inventory. Use them when you need specific information about items, categories, locations, or stock levels.
 
-When referencing items from tool results, ALWAYS format them as clickable links: [Item Name](/items/ITEM_ID)
+**CRITICAL: When referencing items, use the markdown_link field from tool results EXACTLY as provided.** Each item includes a ready-to-use markdown_link like `[Item Name](/items/ITEM_ID)` - copy this verbatim into your response to create clickable links.
 
 If a tool returns no results, tell the user and suggest alternatives.
 """
