@@ -29,6 +29,10 @@ import { Input } from "@/components/ui/input";
 import { useConfirmModal } from "@/components/ui/confirm-modal";
 import { ImageGallery } from "@/components/items/image-gallery";
 import {
+  MultiImageUpload,
+  UploadedImage,
+} from "@/components/items/multi-image-upload";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -54,6 +58,7 @@ export default function ItemDetailPage() {
 
   const [checkInOutQuantity, setCheckInOutQuantity] = useState(1);
   const [checkInOutNotes, setCheckInOutNotes] = useState("");
+  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
 
   const {
     confirm,
@@ -148,6 +153,56 @@ export default function ItemDetailPage() {
 
   const handleSetPrimary = async (imageId: string) => {
     await setPrimaryImageMutation.mutateAsync(imageId);
+  };
+
+  const handleImageUploaded = async (image: UploadedImage) => {
+    try {
+      // Attach the uploaded image to the item
+      await imagesApi.attachToItem(image.id, itemId, false);
+      // Clear the uploaded images state
+      setUploadedImages([]);
+      // Refresh the item data to show the new image
+      queryClient.invalidateQueries({ queryKey: ["item", itemId] });
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      toast({
+        title: tCommon("success"),
+        description: tImages("imageUploaded"),
+      });
+    } catch (error: unknown) {
+      // Handle max images error
+      if (
+        error &&
+        typeof error === "object" &&
+        "status" in error &&
+        error.status === 400
+      ) {
+        toast({
+          title: tCommon("error"),
+          description: tImages("maxImagesReached"),
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: tCommon("error"),
+          description: tImages("uploadFailed"),
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleRemoveUploadedImage = (id: string) => {
+    setUploadedImages((prev) => prev.filter((img) => img.id !== id));
+  };
+
+  const handleSetUploadedPrimary = (id: string) => {
+    setUploadedImages((prev) =>
+      prev.map((img) => ({ ...img, isPrimary: img.id === id }))
+    );
+  };
+
+  const handleClassificationComplete = () => {
+    // Not used for item detail page uploads, only for new item creation
   };
 
   const handleDelete = async () => {
@@ -295,12 +350,25 @@ export default function ItemDetailPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="bg-card overflow-hidden rounded-xl border p-4">
-          <ImageGallery
-            images={item.images || []}
-            onSetPrimary={handleSetPrimary}
-            editable={true}
-          />
+        <div className="space-y-4">
+          <div className="bg-card overflow-hidden rounded-xl border p-4">
+            <ImageGallery
+              images={item.images || []}
+              onSetPrimary={handleSetPrimary}
+              editable={true}
+            />
+          </div>
+          <div className="bg-card rounded-xl border p-4">
+            <h2 className="mb-4 font-semibold">{tImages("uploadImage")}</h2>
+            <MultiImageUpload
+              onImageUploaded={handleImageUploaded}
+              onClassificationComplete={handleClassificationComplete}
+              uploadedImages={uploadedImages}
+              onRemoveImage={handleRemoveUploadedImage}
+              onSetPrimary={handleSetUploadedPrimary}
+              maxImages={10}
+            />
+          </div>
         </div>
 
         <div className="space-y-4">

@@ -320,6 +320,8 @@
     "setAsPrimary": "Establecer como principal",
     "primaryImage": "Imagen principal",
     "primaryImageSet": "Imagen principal actualizada exitosamente",
+    "imageUploaded": "Imagen subida exitosamente",
+    "maxImagesReached": "Número máximo de imágenes alcanzado para este artículo",
     "searchPlaceholder": "Buscar por nombre de artículo...",
     "noClassifiedImages": "No hay imágenes clasificadas",
     "uploadAndClassify": "Sube y clasifica imágenes para verlas aquí",

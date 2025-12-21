@@ -604,6 +604,7 @@ async def attach_image_to_item(
     item_id: UUID,
     session: AsyncSessionDep,
     user_id: CurrentUserIdDep,
+    settings: Annotated[Settings, Depends(get_settings)],
     is_primary: bool = False,
 ) -> ImageResponse:
     """Attach an image to an item."""
@@ -613,6 +614,14 @@ async def attach_image_to_item(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Image not found",
+        )
+
+    # Check if item already has maximum number of images
+    current_count = await repo.count_by_item(item_id)
+    if current_count >= settings.max_images_per_item:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Item already has the maximum number of images ({settings.max_images_per_item})",
         )
 
     image = await repo.attach_to_item(image, item_id, is_primary)

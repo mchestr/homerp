@@ -320,6 +320,8 @@
     "setAsPrimary": "メインに設定",
     "primaryImage": "メイン画像",
     "primaryImageSet": "メイン画像が正常に更新されました",
+    "imageUploaded": "画像が正常にアップロードされました",
+    "maxImagesReached": "このアイテムの画像の最大数に達しました",
     "searchPlaceholder": "アイテム名で検索...",
     "noClassifiedImages": "分類済み画像がありません",
     "uploadAndClassify": "画像をアップロードして分類すると、ここに表示されます",

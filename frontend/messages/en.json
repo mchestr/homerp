@@ -357,6 +357,8 @@
     "pleaseSelectImageFile": "Please select an image file",
     "imageMustBeLessThan10MB": "Image must be less than 10MB",
     "uploadFailed": "Failed to upload image. Please try again.",
+    "imageUploaded": "Image uploaded successfully",
+    "maxImagesReached": "Maximum number of images reached for this item",
     "classificationFailed": "Classification failed",
     "classifyFailed": "Failed to classify image. Please try again.",
     "uploading": "Uploading...",

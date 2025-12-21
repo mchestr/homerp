@@ -266,6 +266,53 @@ class TestAttachImageEndpoint:
 
         assert response.status_code == 404
 
+    async def test_attach_image_exceeds_max_limit(
+        self,
+        authenticated_client: AsyncClient,
+        test_item: "Item",  # noqa: F821
+        async_session: AsyncSession,
+        test_user: User,
+    ):
+        """Test attaching image when item already has maximum images."""
+        # Create 10 images attached to the item (matching default max_images_per_item=10)
+        for _ in range(10):
+            image = Image(
+                id=uuid.uuid4(),
+                user_id=test_user.id,
+                item_id=test_item.id,
+                storage_path=f"/fake/path/{uuid.uuid4()}.jpg",
+                storage_type="local",
+                original_filename="test.jpg",
+                mime_type="image/jpeg",
+                size_bytes=1000,
+                content_hash=f"hash_{uuid.uuid4()}",
+            )
+            async_session.add(image)
+        await async_session.commit()
+
+        # Create an unattached image to attach
+        new_image = Image(
+            id=uuid.uuid4(),
+            user_id=test_user.id,
+            storage_path=f"/fake/path/{uuid.uuid4()}.jpg",
+            storage_type="local",
+            original_filename="test.jpg",
+            mime_type="image/jpeg",
+            size_bytes=1000,
+            content_hash=f"hash_{uuid.uuid4()}",
+        )
+        async_session.add(new_image)
+        await async_session.commit()
+        await async_session.refresh(new_image)
+
+        # Try to attach the 11th image
+        response = await authenticated_client.post(
+            f"/api/v1/images/{new_image.id}/attach/{test_item.id}"
+        )
+
+        assert response.status_code == 400
+        assert "maximum number of images" in response.json()["detail"]
+
     async def test_attach_image_unauthenticated(
         self, unauthenticated_client: AsyncClient, test_image: Image
     ):

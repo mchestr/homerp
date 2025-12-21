@@ -35,6 +35,18 @@ class ImageRepository:
         )
         return list(result.scalars().all())
 
+    async def count_by_item(self, item_id: UUID) -> int:
+        """Count images for an item."""
+        from sqlalchemy import func as sqla_func
+
+        result = await self.session.execute(
+            select(sqla_func.count(Image.id)).where(
+                Image.item_id == item_id,
+                Image.user_id == self.user_id,
+            )
+        )
+        return result.scalar_one()
+
     async def get_by_location(self, location_id: UUID) -> list[Image]:
         """Get all images for a location."""
         result = await self.session.execute(
