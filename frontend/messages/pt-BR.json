@@ -154,6 +154,8 @@
     "specificationValue": "Valor",
     "moveUp": "Mover para cima",
     "moveDown": "Mover para baixo",
+    "dragToReorder": "Arraste para reordenar",
+    "duplicateKeyError": "Esta chave já existe. Por favor use um nome único.",
     "images": "Imagens",
     "notes": "Notas",
     "price": "Preço",

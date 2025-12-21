@@ -1,9 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Plus, X, ChevronUp, ChevronDown } from "lucide-react";
+import { Plus, X, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface SpecificationEditorProps {
   specifications: Record<string, unknown>;
@@ -17,8 +18,21 @@ export function SpecificationEditor({
   className,
 }: SpecificationEditorProps) {
   const t = useTranslations("items");
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const entries = Object.entries(specifications);
+
+  // Check if a key is duplicate (case-insensitive)
+  const isDuplicateKey = (key: string, currentIndex: number): boolean => {
+    if (!key || key.trim() === "") return false;
+    const normalizedKey = key.trim().toLowerCase();
+    return entries.some(
+      ([existingKey], index) =>
+        index !== currentIndex &&
+        existingKey.trim().toLowerCase() === normalizedKey
+    );
+  };
 
   const handleAdd = () => {
     // Add a new empty specification
@@ -57,26 +71,42 @@ export function SpecificationEditor({
     onChange(newSpecs);
   };
 
-  const handleMoveUp = (index: number) => {
-    if (index === 0) return;
-    const newEntries = [...entries];
-    [newEntries[index - 1], newEntries[index]] = [
-      newEntries[index],
-      newEntries[index - 1],
-    ];
-    const newSpecs = Object.fromEntries(newEntries);
-    onChange(newSpecs);
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
   };
 
-  const handleMoveDown = (index: number) => {
-    if (index === entries.length - 1) return;
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+    setDragOverIndex(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
     const newEntries = [...entries];
-    [newEntries[index], newEntries[index + 1]] = [
-      newEntries[index + 1],
-      newEntries[index],
-    ];
+    const [draggedEntry] = newEntries.splice(draggedIndex, 1);
+    newEntries.splice(dropIndex, 0, draggedEntry);
+
     const newSpecs = Object.fromEntries(newEntries);
     onChange(newSpecs);
+
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   };
 
   const getDisplayValue = (value: unknown): string => {
@@ -111,62 +141,76 @@ export function SpecificationEditor({
         <p className="text-muted-foreground text-sm">{t("noSpecifications")}</p>
       ) : (
         <div className="space-y-3">
-          {entries.map(([key, value], index) => (
-            <div key={index} className="flex gap-2">
-              <div className="flex flex-col gap-1">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleMoveUp(index)}
-                  disabled={index === 0}
-                  className="text-muted-foreground hover:text-foreground h-4 w-8 shrink-0 disabled:opacity-30"
-                  data-testid={`move-up-specification-${index}`}
-                  title={t("moveUp")}
+          {entries.map(([key, value], index) => {
+            const hasDuplicate = isDuplicateKey(key, index);
+            const isDragging = draggedIndex === index;
+            const isDropTarget = dragOverIndex === index;
+
+            return (
+              <div key={index} className="space-y-1">
+                <div
+                  className={cn(
+                    "flex gap-2 rounded-lg transition-all",
+                    isDragging && "opacity-50",
+                    isDropTarget && "ring-primary bg-primary/5 ring-2"
+                  )}
+                  draggable
+                  onDragStart={() => handleDragStart(index)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, index)}
+                  onDragEnd={handleDragEnd}
+                  data-testid={`specification-row-${index}`}
                 >
-                  <ChevronUp className="h-3 w-3" />
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleMoveDown(index)}
-                  disabled={index === entries.length - 1}
-                  className="text-muted-foreground hover:text-foreground h-4 w-8 shrink-0 disabled:opacity-30"
-                  data-testid={`move-down-specification-${index}`}
-                  title={t("moveDown")}
-                >
-                  <ChevronDown className="h-3 w-3" />
-                </Button>
+                  <div
+                    className="text-muted-foreground hover:text-foreground flex h-10 w-8 shrink-0 cursor-grab items-center justify-center active:cursor-grabbing"
+                    data-testid={`drag-handle-${index}`}
+                    title={t("dragToReorder")}
+                  >
+                    <GripVertical className="h-4 w-4" />
+                  </div>
+                  <input
+                    type="text"
+                    value={key}
+                    onChange={(e) => handleKeyChange(index, e.target.value)}
+                    placeholder={t("specificationKey")}
+                    className={cn(
+                      "bg-background focus:border-primary focus:ring-primary/20 h-10 flex-1 rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden",
+                      hasDuplicate &&
+                        "border-destructive focus:ring-destructive/20"
+                    )}
+                    data-testid={`specification-key-${index}`}
+                  />
+                  <input
+                    type="text"
+                    value={getDisplayValue(value)}
+                    onChange={(e) => handleValueChange(index, e.target.value)}
+                    placeholder={t("specificationValue")}
+                    className="bg-background focus:border-primary focus:ring-primary/20 h-10 flex-1 rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden"
+                    data-testid={`specification-value-${index}`}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleRemove(index)}
+                    className="text-muted-foreground hover:text-destructive h-10 w-10 shrink-0"
+                    data-testid={`remove-specification-${index}`}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                {hasDuplicate && (
+                  <p
+                    className="text-destructive ml-10 text-xs"
+                    data-testid={`duplicate-key-error-${index}`}
+                  >
+                    {t("duplicateKeyError")}
+                  </p>
+                )}
               </div>
-              <input
-                type="text"
-                value={key}
-                onChange={(e) => handleKeyChange(index, e.target.value)}
-                placeholder={t("specificationKey")}
-                className="bg-background focus:border-primary focus:ring-primary/20 h-10 flex-1 rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden"
-                data-testid={`specification-key-${index}`}
-              />
-              <input
-                type="text"
-                value={getDisplayValue(value)}
-                onChange={(e) => handleValueChange(index, e.target.value)}
-                placeholder={t("specificationValue")}
-                className="bg-background focus:border-primary focus:ring-primary/20 h-10 flex-1 rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden"
-                data-testid={`specification-value-${index}`}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => handleRemove(index)}
-                className="text-muted-foreground hover:text-destructive h-10 w-10 shrink-0"
-                data-testid={`remove-specification-${index}`}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

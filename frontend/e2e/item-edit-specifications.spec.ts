@@ -357,8 +357,8 @@ test.describe("Item Edit - Specifications", () => {
     });
   });
 
-  test.describe("Reordering specifications", () => {
-    test("can move specification up", async ({ page }) => {
+  test.describe("Reordering specifications with drag and drop", () => {
+    test("can drag specification to a different position", async ({ page }) => {
       const itemWithSpecs = {
         ...fixtures.testItemDetail,
         id: "item-reorder",
@@ -410,8 +410,11 @@ test.describe("Item Edit - Specifications", () => {
         "frequency"
       );
 
-      // Move "current" (index 1) up
-      await page.getByTestId("move-up-specification-1").click();
+      // Drag "current" (index 1) to the top (index 0)
+      const sourceRow = page.getByTestId("specification-row-1");
+      const targetRow = page.getByTestId("specification-row-0");
+
+      await sourceRow.dragTo(targetRow);
 
       // Verify new order: current, voltage, frequency
       await expect(page.getByTestId("specification-key-0")).toHaveValue(
@@ -425,7 +428,7 @@ test.describe("Item Edit - Specifications", () => {
       );
     });
 
-    test("can move specification down", async ({ page }) => {
+    test("can drag specification down", async ({ page }) => {
       const itemWithSpecs = {
         ...fixtures.testItemDetail,
         id: "item-reorder",
@@ -477,24 +480,25 @@ test.describe("Item Edit - Specifications", () => {
         "frequency"
       );
 
-      // Move "voltage" (index 0) down
-      await page.getByTestId("move-down-specification-0").click();
+      // Drag "voltage" (index 0) to the bottom (index 2)
+      const sourceRow = page.getByTestId("specification-row-0");
+      const targetRow = page.getByTestId("specification-row-2");
 
-      // Verify new order: current, voltage, frequency
+      await sourceRow.dragTo(targetRow);
+
+      // Verify new order: current, frequency, voltage
       await expect(page.getByTestId("specification-key-0")).toHaveValue(
         "current"
       );
       await expect(page.getByTestId("specification-key-1")).toHaveValue(
-        "voltage"
-      );
-      await expect(page.getByTestId("specification-key-2")).toHaveValue(
         "frequency"
       );
+      await expect(page.getByTestId("specification-key-2")).toHaveValue(
+        "voltage"
+      );
     });
 
-    test("move up button is disabled for first specification", async ({
-      page,
-    }) => {
+    test("displays drag handle on each specification row", async ({ page }) => {
       const itemWithSpecs = {
         ...fixtures.testItemDetail,
         id: "item-reorder",
@@ -524,56 +528,9 @@ test.describe("Item Edit - Specifications", () => {
         page.getByRole("heading", { name: /edit item/i })
       ).toBeVisible();
 
-      // Verify first item's move-up button is disabled
-      await expect(page.getByTestId("move-up-specification-0")).toBeDisabled();
-      // But move-down should be enabled
-      await expect(page.getByTestId("move-down-specification-0")).toBeEnabled();
-
-      // Second item's move-up should be enabled
-      await expect(page.getByTestId("move-up-specification-1")).toBeEnabled();
-    });
-
-    test("move down button is disabled for last specification", async ({
-      page,
-    }) => {
-      const itemWithSpecs = {
-        ...fixtures.testItemDetail,
-        id: "item-reorder",
-        name: "Test Item",
-        attributes: {
-          specifications: {
-            voltage: "5V",
-            current: "40mA",
-          },
-        },
-      };
-
-      await page.route("**/api/v1/items/item-reorder", async (route) => {
-        if (route.request().method() === "GET") {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify(itemWithSpecs),
-          });
-        } else {
-          await route.continue();
-        }
-      });
-
-      await page.goto("/items/item-reorder/edit");
-      await expect(
-        page.getByRole("heading", { name: /edit item/i })
-      ).toBeVisible();
-
-      // Verify last item's move-down button is disabled
-      await expect(
-        page.getByTestId("move-down-specification-1")
-      ).toBeDisabled();
-      // But move-up should be enabled
-      await expect(page.getByTestId("move-up-specification-1")).toBeEnabled();
-
-      // First item's move-down should be enabled
-      await expect(page.getByTestId("move-down-specification-0")).toBeEnabled();
+      // Verify drag handles are visible
+      await expect(page.getByTestId("drag-handle-0")).toBeVisible();
+      await expect(page.getByTestId("drag-handle-1")).toBeVisible();
     });
 
     test("reordering persists after save", async ({ page }) => {
@@ -629,8 +586,10 @@ test.describe("Item Edit - Specifications", () => {
         page.getByRole("heading", { name: /edit item/i })
       ).toBeVisible();
 
-      // Move "current" to the top
-      await page.getByTestId("move-up-specification-1").click();
+      // Drag "current" to the top
+      const sourceRow = page.getByTestId("specification-row-1");
+      const targetRow = page.getByTestId("specification-row-0");
+      await sourceRow.dragTo(targetRow);
 
       // Verify new order in UI
       await expect(page.getByTestId("specification-key-0")).toHaveValue(
@@ -1080,6 +1039,219 @@ test.describe("Item Edit - Specifications", () => {
       await expect(page.getByTestId("specification-value-3")).toHaveValue(
         "false"
       );
+    });
+  });
+
+  test.describe("Duplicate key validation", () => {
+    test("shows error for duplicate keys (case-insensitive)", async ({
+      page,
+    }) => {
+      const item = {
+        ...fixtures.testItemDetail,
+        id: "item-duplicate-keys",
+        name: "Test Item",
+        attributes: {
+          specifications: {
+            voltage: "5V",
+          },
+        },
+      };
+
+      await page.route("**/api/v1/items/item-duplicate-keys", async (route) => {
+        if (route.request().method() === "GET") {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify(item),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      await page.goto("/items/item-duplicate-keys/edit");
+      await expect(
+        page.getByRole("heading", { name: /edit item/i })
+      ).toBeVisible();
+
+      // Verify initial spec exists
+      await expect(page.getByTestId("specification-key-0")).toHaveValue(
+        "voltage"
+      );
+
+      // Add a new specification with duplicate key
+      await page.getByTestId("add-specification-button").click();
+
+      // Wait for the new row to appear with a visible and enabled input
+      const newKeyInput = page.getByTestId("specification-key-1");
+      await expect(newKeyInput).toBeVisible();
+      await expect(newKeyInput).toBeEditable();
+
+      // Clear the auto-generated key and set to "VOLTAGE" (case-insensitive match)
+      await newKeyInput.clear();
+      await newKeyInput.fill("VOLTAGE");
+
+      // Verify both fields show error styling
+      await expect(page.getByTestId("specification-key-0")).toHaveClass(
+        /border-destructive/
+      );
+      await expect(page.getByTestId("specification-key-1")).toHaveClass(
+        /border-destructive/
+      );
+
+      // Verify error message appears for both
+      await expect(page.getByTestId("duplicate-key-error-0")).toBeVisible();
+      await expect(page.getByTestId("duplicate-key-error-1")).toBeVisible();
+    });
+
+    test("error disappears when key is made unique", async ({ page }) => {
+      const item = {
+        ...fixtures.testItemDetail,
+        id: "item-duplicate-keys",
+        name: "Test Item",
+        attributes: {
+          specifications: {
+            voltage: "5V",
+            Voltage: "3.3V", // Duplicate key (case-insensitive)
+          },
+        },
+      };
+
+      await page.route("**/api/v1/items/item-duplicate-keys", async (route) => {
+        if (route.request().method() === "GET") {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify(item),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      await page.goto("/items/item-duplicate-keys/edit");
+      await expect(
+        page.getByRole("heading", { name: /edit item/i })
+      ).toBeVisible();
+
+      // Wait for specs to load - should have 2 with duplicate keys
+      await expect(
+        page.locator('[data-testid^="specification-key-"]')
+      ).toHaveCount(2);
+
+      // Verify error is shown for duplicates
+      await expect(page.getByTestId("duplicate-key-error-0")).toBeVisible();
+      await expect(page.getByTestId("duplicate-key-error-1")).toBeVisible();
+
+      // Change one key to make it unique
+      const key1Input = page.getByTestId("specification-key-1");
+      await key1Input.clear();
+      await key1Input.fill("current");
+
+      // Wait for error to disappear
+      await expect(page.getByTestId("duplicate-key-error-0")).not.toBeVisible();
+      await expect(page.getByTestId("duplicate-key-error-1")).not.toBeVisible();
+
+      // Verify inputs no longer have error styling
+      await expect(page.getByTestId("specification-key-0")).not.toHaveClass(
+        /border-destructive/
+      );
+      await expect(page.getByTestId("specification-key-1")).not.toHaveClass(
+        /border-destructive/
+      );
+    });
+
+    test("multiple duplicates are all highlighted", async ({ page }) => {
+      const item = {
+        ...fixtures.testItemDetail,
+        id: "item-duplicate-keys",
+        name: "Test Item",
+        attributes: {
+          specifications: {
+            voltage: "5V",
+            Voltage: "3.3V",
+            VOLTAGE: "12V", // Three case-insensitive duplicates
+          },
+        },
+      };
+
+      await page.route("**/api/v1/items/item-duplicate-keys", async (route) => {
+        if (route.request().method() === "GET") {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify(item),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      await page.goto("/items/item-duplicate-keys/edit");
+      await expect(
+        page.getByRole("heading", { name: /edit item/i })
+      ).toBeVisible();
+
+      // Wait for all specs to load
+      await expect(
+        page.locator('[data-testid^="specification-key-"]')
+      ).toHaveCount(3);
+
+      // Verify all three have error styling
+      await expect(page.getByTestId("specification-key-0")).toHaveClass(
+        /border-destructive/
+      );
+      await expect(page.getByTestId("specification-key-1")).toHaveClass(
+        /border-destructive/
+      );
+      await expect(page.getByTestId("specification-key-2")).toHaveClass(
+        /border-destructive/
+      );
+
+      // Verify all three have error messages
+      await expect(page.getByTestId("duplicate-key-error-0")).toBeVisible();
+      await expect(page.getByTestId("duplicate-key-error-1")).toBeVisible();
+      await expect(page.getByTestId("duplicate-key-error-2")).toBeVisible();
+    });
+
+    test("whitespace-only keys do not trigger duplicate error", async ({
+      page,
+    }) => {
+      const item = {
+        ...fixtures.testItemDetail,
+        id: "item-duplicate-keys",
+        name: "Test Item",
+        attributes: {},
+      };
+
+      await page.route("**/api/v1/items/item-duplicate-keys", async (route) => {
+        if (route.request().method() === "GET") {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify(item),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      await page.goto("/items/item-duplicate-keys/edit");
+      await expect(
+        page.getByRole("heading", { name: /edit item/i })
+      ).toBeVisible();
+
+      // Add two specifications
+      await page.getByTestId("add-specification-button").click();
+      await page.getByTestId("add-specification-button").click();
+
+      // Set both to whitespace
+      await page.getByTestId("specification-key-0").fill("   ");
+      await page.getByTestId("specification-key-1").fill("  ");
+
+      // Verify no error messages for whitespace-only keys
+      await expect(page.getByTestId("duplicate-key-error-0")).not.toBeVisible();
+      await expect(page.getByTestId("duplicate-key-error-1")).not.toBeVisible();
     });
   });
 
