@@ -476,6 +476,14 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
     });
   });
 
+  await page.route("**/api/v1/billing/costs", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(fixtures.testOperationCosts),
+    });
+  });
+
   await page.route("**/api/v1/billing/packs", async (route) => {
     await route.fulfill({
       status: 200,
@@ -1165,6 +1173,147 @@ export async function setupApiMocks(page: Page, options: MockOptions = {}) {
         status: 200,
         contentType: "application/json",
         body: JSON.stringify(currentNotificationPrefs),
+      });
+    } else {
+      await route.continue();
+    }
+  });
+
+  // AI Assistant endpoints
+  await page.route("**/api/v1/ai/sessions?*", async (route) => {
+    if (route.request().method() === "GET") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          sessions: fixtures.testAISessions,
+          total: fixtures.testAISessions.length,
+          page: 1,
+          limit: 50,
+          total_pages: 1,
+        }),
+      });
+    } else {
+      await route.fallback();
+    }
+  });
+
+  await page.route("**/api/v1/ai/sessions", async (route) => {
+    if (route.request().method() === "POST") {
+      const body = route.request().postDataJSON();
+      const newSession = {
+        id: `session-${Date.now()}`,
+        title: body?.title || "New Chat",
+        message_count: 0,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      await route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify(newSession),
+      });
+    } else if (route.request().method() === "GET") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          sessions: fixtures.testAISessions,
+          total: fixtures.testAISessions.length,
+          page: 1,
+          limit: 50,
+          total_pages: 1,
+        }),
+      });
+    } else {
+      await route.continue();
+    }
+  });
+
+  await page.route(/\/api\/v1\/ai\/sessions\/[^/]+$/, async (route) => {
+    const method = route.request().method();
+    const url = route.request().url();
+    const sessionId = url.split("/").pop();
+
+    const session = fixtures.testAISessions.find((s) => s.id === sessionId);
+
+    if (method === "GET") {
+      if (session) {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ...session,
+            messages: fixtures.testAISessionMessages.filter(
+              (m) => m.session_id === sessionId
+            ),
+          }),
+        });
+      } else {
+        await route.fulfill({
+          status: 404,
+          contentType: "application/json",
+          body: JSON.stringify({ detail: "Session not found" }),
+        });
+      }
+    } else if (method === "PATCH") {
+      const body = route.request().postDataJSON();
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ...session,
+          ...body,
+          updated_at: new Date().toISOString(),
+        }),
+      });
+    } else if (method === "DELETE") {
+      await route.fulfill({ status: 204 });
+    } else {
+      await route.continue();
+    }
+  });
+
+  await page.route("**/api/v1/ai/chat", async (route) => {
+    if (route.request().method() === "POST") {
+      const body = route.request().postDataJSON();
+      const sessionId = body.session_id || `session-${Date.now()}`;
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          session_id: sessionId,
+          new_messages: [
+            {
+              id: `msg-user-${Date.now()}`,
+              session_id: sessionId,
+              role: "user",
+              content: body.prompt,
+              created_at: new Date().toISOString(),
+            },
+            {
+              id: `msg-assistant-${Date.now()}`,
+              session_id: sessionId,
+              role: "assistant",
+              content:
+                "This is a mock response to your question. In a real environment, this would be an AI-generated answer based on your inventory data.",
+              tool_calls: [
+                {
+                  id: "call-mock",
+                  type: "function",
+                  function: {
+                    name: "search_items",
+                    arguments: '{"query":"test"}',
+                  },
+                },
+              ],
+              created_at: new Date().toISOString(),
+            },
+          ],
+          tools_used: ["search_items"],
+          credits_used: 1,
+        }),
       });
     } else {
       await route.continue();

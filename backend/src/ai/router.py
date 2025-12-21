@@ -41,11 +41,13 @@ async def _set_rls_context(session: AsyncSession, user_id: UUID) -> None:
 
     This enables RLS policies on ai_conversation_sessions and ai_conversation_messages
     tables to filter data by user_id.
+
+    Note: We use string formatting here because PostgreSQL's SET command doesn't
+    support parameterized queries with asyncpg. This is safe because user_id is
+    a validated UUID type.
     """
-    await session.execute(
-        text("SET LOCAL app.current_user_id = :user_id"),
-        {"user_id": str(user_id)},
-    )
+    # Use literal string since SET doesn't support parameterized queries in asyncpg
+    await session.execute(text(f"SET LOCAL app.current_user_id = '{user_id}'"))
 
 
 async def _build_inventory_context(

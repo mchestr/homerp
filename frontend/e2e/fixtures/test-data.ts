@@ -891,3 +891,150 @@ export const testAIModelSettings = [
     updated_at: "2024-05-20T16:45:00Z",
   },
 ];
+
+// AI Assistant Session test data
+export const testAISessions = [
+  {
+    id: "session-1",
+    title: "Organizing garage tools",
+    message_count: 5,
+    is_active: true,
+    created_at: "2024-06-19T10:00:00Z",
+    updated_at: "2024-06-19T10:15:00Z",
+  },
+  {
+    id: "session-2",
+    title: "Electronics inventory help",
+    message_count: 3,
+    is_active: true,
+    created_at: "2024-06-18T14:30:00Z",
+    updated_at: "2024-06-18T14:45:00Z",
+  },
+  {
+    id: "session-3",
+    title: "Kitchen storage ideas",
+    message_count: 8,
+    is_active: true,
+    created_at: "2024-06-17T09:20:00Z",
+    updated_at: "2024-06-17T10:00:00Z",
+  },
+];
+
+export const testAISessionMessages = [
+  {
+    id: "msg-1",
+    session_id: "session-1",
+    role: "user" as const,
+    content: "How should I organize my garage tools?",
+    created_at: "2024-06-19T10:00:00Z",
+  },
+  {
+    id: "msg-2",
+    session_id: "session-1",
+    role: "assistant" as const,
+    content:
+      "I'd recommend organizing your garage tools by frequency of use and category. Here are some tips:\n\n1. Wall-mounted pegboards for frequently used tools\n2. Labeled bins for small items\n3. Heavy-duty shelving for power tools\n\nWould you like me to search your inventory for specific tool categories?",
+    tool_calls: [
+      {
+        id: "call-1",
+        type: "function" as const,
+        function: {
+          name: "search_items",
+          arguments: '{"query":"tools","category":"garage"}',
+        },
+      },
+    ],
+    created_at: "2024-06-19T10:01:00Z",
+  },
+  {
+    id: "msg-3",
+    session_id: "session-1",
+    role: "user" as const,
+    content: "Yes, show me my power tools",
+    created_at: "2024-06-19T10:05:00Z",
+  },
+  {
+    id: "msg-4",
+    session_id: "session-1",
+    role: "assistant" as const,
+    content:
+      "I found 3 power tools in your inventory:\n- [Cordless Drill](/items/item-1)\n- [Circular Saw](/items/item-2)\n- [Angle Grinder](/items/item-3)\n\nThese would be great candidates for wall-mounted storage or a dedicated power tool cabinet.",
+    tool_calls: [
+      {
+        id: "call-2",
+        type: "function" as const,
+        function: {
+          name: "list_items",
+          arguments: '{"category":"Power Tools","limit":10}',
+        },
+      },
+    ],
+    created_at: "2024-06-19T10:06:00Z",
+  },
+];
+
+export const testAISessionDetail = {
+  id: "session-1",
+  title: "Organizing garage tools",
+  message_count: 5,
+  is_active: true,
+  created_at: "2024-06-19T10:00:00Z",
+  updated_at: "2024-06-19T10:15:00Z",
+  messages: testAISessionMessages.filter((m) => m.session_id === "session-1"),
+};
+
+export const testAIChatResponse = {
+  session_id: "session-1",
+  new_messages: [
+    {
+      id: "msg-new-user",
+      session_id: "session-1",
+      role: "user" as const,
+      content: "What's in my garage?",
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: "msg-new-assistant",
+      session_id: "session-1",
+      role: "assistant" as const,
+      content:
+        "Based on your inventory, your garage contains:\n- 15 power tools\n- 32 hand tools\n- 8 gardening items\n- Various hardware and supplies",
+      tool_calls: [
+        {
+          id: "call-3",
+          type: "function" as const,
+          function: {
+            name: "search_items",
+            arguments: '{"location":"Garage"}',
+          },
+        },
+      ],
+      created_at: new Date().toISOString(),
+    },
+  ],
+  tools_used: ["search_items"],
+  credits_used: 1,
+};
+
+export const testOperationCosts = {
+  operations: [
+    {
+      operation_type: "image_classification",
+      display_name: "Image Classification",
+      description: "AI-powered image analysis",
+      credit_cost: 1,
+    },
+    {
+      operation_type: "assistant_query",
+      display_name: "AI Assistant Query",
+      description: "AI assistant conversation",
+      credit_cost: 1,
+    },
+    {
+      operation_type: "location_suggestion",
+      display_name: "Location Suggestion",
+      description: "AI location recommendations",
+      credit_cost: 1,
+    },
+  ],
+};

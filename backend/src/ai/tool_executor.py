@@ -9,8 +9,9 @@ import logging
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import or_, select
+from sqlalchemy import Text, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.expression import cast
 
 from src.ai.tools import format_item_for_tool
 from src.categories.models import Category
@@ -118,7 +119,7 @@ class ToolExecutor:
                     Category.user_id == self.user_id,
                     or_(
                         Category.name.ilike(f"%{safe_category_name}%", escape="\\"),
-                        Category.path.cast(str).ilike(
+                        cast(Category.path, Text()).ilike(
                             f"%{safe_category_name}%", escape="\\"
                         ),
                     ),
@@ -139,7 +140,7 @@ class ToolExecutor:
                     Location.user_id == self.user_id,
                     or_(
                         Location.name.ilike(f"%{safe_location_name}%", escape="\\"),
-                        Location.path.cast(str).ilike(
+                        cast(Location.path, Text()).ilike(
                             f"%{safe_location_name}%", escape="\\"
                         ),
                     ),
