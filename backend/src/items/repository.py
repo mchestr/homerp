@@ -303,6 +303,8 @@ class ItemRepository:
                     Item.name.ilike(search_pattern),
                     Item.description.ilike(search_pattern),
                     Item.tags.any(search),
+                    # Search within JSONB attributes (includes specifications)
+                    Item.attributes.cast(String).ilike(search_pattern),
                 )
             )
 
@@ -537,7 +539,7 @@ class ItemRepository:
         return updated_ids
 
     async def search(self, query: str, limit: int = 20) -> list[Item]:
-        """Search items by name, description, or tags."""
+        """Search items by name, description, tags, or specifications."""
         search_pattern = f"%{query}%"
         result = await self.session.execute(
             self._base_query()
@@ -546,6 +548,8 @@ class ItemRepository:
                     Item.name.ilike(search_pattern),
                     Item.description.ilike(search_pattern),
                     Item.tags.any(query),
+                    # Search within JSONB attributes (includes specifications)
+                    Item.attributes.cast(String).ilike(search_pattern),
                 )
             )
             .order_by(Item.name)
