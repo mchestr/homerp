@@ -100,33 +100,15 @@ class TestRequestIDLogging:
             logger.setLevel(original_level)
             handler.close()
 
-    def test_request_id_placeholder_when_none(self):
-        """Log filter should use '-' placeholder when no request ID is set."""
-        from src.common.request_context import _request_id_context
-        from src.main import RequestIDFilter
+    def test_request_context_returns_none_when_not_set(self):
+        """Request context should return None when no request ID is set."""
+        from src.common.request_context import _request_id_context, get_request_id
 
         # Clear any existing request ID from previous tests
         _request_id_context.set(None)
 
-        log_filter = RequestIDFilter()
-
-        # Create a mock log record
-        record = logging.LogRecord(
-            name="test",
-            level=logging.INFO,
-            pathname="",
-            lineno=0,
-            msg="test message",
-            args=(),
-            exc_info=None,
-        )
-
-        # Apply filter
-        log_filter.filter(record)
-
-        # Should have request_id attribute set to placeholder
-        assert hasattr(record, "request_id")
-        assert record.request_id == "-"
+        # Should return None when not set
+        assert get_request_id() is None
 
 
 class TestRequestIDMiddlewareUnit:

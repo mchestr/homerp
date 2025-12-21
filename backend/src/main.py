@@ -1,10 +1,11 @@
 import logging
-import sys
 from contextlib import asynccontextmanager
+from logging.config import dictConfig
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
 from slowapi.middleware import SlowAPIMiddleware
 
 from src.common.rate_limiter import configure_rate_limiting
@@ -14,95 +15,62 @@ from src.config import get_settings
 from src.database import check_db_connectivity, close_db, init_db
 
 
-class RequestIDFilter(logging.Filter):
-    """
-    Logging filter that adds request ID to log records.
+class LogConfig(BaseModel):
+    """Logging configuration using uvicorn's formatters for proper integration."""
 
-    If a request ID is available in the current context, it will be
-    included in the log record. Otherwise, a placeholder is used.
-    """
+    version: int = 1
+    disable_existing_loggers: bool = False
 
-    def filter(self, record: logging.LogRecord) -> bool:
-        from src.common.request_context import get_request_id
-
-        # Add request_id attribute to every log record
-        request_id = get_request_id()
-        record.request_id = request_id if request_id else "-"
-        return True
-
-
-class SafeFormatter(logging.Formatter):
-    """
-    Formatter that ensures request_id attribute exists before formatting.
-
-    This prevents KeyError when formatting log records that haven't
-    been processed by RequestIDFilter yet.
-    """
-
-    def format(self, record: logging.LogRecord) -> str:
-        # Ensure request_id exists, even if filter hasn't run
-        if not hasattr(record, "request_id"):
-            record.request_id = "-"
-        return super().format(record)
-
-
-def configure_logging() -> None:
-    """Configure application logging.
-
-    Sets up structured logging with timestamps, request IDs, and log levels.
-    Log level is configurable via LOG_LEVEL environment variable.
-
-    Defensive Layering Approach:
-    - SafeFormatter: Ensures request_id exists even if filter hasn't run
-    - RequestIDFilter: Populates request_id from context during requests
-
-    This dual approach prevents KeyError exceptions during startup when
-    logs are emitted before filters are attached or outside request context.
-    """
-    settings = get_settings()
-
-    # Get log level from settings (default INFO)
-    log_level = getattr(logging, settings.log_level.upper(), logging.INFO)
-
-    # Create custom formatter with defensive request_id handling
-    # SafeFormatter prevents KeyError if request_id is missing from log record
-    formatter = SafeFormatter(
-        fmt="%(asctime)s - %(request_id)s - %(name)s - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
+    formatters: dict = Field(
+        default_factory=lambda: {
+            "default": {
+                "()": "uvicorn.logging.DefaultFormatter",
+                "fmt": "%(levelprefix)s - %(asctime)s - %(name)s - %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+            "access": {
+                "()": "uvicorn.logging.AccessFormatter",
+                "fmt": '%(levelprefix)s %(asctime)s - %(name)s :: %(client_addr)s - "%(request_line)s" %(status_code)s',
+                "use_colors": True,
+            },
+        }
     )
 
-    # Create handler with custom formatter
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(log_level)
-    handler.setFormatter(formatter)
+    handlers: dict = Field(
+        default_factory=lambda: {
+            "default": {
+                "formatter": "default",
+                "class": "logging.StreamHandler",
+                "stream": "ext://sys.stdout",
+            },
+            "access": {
+                "formatter": "access",
+                "class": "logging.StreamHandler",
+                "stream": "ext://sys.stdout",
+            },
+        }
+    )
 
-    # Configure root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
-    # Clear existing handlers to avoid duplicates
-    root_logger.handlers.clear()
-    root_logger.addHandler(handler)
-
-    # Add request ID filter to root logger
-    # Filter populates request_id from context (or "-" placeholder if no context)
-    # Note: SafeFormatter above provides additional safety in case filter doesn't run
-    request_id_filter = RequestIDFilter()
-    root_logger.addFilter(request_id_filter)
-
-    # Set uvicorn access logs to same level (prevents duplicate logs)
-    logging.getLogger("uvicorn.access").setLevel(log_level)
-
-    # Reduce noise from third-party libraries
-    logging.getLogger("httpcore").setLevel(logging.WARNING)
-    logging.getLogger("httpx").setLevel(logging.WARNING)
-    logging.getLogger("aiosmtplib").setLevel(logging.INFO)
-
-    logger = logging.getLogger(__name__)
-    logger.info(f"Logging configured: level={settings.log_level.upper()}")
+    loggers: dict = Field(
+        default_factory=lambda: {
+            "": {"handlers": ["default"], "level": "INFO", "propagate": True},
+            "src": {"level": "DEBUG"},
+            "uvicorn.access": {
+                "handlers": ["access"],
+                "level": "INFO",
+                "propagate": False,
+            },
+            "uvicorn.error": {"handlers": ["default"], "level": "INFO"},
+            # Reduce noise from third-party libraries
+            "httpcore": {"level": "WARNING"},
+            "httpx": {"level": "WARNING"},
+            "aiosmtplib": {"level": "INFO"},
+        }
+    )
 
 
 # Configure logging on module load
-configure_logging()
+dictConfig(LogConfig().model_dump())
 
 logger = logging.getLogger(__name__)
 
