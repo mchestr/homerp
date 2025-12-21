@@ -242,6 +242,12 @@ Core tables:
 - `POST /api/v1/billing/checkout` - Create Stripe checkout
 - `POST /api/v1/billing/portal` - Stripe customer portal
 - `POST /api/v1/billing/webhook` - Stripe webhooks
+- `POST /api/v1/ai/sessions` - Create AI chat session
+- `GET /api/v1/ai/sessions` - List AI chat sessions
+- `GET /api/v1/ai/sessions/{id}` - Get session with messages
+- `PATCH /api/v1/ai/sessions/{id}` - Update session title
+- `DELETE /api/v1/ai/sessions/{id}` - Archive/delete session
+- `POST /api/v1/ai/chat` - Tool-enabled AI chat (requires credits)
 
 ## API Client & Data Fetching
 

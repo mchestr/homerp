@@ -179,6 +179,14 @@ test.describe("AI Assistant Sessions", () => {
         page.getByText("How should I organize my garage tools?")
       ).toBeVisible();
 
+      // On mobile, sidebar closes after selecting a session, so re-open it
+      const viewport = page.viewportSize();
+      if (viewport && viewport.width < 768) {
+        await page.getByTestId("toggle-sidebar-button").click();
+        // Wait for sidebar animation
+        await page.waitForTimeout(350);
+      }
+
       // Switch to second session
       await page.getByTestId("session-session-2").click();
 
