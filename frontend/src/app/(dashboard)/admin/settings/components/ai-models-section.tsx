@@ -109,7 +109,8 @@ function SettingsFormDialog({
             </div>
             <div className="space-y-2">
               <Label htmlFor="display_name">
-                {tCommon("displayName")} <span className="text-destructive">*</span>
+                {tCommon("displayName")}{" "}
+                <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="display_name"
@@ -292,12 +293,16 @@ export function AIModelsSection() {
             <thead>
               <tr className="text-muted-foreground border-b text-left text-sm">
                 <th className="px-4 py-3 font-medium">{t("operationType")}</th>
-                <th className="px-4 py-3 font-medium">{tCommon("displayName")}</th>
+                <th className="px-4 py-3 font-medium">
+                  {tCommon("displayName")}
+                </th>
                 <th className="px-4 py-3 font-medium">{t("modelName")}</th>
                 <th className="px-4 py-3 font-medium">{t("temperature")}</th>
                 <th className="px-4 py-3 font-medium">{t("maxTokens")}</th>
                 <th className="px-4 py-3 font-medium">{tCommon("status")}</th>
-                <th className="px-4 py-3 font-medium">{tCommon("lastUpdated")}</th>
+                <th className="px-4 py-3 font-medium">
+                  {tCommon("lastUpdated")}
+                </th>
                 <th className="px-4 py-3 text-right font-medium">
                   {tCommon("actions")}
                 </th>
