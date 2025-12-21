@@ -630,6 +630,32 @@
         "feedback:write": "フィードバックステータスを更新（解決）",
         "admin:*": "完全な管理者アクセス"
       }
+    },
+    "aiModels": {
+      "title": "AIモデル設定",
+      "subtitle": "各操作タイプのAIモデルパラメータを設定",
+      "description": "分類、場所分析、アシスタント機能のAIモデルを設定",
+      "operationType": "操作タイプ",
+      "displayName": "表示名",
+      "modelName": "モデル名",
+      "modelNameHelp": "OpenAIモデル識別子（例：gpt-4o、gpt-4-turbo）",
+      "temperature": "温度",
+      "temperatureHelp": "ランダム性を制御（0.0 = 決定論的、2.0 = 非常にランダム）",
+      "maxTokens": "最大トークン数",
+      "maxTokensHelp": "レスポンスの最大トークン数（1-100,000）",
+      "description": "説明",
+      "status": "ステータス",
+      "active": "アクティブ",
+      "inactive": "非アクティブ",
+      "lastUpdated": "最終更新",
+      "editSettings": "モデル設定を編集",
+      "editSettingsDescription": "この操作のAIモデルパラメータを調整",
+      "saveChanges": "変更を保存",
+      "noSettings": "モデル設定が見つかりません",
+      "noSettingsDescription": "データベース移行を実行してデフォルト設定を初期化してください",
+      "updateSuccess": "設定が更新されました",
+      "settingsUpdated": "AIモデル設定が保存されました。",
+      "updateFailed": "更新に失敗しました"
     }
   },
   "webhooks": {

@@ -54,6 +54,7 @@ import {
   findSimilarItemsApiV1ItemsFindSimilarPost,
   generateRecommendationsApiV1ProfileRecommendationsGeneratePost,
   getActivityFeedApiV1AdminActivityGet,
+  getAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGet,
   getAiUsageByUserApiV1AdminAiUsageByUserGet,
   getAiUsageDailyApiV1AdminAiUsageDailyGet,
   getAiUsageHistoryApiV1AdminAiUsageHistoryGet,
@@ -110,6 +111,7 @@ import {
   healthCheckHealthGet,
   inviteCollaboratorApiV1CollaborationCollaboratorsPost,
   leaveSharedInventoryApiV1CollaborationSharedOwnerIdDelete,
+  listAiModelSettingsApiV1AdminAiModelSettingsGet,
   listAllFeedbackApiV1FeedbackAdminGet,
   listApiKeysApiV1AdminApikeysGet,
   listCategoriesApiV1CategoriesGet,
@@ -146,6 +148,7 @@ import {
   suggestItemLocationApiV1ItemsSuggestLocationPost,
   testConfigApiV1WebhooksConfigsConfigIdTestPost,
   triggerLowStockAlertsApiV1NotificationsLowStockTriggerPost,
+  updateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPut,
   updateApiKeyApiV1AdminApikeysApiKeyIdPatch,
   updateCategoryApiV1CategoriesCategoryIdPut,
   updateCollaboratorApiV1CollaborationCollaboratorsCollaboratorIdPut,
@@ -298,6 +301,9 @@ import type {
   GetActivityFeedApiV1AdminActivityGetData,
   GetActivityFeedApiV1AdminActivityGetError,
   GetActivityFeedApiV1AdminActivityGetResponse,
+  GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetData,
+  GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetError,
+  GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetResponse,
   GetAiUsageByUserApiV1AdminAiUsageByUserGetData,
   GetAiUsageByUserApiV1AdminAiUsageByUserGetError,
   GetAiUsageByUserApiV1AdminAiUsageByUserGetResponse,
@@ -458,6 +464,9 @@ import type {
   LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteData,
   LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteError,
   LeaveSharedInventoryApiV1CollaborationSharedOwnerIdDeleteResponse,
+  ListAiModelSettingsApiV1AdminAiModelSettingsGetData,
+  ListAiModelSettingsApiV1AdminAiModelSettingsGetError,
+  ListAiModelSettingsApiV1AdminAiModelSettingsGetResponse,
   ListAllFeedbackApiV1FeedbackAdminGetData,
   ListAllFeedbackApiV1FeedbackAdminGetError,
   ListAllFeedbackApiV1FeedbackAdminGetResponse,
@@ -561,6 +570,9 @@ import type {
   TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostData,
   TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostError,
   TriggerLowStockAlertsApiV1NotificationsLowStockTriggerPostResponse,
+  UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutData,
+  UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutError,
+  UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutResponse,
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchData,
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchError,
   UpdateApiKeyApiV1AdminApikeysApiKeyIdPatchResponse,
@@ -663,6 +675,10 @@ export const healthCheckHealthGetQueryKey = (
 
 /**
  * Health Check
+ *
+ * Health check endpoint for Kubernetes liveness/readiness probes.
+ *
+ * Returns 200 if healthy, 503 if database is unavailable.
  */
 export const healthCheckHealthGetOptions = (
   options?: Options<HealthCheckHealthGetData>
@@ -920,6 +936,108 @@ export const updatePricingApiV1AdminPricingPricingIdPutMutation = (
   };
   return mutationOptions;
 };
+
+export const listAiModelSettingsApiV1AdminAiModelSettingsGetQueryKey = (
+  options?: Options<ListAiModelSettingsApiV1AdminAiModelSettingsGetData>
+) => createQueryKey("listAiModelSettingsApiV1AdminAiModelSettingsGet", options);
+
+/**
+ * List Ai Model Settings
+ *
+ * List all AI model settings.
+ */
+export const listAiModelSettingsApiV1AdminAiModelSettingsGetOptions = (
+  options?: Options<ListAiModelSettingsApiV1AdminAiModelSettingsGetData>
+) =>
+  queryOptions<
+    ListAiModelSettingsApiV1AdminAiModelSettingsGetResponse,
+    ListAiModelSettingsApiV1AdminAiModelSettingsGetError,
+    ListAiModelSettingsApiV1AdminAiModelSettingsGetResponse,
+    ReturnType<typeof listAiModelSettingsApiV1AdminAiModelSettingsGetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await listAiModelSettingsApiV1AdminAiModelSettingsGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: listAiModelSettingsApiV1AdminAiModelSettingsGetQueryKey(options),
+  });
+
+export const getAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetQueryKey =
+  (
+    options: Options<GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetData>
+  ) =>
+    createQueryKey(
+      "getAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGet",
+      options
+    );
+
+/**
+ * Get Ai Model Settings
+ *
+ * Get specific AI model settings.
+ */
+export const getAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetOptions = (
+  options: Options<GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetData>
+) =>
+  queryOptions<
+    GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetResponse,
+    GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetError,
+    GetAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetResponse,
+    ReturnType<
+      typeof getAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetQueryKey
+    >
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } =
+        await getAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGet({
+          ...options,
+          ...queryKey[0],
+          signal,
+          throwOnError: true,
+        });
+      return data;
+    },
+    queryKey:
+      getAiModelSettingsApiV1AdminAiModelSettingsSettingsIdGetQueryKey(options),
+  });
+
+/**
+ * Update Ai Model Settings
+ *
+ * Update AI model settings.
+ */
+export const updateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutMutation =
+  (
+    options?: Partial<
+      Options<UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutData>
+    >
+  ): UseMutationOptions<
+    UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutResponse,
+    UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutError,
+    Options<UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutResponse,
+      UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutError,
+      Options<UpdateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPutData>
+    > = {
+      mutationFn: async (fnOptions) => {
+        const { data } =
+          await updateAiModelSettingsApiV1AdminAiModelSettingsSettingsIdPut({
+            ...options,
+            ...fnOptions,
+            throwOnError: true,
+          });
+        return data;
+      },
+    };
+    return mutationOptions;
+  };
 
 export const listUsersApiV1AdminUsersGetQueryKey = (
   options?: Options<ListUsersApiV1AdminUsersGetData>
@@ -1966,6 +2084,9 @@ export const getOperationCostsApiV1BillingCostsGetQueryKey = (
  *
  * This is a public endpoint that returns the credit cost for each operation type.
  * Used by the frontend to display accurate costs in the UI.
+ *
+ * Cache-Control: 5 minutes (300s) - pricing rarely changes and frontend
+ * React Query also caches for 5 minutes, so HTTP caching aligns with that.
  */
 export const getOperationCostsApiV1BillingCostsGetOptions = (
   options?: Options<GetOperationCostsApiV1BillingCostsGetData>

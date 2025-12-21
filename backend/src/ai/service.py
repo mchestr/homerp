@@ -3,13 +3,18 @@ import json
 import logging
 import re
 from decimal import Decimal
-from typing import Any
+from typing import Annotated, Any
 
+from fastapi import Depends
 from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletion
 
 from src.ai.prompt_templates import PromptTemplateManager, get_prompt_template_manager
 from src.ai.schemas import TokenUsage
+from src.ai.settings_service import (
+    AIModelSettingsService,
+    get_ai_model_settings_service,
+)
 from src.config import Settings, get_settings
 from src.images.schemas import ClassificationResult
 from src.locations.schemas import (
@@ -214,12 +219,14 @@ class AIClassificationService:
         self,
         settings: Settings | None = None,
         template_manager: PromptTemplateManager | None = None,
+        model_settings_service: AIModelSettingsService | None = None,
     ):
         self.settings = settings or get_settings()
         self.client = AsyncOpenAI(api_key=self.settings.openai_api_key)
         self._template_manager = template_manager or get_prompt_template_manager(
             self.settings.ai_templates_dir
         )
+        self.model_settings_service = model_settings_service
 
     @property
     def template_manager(self) -> PromptTemplateManager:
@@ -310,9 +317,15 @@ class AIClassificationService:
                 }
             )
 
+        # Get dynamic model settings
+        operation_settings = await self.model_settings_service.get_operation_settings(
+            "image_classification"
+        )
+
         # Call OpenAI API
         response = await self.client.chat.completions.create(
-            model=self.settings.openai_model,
+            model=operation_settings["model_name"],
+            temperature=operation_settings["temperature"],
             messages=[
                 {"role": "system", "content": system_prompt},
                 {
@@ -320,7 +333,7 @@ class AIClassificationService:
                     "content": content,
                 },
             ],
-            max_tokens=1000,
+            max_tokens=operation_settings["max_tokens"],
         )
 
         # Extract token usage
@@ -491,9 +504,15 @@ class AIClassificationService:
         # Encode image to base64
         base64_image = base64.b64encode(image_data).decode("utf-8")
 
+        # Get dynamic model settings
+        operation_settings = await self.model_settings_service.get_operation_settings(
+            "location_analysis"
+        )
+
         # Call OpenAI API
         response = await self.client.chat.completions.create(
-            model=self.settings.openai_model,
+            model=operation_settings["model_name"],
+            temperature=operation_settings["temperature"],
             messages=[
                 {"role": "system", "content": system_prompt},
                 {
@@ -510,7 +529,7 @@ class AIClassificationService:
                     ],
                 },
             ],
-            max_tokens=2000,  # Higher limit for potentially many children
+            max_tokens=operation_settings["max_tokens"],
         )
 
         # Extract token usage
@@ -652,14 +671,20 @@ class AIClassificationService:
             TEMPLATE_LOCATION_SUGGESTION, **context
         )
 
+        # Get dynamic model settings
+        operation_settings = await self.model_settings_service.get_operation_settings(
+            "location_suggestion"
+        )
+
         # Call OpenAI API
         response = await self.client.chat.completions.create(
-            model=self.settings.openai_model,
+            model=operation_settings["model_name"],
+            temperature=operation_settings["temperature"],
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            max_tokens=1000,
+            max_tokens=operation_settings["max_tokens"],
         )
 
         # Extract token usage
@@ -790,14 +815,20 @@ class AIClassificationService:
             inventory_context=inventory_context,
         )
 
+        # Get dynamic model settings
+        operation_settings = await self.model_settings_service.get_operation_settings(
+            "assistant_query"
+        )
+
         # Call OpenAI API
         response = await self.client.chat.completions.create(
-            model=self.settings.openai_model,
+            model=operation_settings["model_name"],
+            temperature=operation_settings["temperature"],
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message},
             ],
-            max_tokens=2000,  # Higher limit for detailed responses
+            max_tokens=operation_settings["max_tokens"],
         )
 
         # Extract token usage
@@ -832,6 +863,10 @@ class AIClassificationService:
         return result
 
 
-def get_ai_service() -> AIClassificationService:
-    """Get AI classification service instance."""
-    return AIClassificationService()
+async def get_ai_service(
+    model_settings_service: Annotated[
+        AIModelSettingsService, Depends(get_ai_model_settings_service)
+    ],
+) -> AIClassificationService:
+    """Get AI classification service instance with injected dependencies."""
+    return AIClassificationService(model_settings_service=model_settings_service)

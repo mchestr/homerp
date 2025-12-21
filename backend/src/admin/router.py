@@ -32,6 +32,11 @@ from src.admin.schemas import (
     UserAdminResponse,
     UserAdminUpdate,
 )
+from src.ai.schemas import AIModelSettingsResponse, AIModelSettingsUpdate
+from src.ai.settings_service import (
+    AIModelSettingsService,
+    get_ai_model_settings_service,
+)
 from src.ai.usage_service import AIUsageService, get_ai_usage_service
 from src.auth.dependencies import AdminUserDep
 from src.billing.models import CreditPack, CreditTransaction
@@ -199,6 +204,74 @@ async def update_pricing(
             detail="Pricing configuration not found",
         )
     return CreditPricingResponse.model_validate(pricing)
+
+
+# ============================================================================
+# AI Model Settings Management
+# ============================================================================
+
+
+@router.get("/ai-model-settings")
+async def list_ai_model_settings(
+    _admin: AdminUserDep,
+    settings_service: Annotated[
+        AIModelSettingsService, Depends(get_ai_model_settings_service)
+    ],
+) -> list[AIModelSettingsResponse]:
+    """List all AI model settings."""
+    settings_list = await settings_service.get_all_settings()
+    return [AIModelSettingsResponse.model_validate(s) for s in settings_list]
+
+
+@router.get("/ai-model-settings/{settings_id}")
+async def get_ai_model_settings(
+    settings_id: UUID,
+    _admin: AdminUserDep,
+    settings_service: Annotated[
+        AIModelSettingsService, Depends(get_ai_model_settings_service)
+    ],
+) -> AIModelSettingsResponse:
+    """Get specific AI model settings."""
+    settings = await settings_service.get_settings_by_id(settings_id)
+    if not settings:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="AI model settings not found",
+        )
+    return AIModelSettingsResponse.model_validate(settings)
+
+
+@router.put("/ai-model-settings/{settings_id}")
+async def update_ai_model_settings(
+    settings_id: UUID,
+    data: AIModelSettingsUpdate,
+    _admin: AdminUserDep,
+    settings_service: Annotated[
+        AIModelSettingsService, Depends(get_ai_model_settings_service)
+    ],
+) -> AIModelSettingsResponse:
+    """Update AI model settings."""
+    try:
+        settings = await settings_service.update_settings(
+            settings_id=settings_id,
+            model_name=data.model_name,
+            temperature=data.temperature,
+            max_tokens=data.max_tokens,
+            display_name=data.display_name,
+            description=data.description,
+            is_active=data.is_active,
+        )
+        if not settings:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="AI model settings not found",
+            )
+        return AIModelSettingsResponse.model_validate(settings)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
 
 
 # ============================================================================

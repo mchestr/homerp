@@ -743,6 +743,32 @@
       "updateSuccess": "Pricing Updated",
       "pricingUpdated": "The pricing configuration has been saved.",
       "updateFailed": "Update Failed"
+    },
+    "aiModels": {
+      "title": "AI Model Settings",
+      "subtitle": "Configure AI model parameters for each operation type",
+      "description": "Configure AI models for classification, location analysis, and assistant features",
+      "operationType": "Operation Type",
+      "displayName": "Display Name",
+      "modelName": "Model Name",
+      "modelNameHelp": "OpenAI model identifier (e.g., gpt-4o, gpt-4-turbo)",
+      "temperature": "Temperature",
+      "temperatureHelp": "Controls randomness (0.0 = deterministic, 2.0 = very random)",
+      "maxTokens": "Max Tokens",
+      "maxTokensHelp": "Maximum tokens in the response (1-100,000)",
+      "description": "Description",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "lastUpdated": "Last Updated",
+      "editSettings": "Edit Model Settings",
+      "editSettingsDescription": "Adjust AI model parameters for this operation",
+      "saveChanges": "Save Changes",
+      "noSettings": "No model settings found",
+      "noSettingsDescription": "Run the database migration to seed default settings",
+      "updateSuccess": "Settings Updated",
+      "settingsUpdated": "The AI model settings have been saved.",
+      "updateFailed": "Update Failed"
     }
   },
   "webhooks": {
