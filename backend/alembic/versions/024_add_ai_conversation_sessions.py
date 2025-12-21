@@ -72,6 +72,14 @@ def upgrade() -> None:
         ["updated_at"],
         unique=False,
     )
+    # Partial index to optimize RLS policy subquery for active sessions
+    op.create_index(
+        "ix_ai_sessions_user_id_active",
+        "ai_conversation_sessions",
+        ["user_id", "id"],
+        unique=False,
+        postgresql_where=sa.text("is_active = true"),
+    )
 
     # Create ai_conversation_messages table
     op.create_table(
@@ -180,6 +188,10 @@ def downgrade() -> None:
     op.drop_table("ai_conversation_messages")
 
     # Drop indexes for sessions
+    op.drop_index(
+        "ix_ai_sessions_user_id_active",
+        table_name="ai_conversation_sessions",
+    )
     op.drop_index(
         op.f("ix_ai_conversation_sessions_updated_at"),
         table_name="ai_conversation_sessions",

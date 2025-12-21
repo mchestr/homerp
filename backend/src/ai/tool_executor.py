@@ -213,15 +213,15 @@ class ToolExecutor:
         """Get a high-level summary of the user's inventory."""
         stats = await self.item_repo.get_dashboard_stats(days=30)
 
-        # Get low stock count
-        low_stock_items = await self.item_repo.get_all(low_stock_only=True, limit=1000)
+        # Get low stock count using efficient count query instead of fetching items
+        low_stock_count = await self.item_repo.count(low_stock_only=True)
 
         return {
             "total_items": stats["total_items"],
             "total_quantity": stats["total_quantity"],
             "categories_used": stats["categories_used"],
             "locations_used": stats["locations_used"],
-            "low_stock_count": len(low_stock_items),
+            "low_stock_count": low_stock_count,
             "top_categories": stats["items_by_category"][:5],
             "top_locations": stats["items_by_location"][:5],
         }

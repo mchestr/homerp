@@ -421,10 +421,12 @@ async def chat_with_tools(
                 detail="Session not found",
             )
     else:
-        # Create new session with first message as title (truncated)
+        # Create new session with generic title for privacy
         # Use commit=False for atomicity - will commit at the end with other changes
-        title = data.prompt[:50] + "..." if len(data.prompt) > 50 else str(data.prompt)
-        session_obj = await session_repo.create_session(title, commit=False)
+        # Note: Users can edit the title later if they want a more descriptive name
+        session_obj = await session_repo.create_session(
+            "New Conversation", commit=False
+        )
         session_id = session_obj.id
 
     try:
