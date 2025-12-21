@@ -51,13 +51,21 @@ def configure_logging() -> None:
 
     Sets up structured logging with timestamps, request IDs, and log levels.
     Log level is configurable via LOG_LEVEL environment variable.
+
+    Defensive Layering Approach:
+    - SafeFormatter: Ensures request_id exists even if filter hasn't run
+    - RequestIDFilter: Populates request_id from context during requests
+
+    This dual approach prevents KeyError exceptions during startup when
+    logs are emitted before filters are attached or outside request context.
     """
     settings = get_settings()
 
     # Get log level from settings (default INFO)
     log_level = getattr(logging, settings.log_level.upper(), logging.INFO)
 
-    # Create custom formatter
+    # Create custom formatter with defensive request_id handling
+    # SafeFormatter prevents KeyError if request_id is missing from log record
     formatter = SafeFormatter(
         fmt="%(asctime)s - %(request_id)s - %(name)s - %(levelname)s - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
@@ -76,6 +84,8 @@ def configure_logging() -> None:
     root_logger.addHandler(handler)
 
     # Add request ID filter to root logger
+    # Filter populates request_id from context (or "-" placeholder if no context)
+    # Note: SafeFormatter above provides additional safety in case filter doesn't run
     request_id_filter = RequestIDFilter()
     root_logger.addFilter(request_id_filter)
 
