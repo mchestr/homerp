@@ -25,7 +25,7 @@ test.describe("Admin API Keys - Form Dialog", () => {
   test("opens create API key modal and displays all form fields", async ({
     page,
   }) => {
-    await page.goto("/admin/api-keys");
+    await page.goto("/admin/integrations?tab=api-keys");
 
     // Open the create modal
     await page.getByTestId("create-api-key-button").click();
@@ -49,7 +49,7 @@ test.describe("Admin API Keys - Form Dialog", () => {
   test("handles long API key name (50+ characters) without overflow", async ({
     page,
   }) => {
-    await page.goto("/admin/api-keys");
+    await page.goto("/admin/integrations?tab=api-keys");
 
     // Open the create modal
     await page.getByTestId("create-api-key-button").click();
@@ -82,7 +82,7 @@ test.describe("Admin API Keys - Form Dialog", () => {
   test("datetime-local input accepts and displays date correctly", async ({
     page,
   }) => {
-    await page.goto("/admin/api-keys");
+    await page.goto("/admin/integrations?tab=api-keys");
 
     // Open the create modal
     await page.getByTestId("create-api-key-button").click();
@@ -102,7 +102,7 @@ test.describe("Admin API Keys - Form Dialog", () => {
   });
 
   test("scope checkboxes can be toggled correctly", async ({ page }) => {
-    await page.goto("/admin/api-keys");
+    await page.goto("/admin/integrations?tab=api-keys");
 
     // Open the create modal
     await page.getByTestId("create-api-key-button").click();
@@ -138,7 +138,7 @@ test.describe("Admin API Keys - Form Dialog", () => {
   });
 
   test("creates API key with form submission", async ({ page }) => {
-    await page.goto("/admin/api-keys");
+    await page.goto("/admin/integrations?tab=api-keys");
 
     // Open the create modal
     await page.getByTestId("create-api-key-button").click();
@@ -174,7 +174,7 @@ test.describe("Admin API Keys - Form Dialog", () => {
   });
 
   test("form requires name field to submit", async ({ page }) => {
-    await page.goto("/admin/api-keys");
+    await page.goto("/admin/integrations?tab=api-keys");
 
     // Open the create modal
     await page.getByTestId("create-api-key-button").click();
@@ -195,7 +195,7 @@ test.describe("Admin API Keys - Form Dialog", () => {
   test("modal closes when clicking outside or cancel button", async ({
     page,
   }) => {
-    await page.goto("/admin/api-keys");
+    await page.goto("/admin/integrations?tab=api-keys");
 
     // Open the create modal
     await page.getByTestId("create-api-key-button").click();
@@ -224,7 +224,7 @@ test.describe("Admin API Keys - KeyCreatedDialog", () => {
   });
 
   test("displays created API key with long key value", async ({ page }) => {
-    await page.goto("/admin/api-keys");
+    await page.goto("/admin/integrations?tab=api-keys");
 
     // Open and submit create modal
     await page.getByTestId("create-api-key-button").click();
@@ -274,7 +274,7 @@ test.describe("Admin API Keys - KeyCreatedDialog", () => {
     // Grant clipboard permissions
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
 
-    await page.goto("/admin/api-keys");
+    await page.goto("/admin/integrations?tab=api-keys");
 
     // Open and submit create modal
     await page.getByTestId("create-api-key-button").click();
@@ -315,7 +315,7 @@ test.describe("Admin API Keys - KeyCreatedDialog", () => {
   });
 
   test("closes KeyCreatedDialog with close button", async ({ page }) => {
-    await page.goto("/admin/api-keys");
+    await page.goto("/admin/integrations?tab=api-keys");
 
     // Open and submit create modal
     await page.getByTestId("create-api-key-button").click();
@@ -351,7 +351,7 @@ test.describe("Admin API Keys - KeyCreatedDialog", () => {
   });
 
   test("displays API key metadata correctly", async ({ page }) => {
-    await page.goto("/admin/api-keys");
+    await page.goto("/admin/integrations?tab=api-keys");
 
     // Create a key with specific scopes
     await page.getByTestId("create-api-key-button").click();
@@ -401,7 +401,7 @@ test.describe("Admin API Keys - Responsive Modal Behavior", () => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
 
-    await page.goto("/admin/api-keys");
+    await page.goto("/admin/integrations?tab=api-keys");
 
     // Open the create modal
     await page.getByTestId("create-api-key-button").click();
@@ -435,7 +435,7 @@ test.describe("Admin API Keys - Responsive Modal Behavior", () => {
     // Set tablet viewport
     await page.setViewportSize({ width: 768, height: 1024 });
 
-    await page.goto("/admin/api-keys");
+    await page.goto("/admin/integrations?tab=api-keys");
 
     // Open the create modal
     await page.getByTestId("create-api-key-button").click();
@@ -464,7 +464,7 @@ test.describe("Admin API Keys - Responsive Modal Behavior", () => {
     // Set desktop viewport
     await page.setViewportSize({ width: 1920, height: 1080 });
 
-    await page.goto("/admin/api-keys");
+    await page.goto("/admin/integrations?tab=api-keys");
 
     // Open the create modal
     await page.getByTestId("create-api-key-button").click();
@@ -493,7 +493,7 @@ test.describe("Admin API Keys - Responsive Modal Behavior", () => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
 
-    await page.goto("/admin/api-keys");
+    await page.goto("/admin/integrations?tab=api-keys");
 
     // Create a key
     await page.getByTestId("create-api-key-button").click();
@@ -545,7 +545,7 @@ test.describe("Admin API Keys - Responsive Modal Behavior", () => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
 
-    await page.goto("/admin/api-keys");
+    await page.goto("/admin/integrations?tab=api-keys");
 
     // Open the create modal
     await page.getByTestId("create-api-key-button").click();
@@ -576,7 +576,7 @@ test.describe("Admin API Keys - Responsive Modal Behavior", () => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
 
-    await page.goto("/admin/api-keys");
+    await page.goto("/admin/integrations?tab=api-keys");
 
     // Open the create modal
     await page.getByTestId("create-api-key-button").click();
@@ -615,7 +615,7 @@ test.describe("Admin API Keys - Access Control", () => {
       user: fixtures.testUser, // Regular user, not admin
     });
 
-    await page.goto("/admin/api-keys");
+    await page.goto("/admin/integrations?tab=api-keys");
 
     // Should redirect to dashboard
     await expect(page).toHaveURL(/.*\/dashboard/, { timeout: 10000 });

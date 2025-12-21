@@ -4,7 +4,7 @@ import * as fixtures from "./fixtures/test-data";
 
 test.describe("Admin Pricing Management", () => {
   test.describe("Navigation", () => {
-    test("navigates to pricing page from admin dashboard quick action", async ({
+    test("navigates to settings page from admin dashboard quick action", async ({
       page,
     }) => {
       await authenticateUser(page);
@@ -16,12 +16,12 @@ test.describe("Admin Pricing Management", () => {
 
       await expect(page.getByTestId("quick-actions-grid")).toBeVisible();
 
-      const pricingAction = page.getByTestId("quick-action-pricing");
-      await expect(pricingAction).toBeVisible();
-      await pricingAction.click();
+      const settingsAction = page.getByTestId("quick-action-settings");
+      await expect(settingsAction).toBeVisible();
+      await settingsAction.click();
 
-      await expect(page).toHaveURL(/.*\/admin\/pricing/, { timeout: 10000 });
-      await expect(page.getByTestId("admin-pricing-page")).toBeVisible();
+      await expect(page).toHaveURL(/.*\/admin\/settings/, { timeout: 10000 });
+      await expect(page.getByTestId("admin-settings-page")).toBeVisible();
     });
 
     test("back button navigates to admin dashboard", async ({ page }) => {
@@ -30,9 +30,9 @@ test.describe("Admin Pricing Management", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
-      const backButton = page.getByTestId("pricing-back-button");
+      const backButton = page.getByTestId("settings-back-button");
       await expect(backButton).toBeVisible();
       await backButton.click();
 
@@ -49,7 +49,7 @@ test.describe("Admin Pricing Management", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
       await expect(page.getByTestId("pricing-table")).toBeVisible();
 
@@ -73,7 +73,7 @@ test.describe("Admin Pricing Management", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
       const activeRow = page.getByTestId("pricing-row-image_classification");
       await expect(activeRow).toBeVisible();
@@ -88,7 +88,7 @@ test.describe("Admin Pricing Management", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
       const inactiveRow = page.getByTestId("pricing-row-category_suggestion");
       await expect(inactiveRow).toBeVisible();
@@ -101,7 +101,7 @@ test.describe("Admin Pricing Management", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
       const editButton = page.getByTestId("pricing-edit-image_classification");
       await expect(editButton).toBeVisible();
@@ -121,7 +121,7 @@ test.describe("Admin Pricing Management", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
       await expect(page.getByTestId("pricing-cards")).toBeVisible();
 
@@ -141,7 +141,7 @@ test.describe("Admin Pricing Management", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
       const activeCard = page.getByTestId("pricing-card-image_classification");
       await activeCard.scrollIntoViewIfNeeded();
@@ -155,7 +155,7 @@ test.describe("Admin Pricing Management", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
       const editButton = page.getByTestId(
         "pricing-edit-mobile-image_classification"
@@ -178,7 +178,7 @@ test.describe("Admin Pricing Management", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
       const editButton = page.getByTestId("pricing-edit-image_classification");
       await editButton.click();
@@ -217,7 +217,7 @@ test.describe("Admin Pricing Management", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
       const editButton = page.getByTestId("pricing-edit-image_classification");
       await editButton.click();
@@ -252,7 +252,7 @@ test.describe("Admin Pricing Management", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
       const editButton = page.getByTestId("pricing-edit-image_classification");
       await editButton.click();
@@ -278,7 +278,7 @@ test.describe("Admin Pricing Management", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
       const editButton = page.getByTestId("pricing-edit-image_classification");
       await editButton.click();
@@ -304,7 +304,7 @@ test.describe("Admin Pricing Management", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
       const editButton = page.getByTestId("pricing-edit-image_classification");
       await editButton.click();
@@ -332,7 +332,7 @@ test.describe("Admin Pricing Management", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
       const editButton = page.getByTestId("pricing-edit-image_classification");
       await editButton.click();
@@ -367,7 +367,7 @@ test.describe("Admin Pricing Management", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
       const editButton = page.getByTestId("pricing-edit-image_classification");
       await editButton.click();
@@ -396,13 +396,13 @@ test.describe("Admin Pricing Management", () => {
         user: fixtures.testUser,
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
       // Should redirect to dashboard
       await expect(page).toHaveURL(/.*\/dashboard/, { timeout: 10000 });
     });
 
-    test("pricing quick action not shown for regular users", async ({
+    test("settings quick action not shown for regular users", async ({
       page,
     }) => {
       await authenticateUser(page);
@@ -415,8 +415,8 @@ test.describe("Admin Pricing Management", () => {
       // Should redirect to dashboard
       await expect(page).toHaveURL(/.*\/dashboard/, { timeout: 10000 });
 
-      // Verify no pricing quick action is shown
-      await expect(page.getByTestId("quick-action-pricing")).not.toBeVisible();
+      // Verify no settings quick action is shown (regular users redirected away from admin)
+      await expect(page.getByTestId("quick-action-settings")).not.toBeVisible();
     });
   });
 
@@ -438,7 +438,7 @@ test.describe("Admin Pricing Management", () => {
         });
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
       // Table should still be visible but empty
       const table = page.getByTestId("pricing-table");
@@ -470,7 +470,7 @@ test.describe("Admin Pricing Management", () => {
         });
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
       const row = page.getByTestId("pricing-row-image_classification");
       await expect(row).toBeVisible();
@@ -482,7 +482,7 @@ test.describe("Admin Pricing Management", () => {
         user: fixtures.adminUser,
       });
 
-      await page.goto("/admin/pricing");
+      await page.goto("/admin/settings?tab=pricing");
 
       const row = page.getByTestId("pricing-row-category_suggestion");
       await expect(row).toBeVisible();
