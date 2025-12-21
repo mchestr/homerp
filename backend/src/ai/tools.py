@@ -179,7 +179,8 @@ def format_item_for_tool(item: Any, include_specs: bool = False) -> dict[str, An
         "name": item.name,
         "quantity": item.quantity,
         "quantity_unit": item.quantity_unit or "pcs",
-        "link": f"/items/{item.id}",  # For AI to create markdown links
+        # Provide ready-to-use markdown link for AI to copy verbatim
+        "markdown_link": f"[{item.name}](/items/{item.id})",
     }
 
     if item.description:
