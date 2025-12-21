@@ -344,6 +344,8 @@
     "filename": "Nome do arquivo",
     "classified": "Classificado",
     "createItemFromThis": "Criar Item a partir Disto",
+    "image": "Imagem",
+    "viewDetails": "Ver Detalhes",
     "customPrompt": {
       "title": "Instruções Personalizadas de IA",
       "description": "Forneça contexto adicional para ajudar a IA a identificar melhor seu item. Por exemplo, especifique convenções de nomenclatura como 'caixa X,Y' ou forneça detalhes específicos sobre o item.",
