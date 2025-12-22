@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 export interface TreeNode {
@@ -182,7 +184,82 @@ export function TreeSelect<T extends TreeNode>({
   excludeId,
   className,
 }: TreeSelectProps<T>) {
+  const t = useTranslations("common");
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [dropdownPosition, setDropdownPosition] = useState<{
+    top: number;
+    left: number;
+    width: number;
+  } | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // SSR safety - only render portal on client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Update dropdown position with viewport boundary detection
+  const updatePosition = useCallback(() => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      const dropdownHeight = 256; // max-h-64 = 16rem = 256px
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+
+      // Position above if not enough space below and more space above
+      const shouldPositionAbove =
+        spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
+
+      setDropdownPosition({
+        top: shouldPositionAbove
+          ? rect.top + window.scrollY - dropdownHeight - 4
+          : rect.bottom + window.scrollY + 4,
+        left: Math.max(
+          4,
+          Math.min(
+            rect.left + window.scrollX,
+            window.innerWidth - rect.width - 4
+          )
+        ),
+        width: rect.width,
+      });
+    }
+  }, []);
+
+  // Update position on open and window resize/scroll
+  useEffect(() => {
+    if (isOpen) {
+      updatePosition();
+      window.addEventListener("resize", updatePosition);
+      window.addEventListener("scroll", updatePosition, true);
+      return () => {
+        window.removeEventListener("resize", updatePosition);
+        window.removeEventListener("scroll", updatePosition, true);
+      };
+    }
+  }, [isOpen, updatePosition]);
+
+  // Handle click outside to close dropdown (without blocking page scroll)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node) &&
+        triggerRef.current &&
+        !triggerRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
 
   // Flatten tree for easy lookup
   const flattenTree = (items: T[], level = 0): Array<T & { level: number }> => {
@@ -199,9 +276,69 @@ export function TreeSelect<T extends TreeNode>({
   const flatNodes = flattenTree(nodes);
   const selectedNode = flatNodes.find((n) => n.id === value);
 
+  // Keyboard navigation handler
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (!isOpen) {
+        if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
+          e.preventDefault();
+          setIsOpen(true);
+          setFocusedIndex(0);
+        }
+        return;
+      }
+
+      switch (e.key) {
+        case "Escape":
+          e.preventDefault();
+          setIsOpen(false);
+          triggerRef.current?.focus();
+          break;
+        case "ArrowDown":
+          e.preventDefault();
+          setFocusedIndex((prev) =>
+            prev < flatNodes.length - 1 ? prev + 1 : prev
+          );
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+          break;
+        case "Enter":
+        case " ":
+          e.preventDefault();
+          if (focusedIndex >= 0 && focusedIndex < flatNodes.length) {
+            onChange(flatNodes[focusedIndex].id);
+            setIsOpen(false);
+            triggerRef.current?.focus();
+          }
+          break;
+        case "Home":
+          e.preventDefault();
+          setFocusedIndex(0);
+          break;
+        case "End":
+          e.preventDefault();
+          setFocusedIndex(flatNodes.length - 1);
+          break;
+      }
+    },
+    [isOpen, flatNodes, focusedIndex, onChange]
+  );
+
+  // Reset focus when dropdown opens
+  useEffect(() => {
+    if (isOpen) {
+      // Find the index of the currently selected value
+      const selectedIndex = flatNodes.findIndex((n) => n.id === value);
+      setFocusedIndex(selectedIndex >= 0 ? selectedIndex : 0);
+    }
+  }, [isOpen, flatNodes, value]);
+
   return (
     <div className={cn("relative", className)}>
       <button
+        ref={triggerRef}
         type="button"
         className={cn(
           "bg-background flex h-11 w-full items-center justify-between rounded-lg border px-4 text-left text-base",
@@ -209,6 +346,11 @@ export function TreeSelect<T extends TreeNode>({
           !selectedNode && "text-muted-foreground"
         )}
         onClick={() => setIsOpen(!isOpen)}
+        onKeyDown={handleKeyDown}
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+        aria-controls={isOpen ? "tree-select-dropdown" : undefined}
+        data-testid="tree-select-trigger"
       >
         <span className="flex items-center gap-2 truncate">
           {selectedNode ? (
@@ -228,41 +370,59 @@ export function TreeSelect<T extends TreeNode>({
         />
       </button>
 
-      {isOpen && (
-        <>
-          {/* Backdrop */}
+      {isOpen &&
+        dropdownPosition &&
+        mounted &&
+        createPortal(
           <div
-            className="fixed inset-0 z-10"
-            onClick={() => setIsOpen(false)}
-          />
-
-          {/* Dropdown */}
-          <div className="bg-popover absolute top-full right-0 left-0 z-20 mt-1 max-h-64 overflow-auto rounded-lg border shadow-lg">
+            ref={dropdownRef}
+            id="tree-select-dropdown"
+            role="listbox"
+            aria-label={placeholder}
+            className="bg-popover fixed z-50 max-h-64 overflow-auto rounded-lg border shadow-lg"
+            style={{
+              top: dropdownPosition.top,
+              left: dropdownPosition.left,
+              width: dropdownPosition.width,
+            }}
+            onKeyDown={handleKeyDown}
+            data-testid="tree-select-dropdown"
+          >
             {allowClear && value && (
               <button
                 type="button"
-                className="text-muted-foreground hover:bg-accent w-full px-4 py-2 text-left text-sm"
+                role="option"
+                aria-selected={false}
+                className={cn(
+                  "text-muted-foreground hover:bg-accent w-full px-4 py-2 text-left text-sm",
+                  focusedIndex === -1 && "bg-accent"
+                )}
                 onClick={() => {
                   onChange(null);
                   setIsOpen(false);
                 }}
+                data-testid="tree-select-clear"
               >
-                Clear selection
+                {t("clearSelection")}
               </button>
             )}
-            {flatNodes.map((node) => (
+            {flatNodes.map((node, index) => (
               <button
                 key={node.id}
                 type="button"
+                role="option"
+                aria-selected={node.id === value}
                 className={cn(
                   "hover:bg-accent flex w-full items-center gap-2 px-4 py-2 text-left text-sm",
-                  node.id === value && "bg-accent"
+                  node.id === value && "bg-accent",
+                  focusedIndex === index && "bg-accent/50 outline-none"
                 )}
                 style={{ paddingLeft: `${node.level * 16 + 16}px` }}
                 onClick={() => {
                   onChange(node.id);
                   setIsOpen(false);
                 }}
+                data-testid={`tree-select-option-${node.id}`}
               >
                 {node.icon && <span>{node.icon}</span>}
                 <span className="truncate">{node.name}</span>
@@ -270,12 +430,12 @@ export function TreeSelect<T extends TreeNode>({
             ))}
             {flatNodes.length === 0 && (
               <div className="text-muted-foreground px-4 py-2 text-sm">
-                No options available
+                {t("noOptionsAvailable")}
               </div>
             )}
-          </div>
-        </>
-      )}
+          </div>,
+          document.body
+        )}
     </div>
   );
 }

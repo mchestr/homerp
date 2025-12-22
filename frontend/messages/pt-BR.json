@@ -96,6 +96,8 @@
     "confidence": "Confiança",
     "collaboration": "Colaboração",
     "noneRootLevel": "Nenhum (nível raiz)",
+    "clearSelection": "Limpar seleção",
+    "noOptionsAvailable": "Nenhuma opção disponível",
     "printLabels": "Imprimir Etiquetas",
     "usageHistory": "Histórico de Uso",
     "imageMustBeLessThan": "A imagem deve ter menos de 10MB",

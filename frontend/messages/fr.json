@@ -96,6 +96,8 @@
     "confidence": "Confiance",
     "collaboration": "Collaboration",
     "noneRootLevel": "Aucun (niveau racine)",
+    "clearSelection": "Effacer la sélection",
+    "noOptionsAvailable": "Aucune option disponible",
     "printLabels": "Imprimer les Étiquettes",
     "usageHistory": "Historique d'Utilisation",
     "imageMustBeLessThan": "L'image doit faire moins de 10Mo",

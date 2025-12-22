@@ -96,6 +96,8 @@
     "confidence": "確信度",
     "collaboration": "コラボレーション",
     "noneRootLevel": "なし（ルートレベル）",
+    "clearSelection": "選択をクリア",
+    "noOptionsAvailable": "オプションがありません",
     "printLabels": "ラベルを印刷",
     "usageHistory": "使用履歴",
     "imageMustBeLessThan": "画像は10MB以下にしてください",
