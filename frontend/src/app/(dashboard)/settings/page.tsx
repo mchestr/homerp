@@ -368,9 +368,10 @@ export default function SettingsPage() {
               <p className="font-medium">{t("settings.authentication")}</p>
               <p className="text-muted-foreground text-sm">
                 {t("settings.signedInVia", {
-                  provider:
-                    user?.oauth_provider?.charAt(0).toUpperCase() +
-                    (user?.oauth_provider?.slice(1) ?? ""),
+                  provider: user?.oauth_provider
+                    ? user.oauth_provider.charAt(0).toUpperCase() +
+                      user.oauth_provider.slice(1)
+                    : "Unknown",
                 })}
               </p>
             </div>
