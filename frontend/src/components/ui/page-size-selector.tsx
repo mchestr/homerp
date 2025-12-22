@@ -32,7 +32,12 @@ export function PageSizeSelector({
 
   // "all" is represented as 0 internally
   const handleChange = (newValue: string) => {
-    onChange(newValue === "all" ? 0 : parseInt(newValue, 10));
+    if (newValue === "all") {
+      onChange(0);
+      return;
+    }
+    const parsed = parseInt(newValue, 10);
+    onChange(Number.isNaN(parsed) ? options[0] : parsed);
   };
 
   const displayValue = value === 0 ? "all" : String(value);
@@ -41,7 +46,7 @@ export function PageSizeSelector({
     <div className={className}>
       <Select value={displayValue} onValueChange={handleChange}>
         <SelectTrigger
-          className="h-9 w-auto min-w-[100px] gap-2 px-3"
+          className="h-9 min-h-[44px] w-auto min-w-[100px] gap-2 px-3"
           data-testid="page-size-selector"
         >
           <SelectValue placeholder={tCommon("itemsPerPage")} />

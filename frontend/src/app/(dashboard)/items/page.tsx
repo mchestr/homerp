@@ -48,10 +48,17 @@ export default function ItemsPage() {
     VIEW_MODES
   );
 
-  const page = Number(searchParams.get("page")) || 1;
-  // limit=0 means "show all"
+  // Validate page parameter
+  const pageParam = Number(searchParams.get("page"));
+  const page = Number.isInteger(pageParam) && pageParam >= 1 ? pageParam : 1;
+
+  // Validate limit parameter (0 = show all, positive integers up to 10000)
   const limitParam = searchParams.get("limit");
-  const limit = limitParam !== null ? Number(limitParam) : 12;
+  const parsedLimit = limitParam !== null ? Number(limitParam) : 12;
+  const limit =
+    Number.isInteger(parsedLimit) && parsedLimit >= 0 && parsedLimit <= 10000
+      ? parsedLimit
+      : 12;
   const categoryId = searchParams.get("category_id") || undefined;
   const locationId = searchParams.get("location_id") || undefined;
   const lowStock = searchParams.get("low_stock") === "true";
@@ -106,7 +113,10 @@ export default function ItemsPage() {
     queryFn: () =>
       itemsApi.list({
         page: limit === 0 ? 1 : page, // When showing all, always page 1
-        limit: limit === 0 ? 10000 : limit, // 0 means show all, use large limit
+        // 0 means "show all" - use 10000 as practical upper bound.
+        // This is reasonable for home inventory as users rarely have >1000 items.
+        // The API still enforces its own max limit for safety.
+        limit: limit === 0 ? 10000 : limit,
         category_id: categoryId,
         location_id: locationId,
         no_category: noCategory,
@@ -224,7 +234,8 @@ export default function ItemsPage() {
     } else {
       params.set("limit", String(newLimit));
     }
-    router.push(`/items?${params.toString()}`);
+    const queryString = params.toString();
+    router.push(queryString ? `/items?${queryString}` : "/items");
   };
 
   const handleQuickDecrement = (
