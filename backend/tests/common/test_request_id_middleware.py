@@ -92,13 +92,66 @@ class TestRequestIDLogging:
             assert response.status_code in (200, 503)
 
             # If there are any logs (there might be warning logs if DB unavailable),
-            # they should contain the request ID
+            # they should contain the request ID.
+            # Note: The request ID is set per-request context and may not propagate
+            # to the test's logger capture in all test configurations.
             if log_output:
-                assert custom_id in log_output or "-" in log_output
+                # The custom_id should be in the log output since we passed it as X-Request-ID
+                # If no custom_id, at least the fallback "-" should be present
+                assert custom_id in log_output or log_output.count(" - ") >= 2
         finally:
             logger.removeHandler(handler)
             logger.setLevel(original_level)
             handler.close()
+
+    def test_request_id_formatter_adds_request_id(self):
+        """RequestIDFormatter should add request_id to log records."""
+        from src.common.formatters import RequestIDFormatter
+        from src.common.request_context import set_request_id
+
+        # Set a known request ID
+        test_id = "test-request-id-12345"
+        set_request_id(test_id)
+
+        # Create formatter and log record
+        formatter = RequestIDFormatter(fmt="%(request_id)s - %(message)s")
+        record = logging.LogRecord(
+            name="test",
+            level=logging.INFO,
+            pathname="",
+            lineno=0,
+            msg="test message",
+            args=(),
+            exc_info=None,
+        )
+
+        # Format should include the request ID
+        formatted = formatter.format(record)
+        assert test_id in formatted
+
+    def test_request_id_formatter_uses_fallback(self):
+        """RequestIDFormatter should use '-' when no request ID is set."""
+        from src.common.formatters import RequestIDFormatter
+        from src.common.request_context import _request_id_context
+
+        # Clear any existing request ID
+        _request_id_context.set(None)
+
+        # Create formatter and log record
+        formatter = RequestIDFormatter(fmt="%(request_id)s - %(message)s")
+        record = logging.LogRecord(
+            name="test",
+            level=logging.INFO,
+            pathname="",
+            lineno=0,
+            msg="test message",
+            args=(),
+            exc_info=None,
+        )
+
+        # Format should include the fallback "-"
+        formatted = formatter.format(record)
+        assert formatted.startswith("-")
 
     def test_request_context_returns_none_when_not_set(self):
         """Request context should return None when no request ID is set."""

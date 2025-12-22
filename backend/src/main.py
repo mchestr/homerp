@@ -5,7 +5,6 @@ from logging.config import dictConfig
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
 from slowapi.middleware import SlowAPIMiddleware
 
 from src.common.rate_limiter import configure_rate_limiting
@@ -15,29 +14,30 @@ from src.config import get_settings
 from src.database import check_db_connectivity, close_db, init_db
 
 
-class LogConfig(BaseModel):
-    """Logging configuration using uvicorn's formatters for proper integration."""
+def _get_log_config() -> dict:
+    """Build logging configuration using settings."""
+    settings = get_settings()
+    log_level = settings.log_level.upper()
+    # Disable colors in production for log aggregation systems
+    use_colors = not settings.is_production
 
-    version: int = 1
-    disable_existing_loggers: bool = False
-
-    formatters: dict = Field(
-        default_factory=lambda: {
+    return {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
             "default": {
-                "()": "uvicorn.logging.DefaultFormatter",
-                "fmt": "%(levelprefix)s - %(asctime)s - %(name)s - %(message)s",
+                "()": "src.common.formatters.RequestIDFormatter",
+                "fmt": "%(levelprefix)s - %(asctime)s - %(request_id)s - %(name)s - %(message)s",
                 "datefmt": "%Y-%m-%d %H:%M:%S",
+                "use_colors": use_colors,
             },
             "access": {
-                "()": "uvicorn.logging.AccessFormatter",
-                "fmt": '%(levelprefix)s %(asctime)s - %(name)s :: %(client_addr)s - "%(request_line)s" %(status_code)s',
-                "use_colors": True,
+                "()": "src.common.formatters.RequestIDAccessFormatter",
+                "fmt": '%(levelprefix)s %(asctime)s - %(request_id)s - %(name)s :: %(client_addr)s - "%(request_line)s" %(status_code)s',
+                "use_colors": use_colors,
             },
-        }
-    )
-
-    handlers: dict = Field(
-        default_factory=lambda: {
+        },
+        "handlers": {
             "default": {
                 "formatter": "default",
                 "class": "logging.StreamHandler",
@@ -48,29 +48,26 @@ class LogConfig(BaseModel):
                 "class": "logging.StreamHandler",
                 "stream": "ext://sys.stdout",
             },
-        }
-    )
-
-    loggers: dict = Field(
-        default_factory=lambda: {
-            "": {"handlers": ["default"], "level": "INFO", "propagate": True},
+        },
+        "loggers": {
+            "": {"handlers": ["default"], "level": log_level, "propagate": True},
             "src": {"level": "DEBUG"},
             "uvicorn.access": {
                 "handlers": ["access"],
-                "level": "INFO",
+                "level": log_level,
                 "propagate": False,
             },
-            "uvicorn.error": {"handlers": ["default"], "level": "INFO"},
+            "uvicorn.error": {"handlers": ["default"], "level": log_level},
             # Reduce noise from third-party libraries
             "httpcore": {"level": "WARNING"},
             "httpx": {"level": "WARNING"},
             "aiosmtplib": {"level": "INFO"},
-        }
-    )
+        },
+    }
 
 
 # Configure logging on module load
-dictConfig(LogConfig().model_dump())
+dictConfig(_get_log_config())
 
 logger = logging.getLogger(__name__)
 
