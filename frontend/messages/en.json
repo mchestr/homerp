@@ -218,6 +218,7 @@
     "selectAll": "Select all",
     "deselectAll": "Deselect all",
     "selectedCount": "{count} selected",
+    "updateSelectedItems": "Update Selected Items ({count} Selected)",
     "batchUpdateTitle": "Update Selected Items",
     "setCategory": "Set category",
     "setLocation": "Set location",

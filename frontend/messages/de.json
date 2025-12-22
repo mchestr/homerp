@@ -218,6 +218,7 @@
     "selectAll": "Alle auswählen",
     "deselectAll": "Alle abwählen",
     "selectedCount": "{count} ausgewählt",
+    "updateSelectedItems": "Ausgewählte Artikel aktualisieren ({count} Ausgewählt)",
     "batchUpdateTitle": "Ausgewählte Artikel aktualisieren",
     "setCategory": "Kategorie festlegen",
     "setLocation": "Standort festlegen",

@@ -338,7 +338,7 @@ export default function ItemsPage() {
                 data-testid="batch-update-button"
               >
                 <CheckSquare className="h-4 w-4" />
-                {t("selectedCount", { count: selectedItems.size })}
+                {t("updateSelectedItems", { count: selectedItems.size })}
               </Button>
             </>
           ) : (
