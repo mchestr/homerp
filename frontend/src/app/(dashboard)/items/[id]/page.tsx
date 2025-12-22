@@ -735,13 +735,13 @@ export default function ItemDetailPage() {
                 </div>
 
                 {/* Quantity, Unit, Min Quantity, Price - grid on desktop */}
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                   <div>
                     <label
                       htmlFor="item-quantity"
                       className="mb-2 block text-sm font-medium"
                     >
-                      {tItems("quantity")}
+                      {tCommon("quantity")}
                     </label>
                     <input
                       id="item-quantity"
@@ -1273,7 +1273,7 @@ export default function ItemDetailPage() {
           {isEditMode && (
             <div className="bg-card rounded-xl border p-4 sm:p-6">
               <h2 className="mb-4 text-lg font-semibold">
-                {tImages("images")}
+                {tCommon("images")}
               </h2>
               <div className="space-y-4">
                 <ImageGallery

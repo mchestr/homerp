@@ -95,7 +95,7 @@ export default function Home() {
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
           <div className="mx-auto max-w-4xl text-center">
             {/* Headline */}
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+            <h1 className="text-4xl leading-[1.1] font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
               {t("hero.title")}
               <span className="mt-2 block bg-gradient-to-r from-blue-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent dark:from-blue-400 dark:via-teal-400 dark:to-cyan-400">
                 {t("hero.titleHighlight")}

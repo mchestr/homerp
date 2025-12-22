@@ -149,7 +149,7 @@ export function SpecificationEditor({
               <div key={index} className="space-y-1">
                 <div
                   className={cn(
-                    "flex gap-2 rounded-lg transition-all",
+                    "flex min-w-0 gap-2 rounded-lg transition-all",
                     isDragging && "opacity-50",
                     isDropTarget && "ring-primary bg-primary/5 ring-2"
                   )}
@@ -185,7 +185,7 @@ export function SpecificationEditor({
                     onChange={(e) => handleKeyChange(index, e.target.value)}
                     placeholder={t("specificationKey")}
                     className={cn(
-                      "bg-background focus:border-primary focus:ring-primary/20 h-10 flex-1 rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden",
+                      "bg-background focus:border-primary focus:ring-primary/20 h-10 min-w-0 flex-1 rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden",
                       hasDuplicate &&
                         "border-destructive focus:ring-destructive/20"
                     )}
@@ -196,7 +196,7 @@ export function SpecificationEditor({
                     value={getDisplayValue(spec.value)}
                     onChange={(e) => handleValueChange(index, e.target.value)}
                     placeholder={t("specificationValue")}
-                    className="bg-background focus:border-primary focus:ring-primary/20 h-10 flex-1 rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden"
+                    className="bg-background focus:border-primary focus:ring-primary/20 h-10 min-w-0 flex-1 rounded-lg border px-3 text-sm transition-colors focus:ring-2 focus:outline-hidden"
                     data-testid={`specification-value-${index}`}
                   />
                   <Button
