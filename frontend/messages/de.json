@@ -1231,5 +1231,177 @@
     "sharedInventory": "Geteiltes Inventar",
     "sharedWithMe": "Mit mir geteilt",
     "viewingInventoryOf": "Anzeige von {name}s Inventar"
+  },
+  "landing": {
+    "nav": {
+      "features": "Funktionen",
+      "howItWorks": "So funktioniert's",
+      "pricing": "Preise",
+      "signIn": "Anmelden",
+      "getStarted": "Loslegen"
+    },
+    "hero": {
+      "title": "Dein Hausinventar,",
+      "titleHighlight": "organisiert durch KI",
+      "description": "Mach ein Foto, lass die KI es sofort klassifizieren. Verfolge Mengen, setze Warnungen und verliere nie wieder den Überblick. Entwickelt für Hobbyisten, die organisiert bleiben möchten.",
+      "startFree": "Heute kostenlos starten",
+      "seeHowItWorks": "So funktioniert's",
+      "joinHobbyists": "Schließe dich Hobbyisten an, die smarter organisieren"
+    },
+    "mockup": {
+      "dashboard": "HomERP Dashboard",
+      "totalItems": "Gesamtartikel",
+      "categories": "Kategorien",
+      "locations": "Standorte",
+      "recentItems": "Letzte Artikel",
+      "viewAll": "Alle anzeigen"
+    },
+    "features": {
+      "sectionTitle": "Alles was du brauchst um",
+      "sectionTitleHighlight": "organisiert zu bleiben",
+      "sectionDescription": "Ein komplettes Inventarsystem für Hobbyisten mit KI im Kern",
+      "aiClassification": {
+        "title": "KI-gestützte Foto-Klassifizierung",
+        "description": "Mach ein Foto und lass GPT-4 Vision deine Artikel automatisch identifizieren. Erhalte sofortige Kategorie-Vorschläge, Spezifikationen und sogar Preisschätzungen.",
+        "tags": {
+          "autoCategorize": "Auto-kategorisieren",
+          "extractSpecs": "Specs extrahieren",
+          "suggestStorage": "Lagerung vorschlagen",
+          "multiImage": "Multi-Bild-Unterstützung"
+        }
+      },
+      "organization": {
+        "title": "Hierarchische Organisation",
+        "description": "Erstelle unbegrenzte verschachtelte Kategorien und Standorte. Von Räumen zu Regalen zu Boxen, wisse genau wo alles ist."
+      },
+      "alerts": {
+        "title": "Niedrigbestand-Warnungen",
+        "description": "Setze Mindestmengen und erhalte E-Mail-Benachrichtigungen wenn Artikel zur Neige gehen. Nie wieder ohne Vorräte sein."
+      },
+      "assistant": {
+        "title": "KI-Chat-Assistent",
+        "description": "Stelle Fragen zu deinem Inventar auf natürliche Weise. \"Welche Kräuter habe ich?\" oder \"Wo habe ich meinen Arduino hingelegt?\""
+      },
+      "qrCodes": {
+        "title": "QR-Codes & Etiketten",
+        "description": "Erstelle und drucke QR-Codes für Artikel und Standorte. Scanne um sofort Details auf deinem Handy abzurufen."
+      },
+      "collaboration": {
+        "title": "Teilen & Zusammenarbeiten",
+        "description": "Lade Familienmitglieder oder Mitarbeiter ein. Setze Betrachter- oder Editor-Berechtigungen für geteilte Inventare."
+      },
+      "gridfinity": {
+        "title": "Gridfinity-Unterstützung",
+        "description": "Visueller Box-Layout-Designer mit Drag-and-Drop. Perfekt zum Organisieren kleiner Teile und Bastlerbedarf."
+      },
+      "analytics": {
+        "title": "Nutzungsanalytik",
+        "description": "Verfolge Ein-/Auschecken, sieh Nutzungsmuster und erhalte Einblicke in dein Inventar über die Zeit."
+      },
+      "additional": {
+        "mobileFirst": "Mobile-First-Design",
+        "tagging": "Flexibles Tagging-System",
+        "batchUpload": "Batch-Upload & Import",
+        "secure": "Sicher & privat"
+      }
+    },
+    "howItWorks": {
+      "sectionTitle": "In Minuten organisiert",
+      "sectionDescription": "Drei einfache Schritte um die Verwaltung deiner Sachen zu transformieren",
+      "step": "Schritt",
+      "steps": {
+        "snap": {
+          "title": "Foto machen",
+          "description": "Mach ein Bild von einem Artikel. Unsere KI identifiziert ihn sofort und extrahiert alle wichtigen Details."
+        },
+        "classify": {
+          "title": "KI klassifiziert",
+          "description": "GPT-4 Vision schlägt Kategorien, Standorte und Spezifikationen vor. Ein Klick zum Bestätigen und Speichern."
+        },
+        "organize": {
+          "title": "Organisiert bleiben",
+          "description": "Suchen, filtern und alles verfolgen. Erhalte Warnungen wenn der Bestand niedrig ist. Nie wieder den Überblick verlieren."
+        }
+      }
+    },
+    "aiShowcase": {
+      "poweredBy": "Angetrieben von GPT-4 Vision",
+      "title": "KI die deine Sachen wirklich versteht",
+      "description": "Nicht nur Bilderkennung—unsere KI versteht Kontext, extrahiert Spezifikationen und lernt deine Organisationsmuster.",
+      "features": {
+        "identify": "Identifiziert Produkte aus jedem Winkel",
+        "specs": "Extrahiert Spezifikationen automatisch",
+        "storage": "Schlägt optimale Lagerorte vor",
+        "duplicates": "Findet ähnliche Artikel um Duplikate zu vermeiden",
+        "declutter": "Aufräum-Empfehlungen basierend auf deinem Hobby"
+      },
+      "assistantTitle": "KI-Assistent",
+      "sampleQuestion": "Welche Arduino-Boards habe ich und wo sind sie gelagert?",
+      "sampleAnswer": "Du hast 3 Arduino-Boards in deinem Inventar:",
+      "sampleItems": {
+        "mega": "Arduino Mega 2560",
+        "megaLocation": "Garage / Regal A / Box 3",
+        "uno": "Arduino Uno R3",
+        "unoLocation": "Büro / Schublade 2",
+        "nano": "Arduino Nano",
+        "nanoLocation": "Werkstatt / Teileschrank"
+      }
+    },
+    "cta": {
+      "title": "Bereit organisiert zu werden?",
+      "description": "Schließe dich Hobbyisten an, die mit KI smarter organisieren. Starte heute kostenlos—keine Kreditkarte erforderlich.",
+      "button": "Kostenlos starten"
+    },
+    "footer": {
+      "tagline": "KI-gestütztes Hausinventar für Hobbyisten, die organisiert bleiben möchten. Verfolge, klassifiziere und finde deine Sachen mühelos.",
+      "product": "Produkt",
+      "featuresLink": "Funktionen",
+      "howItWorksLink": "So funktioniert's",
+      "pricingLink": "Preise",
+      "featuresSection": "Funktionen",
+      "aiClassification": "KI-Klassifizierung",
+      "qrCodes": "QR-Codes",
+      "lowStockAlerts": "Niedrigbestand-Warnungen",
+      "collaborationLink": "Zusammenarbeit",
+      "getStarted": "Loslegen",
+      "startOrganizing": "Starte heute mit der Organisation deines Inventars mit kostenlosen KI-Credits.",
+      "signUpFree": "Kostenlos anmelden",
+      "copyright": "© {year} HomERP. Mit Liebe für Hobbyisten gebaut.",
+      "signInLink": "Anmelden",
+      "systemStatus": "Alle Systeme betriebsbereit"
+    }
+  },
+  "pricing": {
+    "title": "Einfache, nutzungsbasierte Preise",
+    "description": "Starte kostenlos mit Bonus-Credits. Zahle nur für KI-Funktionen wenn du sie nutzt.",
+    "freeTier": {
+      "title": "Kostenlose Stufe",
+      "subtitle": "Alles was du brauchst um loszulegen",
+      "price": "0€",
+      "period": "/für immer",
+      "button": "Kostenlos starten"
+    },
+    "features": {
+      "unlimitedItems": "Unbegrenzte Artikel & Kategorien",
+      "unlimitedLocations": "Unbegrenzte Lagerorte",
+      "qrCodes": "QR-Codes & Etikettendruck",
+      "lowStockAlerts": "Niedrigbestand-Warnungen",
+      "collaboration": "Zusammenarbeit & Teilen",
+      "freeCredits": "{count} kostenlose KI-Credits bei Anmeldung"
+    },
+    "creditPacks": {
+      "title": "KI-Credit-Pakete",
+      "subtitle": "Verstärke deine Organisation mit KI",
+      "bestValue": "Bester Wert",
+      "credits": "{count} Credits",
+      "benefits": {
+        "neverExpire": "Credits laufen nie ab",
+        "photoClassification": "Für Foto-Klassifizierung verwenden",
+        "aiConversations": "KI-Assistenten-Gespräche",
+        "locationSuggestions": "Standort-Vorschläge"
+      },
+      "button": "Mit kostenlosen Credits starten"
+    },
+    "loadError": "Preisinformationen konnten nicht geladen werden. Bitte versuche es später erneut."
   }
 }

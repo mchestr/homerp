@@ -3597,6 +3597,12 @@ export type OperationCostsResponse = {
    * Detailed list of operation costs
    */
   items: Array<OperationCostResponse>;
+  /**
+   * Signup Credits
+   *
+   * Number of free credits granted on signup
+   */
+  signup_credits: number;
 };
 
 /**

@@ -151,6 +151,13 @@ class OperationCostsResponse(BaseModel):
     items: list[OperationCostResponse] = Field(
         ..., description="Detailed list of operation costs"
     )
+    signup_credits: int = Field(
+        ...,
+        description="Number of free credits granted on signup",
+        ge=0,
+        le=100,
+        examples=[5],
+    )
 
 
 class BillingSettingResponse(BaseModel):

@@ -1232,5 +1232,177 @@
     "sharedInventory": "Inventario Compartido",
     "sharedWithMe": "Compartido conmigo",
     "viewingInventoryOf": "Viendo el inventario de {name}"
+  },
+  "landing": {
+    "nav": {
+      "features": "Características",
+      "howItWorks": "Cómo funciona",
+      "pricing": "Precios",
+      "signIn": "Iniciar sesión",
+      "getStarted": "Comenzar"
+    },
+    "hero": {
+      "title": "Tu inventario del hogar,",
+      "titleHighlight": "organizado por IA",
+      "description": "Toma una foto, deja que la IA la clasifique al instante. Rastrea cantidades, establece alertas y nunca pierdas de vista tus cosas. Diseñado para aficionados que aman estar organizados.",
+      "startFree": "Comienza Gratis Hoy",
+      "seeHowItWorks": "Ver Cómo Funciona",
+      "joinHobbyists": "Únete a aficionados que organizan de forma más inteligente"
+    },
+    "mockup": {
+      "dashboard": "Panel de HomERP",
+      "totalItems": "Total de Artículos",
+      "categories": "Categorías",
+      "locations": "Ubicaciones",
+      "recentItems": "Artículos Recientes",
+      "viewAll": "Ver todo"
+    },
+    "features": {
+      "sectionTitle": "Todo lo que necesitas para",
+      "sectionTitleHighlight": "mantenerte organizado",
+      "sectionDescription": "Un sistema de inventario completo diseñado para aficionados con IA en su núcleo",
+      "aiClassification": {
+        "title": "Clasificación de Fotos con IA",
+        "description": "Toma una foto y deja que GPT-4 Vision identifique tus artículos automáticamente. Obtén sugerencias instantáneas de categorías, especificaciones e incluso estimaciones de precios.",
+        "tags": {
+          "autoCategorize": "Auto-categorizar",
+          "extractSpecs": "Extraer specs",
+          "suggestStorage": "Sugerir almacenamiento",
+          "multiImage": "Soporte multi-imagen"
+        }
+      },
+      "organization": {
+        "title": "Organización Jerárquica",
+        "description": "Crea categorías y ubicaciones anidadas ilimitadas. Desde habitaciones hasta estantes y contenedores, sabe exactamente dónde está todo."
+      },
+      "alerts": {
+        "title": "Alertas de Bajo Stock",
+        "description": "Establece cantidades mínimas y recibe notificaciones por correo cuando los artículos se agotan. Nunca te quedes sin lo esencial."
+      },
+      "assistant": {
+        "title": "Asistente de Chat IA",
+        "description": "Haz preguntas sobre tu inventario de forma natural. \"¿Qué hierbas tengo?\" o \"¿Dónde puse mi Arduino?\""
+      },
+      "qrCodes": {
+        "title": "Códigos QR y Etiquetas",
+        "description": "Genera e imprime códigos QR para artículos y ubicaciones. Escanea para ver detalles al instante en tu teléfono."
+      },
+      "collaboration": {
+        "title": "Compartir y Colaborar",
+        "description": "Invita a familiares o colaboradores. Establece permisos de visor o editor para inventarios compartidos."
+      },
+      "gridfinity": {
+        "title": "Soporte Gridfinity",
+        "description": "Diseñador visual de contenedores con arrastrar y soltar. Perfecto para organizar piezas pequeñas y suministros de creadores."
+      },
+      "analytics": {
+        "title": "Análisis de Uso",
+        "description": "Rastrea entradas/salidas, ve patrones de uso y obtén información sobre tu inventario a lo largo del tiempo."
+      },
+      "additional": {
+        "mobileFirst": "Diseño móvil primero",
+        "tagging": "Sistema de etiquetado flexible",
+        "batchUpload": "Carga en lotes e importación",
+        "secure": "Seguro y privado"
+      }
+    },
+    "howItWorks": {
+      "sectionTitle": "Organízate en minutos",
+      "sectionDescription": "Tres pasos simples para transformar cómo gestionas tus cosas",
+      "step": "Paso",
+      "steps": {
+        "snap": {
+          "title": "Toma una Foto",
+          "description": "Toma una foto de cualquier artículo. Nuestra IA lo identifica al instante y extrae todos los detalles importantes."
+        },
+        "classify": {
+          "title": "La IA lo Clasifica",
+          "description": "GPT-4 Vision sugiere categorías, ubicaciones y especificaciones. Un clic para confirmar y guardar."
+        },
+        "organize": {
+          "title": "Mantente Organizado",
+          "description": "Busca, filtra y rastrea todo. Recibe alertas cuando el stock está bajo. Nunca pierdas el rastro."
+        }
+      }
+    },
+    "aiShowcase": {
+      "poweredBy": "Impulsado por GPT-4 Vision",
+      "title": "IA que realmente entiende tus cosas",
+      "description": "No solo reconocimiento de imágenes—nuestra IA entiende el contexto, extrae especificaciones y aprende tus patrones de organización.",
+      "features": {
+        "identify": "Identifica productos desde cualquier ángulo",
+        "specs": "Extrae especificaciones automáticamente",
+        "storage": "Sugiere ubicaciones óptimas de almacenamiento",
+        "duplicates": "Encuentra artículos similares para prevenir duplicados",
+        "declutter": "Recomendaciones de orden según tu hobby"
+      },
+      "assistantTitle": "Asistente IA",
+      "sampleQuestion": "¿Qué placas Arduino tengo y dónde están guardadas?",
+      "sampleAnswer": "Tienes 3 placas Arduino en tu inventario:",
+      "sampleItems": {
+        "mega": "Arduino Mega 2560",
+        "megaLocation": "Garaje / Estante A / Caja 3",
+        "uno": "Arduino Uno R3",
+        "unoLocation": "Oficina / Cajón 2",
+        "nano": "Arduino Nano",
+        "nanoLocation": "Taller / Gabinete de Piezas"
+      }
+    },
+    "cta": {
+      "title": "¿Listo para organizarte?",
+      "description": "Únete a aficionados que organizan de forma más inteligente con IA. Comienza gratis hoy—sin tarjeta de crédito.",
+      "button": "Comenzar Gratis"
+    },
+    "footer": {
+      "tagline": "Inventario del hogar con IA para aficionados que aman estar organizados. Rastrea, clasifica y encuentra tus cosas sin esfuerzo.",
+      "product": "Producto",
+      "featuresLink": "Características",
+      "howItWorksLink": "Cómo Funciona",
+      "pricingLink": "Precios",
+      "featuresSection": "Características",
+      "aiClassification": "Clasificación IA",
+      "qrCodes": "Códigos QR",
+      "lowStockAlerts": "Alertas de Bajo Stock",
+      "collaborationLink": "Colaboración",
+      "getStarted": "Comenzar",
+      "startOrganizing": "Comienza a organizar tu inventario hoy con créditos de IA gratis.",
+      "signUpFree": "Registrarse Gratis",
+      "copyright": "© {year} HomERP. Hecho con cariño para aficionados.",
+      "signInLink": "Iniciar Sesión",
+      "systemStatus": "Todos los sistemas operativos"
+    }
+  },
+  "pricing": {
+    "title": "Precios simples, pago por uso",
+    "description": "Comienza gratis con créditos de bonificación. Solo paga por las funciones de IA cuando las uses.",
+    "freeTier": {
+      "title": "Nivel Gratuito",
+      "subtitle": "Todo lo que necesitas para comenzar",
+      "price": "$0",
+      "period": "/para siempre",
+      "button": "Comenzar Gratis"
+    },
+    "features": {
+      "unlimitedItems": "Artículos y categorías ilimitados",
+      "unlimitedLocations": "Ubicaciones de almacenamiento ilimitadas",
+      "qrCodes": "Códigos QR e impresión de etiquetas",
+      "lowStockAlerts": "Alertas de bajo stock",
+      "collaboration": "Colaboración y compartir",
+      "freeCredits": "{count} créditos de IA gratis al registrarse"
+    },
+    "creditPacks": {
+      "title": "Paquetes de Créditos IA",
+      "subtitle": "Potencia tu organización con IA",
+      "bestValue": "Mejor Valor",
+      "credits": "{count} créditos",
+      "benefits": {
+        "neverExpire": "Los créditos nunca expiran",
+        "photoClassification": "Usar para clasificación de fotos",
+        "aiConversations": "Conversaciones con asistente IA",
+        "locationSuggestions": "Sugerencias de ubicación"
+      },
+      "button": "Comenzar con Créditos Gratis"
+    },
+    "loadError": "No se pudo cargar la información de precios. Por favor, inténtalo más tarde."
   }
 }

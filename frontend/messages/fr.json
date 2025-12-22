@@ -1232,5 +1232,177 @@
     "sharedInventory": "Inventaire Partagé",
     "sharedWithMe": "Partagé avec moi",
     "viewingInventoryOf": "Consultation de l'inventaire de {name}"
+  },
+  "landing": {
+    "nav": {
+      "features": "Fonctionnalités",
+      "howItWorks": "Comment ça Marche",
+      "pricing": "Tarifs",
+      "signIn": "Connexion",
+      "getStarted": "Commencer"
+    },
+    "hero": {
+      "title": "Votre inventaire domestique,",
+      "titleHighlight": "organisé par l'IA",
+      "description": "Prenez une photo, laissez l'IA la classifier instantanément. Suivez les quantités, définissez des alertes et ne perdez plus jamais vos affaires. Conçu pour les passionnés qui aiment rester organisés.",
+      "startFree": "Commencer Gratuitement",
+      "seeHowItWorks": "Voir Comment ça Marche",
+      "joinHobbyists": "Rejoignez les passionnés qui s'organisent intelligemment"
+    },
+    "mockup": {
+      "dashboard": "Tableau de Bord HomERP",
+      "totalItems": "Total des Articles",
+      "categories": "Catégories",
+      "locations": "Emplacements",
+      "recentItems": "Articles Récents",
+      "viewAll": "Voir tout"
+    },
+    "features": {
+      "sectionTitle": "Tout ce dont vous avez besoin pour",
+      "sectionTitleHighlight": "rester organisé",
+      "sectionDescription": "Un système d'inventaire complet conçu pour les passionnés avec l'IA au cœur",
+      "aiClassification": {
+        "title": "Classification Photo par IA",
+        "description": "Prenez une photo et laissez GPT-4 Vision identifier vos articles automatiquement. Obtenez des suggestions de catégories, des spécifications et même des estimations de prix.",
+        "tags": {
+          "autoCategorize": "Auto-catégoriser",
+          "extractSpecs": "Extraire les specs",
+          "suggestStorage": "Suggérer le rangement",
+          "multiImage": "Support multi-images"
+        }
+      },
+      "organization": {
+        "title": "Organisation Hiérarchique",
+        "description": "Créez des catégories et emplacements imbriqués illimités. Des pièces aux étagères aux bacs, sachez exactement où tout se trouve."
+      },
+      "alerts": {
+        "title": "Alertes Stock Faible",
+        "description": "Définissez des quantités minimales et recevez des notifications par e-mail quand les articles sont bas. Ne manquez plus jamais d'essentiels."
+      },
+      "assistant": {
+        "title": "Assistant IA",
+        "description": "Posez des questions sur votre inventaire naturellement. \"Quelles herbes ai-je ?\" ou \"Où ai-je mis mon Arduino ?\""
+      },
+      "qrCodes": {
+        "title": "Codes QR et Étiquettes",
+        "description": "Générez et imprimez des codes QR pour les articles et emplacements. Scannez pour afficher instantanément les détails sur votre téléphone."
+      },
+      "collaboration": {
+        "title": "Partager et Collaborer",
+        "description": "Invitez des membres de la famille ou des collaborateurs. Définissez des permissions de lecteur ou d'éditeur pour les inventaires partagés."
+      },
+      "gridfinity": {
+        "title": "Support Gridfinity",
+        "description": "Concepteur visuel de disposition de bacs avec glisser-déposer. Parfait pour organiser les petites pièces et fournitures de makers."
+      },
+      "analytics": {
+        "title": "Analyses d'Utilisation",
+        "description": "Suivez les emprunts/retours, voyez les tendances d'utilisation et obtenez des aperçus de votre inventaire au fil du temps."
+      },
+      "additional": {
+        "mobileFirst": "Design mobile-first",
+        "tagging": "Système de tags flexible",
+        "batchUpload": "Upload groupé et import",
+        "secure": "Sécurisé et privé"
+      }
+    },
+    "howItWorks": {
+      "sectionTitle": "Organisez-vous en quelques minutes",
+      "sectionDescription": "Trois étapes simples pour transformer votre gestion d'affaires",
+      "step": "Étape",
+      "steps": {
+        "snap": {
+          "title": "Prenez une Photo",
+          "description": "Photographiez n'importe quel article. Notre IA l'identifie instantanément et extrait tous les détails importants."
+        },
+        "classify": {
+          "title": "L'IA le Classifie",
+          "description": "GPT-4 Vision suggère des catégories, emplacements et spécifications. Un clic pour confirmer et sauvegarder."
+        },
+        "organize": {
+          "title": "Restez Organisé",
+          "description": "Recherchez, filtrez et suivez tout. Recevez des alertes quand le stock est bas. Ne perdez plus jamais rien."
+        }
+      }
+    },
+    "aiShowcase": {
+      "poweredBy": "Propulsé par GPT-4 Vision",
+      "title": "Une IA qui comprend vraiment vos affaires",
+      "description": "Pas juste de la reconnaissance d'image—notre IA comprend le contexte, extrait les spécifications et apprend vos schémas d'organisation.",
+      "features": {
+        "identify": "Identifie les produits sous n'importe quel angle",
+        "specs": "Extrait les spécifications automatiquement",
+        "storage": "Suggère des emplacements de rangement optimaux",
+        "duplicates": "Trouve les articles similaires pour éviter les doublons",
+        "declutter": "Recommandations de désencombrement basées sur votre hobby"
+      },
+      "assistantTitle": "Assistant IA",
+      "sampleQuestion": "Quelles cartes Arduino ai-je et où sont-elles rangées ?",
+      "sampleAnswer": "Vous avez 3 cartes Arduino dans votre inventaire :",
+      "sampleItems": {
+        "mega": "Arduino Mega 2560",
+        "megaLocation": "Garage / Étagère A / Bac 3",
+        "uno": "Arduino Uno R3",
+        "unoLocation": "Bureau / Tiroir 2",
+        "nano": "Arduino Nano",
+        "nanoLocation": "Atelier / Armoire à pièces"
+      }
+    },
+    "cta": {
+      "title": "Prêt à vous organiser ?",
+      "description": "Rejoignez les passionnés qui s'organisent intelligemment avec l'IA. Commencez gratuitement aujourd'hui—pas de carte de crédit requise.",
+      "button": "Commencer Gratuitement"
+    },
+    "footer": {
+      "tagline": "Inventaire domestique propulsé par l'IA pour les passionnés qui aiment rester organisés. Suivez, classifiez et retrouvez vos affaires sans effort.",
+      "product": "Produit",
+      "featuresLink": "Fonctionnalités",
+      "howItWorksLink": "Comment ça Marche",
+      "pricingLink": "Tarifs",
+      "featuresSection": "Fonctionnalités",
+      "aiClassification": "Classification IA",
+      "qrCodes": "Codes QR",
+      "lowStockAlerts": "Alertes Stock Faible",
+      "collaborationLink": "Collaboration",
+      "getStarted": "Commencer",
+      "startOrganizing": "Commencez à organiser votre inventaire aujourd'hui avec des crédits IA gratuits.",
+      "signUpFree": "Inscrivez-vous Gratuitement",
+      "copyright": "© {year} HomERP. Créé avec soin pour les passionnés.",
+      "signInLink": "Connexion",
+      "systemStatus": "Tous les systèmes opérationnels"
+    }
+  },
+  "pricing": {
+    "title": "Tarification simple, paiement à l'utilisation",
+    "description": "Commencez gratuitement avec des crédits bonus. Ne payez les fonctionnalités IA que lorsque vous les utilisez.",
+    "freeTier": {
+      "title": "Offre Gratuite",
+      "subtitle": "Tout ce dont vous avez besoin pour commencer",
+      "price": "0€",
+      "period": "/pour toujours",
+      "button": "Commencer Gratuitement"
+    },
+    "features": {
+      "unlimitedItems": "Articles et catégories illimités",
+      "unlimitedLocations": "Emplacements de rangement illimités",
+      "qrCodes": "Codes QR et impression d'étiquettes",
+      "lowStockAlerts": "Alertes de stock faible",
+      "collaboration": "Collaboration et partage",
+      "freeCredits": "{count} crédits IA gratuits à l'inscription"
+    },
+    "creditPacks": {
+      "title": "Packs de Crédits IA",
+      "subtitle": "Boostez votre organisation avec l'IA",
+      "bestValue": "Meilleur Rapport Qualité-Prix",
+      "credits": "{count} crédits",
+      "benefits": {
+        "neverExpire": "Les crédits n'expirent jamais",
+        "photoClassification": "Pour la classification de photos",
+        "aiConversations": "Conversations avec l'assistant IA",
+        "locationSuggestions": "Suggestions d'emplacements"
+      },
+      "button": "Commencer avec des Crédits Gratuits"
+    },
+    "loadError": "Impossible de charger les informations de tarification. Veuillez réessayer plus tard."
   }
 }

@@ -1236,5 +1236,137 @@
     "sharedInventory": "Inventário Compartilhado",
     "sharedWithMe": "Compartilhado comigo",
     "viewingInventoryOf": "Visualizando o inventário de {name}"
+  },
+  "landing": {
+    "nav": {
+      "features": "Recursos",
+      "howItWorks": "Como Funciona",
+      "pricing": "Preços",
+      "signIn": "Entrar",
+      "getStarted": "Começar"
+    },
+    "hero": {
+      "title": "Seu inventário doméstico,",
+      "titleHighlight": "organizado por IA",
+      "subtitle": "Tire uma foto, deixe a IA categorizar e localizar. É inventário doméstico simplificado para a era moderna.",
+      "cta": "Comece Grátis Hoje",
+      "secondaryCta": "Veja Como Funciona",
+      "noCard": "Não precisa de cartão de crédito"
+    },
+    "mockup": {
+      "dashboard": "Painel HomERP",
+      "searchPlaceholder": "Buscar itens...",
+      "recentItems": "Itens Recentes",
+      "item1": {
+        "name": "Furadeira Elétrica",
+        "location": "Garagem → Bancada"
+      },
+      "item2": {
+        "name": "Decorações de Natal",
+        "location": "Sótão → Armazenamento Sazonal"
+      },
+      "item3": {
+        "name": "Passaporte",
+        "location": "Escritório → Cofre"
+      },
+      "totalItems": "Total de Itens",
+      "locations": "Locais",
+      "aiCredits": "Créditos de IA"
+    },
+    "features": {
+      "sectionTitle": "Tudo que você precisa para",
+      "sectionTitleHighlight": "se organizar",
+      "ai": {
+        "title": "Classificação de Fotos por IA",
+        "description": "Tire uma foto de qualquer item e nossa IA identifica, categoriza e sugere locais de armazenamento instantaneamente."
+      },
+      "hierarchy": {
+        "title": "Organização Hierárquica",
+        "description": "Organize com locais aninhados: Casa → Cômodo → Armário → Prateleira → Caixa. Encontre qualquer coisa em segundos."
+      },
+      "qr": {
+        "title": "Códigos QR & Etiquetas",
+        "description": "Gere códigos QR imprimíveis para locais de armazenamento. Escaneie para ver instantaneamente o que há dentro."
+      },
+      "alerts": {
+        "title": "Alertas de Estoque Baixo",
+        "description": "Defina limites mínimos e receba alertas quando os suprimentos estiverem baixos. Nunca mais fique sem itens essenciais."
+      }
+    },
+    "howItWorks": {
+      "sectionTitle": "Organize-se em minutos",
+      "step1": {
+        "title": "Tire uma Foto",
+        "description": "Capture qualquer item com a câmera do seu celular ou faça upload de uma imagem existente."
+      },
+      "step2": {
+        "title": "IA Faz a Mágica",
+        "description": "Nossa IA identifica o item, sugere categorias e recomenda o local de armazenamento ideal."
+      },
+      "step3": {
+        "title": "Encontre Qualquer Coisa",
+        "description": "Busque seu inventário instantaneamente. Nunca mais perca tempo procurando coisas."
+      }
+    },
+    "aiShowcase": {
+      "poweredBy": "Desenvolvido por GPT-4 Vision",
+      "title": "Veja a IA em Ação",
+      "description": "Nossa classificação de IA avançada identifica itens, sugere categorias e recomenda locais de armazenamento—tudo com uma foto.",
+      "detected": "Detectado:",
+      "confidence": "{value}% confiança",
+      "suggestedCategory": "Categoria Sugerida",
+      "suggestedLocation": "Local Sugerido",
+      "autoTags": "Etiquetas Automáticas",
+      "item": {
+        "name": "Furadeira DeWalt 20V MAX",
+        "category": "Ferramentas Elétricas",
+        "location": "Garagem → Bancada",
+        "tags": "sem fio, furadeira, dewalt, 20v, ferramentas elétricas"
+      }
+    },
+    "cta": {
+      "title": "Pronto para se organizar?",
+      "subtitle": "Junte-se a milhares de usuários que finalmente sabem onde estão suas coisas.",
+      "button": "Comece Grátis Hoje",
+      "note": "Não precisa de cartão de crédito • Créditos de IA gratuitos inclusos"
+    },
+    "footer": {
+      "tagline": "Inventário doméstico com IA para a era moderna.",
+      "copyright": "© {year} HomERP. Todos os direitos reservados.",
+      "github": "GitHub"
+    }
+  },
+  "pricing": {
+    "title": "Preços simples, pague conforme usar",
+    "description": "Comece grátis e compre créditos de IA apenas quando precisar. Sem assinaturas, sem compromissos.",
+    "freeTier": {
+      "title": "Plano Gratuito",
+      "subtitle": "Tudo que você precisa para começar",
+      "price": "R$0",
+      "period": "/para sempre",
+      "button": "Começar Grátis"
+    },
+    "features": {
+      "unlimitedItems": "Itens ilimitados",
+      "unlimitedLocations": "Locais ilimitados",
+      "qrCodes": "Códigos QR & etiquetas",
+      "lowStockAlerts": "Alertas de estoque baixo",
+      "collaboration": "Colaboração",
+      "freeCredits": "{count} créditos de IA gratuitos no cadastro"
+    },
+    "creditPacks": {
+      "title": "Pacotes de Créditos de IA",
+      "subtitle": "Potencialize suas capacidades de IA",
+      "bestValue": "Melhor Valor",
+      "credits": "{count} créditos",
+      "button": "Comprar Créditos",
+      "benefits": {
+        "neverExpire": "Os créditos nunca expiram",
+        "photoClassification": "Classificação de fotos por IA",
+        "aiConversations": "Conversas com assistente de IA",
+        "locationSuggestions": "Sugestões inteligentes de localização"
+      }
+    },
+    "loadError": "Não foi possível carregar as informações de preços. Por favor, tente novamente mais tarde."
   }
 }

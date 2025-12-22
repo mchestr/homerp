@@ -1236,5 +1236,137 @@
     "sharedInventory": "共有在庫",
     "sharedWithMe": "共有された在庫",
     "viewingInventoryOf": "{name}の在庫を表示中"
+  },
+  "landing": {
+    "nav": {
+      "features": "機能",
+      "howItWorks": "使い方",
+      "pricing": "料金",
+      "signIn": "ログイン",
+      "getStarted": "始める"
+    },
+    "hero": {
+      "title": "あなたの家庭の在庫を",
+      "titleHighlight": "AIで整理",
+      "subtitle": "写真を撮るだけでAIが分類・配置を提案。現代のためのスマートな在庫管理。",
+      "cta": "今すぐ無料で始める",
+      "secondaryCta": "使い方を見る",
+      "noCard": "クレジットカード不要"
+    },
+    "mockup": {
+      "dashboard": "HomERP ダッシュボード",
+      "searchPlaceholder": "アイテムを検索...",
+      "recentItems": "最近のアイテム",
+      "item1": {
+        "name": "電動ドリル",
+        "location": "ガレージ → 作業台"
+      },
+      "item2": {
+        "name": "クリスマス飾り",
+        "location": "屋根裏 → 季節用品"
+      },
+      "item3": {
+        "name": "パスポート",
+        "location": "書斎 → 金庫"
+      },
+      "totalItems": "総アイテム数",
+      "locations": "場所",
+      "aiCredits": "AIクレジット"
+    },
+    "features": {
+      "sectionTitle": "整理に必要な",
+      "sectionTitleHighlight": "すべてが揃う",
+      "ai": {
+        "title": "AI写真分類",
+        "description": "アイテムの写真を撮るだけで、AIが即座に識別・分類し、保管場所を提案します。"
+      },
+      "hierarchy": {
+        "title": "階層的な整理",
+        "description": "ネストされた場所で整理：家 → 部屋 → クローゼット → 棚 → 箱。数秒で何でも見つかります。"
+      },
+      "qr": {
+        "title": "QRコード＆ラベル",
+        "description": "保管場所用の印刷可能なQRコードを生成。スキャンするだけで中身がすぐわかります。"
+      },
+      "alerts": {
+        "title": "在庫不足アラート",
+        "description": "最低数量を設定し、在庫が少なくなったら通知を受け取れます。必需品を切らすことはありません。"
+      }
+    },
+    "howItWorks": {
+      "sectionTitle": "数分で整理完了",
+      "step1": {
+        "title": "写真を撮る",
+        "description": "スマートフォンのカメラでアイテムを撮影、または既存の画像をアップロード。"
+      },
+      "step2": {
+        "title": "AIが魔法をかける",
+        "description": "AIがアイテムを識別し、カテゴリを提案、最適な保管場所を推奨します。"
+      },
+      "step3": {
+        "title": "何でも見つかる",
+        "description": "在庫を瞬時に検索。もう物を探して時間を無駄にすることはありません。"
+      }
+    },
+    "aiShowcase": {
+      "poweredBy": "GPT-4 Vision搭載",
+      "title": "AIの動作を見る",
+      "description": "高度なAI分類がアイテムを識別し、カテゴリを提案、保管場所を推奨—すべて写真一枚で。",
+      "detected": "検出:",
+      "confidence": "{value}%の確信度",
+      "suggestedCategory": "提案カテゴリ",
+      "suggestedLocation": "提案場所",
+      "autoTags": "自動タグ",
+      "item": {
+        "name": "DeWalt 20V MAX ドリル",
+        "category": "電動工具",
+        "location": "ガレージ → 作業台",
+        "tags": "コードレス, ドリル, dewalt, 20v, 電動工具"
+      }
+    },
+    "cta": {
+      "title": "整理を始める準備はできましたか？",
+      "subtitle": "物の場所を把握している数千人のユーザーに加わりましょう。",
+      "button": "今すぐ無料で始める",
+      "note": "クレジットカード不要 • 無料AIクレジット付き"
+    },
+    "footer": {
+      "tagline": "現代のためのAI搭載家庭在庫管理。",
+      "copyright": "© {year} HomERP. 全著作権所有。",
+      "github": "GitHub"
+    }
+  },
+  "pricing": {
+    "title": "シンプルな従量課金",
+    "description": "無料で始めて、必要な時だけAIクレジットを購入。サブスクリプションなし、コミットメントなし。",
+    "freeTier": {
+      "title": "無料プラン",
+      "subtitle": "始めるために必要なすべて",
+      "price": "¥0",
+      "period": "/永久無料",
+      "button": "無料で始める"
+    },
+    "features": {
+      "unlimitedItems": "アイテム数無制限",
+      "unlimitedLocations": "場所数無制限",
+      "qrCodes": "QRコード＆ラベル",
+      "lowStockAlerts": "在庫不足アラート",
+      "collaboration": "コラボレーション",
+      "freeCredits": "登録時に{count}無料AIクレジット"
+    },
+    "creditPacks": {
+      "title": "AIクレジットパック",
+      "subtitle": "AI機能をパワーアップ",
+      "bestValue": "お得",
+      "credits": "{count}クレジット",
+      "button": "クレジットを購入",
+      "benefits": {
+        "neverExpire": "クレジットは期限なし",
+        "photoClassification": "AI写真分類",
+        "aiConversations": "AIアシスタントとの会話",
+        "locationSuggestions": "スマートな場所提案"
+      }
+    },
+    "loadError": "料金情報を読み込めませんでした。後でもう一度お試しください。"
   }
 }

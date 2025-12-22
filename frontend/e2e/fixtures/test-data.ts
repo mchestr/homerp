@@ -1017,24 +1017,27 @@ export const testAIChatResponse = {
 };
 
 export const testOperationCosts = {
-  operations: [
+  costs: {
+    image_classification: 1,
+    assistant_query: 1,
+    location_suggestion: 1,
+  },
+  items: [
     {
       operation_type: "image_classification",
+      credits: 1,
       display_name: "Image Classification",
-      description: "AI-powered image analysis",
-      credit_cost: 1,
     },
     {
       operation_type: "assistant_query",
+      credits: 1,
       display_name: "AI Assistant Query",
-      description: "AI assistant conversation",
-      credit_cost: 1,
     },
     {
       operation_type: "location_suggestion",
+      credits: 1,
       display_name: "Location Suggestion",
-      description: "AI location recommendations",
-      credit_cost: 1,
     },
   ],
+  signup_credits: 5,
 };
