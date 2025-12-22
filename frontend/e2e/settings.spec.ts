@@ -22,6 +22,18 @@ test.describe("Settings", () => {
     ).toBeVisible();
   });
 
+  test("displays OAuth provider in authentication section", async ({
+    page,
+  }) => {
+    await authenticateUser(page);
+    await setupApiMocks(page);
+
+    await page.goto("/settings");
+
+    // Verify the OAuth provider is displayed (testUser has oauth_provider: "google")
+    await expect(page.getByText(/Signed in via Google OAuth/i)).toBeVisible();
+  });
+
   test("can navigate to billing settings", async ({ page }) => {
     await authenticateUser(page);
     await setupApiMocks(page);
