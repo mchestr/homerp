@@ -218,6 +218,7 @@
     "selectAll": "すべて選択",
     "deselectAll": "すべて選択解除",
     "selectedCount": "{count}件選択中",
+    "updateSelectedItems": "選択したアイテムを更新（{count}件選択中）",
     "batchUpdateTitle": "選択したアイテムを更新",
     "setCategory": "カテゴリーを設定",
     "setLocation": "ロケーションを設定",

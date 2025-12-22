@@ -218,6 +218,7 @@
     "selectAll": "Selecionar tudo",
     "deselectAll": "Desmarcar tudo",
     "selectedCount": "{count} selecionados",
+    "updateSelectedItems": "Atualizar Itens Selecionados ({count} Selecionados)",
     "batchUpdateTitle": "Atualizar Itens Selecionados",
     "setCategory": "Definir categoria",
     "setLocation": "Definir local",
