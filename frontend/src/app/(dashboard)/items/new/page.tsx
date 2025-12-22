@@ -767,7 +767,7 @@ export default function NewItemPage() {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <div>
               <label className="mb-2 block text-sm font-medium">
                 {tCommon("quantity")}

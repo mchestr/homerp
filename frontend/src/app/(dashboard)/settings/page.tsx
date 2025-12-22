@@ -36,18 +36,18 @@ import {
 import { useToast } from "@/hooks/use-toast";
 
 const CURRENCIES = [
-  { code: "USD", label: "US Dollar ($)" },
-  { code: "EUR", label: "Euro (€)" },
-  { code: "GBP", label: "British Pound (£)" },
-  { code: "CAD", label: "Canadian Dollar (C$)" },
-  { code: "AUD", label: "Australian Dollar (A$)" },
-  { code: "JPY", label: "Japanese Yen (¥)" },
-  { code: "CHF", label: "Swiss Franc (CHF)" },
-  { code: "CNY", label: "Chinese Yuan (¥)" },
-  { code: "INR", label: "Indian Rupee (₹)" },
-  { code: "MXN", label: "Mexican Peso ($)" },
-  { code: "BRL", label: "Brazilian Real (R$)" },
-  { code: "KRW", label: "South Korean Won (₩)" },
+  { code: "USD", symbol: "$", label: "US Dollar" },
+  { code: "EUR", symbol: "€", label: "Euro" },
+  { code: "GBP", symbol: "£", label: "British Pound" },
+  { code: "CAD", symbol: "C$", label: "Canadian Dollar" },
+  { code: "AUD", symbol: "A$", label: "Australian Dollar" },
+  { code: "JPY", symbol: "¥", label: "Japanese Yen" },
+  { code: "CHF", symbol: "Fr", label: "Swiss Franc" },
+  { code: "CNY", symbol: "¥", label: "Chinese Yuan" },
+  { code: "INR", symbol: "₹", label: "Indian Rupee" },
+  { code: "MXN", symbol: "$", label: "Mexican Peso" },
+  { code: "BRL", symbol: "R$", label: "Brazilian Real" },
+  { code: "KRW", symbol: "₩", label: "South Korean Won" },
 ];
 
 export default function SettingsPage() {
@@ -171,6 +171,7 @@ export default function SettingsPage() {
               <SelectContent>
                 {CURRENCIES.map((currency) => (
                   <SelectItem key={currency.code} value={currency.code}>
+                    <span className="font-medium">{currency.symbol}</span>{" "}
                     {currency.label}
                   </SelectItem>
                 ))}
