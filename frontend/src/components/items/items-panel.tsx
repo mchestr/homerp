@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
+import { PageSizeSelector } from "@/components/ui/page-size-selector";
 import { itemsApi } from "@/lib/api/api";
 import { cn, formatPrice, getItemSubtitle } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
@@ -38,15 +39,16 @@ export function ItemsPanel({
   const { user } = useAuth();
   const tCommon = useTranslations("common");
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(8);
 
   const hasSelection = !!categoryId || !!locationId;
 
   const { data: itemsData, isLoading } = useQuery({
-    queryKey: ["items", "panel", { page, categoryId, locationId }],
+    queryKey: ["items", "panel", { page, limit, categoryId, locationId }],
     queryFn: () =>
       itemsApi.list({
-        page,
-        limit: 8,
+        page: limit === 0 ? 1 : page, // When showing all, always page 1
+        limit: limit === 0 ? 10000 : limit, // 0 means show all, use large limit
         category_id: categoryId || undefined,
         location_id: locationId || undefined,
         include_subcategories: true,
@@ -95,6 +97,11 @@ export function ItemsPanel({
   if (page !== 1 && !hasSelection) {
     setPage(1);
   }
+
+  const handleLimitChange = (newLimit: number) => {
+    setLimit(newLimit);
+    setPage(1); // Reset to page 1 when changing limit
+  };
 
   if (!hasSelection) {
     return (
@@ -252,31 +259,42 @@ export function ItemsPanel({
         ))}
       </div>
 
-      {itemsData.total_pages > 1 && (
-        <div className="flex items-center justify-center gap-3 pt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page <= 1}
-            onClick={() => setPage(page - 1)}
-            className="h-8 gap-1"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <span className="text-muted-foreground text-xs">
-            {page} / {itemsData.total_pages}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page >= itemsData.total_pages}
-            onClick={() => setPage(page + 1)}
-            className="h-8 gap-1"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
+      {/* Pagination and page size controls */}
+      <div className="flex flex-col items-center gap-2 pt-2 sm:flex-row sm:justify-between">
+        <PageSizeSelector
+          value={limit}
+          onChange={handleLimitChange}
+          options={[8, 16, 32, 64]}
+          totalItems={itemsData.total}
+        />
+
+        {/* Pagination - only show when not showing all and there are multiple pages */}
+        {limit !== 0 && itemsData.total_pages > 1 && (
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page <= 1}
+              onClick={() => setPage(page - 1)}
+              className="h-8 gap-1"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-muted-foreground text-xs">
+              {page} / {itemsData.total_pages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= itemsData.total_pages}
+              onClick={() => setPage(page + 1)}
+              className="h-8 gap-1"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

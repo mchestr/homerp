@@ -99,7 +99,10 @@
     "printLabels": "Imprimir Etiquetas",
     "usageHistory": "Histórico de Uso",
     "imageMustBeLessThan": "A imagem deve ter menos de 10MB",
-    "pleaseSelectImageFile": "Por favor, selecione um arquivo de imagem"
+    "pleaseSelectImageFile": "Por favor, selecione um arquivo de imagem",
+    "itemsPerPage": "Itens por página",
+    "perPage": "por página",
+    "showAll": "Mostrar todos"
   },
   "app": {
     "name": "HomERP",
