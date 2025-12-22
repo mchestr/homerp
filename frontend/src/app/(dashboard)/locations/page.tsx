@@ -31,6 +31,7 @@ import { LocationSuggestionPreview } from "@/components/locations/location-sugge
 import { useInsufficientCreditsModal } from "@/components/billing/insufficient-credits-modal";
 import { ViewModeToggle } from "@/components/ui/view-mode-toggle";
 import { useAuth } from "@/context/auth-context";
+import { useInventory } from "@/context/inventory-context";
 import {
   locationsApi,
   imagesApi,
@@ -104,6 +105,7 @@ export default function LocationsPage() {
   const { show: showInsufficientCredits, InsufficientCreditsModal } =
     useInsufficientCreditsModal();
   const { refreshCredits, user } = useAuth();
+  const { canEdit } = useInventory();
   const { openQRModal, QRCodeModal } = useQRCodeModal();
   const { openLabelModal, LabelPrintModal } = useLabelPrintModal();
   const tLabels = useTranslations("labels");
@@ -402,7 +404,7 @@ export default function LocationsPage() {
               },
             ]}
           />
-          {!isFormVisible && (
+          {!isFormVisible && canEdit && (
             <Button
               onClick={() => setIsCreating(true)}
               className="flex-1 sm:w-auto sm:flex-none"
@@ -718,10 +720,12 @@ export default function LocationsPage() {
           <p className="text-muted-foreground mt-1 text-center">
             {t("createToOrganize")}
           </p>
-          <Button onClick={() => setIsCreating(true)} className="mt-6">
-            <Plus className="mr-2 h-4 w-4" />
-            {t("addLocation")}
-          </Button>
+          {canEdit && (
+            <Button onClick={() => setIsCreating(true)} className="mt-6">
+              <Plus className="mr-2 h-4 w-4" />
+              {t("addLocation")}
+            </Button>
+          )}
         </div>
       ) : viewMode === "tree" ? (
         <div
@@ -769,33 +773,39 @@ export default function LocationsPage() {
                   >
                     <QrCode className="text-muted-foreground h-4 w-4" />
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAddChild(node.id)}
-                    className="hover:bg-accent rounded p-1"
-                    title={t("addChildLocation")}
-                  >
-                    <Plus className="text-muted-foreground h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const location = locations?.find((l) => l.id === node.id);
-                      if (location) handleEdit(location);
-                    }}
-                    className="hover:bg-accent rounded p-1"
-                    title={tCommon("edit")}
-                  >
-                    <Edit className="text-muted-foreground h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(node.id, node.name)}
-                    className="hover:bg-accent rounded p-1"
-                    title={tCommon("delete")}
-                  >
-                    <Trash2 className="text-destructive h-4 w-4" />
-                  </button>
+                  {canEdit && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => handleAddChild(node.id)}
+                        className="hover:bg-accent rounded p-1"
+                        title={t("addChildLocation")}
+                      >
+                        <Plus className="text-muted-foreground h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const location = locations?.find(
+                            (l) => l.id === node.id
+                          );
+                          if (location) handleEdit(location);
+                        }}
+                        className="hover:bg-accent rounded p-1"
+                        title={tCommon("edit")}
+                      >
+                        <Edit className="text-muted-foreground h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(node.id, node.name)}
+                        className="hover:bg-accent rounded p-1"
+                        title={tCommon("delete")}
+                      >
+                        <Trash2 className="text-destructive h-4 w-4" />
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
               emptyMessage={t("noLocationsYet")}
@@ -920,33 +930,39 @@ export default function LocationsPage() {
                       >
                         <QrCode className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleAddChild(location.id)}
-                        className="h-8 w-8"
-                        title={t("addChildLocation")}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEdit(location)}
-                        className="h-8 w-8"
-                        title={tCommon("edit")}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(location.id, location.name)}
-                        className="text-destructive hover:text-destructive h-8 w-8"
-                        title={tCommon("delete")}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {canEdit && (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleAddChild(location.id)}
+                            className="h-8 w-8"
+                            title={t("addChildLocation")}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(location)}
+                            className="h-8 w-8"
+                            title={tCommon("edit")}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() =>
+                              handleDelete(location.id, location.name)
+                            }
+                            className="text-destructive hover:text-destructive h-8 w-8"
+                            title={tCommon("delete")}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </button>
@@ -1055,33 +1071,37 @@ export default function LocationsPage() {
                           >
                             <QrCode className="h-4 w-4" />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleAddChild(location.id)}
-                            title={t("addChildLocation")}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEdit(location)}
-                            title={tCommon("edit")}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() =>
-                              handleDelete(location.id, location.name)
-                            }
-                            className="text-destructive hover:text-destructive"
-                            title={tCommon("delete")}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          {canEdit && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleAddChild(location.id)}
+                                title={t("addChildLocation")}
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEdit(location)}
+                                title={tCommon("edit")}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() =>
+                                  handleDelete(location.id, location.name)
+                                }
+                                className="text-destructive hover:text-destructive"
+                                title={tCommon("delete")}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>

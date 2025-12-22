@@ -33,6 +33,7 @@ import {
 } from "@/hooks/use-view-mode";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/context/auth-context";
+import { useInventory } from "@/context/inventory-context";
 import { formatPrice } from "@/lib/utils";
 
 export default function CategoriesPage() {
@@ -40,6 +41,7 @@ export default function CategoriesPage() {
   const t = useTranslations("categories");
   const tCommon = useTranslations("common");
   const { user } = useAuth();
+  const { canEdit } = useInventory();
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -222,7 +224,7 @@ export default function CategoriesPage() {
               },
             ]}
           />
-          {!isFormVisible && (
+          {!isFormVisible && canEdit && (
             <Button
               onClick={() => setIsCreating(true)}
               className="w-full sm:w-auto"
@@ -377,10 +379,12 @@ export default function CategoriesPage() {
           <p className="text-muted-foreground mt-1 text-center">
             {t("createToOrganize")}
           </p>
-          <Button onClick={() => setIsCreating(true)} className="mt-6">
-            <Plus className="mr-2 h-4 w-4" />
-            {t("addCategory")}
-          </Button>
+          {canEdit && (
+            <Button onClick={() => setIsCreating(true)} className="mt-6">
+              <Plus className="mr-2 h-4 w-4" />
+              {t("addCategory")}
+            </Button>
+          )}
         </div>
       ) : viewMode === "tree" ? (
         <div
@@ -392,42 +396,44 @@ export default function CategoriesPage() {
               nodes={categoryTree ?? []}
               selectedId={selectedId}
               onSelect={(node) => setSelectedId(node.id)}
-              renderActions={(node) => (
-                <div
-                  className="flex gap-1"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    type="button"
-                    onClick={() => handleAddChild(node.id)}
-                    className="hover:bg-accent rounded p-1"
-                    title={t("addChildCategory")}
+              renderActions={(node) =>
+                canEdit ? (
+                  <div
+                    className="flex gap-1"
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    <Plus className="text-muted-foreground h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const category = categories?.find(
-                        (c) => c.id === node.id
-                      );
-                      if (category) handleEdit(category);
-                    }}
-                    className="hover:bg-accent rounded p-1"
-                    title={tCommon("edit")}
-                  >
-                    <Edit className="text-muted-foreground h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(node.id, node.name)}
-                    className="hover:bg-accent rounded p-1"
-                    title={tCommon("delete")}
-                  >
-                    <Trash2 className="text-destructive h-4 w-4" />
-                  </button>
-                </div>
-              )}
+                    <button
+                      type="button"
+                      onClick={() => handleAddChild(node.id)}
+                      className="hover:bg-accent rounded p-1"
+                      title={t("addChildCategory")}
+                    >
+                      <Plus className="text-muted-foreground h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const category = categories?.find(
+                          (c) => c.id === node.id
+                        );
+                        if (category) handleEdit(category);
+                      }}
+                      className="hover:bg-accent rounded p-1"
+                      title={tCommon("edit")}
+                    >
+                      <Edit className="text-muted-foreground h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(node.id, node.name)}
+                      className="hover:bg-accent rounded p-1"
+                      title={tCommon("delete")}
+                    >
+                      <Trash2 className="text-destructive h-4 w-4" />
+                    </button>
+                  </div>
+                ) : null
+              }
               emptyMessage={t("noCategoriesYet")}
             />
           </div>
@@ -520,38 +526,40 @@ export default function CategoriesPage() {
                       )}
                     </div>
                   </div>
-                  <div
-                    className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleAddChild(category.id)}
-                      className="h-8 w-8"
-                      title={t("addChildCategory")}
+                  {canEdit && (
+                    <div
+                      className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEdit(category)}
-                      className="h-8 w-8"
-                      title={tCommon("edit")}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(category.id, category.name)}
-                      className="text-destructive hover:text-destructive h-8 w-8"
-                      title={tCommon("delete")}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleAddChild(category.id)}
+                        className="h-8 w-8"
+                        title={t("addChildCategory")}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEdit(category)}
+                        className="h-8 w-8"
+                        title={tCommon("edit")}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(category.id, category.name)}
+                        className="text-destructive hover:text-destructive h-8 w-8"
+                        title={tCommon("delete")}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </button>
             ))}
@@ -616,35 +624,37 @@ export default function CategoriesPage() {
                       {treeStats.get(category.id)?.item_count ?? 0}
                     </td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleAddChild(category.id)}
-                          title={t("addChildCategory")}
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(category)}
-                          title={tCommon("edit")}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() =>
-                            handleDelete(category.id, category.name)
-                          }
-                          className="text-destructive hover:text-destructive"
-                          title={tCommon("delete")}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      {canEdit && (
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleAddChild(category.id)}
+                            title={t("addChildCategory")}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(category)}
+                            title={tCommon("edit")}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() =>
+                              handleDelete(category.id, category.name)
+                            }
+                            className="text-destructive hover:text-destructive"
+                            title={tCommon("delete")}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
