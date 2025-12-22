@@ -56,6 +56,7 @@ import {
 } from "@/lib/api/api";
 import { cn, formatPrice } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
+import { useInventory } from "@/context/inventory-context";
 import { useTranslations } from "next-intl";
 import { useLabelPrintModal } from "@/components/labels";
 import type { LabelData } from "@/lib/labels";
@@ -87,6 +88,7 @@ export default function ItemDetailPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const { canEdit } = useInventory();
   const itemId = params.id as string;
   const t = useTranslations("checkInOut");
   const tCommon = useTranslations("common");
@@ -583,29 +585,33 @@ export default function ItemDetailPage() {
                   {tLabels("printLabel")}
                 </span>
               </Button>
-              <Button
-                variant="outline"
-                className="gap-2"
-                onClick={() => setIsEditMode(true)}
-                data-testid="edit-button"
-              >
-                <Edit className="h-4 w-4" />
-                <span className="hidden sm:inline">{tCommon("edit")}</span>
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleDelete}
-                disabled={deleteMutation.isPending}
-                className="gap-2"
-                data-testid="delete-button"
-              >
-                <Trash2 className="h-4 w-4" />
-                <span className="hidden sm:inline">
-                  {deleteMutation.isPending
-                    ? tItems("deleting")
-                    : tCommon("delete")}
-                </span>
-              </Button>
+              {canEdit && (
+                <>
+                  <Button
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => setIsEditMode(true)}
+                    data-testid="edit-button"
+                  >
+                    <Edit className="h-4 w-4" />
+                    <span className="hidden sm:inline">{tCommon("edit")}</span>
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleDelete}
+                    disabled={deleteMutation.isPending}
+                    className="gap-2"
+                    data-testid="delete-button"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    <span className="hidden sm:inline">
+                      {deleteMutation.isPending
+                        ? tItems("deleting")
+                        : tCommon("delete")}
+                    </span>
+                  </Button>
+                </>
+              )}
             </>
           )}
           {isEditMode && (
@@ -648,20 +654,24 @@ export default function ItemDetailPage() {
                   images={item.images || []}
                   onSetPrimary={handleSetPrimary}
                   onRemoveImage={handleRemoveImage}
-                  editable={true}
+                  editable={canEdit}
                 />
               </div>
-              <div className="bg-card rounded-xl border p-4">
-                <h2 className="mb-4 font-semibold">{tImages("uploadImage")}</h2>
-                <MultiImageUpload
-                  onImageUploaded={handleImageUploaded}
-                  onClassificationComplete={handleClassificationComplete}
-                  uploadedImages={uploadedImages}
-                  onRemoveImage={handleRemoveUploadedImage}
-                  onSetPrimary={handleSetUploadedPrimary}
-                  maxImages={MAX_IMAGES}
-                />
-              </div>
+              {canEdit && (
+                <div className="bg-card rounded-xl border p-4">
+                  <h2 className="mb-4 font-semibold">
+                    {tImages("uploadImage")}
+                  </h2>
+                  <MultiImageUpload
+                    onImageUploaded={handleImageUploaded}
+                    onClassificationComplete={handleClassificationComplete}
+                    uploadedImages={uploadedImages}
+                    onRemoveImage={handleRemoveUploadedImage}
+                    onSetPrimary={handleSetUploadedPrimary}
+                    maxImages={MAX_IMAGES}
+                  />
+                </div>
+              )}
             </>
           )}
 
@@ -879,18 +889,20 @@ export default function ItemDetailPage() {
                   )}
                 </div>
                 <div className="mt-4 flex items-center justify-center gap-4">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => handleQuantityChange(-1)}
-                    disabled={
-                      (item.quantity ?? 0) === 0 ||
-                      updateQuantityMutation.isPending
-                    }
-                    className="h-12 w-12 rounded-full"
-                  >
-                    <Minus className="h-5 w-5" />
-                  </Button>
+                  {canEdit && (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handleQuantityChange(-1)}
+                      disabled={
+                        (item.quantity ?? 0) === 0 ||
+                        updateQuantityMutation.isPending
+                      }
+                      className="h-12 w-12 rounded-full"
+                    >
+                      <Minus className="h-5 w-5" />
+                    </Button>
+                  )}
                   <div className="text-center">
                     <span
                       className={cn(
@@ -905,15 +917,17 @@ export default function ItemDetailPage() {
                       {item.quantity_unit}
                     </p>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => handleQuantityChange(1)}
-                    disabled={updateQuantityMutation.isPending}
-                    className="h-12 w-12 rounded-full"
-                  >
-                    <Plus className="h-5 w-5" />
-                  </Button>
+                  {canEdit && (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handleQuantityChange(1)}
+                      disabled={updateQuantityMutation.isPending}
+                      className="h-12 w-12 rounded-full"
+                    >
+                      <Plus className="h-5 w-5" />
+                    </Button>
+                  )}
                 </div>
                 {item.is_low_stock && (
                   <div className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
@@ -1046,128 +1060,130 @@ export default function ItemDetailPage() {
               })()}
 
               {/* Check-in/out Card */}
-              <div className="bg-card rounded-xl border p-5">
-                <div className="flex items-center gap-2">
-                  <LogOut className="text-muted-foreground h-4 w-4" />
-                  <h2 className="font-semibold">{t("checkInOut")}</h2>
-                </div>
-                <div className="mt-4 space-y-4">
+              {canEdit && (
+                <div className="bg-card rounded-xl border p-5">
                   <div className="flex items-center gap-2">
-                    <label className="text-muted-foreground w-20 text-sm">
-                      {tCommon("quantity")}
-                    </label>
-                    <Input
-                      type="number"
-                      min={1}
-                      value={checkInOutQuantity}
-                      onChange={(e) =>
-                        setCheckInOutQuantity(
-                          Math.max(1, parseInt(e.target.value) || 1)
-                        )
-                      }
-                      className="w-20"
-                    />
+                    <LogOut className="text-muted-foreground h-4 w-4" />
+                    <h2 className="font-semibold">{t("checkInOut")}</h2>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <label className="text-muted-foreground w-20 text-sm">
-                      {t("notes")}
-                    </label>
-                    <Input
-                      type="text"
-                      value={checkInOutNotes}
-                      onChange={(e) => setCheckInOutNotes(e.target.value)}
-                      placeholder={t("notesPlaceholder")}
-                      className="flex-1"
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="flex-1">
-                            <Button
-                              variant="outline"
-                              onClick={handleCheckOut}
-                              disabled={
-                                checkOutMutation.isPending ||
-                                checkInMutation.isPending ||
-                                !item ||
-                                !usageStats ||
-                                !canCheckOut
-                              }
-                              className="w-full gap-2"
-                            >
-                              <LogOut className="h-4 w-4" />
-                              {checkOutMutation.isPending
-                                ? tCommon("loading")
-                                : t("checkOut")}
-                            </Button>
-                          </span>
-                        </TooltipTrigger>
-                        {item && usageStats && availableQuantity <= 0 && (
-                          <TooltipContent>
-                            <p>{t("checkOutDisabled")}</p>
-                          </TooltipContent>
-                        )}
-                        {item &&
-                          usageStats &&
-                          availableQuantity > 0 &&
-                          checkInOutQuantity > availableQuantity && (
+                  <div className="mt-4 space-y-4">
+                    <div className="flex items-center gap-2">
+                      <label className="text-muted-foreground w-20 text-sm">
+                        {tCommon("quantity")}
+                      </label>
+                      <Input
+                        type="number"
+                        min={1}
+                        value={checkInOutQuantity}
+                        onChange={(e) =>
+                          setCheckInOutQuantity(
+                            Math.max(1, parseInt(e.target.value) || 1)
+                          )
+                        }
+                        className="w-20"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <label className="text-muted-foreground w-20 text-sm">
+                        {t("notes")}
+                      </label>
+                      <Input
+                        type="text"
+                        value={checkInOutNotes}
+                        onChange={(e) => setCheckInOutNotes(e.target.value)}
+                        placeholder={t("notesPlaceholder")}
+                        className="flex-1"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="flex-1">
+                              <Button
+                                variant="outline"
+                                onClick={handleCheckOut}
+                                disabled={
+                                  checkOutMutation.isPending ||
+                                  checkInMutation.isPending ||
+                                  !item ||
+                                  !usageStats ||
+                                  !canCheckOut
+                                }
+                                className="w-full gap-2"
+                              >
+                                <LogOut className="h-4 w-4" />
+                                {checkOutMutation.isPending
+                                  ? tCommon("loading")
+                                  : t("checkOut")}
+                              </Button>
+                            </span>
+                          </TooltipTrigger>
+                          {item && usageStats && availableQuantity <= 0 && (
                             <TooltipContent>
-                              <p>
-                                {t("exceedsAvailable", {
-                                  count: availableQuantity,
-                                })}
-                              </p>
+                              <p>{t("checkOutDisabled")}</p>
                             </TooltipContent>
                           )}
-                      </Tooltip>
-                    </TooltipProvider>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="flex-1">
-                            <Button
-                              variant="outline"
-                              onClick={handleCheckIn}
-                              disabled={
-                                checkOutMutation.isPending ||
-                                checkInMutation.isPending ||
-                                !usageStats ||
-                                !canCheckIn
-                              }
-                              className="w-full gap-2"
-                            >
-                              <LogIn className="h-4 w-4" />
-                              {checkInMutation.isPending
-                                ? tCommon("loading")
-                                : t("checkIn")}
-                            </Button>
-                          </span>
-                        </TooltipTrigger>
-                        {usageStats &&
-                          usageStats.currently_checked_out <= 0 && (
-                            <TooltipContent>
-                              <p>{t("checkInDisabled")}</p>
-                            </TooltipContent>
-                          )}
-                        {usageStats &&
-                          usageStats.currently_checked_out > 0 &&
-                          checkInOutQuantity >
-                            usageStats.currently_checked_out && (
-                            <TooltipContent>
-                              <p>
-                                {t("exceedsCheckedOut", {
-                                  count: usageStats.currently_checked_out,
-                                })}
-                              </p>
-                            </TooltipContent>
-                          )}
-                      </Tooltip>
-                    </TooltipProvider>
+                          {item &&
+                            usageStats &&
+                            availableQuantity > 0 &&
+                            checkInOutQuantity > availableQuantity && (
+                              <TooltipContent>
+                                <p>
+                                  {t("exceedsAvailable", {
+                                    count: availableQuantity,
+                                  })}
+                                </p>
+                              </TooltipContent>
+                            )}
+                        </Tooltip>
+                      </TooltipProvider>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="flex-1">
+                              <Button
+                                variant="outline"
+                                onClick={handleCheckIn}
+                                disabled={
+                                  checkOutMutation.isPending ||
+                                  checkInMutation.isPending ||
+                                  !usageStats ||
+                                  !canCheckIn
+                                }
+                                className="w-full gap-2"
+                              >
+                                <LogIn className="h-4 w-4" />
+                                {checkInMutation.isPending
+                                  ? tCommon("loading")
+                                  : t("checkIn")}
+                              </Button>
+                            </span>
+                          </TooltipTrigger>
+                          {usageStats &&
+                            usageStats.currently_checked_out <= 0 && (
+                              <TooltipContent>
+                                <p>{t("checkInDisabled")}</p>
+                              </TooltipContent>
+                            )}
+                          {usageStats &&
+                            usageStats.currently_checked_out > 0 &&
+                            checkInOutQuantity >
+                              usageStats.currently_checked_out && (
+                              <TooltipContent>
+                                <p>
+                                  {t("exceedsCheckedOut", {
+                                    count: usageStats.currently_checked_out,
+                                  })}
+                                </p>
+                              </TooltipContent>
+                            )}
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Usage Stats Card */}
               {usageStats && (

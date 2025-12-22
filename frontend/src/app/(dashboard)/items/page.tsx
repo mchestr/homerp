@@ -32,6 +32,7 @@ import { PageSizeSelector } from "@/components/ui/page-size-selector";
 import { itemsApi, categoriesApi, locationsApi } from "@/lib/api/api";
 import { cn, formatPrice, getItemSubtitle } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
+import { useInventory } from "@/context/inventory-context";
 import { useViewMode, VIEW_MODES, type ViewMode } from "@/hooks/use-view-mode";
 
 export default function ItemsPage() {
@@ -39,6 +40,7 @@ export default function ItemsPage() {
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const { user } = useAuth();
+  const { canEdit } = useInventory();
   const t = useTranslations("items");
   const tCommon = useTranslations("common");
 
@@ -371,37 +373,39 @@ export default function ItemsPage() {
               </Button>
             </>
           ) : (
-            <>
-              <Button
-                variant="outline"
-                onClick={() => setIsSelectionMode(true)}
-                className="gap-2"
-                data-testid="enter-selection-mode"
-              >
-                <Square className="h-4 w-4" />
-                <span className="hidden sm:inline">{t("selectItems")}</span>
-              </Button>
-              <Link
-                href="/items/batch-upload"
-                data-testid="batch-upload-button"
-                className="flex-1 sm:flex-none"
-              >
-                <Button variant="outline" className="w-full gap-2">
-                  <Upload className="h-4 w-4" />
-                  <span className="hidden sm:inline">{t("batchUpload")}</span>
+            canEdit && (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsSelectionMode(true)}
+                  className="gap-2"
+                  data-testid="enter-selection-mode"
+                >
+                  <Square className="h-4 w-4" />
+                  <span className="hidden sm:inline">{t("selectItems")}</span>
                 </Button>
-              </Link>
-              <Link
-                href="/items/new"
-                data-testid="add-item-button"
-                className="flex-1 sm:flex-none"
-              >
-                <Button className="w-full">
-                  <Plus className="mr-2 h-4 w-4" />
-                  {t("addItem")}
-                </Button>
-              </Link>
-            </>
+                <Link
+                  href="/items/batch-upload"
+                  data-testid="batch-upload-button"
+                  className="flex-1 sm:flex-none"
+                >
+                  <Button variant="outline" className="w-full gap-2">
+                    <Upload className="h-4 w-4" />
+                    <span className="hidden sm:inline">{t("batchUpload")}</span>
+                  </Button>
+                </Link>
+                <Link
+                  href="/items/new"
+                  data-testid="add-item-button"
+                  className="flex-1 sm:flex-none"
+                >
+                  <Button className="w-full">
+                    <Plus className="mr-2 h-4 w-4" />
+                    {t("addItem")}
+                  </Button>
+                </Link>
+              </>
+            )
           )}
         </div>
       </div>
@@ -762,12 +766,14 @@ export default function ItemsPage() {
               ? t("tryAdjustingFilters")
               : t("getStartedAddItem")}
           </p>
-          <Link href="/items/new" className="mt-6">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              {t("addItem")}
-            </Button>
-          </Link>
+          {canEdit && (
+            <Link href="/items/new" className="mt-6">
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                {t("addItem")}
+              </Button>
+            </Link>
+          )}
         </div>
       ) : (
         <>
@@ -936,24 +942,26 @@ export default function ItemsPage() {
                     <div className="mt-3 flex items-center justify-between">
                       {/* Quick quantity buttons */}
                       <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={(e) =>
-                            handleQuickDecrement(e, item.id, item.quantity)
-                          }
-                          disabled={
-                            item.quantity <= 0 ||
-                            updateQuantityMutation.isPending
-                          }
-                          className={cn(
-                            "flex h-8 w-8 items-center justify-center rounded-lg border transition-colors",
-                            "hover:bg-muted active:bg-muted/80",
-                            "disabled:cursor-not-allowed disabled:opacity-50"
-                          )}
-                          title={t("decreaseQuantity")}
-                        >
-                          <Minus className="h-4 w-4" />
-                        </button>
+                        {canEdit && (
+                          <button
+                            type="button"
+                            onClick={(e) =>
+                              handleQuickDecrement(e, item.id, item.quantity)
+                            }
+                            disabled={
+                              item.quantity <= 0 ||
+                              updateQuantityMutation.isPending
+                            }
+                            className={cn(
+                              "flex h-8 w-8 items-center justify-center rounded-lg border transition-colors",
+                              "hover:bg-muted active:bg-muted/80",
+                              "disabled:cursor-not-allowed disabled:opacity-50"
+                            )}
+                            title={t("decreaseQuantity")}
+                          >
+                            <Minus className="h-4 w-4" />
+                          </button>
+                        )}
                         <span
                           className={cn(
                             "min-w-[48px] rounded-lg px-2 py-1 text-center text-sm font-medium",
@@ -964,21 +972,23 @@ export default function ItemsPage() {
                         >
                           {item.quantity}
                         </span>
-                        <button
-                          type="button"
-                          onClick={(e) =>
-                            handleQuickIncrement(e, item.id, item.quantity)
-                          }
-                          disabled={updateQuantityMutation.isPending}
-                          className={cn(
-                            "flex h-8 w-8 items-center justify-center rounded-lg border transition-colors",
-                            "hover:bg-muted active:bg-muted/80",
-                            "disabled:cursor-not-allowed disabled:opacity-50"
-                          )}
-                          title={t("increaseQuantity")}
-                        >
-                          <Plus className="h-4 w-4" />
-                        </button>
+                        {canEdit && (
+                          <button
+                            type="button"
+                            onClick={(e) =>
+                              handleQuickIncrement(e, item.id, item.quantity)
+                            }
+                            disabled={updateQuantityMutation.isPending}
+                            className={cn(
+                              "flex h-8 w-8 items-center justify-center rounded-lg border transition-colors",
+                              "hover:bg-muted active:bg-muted/80",
+                              "disabled:cursor-not-allowed disabled:opacity-50"
+                            )}
+                            title={t("increaseQuantity")}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </button>
+                        )}
                       </div>
                       <span className="text-muted-foreground truncate text-xs">
                         {item.location?.name ?? t("noLocation")}
@@ -1178,31 +1188,33 @@ export default function ItemsPage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-center gap-1">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleQuickDecrement(
-                                {
-                                  preventDefault: () => {},
-                                  stopPropagation: () => {},
-                                } as React.MouseEvent,
-                                item.id,
-                                item.quantity
-                              )
-                            }
-                            disabled={
-                              item.quantity <= 0 ||
-                              updateQuantityMutation.isPending
-                            }
-                            className={cn(
-                              "flex h-7 w-7 items-center justify-center rounded border transition-colors",
-                              "hover:bg-muted active:bg-muted/80",
-                              "disabled:cursor-not-allowed disabled:opacity-50"
-                            )}
-                            title={t("decreaseQuantity")}
-                          >
-                            <Minus className="h-3 w-3" />
-                          </button>
+                          {canEdit && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleQuickDecrement(
+                                  {
+                                    preventDefault: () => {},
+                                    stopPropagation: () => {},
+                                  } as React.MouseEvent,
+                                  item.id,
+                                  item.quantity
+                                )
+                              }
+                              disabled={
+                                item.quantity <= 0 ||
+                                updateQuantityMutation.isPending
+                              }
+                              className={cn(
+                                "flex h-7 w-7 items-center justify-center rounded border transition-colors",
+                                "hover:bg-muted active:bg-muted/80",
+                                "disabled:cursor-not-allowed disabled:opacity-50"
+                              )}
+                              title={t("decreaseQuantity")}
+                            >
+                              <Minus className="h-3 w-3" />
+                            </button>
+                          )}
                           <span
                             className={cn(
                               "min-w-[40px] rounded px-2 py-1 text-center text-sm font-medium",
@@ -1213,28 +1225,30 @@ export default function ItemsPage() {
                           >
                             {item.quantity}
                           </span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleQuickIncrement(
-                                {
-                                  preventDefault: () => {},
-                                  stopPropagation: () => {},
-                                } as React.MouseEvent,
-                                item.id,
-                                item.quantity
-                              )
-                            }
-                            disabled={updateQuantityMutation.isPending}
-                            className={cn(
-                              "flex h-7 w-7 items-center justify-center rounded border transition-colors",
-                              "hover:bg-muted active:bg-muted/80",
-                              "disabled:cursor-not-allowed disabled:opacity-50"
-                            )}
-                            title={t("increaseQuantity")}
-                          >
-                            <Plus className="h-3 w-3" />
-                          </button>
+                          {canEdit && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleQuickIncrement(
+                                  {
+                                    preventDefault: () => {},
+                                    stopPropagation: () => {},
+                                  } as React.MouseEvent,
+                                  item.id,
+                                  item.quantity
+                                )
+                              }
+                              disabled={updateQuantityMutation.isPending}
+                              className={cn(
+                                "flex h-7 w-7 items-center justify-center rounded border transition-colors",
+                                "hover:bg-muted active:bg-muted/80",
+                                "disabled:cursor-not-allowed disabled:opacity-50"
+                              )}
+                              title={t("increaseQuantity")}
+                            >
+                              <Plus className="h-3 w-3" />
+                            </button>
+                          )}
                         </div>
                       </td>
                       <td className="text-muted-foreground hidden px-4 py-3 text-right text-sm whitespace-nowrap lg:table-cell">
