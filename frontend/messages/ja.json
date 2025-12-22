@@ -1235,7 +1235,9 @@
     "myInventory": "マイ在庫",
     "sharedInventory": "共有在庫",
     "sharedWithMe": "共有された在庫",
-    "viewingInventoryOf": "{name}の在庫を表示中"
+    "viewingInventoryOf": "{name}の在庫を表示中",
+    "viewer": "閲覧者",
+    "editor": "編集者"
   },
   "landing": {
     "nav": {
