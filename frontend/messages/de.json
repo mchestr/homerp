@@ -1230,7 +1230,9 @@
     "myInventory": "Mein Inventar",
     "sharedInventory": "Geteiltes Inventar",
     "sharedWithMe": "Mit mir geteilt",
-    "viewingInventoryOf": "Anzeige von {name}s Inventar"
+    "viewingInventoryOf": "Anzeige von {name}s Inventar",
+    "viewer": "Betrachter",
+    "editor": "Bearbeiter"
   },
   "landing": {
     "nav": {

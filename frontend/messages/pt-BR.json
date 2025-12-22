@@ -1235,7 +1235,9 @@
     "myInventory": "Meu Inventário",
     "sharedInventory": "Inventário Compartilhado",
     "sharedWithMe": "Compartilhado comigo",
-    "viewingInventoryOf": "Visualizando o inventário de {name}"
+    "viewingInventoryOf": "Visualizando o inventário de {name}",
+    "viewer": "Visualizador",
+    "editor": "Editor"
   },
   "landing": {
     "nav": {

@@ -770,7 +770,7 @@ export default function NewItemPage() {
           <div className="grid gap-4 sm:grid-cols-4">
             <div>
               <label className="mb-2 block text-sm font-medium">
-                {tItems("quantity")}
+                {tCommon("quantity")}
               </label>
               <input
                 type="number"

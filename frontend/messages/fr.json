@@ -1231,7 +1231,9 @@
     "myInventory": "Mon Inventaire",
     "sharedInventory": "Inventaire Partagé",
     "sharedWithMe": "Partagé avec moi",
-    "viewingInventoryOf": "Consultation de l'inventaire de {name}"
+    "viewingInventoryOf": "Consultation de l'inventaire de {name}",
+    "viewer": "Lecteur",
+    "editor": "Éditeur"
   },
   "landing": {
     "nav": {

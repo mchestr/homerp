@@ -1232,7 +1232,9 @@
     "myInventory": "My Inventory",
     "sharedInventory": "Shared Inventory",
     "sharedWithMe": "Shared with me",
-    "viewingInventoryOf": "Viewing {name}'s inventory"
+    "viewingInventoryOf": "Viewing {name}'s inventory",
+    "viewer": "Viewer",
+    "editor": "Editor"
   },
   "landing": {
     "nav": {
