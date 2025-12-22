@@ -101,7 +101,10 @@
     "printLabels": "ラベルを印刷",
     "usageHistory": "使用履歴",
     "imageMustBeLessThan": "画像は10MB以下にしてください",
-    "pleaseSelectImageFile": "画像ファイルを選択してください"
+    "pleaseSelectImageFile": "画像ファイルを選択してください",
+    "itemsPerPage": "ページあたりの表示件数",
+    "perPage": "件",
+    "showAll": "すべて表示"
   },
   "app": {
     "name": "HomERP",

@@ -101,7 +101,10 @@
     "printLabels": "Etiketten drucken",
     "usageHistory": "Nutzungsverlauf",
     "imageMustBeLessThan": "Bild muss kleiner als 10MB sein",
-    "pleaseSelectImageFile": "Bitte wählen Sie eine Bilddatei"
+    "pleaseSelectImageFile": "Bitte wählen Sie eine Bilddatei",
+    "itemsPerPage": "Elemente pro Seite",
+    "perPage": "pro Seite",
+    "showAll": "Alle anzeigen"
   },
   "app": {
     "name": "HomERP",

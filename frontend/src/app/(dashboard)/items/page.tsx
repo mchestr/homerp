@@ -28,6 +28,7 @@ import { InlineFacetedFilter } from "@/components/items/faceted-filter";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
 import { SpecificationTags } from "@/components/items/specification-tags";
 import { ViewModeToggle } from "@/components/ui/view-mode-toggle";
+import { PageSizeSelector } from "@/components/ui/page-size-selector";
 import { itemsApi, categoriesApi, locationsApi } from "@/lib/api/api";
 import { cn, formatPrice, getItemSubtitle } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
@@ -47,7 +48,17 @@ export default function ItemsPage() {
     VIEW_MODES
   );
 
-  const page = Number(searchParams.get("page")) || 1;
+  // Validate page parameter
+  const pageParam = Number(searchParams.get("page"));
+  const page = Number.isInteger(pageParam) && pageParam >= 1 ? pageParam : 1;
+
+  // Validate limit parameter (0 = show all, positive integers up to 10000)
+  const limitParam = searchParams.get("limit");
+  const parsedLimit = limitParam !== null ? Number(limitParam) : 12;
+  const limit =
+    Number.isInteger(parsedLimit) && parsedLimit >= 0 && parsedLimit <= 10000
+      ? parsedLimit
+      : 12;
   const categoryId = searchParams.get("category_id") || undefined;
   const locationId = searchParams.get("location_id") || undefined;
   const lowStock = searchParams.get("low_stock") === "true";
@@ -88,6 +99,7 @@ export default function ItemsPage() {
       "items",
       {
         page,
+        limit,
         categoryId,
         locationId,
         noCategory,
@@ -100,8 +112,11 @@ export default function ItemsPage() {
     ],
     queryFn: () =>
       itemsApi.list({
-        page,
-        limit: 12,
+        page: limit === 0 ? 1 : page, // When showing all, always page 1
+        // 0 means "show all" - use 10000 as practical upper bound.
+        // This is reasonable for home inventory as users rarely have >1000 items.
+        // The API still enforces its own max limit for safety.
+        limit: limit === 0 ? 10000 : limit,
         category_id: categoryId,
         location_id: locationId,
         no_category: noCategory,
@@ -207,6 +222,20 @@ export default function ItemsPage() {
   const clearFilters = () => {
     setSearchQuery("");
     router.push("/items");
+  };
+
+  const handleLimitChange = (newLimit: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    // Reset to page 1 when changing limit
+    params.delete("page");
+    if (newLimit === 12) {
+      // Remove limit param when it's the default
+      params.delete("limit");
+    } else {
+      params.set("limit", String(newLimit));
+    }
+    const queryString = params.toString();
+    router.push(queryString ? `/items?${queryString}` : "/items");
   };
 
   const handleQuickDecrement = (
@@ -1220,37 +1249,52 @@ export default function ItemsPage() {
             </div>
           )}
 
-          {itemsData && itemsData.total_pages > 1 && (
-            <div className="flex items-center justify-center gap-3 pt-4 md:gap-4">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page <= 1}
-                onClick={() => updateFilters({ page: String(page - 1) })}
-                className="min-h-[44px] gap-1 px-3 md:px-4"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                <span className="hidden sm:inline">{tCommon("previous")}</span>
-              </Button>
-              <span className="text-muted-foreground text-sm">
-                <span className="hidden sm:inline">{tCommon("page")} </span>
-                <span className="text-foreground font-medium">{page}</span>
-                <span className="hidden sm:inline"> {tCommon("of")} </span>
-                <span className="sm:hidden">/</span>
-                <span className="text-foreground font-medium">
-                  {itemsData.total_pages}
-                </span>
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page >= itemsData.total_pages}
-                onClick={() => updateFilters({ page: String(page + 1) })}
-                className="min-h-[44px] gap-1 px-3 md:px-4"
-              >
-                <span className="hidden sm:inline">{tCommon("next")}</span>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+          {/* Pagination and page size controls */}
+          {itemsData && (
+            <div className="flex flex-col items-center gap-3 pt-4 sm:flex-row sm:justify-between md:gap-4">
+              {/* Page size selector */}
+              <PageSizeSelector
+                value={limit}
+                onChange={handleLimitChange}
+                totalItems={itemsData.total}
+              />
+
+              {/* Pagination - only show when not showing all and there are multiple pages */}
+              {limit !== 0 && itemsData.total_pages > 1 && (
+                <div className="flex items-center gap-3 md:gap-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={page <= 1}
+                    onClick={() => updateFilters({ page: String(page - 1) })}
+                    className="min-h-[44px] gap-1 px-3 md:px-4"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    <span className="hidden sm:inline">
+                      {tCommon("previous")}
+                    </span>
+                  </Button>
+                  <span className="text-muted-foreground text-sm">
+                    <span className="hidden sm:inline">{tCommon("page")} </span>
+                    <span className="text-foreground font-medium">{page}</span>
+                    <span className="hidden sm:inline"> {tCommon("of")} </span>
+                    <span className="sm:hidden">/</span>
+                    <span className="text-foreground font-medium">
+                      {itemsData.total_pages}
+                    </span>
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={page >= itemsData.total_pages}
+                    onClick={() => updateFilters({ page: String(page + 1) })}
+                    className="min-h-[44px] gap-1 px-3 md:px-4"
+                  >
+                    <span className="hidden sm:inline">{tCommon("next")}</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </>

@@ -101,7 +101,10 @@
     "printLabels": "Print Labels",
     "usageHistory": "Usage History",
     "imageMustBeLessThan": "Image must be less than 10MB",
-    "pleaseSelectImageFile": "Please select an image file"
+    "pleaseSelectImageFile": "Please select an image file",
+    "itemsPerPage": "Items per page",
+    "perPage": "per page",
+    "showAll": "Show all"
   },
   "app": {
     "name": "HomERP",
