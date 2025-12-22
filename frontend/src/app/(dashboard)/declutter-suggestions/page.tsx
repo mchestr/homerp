@@ -8,6 +8,7 @@ import {
   Check,
   Clock,
   Coins,
+  Info,
   Loader2,
   Settings,
   Sparkles,
@@ -22,9 +23,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/auth-context";
 import { formatRelativeTime } from "@/lib/utils";
@@ -524,19 +532,49 @@ export default function DeclutterSuggestionsPage() {
                     </span>
                   </div>
 
-                  <div className="flex flex-col gap-3 border-t pt-2">
-                    <Textarea
-                      placeholder={t("feedbackPlaceholder")}
-                      value={feedbacks[rec.id] || ""}
-                      onChange={(e) =>
-                        setFeedbacks((prev) => ({
-                          ...prev,
-                          [rec.id]: e.target.value,
-                        }))
-                      }
-                      className="min-h-[60px]"
-                      data-testid={`feedback-${rec.id}`}
-                    />
+                  <div className="flex flex-col gap-3 border-t pt-3">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <Label
+                          htmlFor={`feedback-${rec.id}`}
+                          className="text-sm font-medium"
+                        >
+                          {t("feedbackLabel")}
+                        </Label>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info
+                                className="text-muted-foreground h-4 w-4 cursor-help"
+                                data-testid={`feedback-tooltip-${rec.id}`}
+                              />
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              className="max-w-xs text-sm"
+                            >
+                              {t("feedbackTooltip")}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <Textarea
+                        id={`feedback-${rec.id}`}
+                        placeholder={t("feedbackPlaceholder")}
+                        value={feedbacks[rec.id] || ""}
+                        onChange={(e) =>
+                          setFeedbacks((prev) => ({
+                            ...prev,
+                            [rec.id]: e.target.value,
+                          }))
+                        }
+                        className="min-h-[60px]"
+                        data-testid={`feedback-${rec.id}`}
+                      />
+                      <p className="text-muted-foreground text-xs">
+                        {t("feedbackHelperText")}
+                      </p>
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       <Button
                         variant="destructive"
