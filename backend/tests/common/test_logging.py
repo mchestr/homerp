@@ -1,173 +1,87 @@
-"""Tests for logging configuration and SafeFormatter."""
+"""Tests for logging configuration."""
 
 import logging
 
 
-class TestSafeFormatter:
-    """Tests for SafeFormatter class that handles missing request_id attribute."""
+class TestLogConfig:
+    """Tests for log configuration function."""
 
-    def test_safe_formatter_handles_missing_request_id(self):
-        """SafeFormatter should add request_id placeholder if missing."""
-        from src.main import SafeFormatter
+    def test_log_config_has_required_fields(self):
+        """_get_log_config should have all required dictConfig fields."""
+        from src.main import _get_log_config
 
-        formatter = SafeFormatter(
-            fmt="%(asctime)s - %(request_id)s - %(name)s - %(levelname)s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
+        config_dict = _get_log_config()
+
+        assert config_dict["version"] == 1
+        assert config_dict["disable_existing_loggers"] is False
+        assert "formatters" in config_dict
+        assert "handlers" in config_dict
+        assert "loggers" in config_dict
+
+    def test_log_config_has_default_formatter(self):
+        """_get_log_config should have default and access formatters."""
+        from src.main import _get_log_config
+
+        config_dict = _get_log_config()
+
+        assert "default" in config_dict["formatters"]
+        assert "access" in config_dict["formatters"]
+
+    def test_log_config_has_handlers(self):
+        """_get_log_config should have default and access handlers."""
+        from src.main import _get_log_config
+
+        config_dict = _get_log_config()
+
+        assert "default" in config_dict["handlers"]
+        assert "access" in config_dict["handlers"]
+
+    def test_log_config_has_loggers(self):
+        """_get_log_config should configure root, uvicorn, and app loggers."""
+        from src.main import _get_log_config
+
+        config_dict = _get_log_config()
+
+        assert "" in config_dict["loggers"]  # root logger
+        assert "src" in config_dict["loggers"]  # app logger
+        assert "uvicorn.access" in config_dict["loggers"]
+        assert "uvicorn.error" in config_dict["loggers"]
+
+    def test_log_config_reduces_third_party_noise(self):
+        """_get_log_config should set noisy libraries to WARNING level."""
+        from src.main import _get_log_config
+
+        config_dict = _get_log_config()
+
+        assert config_dict["loggers"]["httpcore"]["level"] == "WARNING"
+        assert config_dict["loggers"]["httpx"]["level"] == "WARNING"
+
+    def test_log_config_includes_request_id_in_format(self):
+        """Log format should include request_id placeholder."""
+        from src.main import _get_log_config
+
+        config_dict = _get_log_config()
+
+        default_fmt = config_dict["formatters"]["default"]["fmt"]
+        access_fmt = config_dict["formatters"]["access"]["fmt"]
+
+        assert "%(request_id)s" in default_fmt
+        assert "%(request_id)s" in access_fmt
+
+    def test_log_config_uses_custom_formatters(self):
+        """_get_log_config should use RequestIDFormatter classes."""
+        from src.main import _get_log_config
+
+        config_dict = _get_log_config()
+
+        assert (
+            config_dict["formatters"]["default"]["()"]
+            == "src.common.formatters.RequestIDFormatter"
         )
-
-        # Create a log record without request_id attribute
-        record = logging.LogRecord(
-            name="test.logger",
-            level=logging.INFO,
-            pathname="",
-            lineno=0,
-            msg="startup message",
-            args=(),
-            exc_info=None,
+        assert (
+            config_dict["formatters"]["access"]["()"]
+            == "src.common.formatters.RequestIDAccessFormatter"
         )
-
-        # Verify request_id doesn't exist yet
-        assert not hasattr(record, "request_id")
-
-        # Should not raise KeyError
-        formatted = formatter.format(record)
-
-        # Should contain the placeholder and message
-        assert " - " in formatted
-        assert "startup message" in formatted
-        assert "test.logger" in formatted
-
-        # The formatter should have added the placeholder
-        assert hasattr(record, "request_id")
-        assert record.request_id == "-"
-
-    def test_safe_formatter_preserves_existing_request_id(self):
-        """SafeFormatter should preserve request_id if already set."""
-        from src.main import SafeFormatter
-
-        formatter = SafeFormatter(
-            fmt="%(asctime)s - %(request_id)s - %(name)s - %(levelname)s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-        )
-
-        # Create a log record with request_id already set
-        record = logging.LogRecord(
-            name="test.logger",
-            level=logging.INFO,
-            pathname="",
-            lineno=0,
-            msg="request message",
-            args=(),
-            exc_info=None,
-        )
-        record.request_id = "test-request-123"
-
-        # Should not raise KeyError
-        formatted = formatter.format(record)
-
-        # Should contain the actual request_id, not placeholder
-        assert "test-request-123" in formatted
-        assert "request message" in formatted
-
-        # The formatter should preserve the existing request_id
-        assert record.request_id == "test-request-123"
-
-    def test_safe_formatter_with_different_log_levels(self):
-        """SafeFormatter should work with all log levels."""
-        from src.main import SafeFormatter
-
-        formatter = SafeFormatter(
-            fmt="%(asctime)s - %(request_id)s - %(levelname)s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-        )
-
-        log_levels = [
-            (logging.DEBUG, "DEBUG"),
-            (logging.INFO, "INFO"),
-            (logging.WARNING, "WARNING"),
-            (logging.ERROR, "ERROR"),
-            (logging.CRITICAL, "CRITICAL"),
-        ]
-
-        for level, level_name in log_levels:
-            record = logging.LogRecord(
-                name="test",
-                level=level,
-                pathname="",
-                lineno=0,
-                msg=f"test {level_name} message",
-                args=(),
-                exc_info=None,
-            )
-
-            formatted = formatter.format(record)
-
-            # Should contain log level name and message
-            assert level_name in formatted
-            assert f"test {level_name} message" in formatted
-            # Should have added request_id placeholder
-            assert record.request_id == "-"
-
-
-class TestRequestIDFilter:
-    """Tests for RequestIDFilter to ensure it works with SafeFormatter."""
-
-    def test_filter_adds_request_id_from_context(self):
-        """RequestIDFilter should add request_id from context."""
-        from src.common.request_context import set_request_id
-        from src.main import RequestIDFilter
-
-        # Set a request ID in context
-        test_request_id = "filter-test-123"
-        set_request_id(test_request_id)
-
-        try:
-            request_filter = RequestIDFilter()
-
-            record = logging.LogRecord(
-                name="test",
-                level=logging.INFO,
-                pathname="",
-                lineno=0,
-                msg="test message",
-                args=(),
-                exc_info=None,
-            )
-
-            # Filter should add request_id from context
-            result = request_filter.filter(record)
-
-            assert result is True
-            assert hasattr(record, "request_id")
-            assert record.request_id == test_request_id
-        finally:
-            # Clean up context
-            from src.common.request_context import _request_id_context
-
-            _request_id_context.set(None)
-
-    def test_filter_adds_placeholder_when_no_context(self):
-        """RequestIDFilter should add placeholder when no request context."""
-        from src.main import RequestIDFilter
-
-        request_filter = RequestIDFilter()
-
-        record = logging.LogRecord(
-            name="test",
-            level=logging.INFO,
-            pathname="",
-            lineno=0,
-            msg="startup message",
-            args=(),
-            exc_info=None,
-        )
-
-        # Filter should add placeholder
-        result = request_filter.filter(record)
-
-        assert result is True
-        assert hasattr(record, "request_id")
-        assert record.request_id == "-"
 
 
 class TestLoggingIntegration:
@@ -198,13 +112,18 @@ class TestLoggingIntegration:
 
             assert len(caplog.records) == 1
             assert "Processing request" in caplog.text
-            # The request_id should be set on the record (either from filter or SafeFormatter)
-            assert hasattr(caplog.records[0], "request_id")
-            # In test environment, SafeFormatter may set it to "-" before filter runs
-            # The important thing is no KeyError is raised
-            assert caplog.records[0].request_id in [test_request_id, "-"]
         finally:
             # Clean up context
             from src.common.request_context import _request_id_context
 
             _request_id_context.set(None)
+
+    def test_dictconfig_can_be_applied(self):
+        """dictConfig should accept _get_log_config without errors."""
+        from logging.config import dictConfig
+
+        from src.main import _get_log_config
+
+        # This should not raise any exceptions
+        config_dict = _get_log_config()
+        dictConfig(config_dict)
