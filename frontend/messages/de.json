@@ -96,6 +96,8 @@
     "confidence": "Konfidenz",
     "collaboration": "Zusammenarbeit",
     "noneRootLevel": "Keine (Stammebene)",
+    "clearSelection": "Auswahl löschen",
+    "noOptionsAvailable": "Keine Optionen verfügbar",
     "printLabels": "Etiketten drucken",
     "usageHistory": "Nutzungsverlauf",
     "imageMustBeLessThan": "Bild muss kleiner als 10MB sein",
