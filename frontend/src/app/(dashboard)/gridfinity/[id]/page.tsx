@@ -40,6 +40,7 @@ import {
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
@@ -1208,18 +1209,20 @@ function DraggableItemCard({
             <span className="truncate">{item.location.name}</span>
           )}
           {recommendation && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="bg-primary/10 text-primary inline-flex items-center gap-1 rounded px-1.5 py-0.5">
-                  <Grid3X3 className="h-3 w-3" />
-                  {recommendation.recommended_width_units}×
-                  {recommendation.recommended_depth_units}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side="left" className="max-w-[200px]">
-                <p className="text-xs">{recommendation.reasoning}</p>
-              </TooltipContent>
-            </Tooltip>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="bg-primary/10 text-primary inline-flex items-center gap-1 rounded px-1.5 py-0.5">
+                    <Grid3X3 className="h-3 w-3" />
+                    {recommendation.recommended_width_units}×
+                    {recommendation.recommended_depth_units}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="max-w-[200px]">
+                  <p className="text-xs">{recommendation.reasoning}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
       </div>
