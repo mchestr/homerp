@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -183,6 +184,38 @@ export function TreeSelect<T extends TreeNode>({
   className,
 }: TreeSelectProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState<{
+    top: number;
+    left: number;
+    width: number;
+  } | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Update dropdown position when opened
+  const updatePosition = useCallback(() => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    }
+  }, []);
+
+  // Update position on open and window resize/scroll
+  useEffect(() => {
+    if (isOpen) {
+      updatePosition();
+      window.addEventListener("resize", updatePosition);
+      window.addEventListener("scroll", updatePosition, true);
+      return () => {
+        window.removeEventListener("resize", updatePosition);
+        window.removeEventListener("scroll", updatePosition, true);
+      };
+    }
+  }, [isOpen, updatePosition]);
 
   // Flatten tree for easy lookup
   const flattenTree = (items: T[], level = 0): Array<T & { level: number }> => {
@@ -202,6 +235,7 @@ export function TreeSelect<T extends TreeNode>({
   return (
     <div className={cn("relative", className)}>
       <button
+        ref={triggerRef}
         type="button"
         className={cn(
           "bg-background flex h-11 w-full items-center justify-between rounded-lg border px-4 text-left text-base",
@@ -209,6 +243,7 @@ export function TreeSelect<T extends TreeNode>({
           !selectedNode && "text-muted-foreground"
         )}
         onClick={() => setIsOpen(!isOpen)}
+        data-testid="tree-select-trigger"
       >
         <span className="flex items-center gap-2 truncate">
           {selectedNode ? (
@@ -228,54 +263,69 @@ export function TreeSelect<T extends TreeNode>({
         />
       </button>
 
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-10"
-            onClick={() => setIsOpen(false)}
-          />
+      {isOpen &&
+        dropdownPosition &&
+        createPortal(
+          <>
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 z-50"
+              onClick={() => setIsOpen(false)}
+              data-testid="tree-select-backdrop"
+            />
 
-          {/* Dropdown */}
-          <div className="bg-popover absolute top-full right-0 left-0 z-20 mt-1 max-h-64 overflow-auto rounded-lg border shadow-lg">
-            {allowClear && value && (
-              <button
-                type="button"
-                className="text-muted-foreground hover:bg-accent w-full px-4 py-2 text-left text-sm"
-                onClick={() => {
-                  onChange(null);
-                  setIsOpen(false);
-                }}
-              >
-                Clear selection
-              </button>
-            )}
-            {flatNodes.map((node) => (
-              <button
-                key={node.id}
-                type="button"
-                className={cn(
-                  "hover:bg-accent flex w-full items-center gap-2 px-4 py-2 text-left text-sm",
-                  node.id === value && "bg-accent"
-                )}
-                style={{ paddingLeft: `${node.level * 16 + 16}px` }}
-                onClick={() => {
-                  onChange(node.id);
-                  setIsOpen(false);
-                }}
-              >
-                {node.icon && <span>{node.icon}</span>}
-                <span className="truncate">{node.name}</span>
-              </button>
-            ))}
-            {flatNodes.length === 0 && (
-              <div className="text-muted-foreground px-4 py-2 text-sm">
-                No options available
-              </div>
-            )}
-          </div>
-        </>
-      )}
+            {/* Dropdown */}
+            <div
+              ref={dropdownRef}
+              className="bg-popover fixed z-50 max-h-64 overflow-auto rounded-lg border shadow-lg"
+              style={{
+                top: dropdownPosition.top,
+                left: dropdownPosition.left,
+                width: dropdownPosition.width,
+              }}
+              data-testid="tree-select-dropdown"
+            >
+              {allowClear && value && (
+                <button
+                  type="button"
+                  className="text-muted-foreground hover:bg-accent w-full px-4 py-2 text-left text-sm"
+                  onClick={() => {
+                    onChange(null);
+                    setIsOpen(false);
+                  }}
+                  data-testid="tree-select-clear"
+                >
+                  Clear selection
+                </button>
+              )}
+              {flatNodes.map((node) => (
+                <button
+                  key={node.id}
+                  type="button"
+                  className={cn(
+                    "hover:bg-accent flex w-full items-center gap-2 px-4 py-2 text-left text-sm",
+                    node.id === value && "bg-accent"
+                  )}
+                  style={{ paddingLeft: `${node.level * 16 + 16}px` }}
+                  onClick={() => {
+                    onChange(node.id);
+                    setIsOpen(false);
+                  }}
+                  data-testid={`tree-select-option-${node.id}`}
+                >
+                  {node.icon && <span>{node.icon}</span>}
+                  <span className="truncate">{node.name}</span>
+                </button>
+              ))}
+              {flatNodes.length === 0 && (
+                <div className="text-muted-foreground px-4 py-2 text-sm">
+                  No options available
+                </div>
+              )}
+            </div>
+          </>,
+          document.body
+        )}
     </div>
   );
 }
