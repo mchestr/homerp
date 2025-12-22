@@ -418,6 +418,8 @@
     "imageMustBeLessThan10MB": "La imagen debe ser menor de 10MB",
     "uploadFailed": "Error al subir la imagen. Por favor, inténtalo de nuevo.",
     "maxImagesAllowed": "Máximo {count} imágenes permitidas",
+    "removeFailed": "Error al eliminar la imagen. Por favor, inténtalo de nuevo.",
+    "imageRemoved": "Imagen eliminada exitosamente",
     "searchPlaceholder": "Buscar por nombre de artículo...",
     "noClassifiedImages": "No hay imágenes clasificadas",
     "uploadAndClassify": "Sube y clasifica imágenes para verlas aquí",

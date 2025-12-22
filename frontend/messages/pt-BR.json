@@ -410,6 +410,8 @@
     "setPrimaryFailed": "Falha ao definir a imagem principal. Por favor, tente novamente.",
     "imageUploaded": "Imagem enviada com sucesso",
     "maxImagesReached": "Número máximo de imagens atingido para este item",
+    "removeFailed": "Falha ao remover a imagem. Por favor, tente novamente.",
+    "imageRemoved": "Imagem removida com sucesso",
     "searchPlaceholder": "Buscar por nome do item...",
     "noClassifiedImages": "Nenhuma imagem classificada",
     "uploadAndClassify": "Envie e classifique imagens para vê-las aqui",

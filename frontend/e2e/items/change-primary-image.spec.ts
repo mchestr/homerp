@@ -598,4 +598,387 @@ test.describe("Change Primary Image", () => {
       await expect(page.getByTestId("primary-image-badge")).toBeVisible();
     });
   });
+
+  test.describe("Delete Image", () => {
+    test("shows remove button on hover for all images", async ({ page }) => {
+      await page.route(
+        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
+        async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify(fixtures.testItemWithImages),
+          });
+        }
+      );
+
+      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+
+      await expect(page.getByTestId("main-gallery-image")).toBeVisible();
+
+      // Hover over image area to reveal controls
+      const imageContainer = page.locator(".bg-muted.group");
+      await imageContainer.hover();
+
+      // Remove button should be visible
+      await expect(page.getByTestId("remove-gallery-image")).toBeVisible();
+    });
+
+    test("successfully deletes a non-primary image", async ({ page }) => {
+      let currentImages = [...fixtures.testItemImages];
+
+      // Mock the item endpoint with state tracking
+      await page.route(
+        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
+        async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              ...fixtures.testItemWithImages,
+              images: currentImages,
+            }),
+          });
+        }
+      );
+
+      // Mock DELETE endpoint for images
+      await page.route(/\/api\/v1\/images\/[^/]+$/, async (route) => {
+        if (route.request().method() === "DELETE") {
+          const url = route.request().url();
+          const imageId = url.split("/").pop();
+
+          // Remove image from state
+          currentImages = currentImages.filter((img) => img.id !== imageId);
+
+          await route.fulfill({
+            status: 204,
+          });
+        } else {
+          await route.fallback();
+        }
+      });
+
+      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+
+      await expect(page.getByTestId("main-gallery-image")).toBeVisible();
+
+      // Verify we start with 3 images
+      expect(currentImages.length).toBe(3);
+      await expect(page.getByTestId("gallery-thumbnail-0")).toBeVisible();
+      await expect(page.getByTestId("gallery-thumbnail-1")).toBeVisible();
+      await expect(page.getByTestId("gallery-thumbnail-2")).toBeVisible();
+
+      // Navigate to second image (non-primary)
+      await page.getByTestId("gallery-thumbnail-1").click();
+      await page.waitForTimeout(300);
+
+      // Hover to reveal controls
+      const imageContainer = page.locator(".bg-muted.group");
+      await imageContainer.hover();
+
+      // Wait for delete response
+      const responsePromise = page.waitForResponse(/\/api\/v1\/images\/[^/]+$/);
+
+      // Click remove button
+      await page.getByTestId("remove-gallery-image").click();
+
+      // Wait for API response
+      await responsePromise;
+
+      // Wait for page to reload with new data after query invalidation
+      await page.waitForTimeout(1000);
+
+      // Verify image count decreased
+      expect(currentImages.length).toBe(2);
+
+      // Verify only 2 thumbnails remain
+      await expect(page.getByTestId("gallery-thumbnail-0")).toBeVisible();
+      await expect(page.getByTestId("gallery-thumbnail-1")).toBeVisible();
+      await expect(page.getByTestId("gallery-thumbnail-2")).not.toBeVisible();
+    });
+
+    test("successfully deletes the primary image", async ({ page }) => {
+      let currentImages = [...fixtures.testItemImages];
+
+      await page.route(
+        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
+        async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              ...fixtures.testItemWithImages,
+              images: currentImages,
+            }),
+          });
+        }
+      );
+
+      await page.route(/\/api\/v1\/images\/[^/]+$/, async (route) => {
+        if (route.request().method() === "DELETE") {
+          const url = route.request().url();
+          const imageId = url.split("/").pop();
+
+          currentImages = currentImages.filter((img) => img.id !== imageId);
+
+          await route.fulfill({
+            status: 204,
+          });
+        } else {
+          await route.fallback();
+        }
+      });
+
+      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+
+      await expect(page.getByTestId("main-gallery-image")).toBeVisible();
+
+      // Verify first image is primary
+      await expect(page.getByTestId("primary-image-badge")).toBeVisible();
+      await expect(page.getByTestId("thumbnail-primary-badge-0")).toBeVisible();
+
+      // Hover to reveal controls
+      const imageContainer = page.locator(".bg-muted.group");
+      await imageContainer.hover();
+
+      const responsePromise = page.waitForResponse(/\/api\/v1\/images\/[^/]+$/);
+
+      // Delete the primary image
+      await page.getByTestId("remove-gallery-image").click();
+
+      await responsePromise;
+
+      await page.waitForTimeout(1000);
+
+      // Verify image count decreased
+      expect(currentImages.length).toBe(2);
+    });
+
+    test("handles error when deleting image fails", async ({ page }) => {
+      await page.route(
+        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
+        async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify(fixtures.testItemWithImages),
+          });
+        }
+      );
+
+      // Mock DELETE endpoint to fail
+      await page.route(/\/api\/v1\/images\/[^/]+$/, async (route) => {
+        if (route.request().method() === "DELETE") {
+          await route.fulfill({
+            status: 500,
+            contentType: "application/json",
+            body: JSON.stringify({
+              detail: "Failed to delete image",
+            }),
+          });
+        } else {
+          await route.fallback();
+        }
+      });
+
+      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+
+      await expect(page.getByTestId("main-gallery-image")).toBeVisible();
+
+      // Navigate to second image
+      await page.getByTestId("gallery-thumbnail-1").click();
+      await page.waitForTimeout(300);
+
+      const imageContainer = page.locator(".bg-muted.group");
+      await imageContainer.hover();
+
+      // Click remove button
+      await page.getByTestId("remove-gallery-image").click();
+
+      // Wait for error handling
+      await page.waitForTimeout(1000);
+
+      // All 3 thumbnails should still be visible (delete failed)
+      await expect(page.getByTestId("gallery-thumbnail-0")).toBeVisible();
+      await expect(page.getByTestId("gallery-thumbnail-1")).toBeVisible();
+      await expect(page.getByTestId("gallery-thumbnail-2")).toBeVisible();
+    });
+
+    test("remove button is disabled while request is in progress", async ({
+      page,
+    }) => {
+      await page.route(
+        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
+        async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify(fixtures.testItemWithImages),
+          });
+        }
+      );
+
+      // Mock DELETE endpoint with delay
+      await page.route(/\/api\/v1\/images\/[^/]+$/, async (route) => {
+        if (route.request().method() === "DELETE") {
+          // Delay to test loading state
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          await route.fulfill({
+            status: 204,
+          });
+        } else {
+          await route.fallback();
+        }
+      });
+
+      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+
+      await expect(page.getByTestId("main-gallery-image")).toBeVisible();
+
+      // Navigate to second image
+      await page.getByTestId("gallery-thumbnail-1").click();
+      await page.waitForTimeout(300);
+
+      const imageContainer = page.locator(".bg-muted.group");
+      await imageContainer.hover();
+
+      const button = page.getByTestId("remove-gallery-image");
+      await expect(button).toBeVisible();
+
+      // Click button
+      await button.click();
+
+      // Button should be disabled during request
+      await expect(button).toBeDisabled();
+
+      // Wait for request to complete
+      await page.waitForResponse(/\/api\/v1\/images\/[^/]+$/);
+    });
+
+    test("deleting last image works correctly", async ({ page }) => {
+      // Start with only one image
+      let currentImages = [fixtures.testItemImages[0]];
+
+      await page.route(
+        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
+        async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              ...fixtures.testItemWithImages,
+              images: currentImages,
+            }),
+          });
+        }
+      );
+
+      await page.route(/\/api\/v1\/images\/[^/]+$/, async (route) => {
+        if (route.request().method() === "DELETE") {
+          const url = route.request().url();
+          const imageId = url.split("/").pop();
+
+          currentImages = currentImages.filter((img) => img.id !== imageId);
+
+          await route.fulfill({
+            status: 204,
+          });
+        } else {
+          await route.fallback();
+        }
+      });
+
+      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+
+      await expect(page.getByTestId("main-gallery-image")).toBeVisible();
+
+      // When there's only one image, thumbnails are not shown
+      // So we can't check for gallery-thumbnail-0
+      // Instead, verify the main image is visible
+      await expect(page.getByTestId("primary-image-badge")).toBeVisible();
+
+      const imageContainer = page.locator(".bg-muted.group");
+      await imageContainer.hover();
+
+      const responsePromise = page.waitForResponse(/\/api\/v1\/images\/[^/]+$/);
+
+      // Delete the last image
+      await page.getByTestId("remove-gallery-image").click();
+
+      await responsePromise;
+
+      await page.waitForTimeout(1000);
+
+      // Verify image was deleted
+      expect(currentImages.length).toBe(0);
+
+      // The component should show a placeholder when there are no images
+      await expect(page.getByTestId("main-gallery-image")).not.toBeVisible();
+    });
+  });
+
+  test.describe("Delete Image on Mobile", () => {
+    test("remove button works on mobile viewport", async ({ page }) => {
+      await page.setViewportSize({ width: 375, height: 667 });
+
+      let currentImages = [...fixtures.testItemImages];
+
+      await page.route(
+        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
+        async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              ...fixtures.testItemWithImages,
+              images: currentImages,
+            }),
+          });
+        }
+      );
+
+      await page.route(/\/api\/v1\/images\/[^/]+$/, async (route) => {
+        if (route.request().method() === "DELETE") {
+          const url = route.request().url();
+          const imageId = url.split("/").pop();
+
+          currentImages = currentImages.filter((img) => img.id !== imageId);
+
+          await route.fulfill({
+            status: 204,
+          });
+        } else {
+          await route.fallback();
+        }
+      });
+
+      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+
+      await expect(page.getByTestId("main-gallery-image")).toBeVisible();
+
+      // Navigate to second image
+      await page.getByTestId("gallery-thumbnail-1").click();
+      await page.waitForTimeout(300);
+
+      // On mobile, tap the image area to reveal controls
+      const imageContainer = page.locator(".bg-muted.group");
+      await imageContainer.click();
+
+      // Remove button should be visible after tap
+      await expect(page.getByTestId("remove-gallery-image")).toBeVisible();
+
+      const responsePromise = page.waitForResponse(/\/api\/v1\/images\/[^/]+$/);
+
+      // Click remove
+      await page.getByTestId("remove-gallery-image").click();
+
+      await responsePromise;
+
+      await page.waitForTimeout(1000);
+
+      // Verify image was deleted
+      expect(currentImages.length).toBe(2);
+    });
+  });
 });

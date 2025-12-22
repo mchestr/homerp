@@ -410,6 +410,8 @@
     "setPrimaryFailed": "メイン画像の設定に失敗しました。もう一度お試しください。",
     "imageUploaded": "画像が正常にアップロードされました",
     "maxImagesReached": "このアイテムの画像の最大数に達しました",
+    "removeFailed": "画像の削除に失敗しました。もう一度お試しください。",
+    "imageRemoved": "画像が正常に削除されました",
     "searchPlaceholder": "アイテム名で検索...",
     "noClassifiedImages": "分類済み画像がありません",
     "uploadAndClassify": "画像をアップロードして分類すると、ここに表示されます",
