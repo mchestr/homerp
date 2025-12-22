@@ -554,7 +554,7 @@
     "creditsAvailable": "{count} créditos disponibles",
     "manageAiCredits": "Gestiona tus créditos de IA",
     "authentication": "Autenticación",
-    "signedInViaGoogle": "Conectado vía Google OAuth",
+    "signedInVia": "Conectado vía {provider} OAuth",
     "memberSince": "Miembro desde",
     "notifications": "Notificaciones",
     "notificationsDescription": "Gestiona cómo recibes las alertas",

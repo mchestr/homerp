@@ -24,6 +24,7 @@ class UserResponse(UserBase):
 
     id: UUID
     is_admin: bool = False
+    oauth_provider: str
     currency: str = "USD"
     language: str = "en"
     created_at: datetime
