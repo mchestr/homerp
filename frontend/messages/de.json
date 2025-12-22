@@ -418,6 +418,7 @@
     "pleaseDropImageFile": "Bitte legen Sie eine Bilddatei ab",
     "setPrimaryFailed": "Hauptbild konnte nicht festgelegt werden. Bitte versuchen Sie es erneut.",
     "removeFailed": "Bild konnte nicht entfernt werden. Bitte versuchen Sie es erneut.",
+    "imageRemoved": "Bild erfolgreich entfernt",
     "searchPlaceholder": "Nach Artikelname suchen...",
     "noClassifiedImages": "Keine klassifizierten Bilder",
     "uploadAndClassify": "Laden Sie Bilder hoch und klassifizieren Sie sie, um sie hier zu sehen",

@@ -418,6 +418,7 @@
     "pleaseDropImageFile": "Please drop an image file",
     "setPrimaryFailed": "Failed to set primary image. Please try again.",
     "removeFailed": "Failed to remove image. Please try again.",
+    "imageRemoved": "Image removed successfully",
     "searchPlaceholder": "Search by item name...",
     "noClassifiedImages": "No classified images",
     "uploadAndClassify": "Upload and classify images to see them here",

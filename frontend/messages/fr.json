@@ -417,6 +417,8 @@
     "imageMustBeLessThan10MB": "L'image doit être inférieure à 10Mo",
     "uploadFailed": "Échec du téléversement. Veuillez réessayer.",
     "maxImagesAllowed": "Maximum {count} images autorisées",
+    "removeFailed": "Échec de la suppression de l'image. Veuillez réessayer.",
+    "imageRemoved": "Image supprimée avec succès",
     "searchPlaceholder": "Rechercher par nom d'article...",
     "noClassifiedImages": "Aucune image classifiée",
     "uploadAndClassify": "Téléversez et classifiez des images pour les voir ici",

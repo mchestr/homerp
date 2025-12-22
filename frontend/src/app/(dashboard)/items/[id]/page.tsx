@@ -230,6 +230,25 @@ export default function ItemDetailPage() {
     },
   });
 
+  const deleteImageMutation = useMutation({
+    mutationFn: (imageId: string) => imagesApi.delete(imageId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["item", itemId] });
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      toast({
+        title: tCommon("success"),
+        description: tImages("imageRemoved"),
+      });
+    },
+    onError: () => {
+      toast({
+        title: tCommon("error"),
+        description: tImages("removeFailed"),
+        variant: "destructive",
+      });
+    },
+  });
+
   const updateMutation = useMutation({
     mutationFn: (data: ItemUpdate) => itemsApi.update(itemId, data),
     onSuccess: () => {
@@ -330,6 +349,10 @@ export default function ItemDetailPage() {
 
   const handleSetPrimary = async (imageId: string) => {
     await setPrimaryImageMutation.mutateAsync(imageId);
+  };
+
+  const handleRemoveImage = async (imageId: string) => {
+    await deleteImageMutation.mutateAsync(imageId);
   };
 
   const handleImageUploaded = async (image: UploadedImage) => {
@@ -624,6 +647,7 @@ export default function ItemDetailPage() {
                 <ImageGallery
                   images={item.images || []}
                   onSetPrimary={handleSetPrimary}
+                  onRemoveImage={handleRemoveImage}
                   editable={true}
                 />
               </div>
@@ -1279,6 +1303,7 @@ export default function ItemDetailPage() {
                 <ImageGallery
                   images={item.images || []}
                   onSetPrimary={handleSetPrimary}
+                  onRemoveImage={handleRemoveImage}
                   editable={true}
                 />
 
