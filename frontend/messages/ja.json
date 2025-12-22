@@ -554,7 +554,7 @@
     "creditsAvailable": "{count}クレジット利用可能",
     "manageAiCredits": "AIクレジットを管理",
     "authentication": "認証",
-    "signedInViaGoogle": "Google OAuthでサインイン",
+    "signedInVia": "{provider} OAuthでサインイン",
     "memberSince": "メンバー登録日",
     "notifications": "通知",
     "notificationsDescription": "アラートの受信方法を管理",

@@ -555,7 +555,7 @@
     "creditsAvailable": "{count} Credits verfügbar",
     "manageAiCredits": "Verwalten Sie Ihre KI-Credits",
     "authentication": "Authentifizierung",
-    "signedInViaGoogle": "Angemeldet über Google OAuth",
+    "signedInVia": "Angemeldet über {provider} OAuth",
     "memberSince": "Mitglied seit",
     "notifications": "Benachrichtigungen",
     "notificationsDescription": "Verwalten Sie, wie Sie Benachrichtigungen erhalten",

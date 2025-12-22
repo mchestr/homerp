@@ -4891,6 +4891,10 @@ export type UserResponse = {
    */
   is_admin?: boolean;
   /**
+   * Oauth Provider
+   */
+  oauth_provider: string;
+  /**
    * Currency
    */
   currency?: string;
