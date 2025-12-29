@@ -106,48 +106,18 @@
     @apply border-border;
   }
 
-  /* Smooth scrolling globally */
-  html {
-    scroll-behavior: smooth;
-    /* Prevent overscroll bounce on the entire page */
-    overscroll-behavior: none;
-  }
-
   body {
     @apply bg-background text-foreground;
-    /* Prevent pull-to-refresh and overscroll effects */
-    overscroll-behavior-y: contain;
-  }
-
-  /* Mobile-optimized scrollable containers */
-  .scroll-container {
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    scroll-behavior: smooth;
-  }
-
-  /* Touch-optimized scrolling for all overflow areas */
-  [class*="overflow-auto"],
-  [class*="overflow-y-auto"],
-  [class*="overflow-x-auto"] {
-    -webkit-overflow-scrolling: touch;
-    /* Contain scroll to prevent bounce effects bleeding through */
-    overscroll-behavior: contain;
   }
 
   /* Reduce motion for users who prefer it */
   @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-    }
-
     *,
     *::before,
     *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
     }
   }
 }

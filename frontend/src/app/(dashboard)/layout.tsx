@@ -47,7 +47,7 @@ export default function DashboardLayout({
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header onMenuClick={() => setSidebarOpen(true)} />
-        <main className="bg-muted/30 pb-safe flex-1 overflow-y-auto overscroll-contain p-4 md:p-6">
+        <main className="bg-muted/30 pb-safe flex-1 overflow-y-auto p-4 md:p-6">
           {children}
         </main>
       </div>

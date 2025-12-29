@@ -1,65 +1,47 @@
-import { test, expect } from "@playwright/test";
-import { setupApiMocks, authenticateUser } from "../mocks/api-handlers";
-import * as fixtures from "../fixtures/test-data";
+import { http, HttpResponse } from "msw";
+import { test, expect, authenticateUser } from "../fixtures/test-setup";
+import { testItemWithImages, testItemImages } from "../fixtures/factories";
 
 test.describe("Change Primary Image", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, network }) => {
     await authenticateUser(page);
-    await setupApiMocks(page);
 
     // Mock usage stats endpoint for item detail page
-    await page.route(
-      `**/api/v1/items/${fixtures.testItemWithImages.id}/usage-stats`,
-      async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify({
-            total_check_outs: 0,
-            total_check_ins: 0,
-            currently_checked_out: 0,
-            last_check_out: null,
-          }),
+    network.use(
+      http.get(`**/api/v1/items/${testItemWithImages.id}/usage-stats`, () => {
+        return HttpResponse.json({
+          total_check_outs: 0,
+          total_check_ins: 0,
+          currently_checked_out: 0,
+          last_check_out: null,
         });
-      }
-    );
-
-    // Mock history endpoint for item detail page
-    await page.route(
-      `**/api/v1/items/${fixtures.testItemWithImages.id}/history*`,
-      async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify({
-            items: [],
-            total: 0,
-            page: 1,
-            limit: 5,
-            total_pages: 0,
-          }),
+      }),
+      // Mock history endpoint for item detail page
+      http.get(`**/api/v1/items/${testItemWithImages.id}/history`, () => {
+        return HttpResponse.json({
+          items: [],
+          total: 0,
+          page: 1,
+          limit: 5,
+          total_pages: 0,
         });
-      }
+      })
     );
   });
 
   test.describe("Primary Image Badge Visibility", () => {
     test("shows primary badge on main image when image is primary", async ({
       page,
+      network,
     }) => {
       // Mock the item detail endpoint with multiple images
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify(fixtures.testItemWithImages),
-          });
-        }
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          return HttpResponse.json(testItemWithImages);
+        })
       );
 
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       // Wait for images to load
       await expect(page.getByTestId("main-gallery-image")).toBeVisible();
@@ -74,19 +56,15 @@ test.describe("Change Primary Image", () => {
 
     test("shows primary star on thumbnail for primary image", async ({
       page,
+      network,
     }) => {
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify(fixtures.testItemWithImages),
-          });
-        }
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          return HttpResponse.json(testItemWithImages);
+        })
       );
 
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       // Wait for thumbnails to load
       await expect(page.getByTestId("gallery-thumbnail-0")).toBeVisible();
@@ -105,28 +83,24 @@ test.describe("Change Primary Image", () => {
 
     test("does not show primary badge when no image is primary", async ({
       page,
+      network,
     }) => {
       // Create item with images where none are primary
       const itemWithNoPrimary = {
-        ...fixtures.testItemWithImages,
-        images: fixtures.testItemImages.map((img) => ({
+        ...testItemWithImages,
+        images: testItemImages.map((img) => ({
           ...img,
           is_primary: false,
         })),
       };
 
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify(itemWithNoPrimary),
-          });
-        }
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          return HttpResponse.json(itemWithNoPrimary);
+        })
       );
 
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       await expect(page.getByTestId("main-gallery-image")).toBeVisible();
 
@@ -138,19 +112,15 @@ test.describe("Change Primary Image", () => {
   test.describe("Set as Primary Button", () => {
     test("shows set-primary button on hover for non-primary images", async ({
       page,
+      network,
     }) => {
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify(fixtures.testItemWithImages),
-          });
-        }
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          return HttpResponse.json(testItemWithImages);
+        })
       );
 
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       // Wait for gallery to load
       await expect(page.getByTestId("main-gallery-image")).toBeVisible();
@@ -174,19 +144,15 @@ test.describe("Change Primary Image", () => {
 
     test("does not show set-primary button for already primary image", async ({
       page,
+      network,
     }) => {
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify(fixtures.testItemWithImages),
-          });
-        }
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          return HttpResponse.json(testItemWithImages);
+        })
       );
 
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       await expect(page.getByTestId("main-gallery-image")).toBeVisible();
 
@@ -205,58 +171,46 @@ test.describe("Change Primary Image", () => {
   test.describe("Changing Primary Image", () => {
     test("successfully changes primary image and shows success toast", async ({
       page,
+      network,
     }) => {
       let currentPrimaryIndex = 0;
 
       // Mock the item endpoint with state tracking
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          const images = fixtures.testItemImages.map((img, idx) => ({
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          const images = testItemImages.map((img, idx) => ({
             ...img,
             is_primary: idx === currentPrimaryIndex,
           }));
 
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              ...fixtures.testItemWithImages,
-              images,
-            }),
+          return HttpResponse.json({
+            ...testItemWithImages,
+            images,
           });
-        }
-      );
-
-      // Mock set-primary endpoint with state update
-      await page.route(
-        /\/api\/v1\/images\/[^/]+\/set-primary$/,
-        async (route) => {
-          const url = route.request().url();
+        }),
+        // Mock set-primary endpoint with state update
+        http.post(/\/api\/v1\/images\/[^/]+\/set-primary$/, ({ request }) => {
+          const url = request.url;
           const parts = url.split("/");
           parts.pop(); // "set-primary"
           const imageId = parts.pop();
 
           // Update which image is primary based on ID
-          const newPrimaryIndex = fixtures.testItemImages.findIndex(
+          const newPrimaryIndex = testItemImages.findIndex(
             (img) => img.id === imageId
           );
           if (newPrimaryIndex !== -1) {
             currentPrimaryIndex = newPrimaryIndex;
           }
 
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              id: imageId,
-              is_primary: true,
-            }),
+          return HttpResponse.json({
+            id: imageId,
+            is_primary: true,
           });
-        }
+        })
       );
 
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       // Wait for gallery to load
       await expect(page.getByTestId("main-gallery-image")).toBeVisible();
@@ -295,33 +249,24 @@ test.describe("Change Primary Image", () => {
       ).not.toBeVisible();
     });
 
-    test("handles error when setting primary image fails", async ({ page }) => {
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify(fixtures.testItemWithImages),
-          });
-        }
+    test("handles error when setting primary image fails", async ({
+      page,
+      network,
+    }) => {
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          return HttpResponse.json(testItemWithImages);
+        }),
+        // Mock set-primary endpoint to fail
+        http.post(/\/api\/v1\/images\/[^/]+\/set-primary$/, () => {
+          return HttpResponse.json(
+            { detail: "Internal server error" },
+            { status: 500 }
+          );
+        })
       );
 
-      // Mock set-primary endpoint to fail
-      await page.route(
-        /\/api\/v1\/images\/[^/]+\/set-primary$/,
-        async (route) => {
-          await route.fulfill({
-            status: 500,
-            contentType: "application/json",
-            body: JSON.stringify({
-              detail: "Internal server error",
-            }),
-          });
-        }
-      );
-
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       await expect(page.getByTestId("main-gallery-image")).toBeVisible();
 
@@ -347,36 +292,24 @@ test.describe("Change Primary Image", () => {
 
     test("button is disabled while request is in progress", async ({
       page,
+      network,
     }) => {
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify(fixtures.testItemWithImages),
-          });
-        }
-      );
-
-      // Mock set-primary endpoint with delay
-      await page.route(
-        /\/api\/v1\/images\/[^/]+\/set-primary$/,
-        async (route) => {
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          return HttpResponse.json(testItemWithImages);
+        }),
+        // Mock set-primary endpoint with delay
+        http.post(/\/api\/v1\/images\/[^/]+\/set-primary$/, async () => {
           // Delay to test loading state
           await new Promise((resolve) => setTimeout(resolve, 1000));
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              id: "item-img-2",
-              is_primary: true,
-            }),
+          return HttpResponse.json({
+            id: "item-img-2",
+            is_primary: true,
           });
-        }
+        })
       );
 
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       await expect(page.getByTestId("main-gallery-image")).toBeVisible();
 
@@ -402,58 +335,48 @@ test.describe("Change Primary Image", () => {
   });
 
   test.describe("Mobile Viewport", () => {
-    test("set-primary button works on mobile viewport", async ({ page }) => {
+    test("set-primary button works on mobile viewport", async ({
+      page,
+      network,
+    }) => {
       // Set mobile viewport
       await page.setViewportSize({ width: 375, height: 667 });
 
       let currentPrimaryIndex = 0;
 
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          const images = fixtures.testItemImages.map((img, idx) => ({
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          const images = testItemImages.map((img, idx) => ({
             ...img,
             is_primary: idx === currentPrimaryIndex,
           }));
 
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              ...fixtures.testItemWithImages,
-              images,
-            }),
+          return HttpResponse.json({
+            ...testItemWithImages,
+            images,
           });
-        }
-      );
-
-      await page.route(
-        /\/api\/v1\/images\/[^/]+\/set-primary$/,
-        async (route) => {
-          const url = route.request().url();
+        }),
+        http.post(/\/api\/v1\/images\/[^/]+\/set-primary$/, ({ request }) => {
+          const url = request.url;
           const parts = url.split("/");
           parts.pop();
           const imageId = parts.pop();
 
-          const newPrimaryIndex = fixtures.testItemImages.findIndex(
+          const newPrimaryIndex = testItemImages.findIndex(
             (img) => img.id === imageId
           );
           if (newPrimaryIndex !== -1) {
             currentPrimaryIndex = newPrimaryIndex;
           }
 
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              id: imageId,
-              is_primary: true,
-            }),
+          return HttpResponse.json({
+            id: imageId,
+            is_primary: true,
           });
-        }
+        })
       );
 
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       await expect(page.getByTestId("main-gallery-image")).toBeVisible();
 
@@ -481,21 +404,16 @@ test.describe("Change Primary Image", () => {
       await page.waitForTimeout(1000);
     });
 
-    test("primary badge is visible on mobile", async ({ page }) => {
+    test("primary badge is visible on mobile", async ({ page, network }) => {
       await page.setViewportSize({ width: 375, height: 667 });
 
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify(fixtures.testItemWithImages),
-          });
-        }
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          return HttpResponse.json(testItemWithImages);
+        })
       );
 
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       await expect(page.getByTestId("main-gallery-image")).toBeVisible();
 
@@ -508,19 +426,17 @@ test.describe("Change Primary Image", () => {
   });
 
   test.describe("Multiple Image Navigation", () => {
-    test("primary badge follows selected image correctly", async ({ page }) => {
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify(fixtures.testItemWithImages),
-          });
-        }
+    test("primary badge follows selected image correctly", async ({
+      page,
+      network,
+    }) => {
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          return HttpResponse.json(testItemWithImages);
+        })
       );
 
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       await expect(page.getByTestId("main-gallery-image")).toBeVisible();
 
@@ -544,19 +460,15 @@ test.describe("Change Primary Image", () => {
 
     test("can navigate with arrow buttons and see correct primary state", async ({
       page,
+      network,
     }) => {
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify(fixtures.testItemWithImages),
-          });
-        }
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          return HttpResponse.json(testItemWithImages);
+        })
       );
 
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       await expect(page.getByTestId("main-gallery-image")).toBeVisible();
 
@@ -600,19 +512,17 @@ test.describe("Change Primary Image", () => {
   });
 
   test.describe("Delete Image", () => {
-    test("shows remove button on hover for all images", async ({ page }) => {
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify(fixtures.testItemWithImages),
-          });
-        }
+    test("shows remove button on hover for all images", async ({
+      page,
+      network,
+    }) => {
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          return HttpResponse.json(testItemWithImages);
+        })
       );
 
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       await expect(page.getByTestId("main-gallery-image")).toBeVisible();
 
@@ -624,42 +534,33 @@ test.describe("Change Primary Image", () => {
       await expect(page.getByTestId("remove-gallery-image")).toBeVisible();
     });
 
-    test("successfully deletes a non-primary image", async ({ page }) => {
-      let currentImages = [...fixtures.testItemImages];
+    test("successfully deletes a non-primary image", async ({
+      page,
+      network,
+    }) => {
+      let currentImages = [...testItemImages];
 
       // Mock the item endpoint with state tracking
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              ...fixtures.testItemWithImages,
-              images: currentImages,
-            }),
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          return HttpResponse.json({
+            ...testItemWithImages,
+            images: currentImages,
           });
-        }
-      );
-
-      // Mock DELETE endpoint for images
-      await page.route(/\/api\/v1\/images\/[^/]+$/, async (route) => {
-        if (route.request().method() === "DELETE") {
-          const url = route.request().url();
+        }),
+        // Mock DELETE endpoint for images
+        http.delete(/\/api\/v1\/images\/[^/]+$/, ({ request }) => {
+          const url = request.url;
           const imageId = url.split("/").pop();
 
           // Remove image from state
           currentImages = currentImages.filter((img) => img.id !== imageId);
 
-          await route.fulfill({
-            status: 204,
-          });
-        } else {
-          await route.fallback();
-        }
-      });
+          return new HttpResponse(null, { status: 204 });
+        })
+      );
 
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       await expect(page.getByTestId("main-gallery-image")).toBeVisible();
 
@@ -698,39 +599,30 @@ test.describe("Change Primary Image", () => {
       await expect(page.getByTestId("gallery-thumbnail-2")).not.toBeVisible();
     });
 
-    test("successfully deletes the primary image", async ({ page }) => {
-      let currentImages = [...fixtures.testItemImages];
+    test("successfully deletes the primary image", async ({
+      page,
+      network,
+    }) => {
+      let currentImages = [...testItemImages];
 
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              ...fixtures.testItemWithImages,
-              images: currentImages,
-            }),
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          return HttpResponse.json({
+            ...testItemWithImages,
+            images: currentImages,
           });
-        }
-      );
-
-      await page.route(/\/api\/v1\/images\/[^/]+$/, async (route) => {
-        if (route.request().method() === "DELETE") {
-          const url = route.request().url();
+        }),
+        http.delete(/\/api\/v1\/images\/[^/]+$/, ({ request }) => {
+          const url = request.url;
           const imageId = url.split("/").pop();
 
           currentImages = currentImages.filter((img) => img.id !== imageId);
 
-          await route.fulfill({
-            status: 204,
-          });
-        } else {
-          await route.fallback();
-        }
-      });
+          return new HttpResponse(null, { status: 204 });
+        })
+      );
 
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       await expect(page.getByTestId("main-gallery-image")).toBeVisible();
 
@@ -755,34 +647,24 @@ test.describe("Change Primary Image", () => {
       expect(currentImages.length).toBe(2);
     });
 
-    test("handles error when deleting image fails", async ({ page }) => {
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify(fixtures.testItemWithImages),
-          });
-        }
+    test("handles error when deleting image fails", async ({
+      page,
+      network,
+    }) => {
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          return HttpResponse.json(testItemWithImages);
+        }),
+        // Mock DELETE endpoint to fail
+        http.delete(/\/api\/v1\/images\/[^/]+$/, () => {
+          return HttpResponse.json(
+            { detail: "Failed to delete image" },
+            { status: 500 }
+          );
+        })
       );
 
-      // Mock DELETE endpoint to fail
-      await page.route(/\/api\/v1\/images\/[^/]+$/, async (route) => {
-        if (route.request().method() === "DELETE") {
-          await route.fulfill({
-            status: 500,
-            contentType: "application/json",
-            body: JSON.stringify({
-              detail: "Failed to delete image",
-            }),
-          });
-        } else {
-          await route.fallback();
-        }
-      });
-
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       await expect(page.getByTestId("main-gallery-image")).toBeVisible();
 
@@ -807,32 +689,21 @@ test.describe("Change Primary Image", () => {
 
     test("remove button is disabled while request is in progress", async ({
       page,
+      network,
     }) => {
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify(fixtures.testItemWithImages),
-          });
-        }
-      );
-
-      // Mock DELETE endpoint with delay
-      await page.route(/\/api\/v1\/images\/[^/]+$/, async (route) => {
-        if (route.request().method() === "DELETE") {
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          return HttpResponse.json(testItemWithImages);
+        }),
+        // Mock DELETE endpoint with delay
+        http.delete(/\/api\/v1\/images\/[^/]+$/, async () => {
           // Delay to test loading state
           await new Promise((resolve) => setTimeout(resolve, 1000));
-          await route.fulfill({
-            status: 204,
-          });
-        } else {
-          await route.fallback();
-        }
-      });
+          return new HttpResponse(null, { status: 204 });
+        })
+      );
 
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       await expect(page.getByTestId("main-gallery-image")).toBeVisible();
 
@@ -856,40 +727,28 @@ test.describe("Change Primary Image", () => {
       await page.waitForResponse(/\/api\/v1\/images\/[^/]+$/);
     });
 
-    test("deleting last image works correctly", async ({ page }) => {
+    test("deleting last image works correctly", async ({ page, network }) => {
       // Start with only one image
-      let currentImages = [fixtures.testItemImages[0]];
+      let currentImages = [testItemImages[0]];
 
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              ...fixtures.testItemWithImages,
-              images: currentImages,
-            }),
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          return HttpResponse.json({
+            ...testItemWithImages,
+            images: currentImages,
           });
-        }
-      );
-
-      await page.route(/\/api\/v1\/images\/[^/]+$/, async (route) => {
-        if (route.request().method() === "DELETE") {
-          const url = route.request().url();
+        }),
+        http.delete(/\/api\/v1\/images\/[^/]+$/, ({ request }) => {
+          const url = request.url;
           const imageId = url.split("/").pop();
 
           currentImages = currentImages.filter((img) => img.id !== imageId);
 
-          await route.fulfill({
-            status: 204,
-          });
-        } else {
-          await route.fallback();
-        }
-      });
+          return new HttpResponse(null, { status: 204 });
+        })
+      );
 
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       await expect(page.getByTestId("main-gallery-image")).toBeVisible();
 
@@ -919,41 +778,32 @@ test.describe("Change Primary Image", () => {
   });
 
   test.describe("Delete Image on Mobile", () => {
-    test("remove button works on mobile viewport", async ({ page }) => {
+    test("remove button works on mobile viewport", async ({
+      page,
+      network,
+    }) => {
       await page.setViewportSize({ width: 375, height: 667 });
 
-      let currentImages = [...fixtures.testItemImages];
+      let currentImages = [...testItemImages];
 
-      await page.route(
-        `**/api/v1/items/${fixtures.testItemWithImages.id}`,
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              ...fixtures.testItemWithImages,
-              images: currentImages,
-            }),
+      network.use(
+        http.get(`**/api/v1/items/${testItemWithImages.id}`, () => {
+          return HttpResponse.json({
+            ...testItemWithImages,
+            images: currentImages,
           });
-        }
-      );
-
-      await page.route(/\/api\/v1\/images\/[^/]+$/, async (route) => {
-        if (route.request().method() === "DELETE") {
-          const url = route.request().url();
+        }),
+        http.delete(/\/api\/v1\/images\/[^/]+$/, ({ request }) => {
+          const url = request.url;
           const imageId = url.split("/").pop();
 
           currentImages = currentImages.filter((img) => img.id !== imageId);
 
-          await route.fulfill({
-            status: 204,
-          });
-        } else {
-          await route.fallback();
-        }
-      });
+          return new HttpResponse(null, { status: 204 });
+        })
+      );
 
-      await page.goto(`/items/${fixtures.testItemWithImages.id}`);
+      await page.goto(`/items/${testItemWithImages.id}`);
 
       await expect(page.getByTestId("main-gallery-image")).toBeVisible();
 
