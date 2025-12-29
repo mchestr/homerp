@@ -23,11 +23,11 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code */
   forbidOnly: !!process.env.CI,
 
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  /* Retry on CI only - increased due to @msw/playwright race condition */
+  retries: process.env.CI ? 3 : 0,
 
-  /* Maximum workers for parallel execution */
-  workers: process.env.CI ? 4 : undefined,
+  /* Reduced workers to minimize @msw/playwright race condition frequency */
+  workers: process.env.CI ? 2 : undefined,
 
   /* Reporter configuration */
   reporter: process.env.CI
