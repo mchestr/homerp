@@ -43,26 +43,29 @@ export const gridfinityHandlers = [
   }),
 
   // Update gridfinity unit
-  http.put("**/api/v1/gridfinity/units/:unitId", async ({ params, request }) => {
-    const { unitId } = params;
-    const body = (await request.json()) as {
-      container_width_mm?: number;
-      container_depth_mm?: number;
-      [key: string]: unknown;
-    };
-    const unit = testGridfinityUnits.find((u) => u.id === unitId);
-    return HttpResponse.json({
-      ...unit,
-      ...body,
-      grid_columns: body.container_width_mm
-        ? Math.floor(body.container_width_mm / 42)
-        : unit?.grid_columns || 0,
-      grid_rows: body.container_depth_mm
-        ? Math.floor(body.container_depth_mm / 42)
-        : unit?.grid_rows || 0,
-      updated_at: new Date().toISOString(),
-    });
-  }),
+  http.put(
+    "**/api/v1/gridfinity/units/:unitId",
+    async ({ params, request }) => {
+      const { unitId } = params;
+      const body = (await request.json()) as {
+        container_width_mm?: number;
+        container_depth_mm?: number;
+        [key: string]: unknown;
+      };
+      const unit = testGridfinityUnits.find((u) => u.id === unitId);
+      return HttpResponse.json({
+        ...unit,
+        ...body,
+        grid_columns: body.container_width_mm
+          ? Math.floor(body.container_width_mm / 42)
+          : unit?.grid_columns || 0,
+        grid_rows: body.container_depth_mm
+          ? Math.floor(body.container_depth_mm / 42)
+          : unit?.grid_rows || 0,
+        updated_at: new Date().toISOString(),
+      });
+    }
+  ),
 
   // Delete gridfinity unit
   http.delete("**/api/v1/gridfinity/units/:unitId", () => {

@@ -3,9 +3,13 @@
  */
 
 import { http, HttpResponse } from "msw";
-import { testImageUpload, testClassificationResult } from "../../fixtures/factories";
+import {
+  testImageUpload,
+  testClassificationResult,
+} from "../../fixtures/factories";
 
-// Data URL for a small transparent PNG (browser can load this)
+// Data URL for a 1x1 transparent PNG (minimal test image for browser rendering)
+// This is the smallest valid PNG that browsers can load without network requests
 const dataUrl =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
 

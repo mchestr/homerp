@@ -62,15 +62,18 @@ export const locationsHandlers = [
   }),
 
   // Get QR code signed URL
-  http.get("**/api/v1/locations/:locationId/qr/signed-url", ({ params, request }) => {
-    const { locationId } = params;
-    const url = new URL(request.url);
-    const size = url.searchParams.get("size") || "10";
+  http.get(
+    "**/api/v1/locations/:locationId/qr/signed-url",
+    ({ params, request }) => {
+      const { locationId } = params;
+      const url = new URL(request.url);
+      const size = url.searchParams.get("size") || "10";
 
-    return HttpResponse.json({
-      url: `http://localhost:8000/api/v1/locations/${locationId}/qr?token=mock-token&size=${size}`,
-    });
-  }),
+      return HttpResponse.json({
+        url: `http://localhost:8000/api/v1/locations/${locationId}/qr?token=mock-token&size=${size}`,
+      });
+    }
+  ),
 
   // Get QR code image
   http.get("**/api/v1/locations/:locationId/qr", () => {

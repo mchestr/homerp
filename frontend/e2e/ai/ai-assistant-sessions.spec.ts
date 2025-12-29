@@ -563,7 +563,7 @@ test.describe("AI Assistant Sessions", () => {
     }) => {
       // Override session detail endpoint to return error
       network.use(
-        http.get(/\/api\/v1\/ai\/sessions\/session-1$/, ({ request }) => {
+        http.get(/\/api\/v1\/ai\/sessions\/session-1$/, () => {
           return HttpResponse.json(
             { detail: "Failed to load session" },
             { status: 500 }

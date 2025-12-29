@@ -1,6 +1,10 @@
 import { http, HttpResponse } from "msw";
 import { test, expect, authenticateUser } from "../fixtures/test-setup";
-import { testItems, testCategories, testLocations } from "../fixtures/factories";
+import {
+  testItems,
+  testCategories,
+  testLocations,
+} from "../fixtures/factories";
 
 test.describe("Item Subtitles", () => {
   test.beforeEach(async ({ page }) => {

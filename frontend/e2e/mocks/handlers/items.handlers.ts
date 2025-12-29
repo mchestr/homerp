@@ -35,10 +35,8 @@ export const itemsHandlers = [
       ...testItemDetail,
       id: `item-${Date.now()}`,
       ...body,
-      category:
-        testCategories.find((c) => c.id === body.category_id) || null,
-      location:
-        testLocations.find((l) => l.id === body.location_id) || null,
+      category: testCategories.find((c) => c.id === body.category_id) || null,
+      location: testLocations.find((l) => l.id === body.location_id) || null,
     };
     return HttpResponse.json(newItem, { status: 201 });
   }),
@@ -90,7 +88,10 @@ export const itemsHandlers = [
         ai_classification: {},
       });
     }
-    return HttpResponse.json({ detail: "Item not found" }, { status: 404 });
+    return HttpResponse.json<{ detail: string }>(
+      { detail: "Item not found" },
+      { status: 404 }
+    );
   }),
 
   // Update item

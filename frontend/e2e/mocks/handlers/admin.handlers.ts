@@ -1,6 +1,9 @@
 /**
  * MSW handlers for admin endpoints.
- * Note: These handlers don't check admin status - that should be done via test-specific overrides.
+ *
+ * Note: These handlers don't check admin status - they return success responses by default.
+ * Tests that need to verify auth/permission behavior should use network.use() overrides
+ * to return 403 Forbidden responses.
  */
 
 import { http, HttpResponse } from "msw";
@@ -180,16 +183,19 @@ export const adminHandlers = [
   }),
 
   // Update pricing
-  http.put("**/api/v1/admin/pricing/:pricingId", async ({ params, request }) => {
-    const { pricingId } = params;
-    const body = (await request.json()) as Record<string, unknown>;
-    const pricing = testAdminPricing.find((p) => p.id === pricingId);
-    return HttpResponse.json({
-      ...pricing,
-      ...body,
-      updated_at: new Date().toISOString(),
-    });
-  }),
+  http.put(
+    "**/api/v1/admin/pricing/:pricingId",
+    async ({ params, request }) => {
+      const { pricingId } = params;
+      const body = (await request.json()) as Record<string, unknown>;
+      const pricing = testAdminPricing.find((p) => p.id === pricingId);
+      return HttpResponse.json({
+        ...pricing,
+        ...body,
+        updated_at: new Date().toISOString(),
+      });
+    }
+  ),
 
   // Get AI model settings
   http.get("**/api/v1/admin/ai-model-settings", () => {

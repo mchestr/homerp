@@ -3,6 +3,14 @@
  * Import from this file to access all factories and pre-built fixtures.
  */
 
+// Import reset functions for use in resetAllFactories()
+import { resetUserFactory } from "./user.factory";
+import { resetCategoryFactory } from "./category.factory";
+import { resetLocationFactory } from "./location.factory";
+import { resetItemFactory } from "./item.factory";
+import { resetAIFactory } from "./ai.factory";
+import { resetGridfinityFactory } from "./gridfinity.factory";
+
 // User factories and fixtures
 export {
   createUser,
@@ -163,13 +171,7 @@ export {
  * Call this in test setup if you need predictable IDs.
  */
 export function resetAllFactories(): void {
-  const { resetUserFactory } = require("./user.factory");
-  const { resetCategoryFactory } = require("./category.factory");
-  const { resetLocationFactory } = require("./location.factory");
-  const { resetItemFactory } = require("./item.factory");
-  const { resetAIFactory } = require("./ai.factory");
-  const { resetGridfinityFactory } = require("./gridfinity.factory");
-
+  // Import and call reset functions (already exported above)
   resetUserFactory();
   resetCategoryFactory();
   resetLocationFactory();

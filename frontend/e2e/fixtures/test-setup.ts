@@ -11,6 +11,10 @@ interface TestFixtures {
 }
 
 export const test = base.extend<TestFixtures>({
+  // Note: @msw/playwright v0.4.2 has a known race condition causing some tests
+  // to be flaky ("Route is already handled!" error). These tests pass on retry.
+  // CI is configured with 2 retries to handle this. See:
+  // https://github.com/mswjs/msw/discussions/2466
   network: createNetworkFixture({
     initialHandlers: handlers,
   }),

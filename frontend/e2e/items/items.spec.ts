@@ -38,7 +38,9 @@ test.describe("Items", () => {
 
       // Verify grid view is default
       await expect(page.getByTestId("items-grid-view")).toBeVisible();
-      await expect(page.getByTestId("view-mode-grid")).toHaveClass(/bg-primary/);
+      await expect(page.getByTestId("view-mode-grid")).toHaveClass(
+        /bg-primary/
+      );
       await expect(
         page.getByTestId(`item-card-${testItems[0].id}`)
       ).toBeVisible();
@@ -47,7 +49,9 @@ test.describe("Items", () => {
       await page.getByTestId("view-mode-list").click();
       await expect(page.getByTestId("items-list-view")).toBeVisible();
       await expect(page.getByTestId("items-grid-view")).not.toBeVisible();
-      await expect(page.getByTestId("view-mode-list")).toHaveClass(/bg-primary/);
+      await expect(page.getByTestId("view-mode-list")).toHaveClass(
+        /bg-primary/
+      );
       await expect(
         page.getByTestId(`item-row-${testItems[0].id}`)
       ).toBeVisible();
@@ -62,10 +66,13 @@ test.describe("Items", () => {
 
       // Override quantity endpoint
       network.use(
-        http.patch(`**/api/v1/items/${testItem.id}/quantity`, async ({ request }) => {
-          const body = await request.json() as { quantity: number };
-          return HttpResponse.json({ ...testItem, quantity: body.quantity });
-        })
+        http.patch(
+          `**/api/v1/items/${testItem.id}/quantity`,
+          async ({ request }) => {
+            const body = (await request.json()) as { quantity: number };
+            return HttpResponse.json({ ...testItem, quantity: body.quantity });
+          }
+        )
       );
 
       await page.goto("/items");
@@ -116,7 +123,9 @@ test.describe("Items", () => {
       // Reload and verify persistence
       await page.reload();
       await expect(page.getByTestId("items-list-view")).toBeVisible();
-      await expect(page.getByTestId("view-mode-list")).toHaveClass(/bg-primary/);
+      await expect(page.getByTestId("view-mode-list")).toHaveClass(
+        /bg-primary/
+      );
     });
 
     test("list view is responsive on mobile", async ({ page }) => {

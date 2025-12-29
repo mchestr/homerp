@@ -21,7 +21,10 @@ export interface Category {
   created_at: string;
 }
 
-export interface CategoryTreeNode extends Omit<Category, "parent_id" | "created_at"> {
+export interface CategoryTreeNode extends Omit<
+  Category,
+  "parent_id" | "created_at"
+> {
   item_count: number;
   children: CategoryTreeNode[];
 }

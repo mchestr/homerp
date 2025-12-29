@@ -10,7 +10,10 @@ test.describe("Authentication", () => {
     // Override auth/me to return 401 (unauthenticated)
     network.use(
       http.get("**/api/v1/auth/me", () => {
-        return HttpResponse.json({ detail: "Not authenticated" }, { status: 401 });
+        return HttpResponse.json(
+          { detail: "Not authenticated" },
+          { status: 401 }
+        );
       })
     );
 
@@ -26,7 +29,10 @@ test.describe("Authentication", () => {
     // Override auth/me to return 401 (unauthenticated)
     network.use(
       http.get("**/api/v1/auth/me", () => {
-        return HttpResponse.json({ detail: "Not authenticated" }, { status: 401 });
+        return HttpResponse.json(
+          { detail: "Not authenticated" },
+          { status: 401 }
+        );
       })
     );
 
@@ -62,7 +68,10 @@ test.describe("Authentication", () => {
     // Override auth/me to return 401 (unauthenticated)
     network.use(
       http.get("**/api/v1/auth/me", () => {
-        return HttpResponse.json({ detail: "Not authenticated" }, { status: 401 });
+        return HttpResponse.json(
+          { detail: "Not authenticated" },
+          { status: 401 }
+        );
       })
     );
 

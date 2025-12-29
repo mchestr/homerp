@@ -183,7 +183,10 @@ test.describe("Navigation from Locations Page", () => {
     await expect(page.getByText("Workshop")).toBeVisible();
 
     // Click the view details link
-    await page.getByRole("link", { name: /view details/i }).first().click();
+    await page
+      .getByRole("link", { name: /view details/i })
+      .first()
+      .click();
 
     // Should navigate to detail page
     await expect(page).toHaveURL(/\/locations\/loc-1/);

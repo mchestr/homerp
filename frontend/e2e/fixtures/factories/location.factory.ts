@@ -12,7 +12,10 @@ export interface Location {
   created_at: string;
 }
 
-export interface LocationTreeNode extends Omit<Location, "parent_id" | "created_at"> {
+export interface LocationTreeNode extends Omit<
+  Location,
+  "parent_id" | "created_at"
+> {
   item_count: number;
   children: LocationTreeNode[];
 }

@@ -81,7 +81,9 @@ export function createItem(overrides: Partial<Item> = {}): Item {
   };
 }
 
-export function createItemDetail(overrides: Partial<ItemDetail> = {}): ItemDetail {
+export function createItemDetail(
+  overrides: Partial<ItemDetail> = {}
+): ItemDetail {
   const item = createItem(overrides);
   return {
     ...item,

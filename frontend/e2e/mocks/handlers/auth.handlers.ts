@@ -13,7 +13,9 @@ export const authHandlers = [
 
   // Get OAuth providers
   http.get("**/api/v1/auth/providers", () => {
-    return HttpResponse.json([{ id: "google", name: "Google", icon: "google" }]);
+    return HttpResponse.json([
+      { id: "google", name: "Google", icon: "google" },
+    ]);
   }),
 
   // Initiate Google OAuth

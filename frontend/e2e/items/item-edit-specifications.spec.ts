@@ -686,7 +686,9 @@ test.describe("Item Edit - Specifications", () => {
         }),
         http.put("**/api/v1/items/item-without-specs", async ({ request }) => {
           const body = (await request.json()) as {
-            attributes: { specifications: Array<{ key: string; value: unknown }> };
+            attributes: {
+              specifications: Array<{ key: string; value: unknown }>;
+            };
           };
           savedSpecs = body.attributes.specifications;
           return HttpResponse.json({

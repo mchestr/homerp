@@ -6,15 +6,12 @@ import { http, HttpResponse } from "msw";
 import {
   testAISessions,
   testAISessionMessages,
-  testDeclutterCost,
-  testDeclutterRecommendations,
   type AISession,
   type AIMessage,
 } from "../../fixtures/factories";
 
-// Track dynamically created sessions and messages within test context
-// Note: MSW handlers are shared across tests, so we use fixture data for base state
-// and let tests override with network.use() for dynamic behavior
+// Handlers are stateless - they return fixture data by default.
+// Tests can override with network.use() for dynamic behavior or custom responses.
 
 // Note: Declutter handlers are NOT included in defaults to avoid
 // conflicts with test-specific overrides. Tests that need declutter
@@ -36,7 +33,8 @@ export const aiHandlers = [
   http.post("**/api/v1/ai/sessions", async ({ request }) => {
     const body = (await request.json()) as { title?: string } | null;
     const newSession: AISession = {
-      id: `session-${Date.now()}`,
+      // Use Date.now() + random suffix to avoid ID collisions in rapid requests
+      id: `session-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       title: body?.title || "New Chat",
       message_count: 0,
       is_active: true,
@@ -79,16 +77,19 @@ export const aiHandlers = [
   }),
 
   // Update session (title)
-  http.patch("**/api/v1/ai/sessions/:sessionId", async ({ params, request }) => {
-    const { sessionId } = params;
-    const body = (await request.json()) as Record<string, unknown>;
-    const session = testAISessions.find((s) => s.id === sessionId);
-    return HttpResponse.json({
-      ...session,
-      ...body,
-      updated_at: new Date().toISOString(),
-    });
-  }),
+  http.patch(
+    "**/api/v1/ai/sessions/:sessionId",
+    async ({ params, request }) => {
+      const { sessionId } = params;
+      const body = (await request.json()) as Record<string, unknown>;
+      const session = testAISessions.find((s) => s.id === sessionId);
+      return HttpResponse.json({
+        ...session,
+        ...body,
+        updated_at: new Date().toISOString(),
+      });
+    }
+  ),
 
   // Delete session
   http.delete("**/api/v1/ai/sessions/:sessionId", () => {
@@ -101,7 +102,9 @@ export const aiHandlers = [
       session_id?: string;
       prompt: string;
     };
-    const sessionId = body.session_id || `session-${Date.now()}`;
+    const sessionId =
+      body.session_id ||
+      `session-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
     const userMessage: AIMessage = {
       id: `msg-user-${Date.now()}`,

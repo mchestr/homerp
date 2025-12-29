@@ -1,6 +1,10 @@
 import { http, HttpResponse } from "msw";
 import { test, expect, authenticateUser } from "../fixtures/test-setup";
-import { adminUser, testUser, testAIModelSettings } from "../fixtures/factories";
+import {
+  adminUser,
+  testUser,
+  testAIModelSettings,
+} from "../fixtures/factories";
 
 test.describe("Admin AI Model Settings", () => {
   test.beforeEach(async ({ page, network }) => {
