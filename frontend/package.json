@@ -42,7 +42,7 @@
     "jspdf": "^4.0.0",
     "lucide-react": "^0.562.0",
     "next": "^16.1.1",
-    "next-intl": "^4.6.1",
+    "next-intl": "^4.9.1",
     "next-themes": "^0.4.6",
     "qrcode": "^1.5.4",
     "react": "^19.2.3",
